@@ -1,0 +1,1511 @@
+import 'dart:convert';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
+import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
+import 'package:logger/logger.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:videocalling/core/config/routes.dart';
+import 'package:videocalling/core/config/app_variables.dart';
+import 'package:videocalling/core/utils/logger.dart';
+import 'package:videocalling/features/patient/appointments/controllers/make_appointment_controller.dart';
+import 'package:videocalling/shared/services/auth/firebase_helper.dart';
+import 'package:videocalling/shared/services/payment/bankily_service.dart';
+
+
+class PaymentController extends GetxController {
+  // Payment method selection
+  final selectedPaymentMethod = 1.obs; // Default to Visa/MasterCard
+
+  // Coupon controller
+  final couponController = TextEditingController();
+
+  // Bankily payment fields
+  final phoneController = TextEditingController();
+  final passcodeController = TextEditingController();
+  final merchantId = "".obs;
+  // Credit card fields
+  final cardNumberController = TextEditingController();
+  final cardHolderNameController = TextEditingController();
+  final expirationDateController = TextEditingController();
+  final cvvController = TextEditingController();
+  final cardHolderName = ''.obs;
+  final saveCardInfo = false.obs;
+
+  // Arguments from navigation
+  late String doctorName;
+  late String doctorId;
+  late String userId;
+  late String appointmentDate;
+  late String appointmentTime;
+  late String slotId;
+  late String amount;
+  late String phone;
+  late String description;
+  late String doctorSpecialization;
+  late String doctorImageUrl;
+  late String doctorGender;
+
+  // Payment summary
+  final subtotal = 0.0.obs;
+  final serviceFees = 5.0.obs;
+  final tax = 2.5.obs;
+  final discount = 0.0.obs;
+  final total = 0.0.obs;
+
+  // Loading state
+  final isProcessingPayment = false.obs;
+
+  // Stripe payment intent (for card payments)
+  Map<String, dynamic>? stripePaymentIntent;
+
+  // Stripe currency selection
+  String stripeCurrencyCode = 'USD';
+  final List<String> stripeSupportedCurrencies = const [
+    'USD',
+    // 'AED',
+    // 'AFN',
+    // 'ALL',
+    // 'AMD',
+    // 'ANG',
+    // 'AOA',
+    // 'ARS',
+    // 'AUD',
+    // 'AWG',
+    // 'AZN',
+    // 'BAM',
+    // 'BBD',
+    // 'BDT',
+    // 'BGN',
+    // 'BIF',
+    // 'BMD',
+    // 'BND',
+    // 'BOB',
+    // 'BRL',
+    // 'BSD',
+    // 'BWP',
+    // 'BYN',
+    // 'BZD',
+    // 'CAD',
+    // 'CDF',
+    // 'CHF',
+    // 'CLP',
+    // 'CNY',
+    // 'COP',
+    // 'CRC',
+    // 'CVE',
+    // 'CZK',
+    // 'DJF',
+    // 'DKK',
+    // 'DOP',
+    // 'DZD',
+    // 'EGP',
+    // 'ETB',
+    // 'EUR',
+    // 'FJD',
+    // 'FKP',
+    // 'GBP',
+    // 'GEL',
+    // 'GIP',
+    // 'GMD',
+    // 'GNF',
+    // 'GTQ',
+    // 'GYD',
+    // 'HKD',
+    // 'HNL',
+    // 'HTG',
+    // 'HUF',
+    // 'IDR',
+    // 'ILS',
+    // 'INR',
+    // 'ISK',
+    // 'JMD',
+    // 'JPY',
+    // 'KES',
+    // 'KGS',
+    // 'KHR',
+    // 'KMF',
+    // 'KRW',
+    // 'KYD',
+    // 'KZT',
+    // 'LAK',
+    // 'LBP',
+    // 'LKR',
+    // 'LRD',
+    // 'LSL',
+    // 'MAD',
+    // 'MDL',
+    // 'MGA',
+    // 'MKD',
+    // 'MMK',
+    // 'MNT',
+    // 'MOP',
+    // 'MUR',
+    // 'MVR',
+    // 'MWK',
+    // 'MXN',
+    // 'MYR',
+    // 'MZN',
+    // 'NAD',
+    // 'NGN',
+    // 'NIO',
+    // 'NOK',
+    // 'NPR',
+    // 'NZD',
+    // 'PAB',
+    // 'PEN',
+    // 'PGK',
+    // 'PHP',
+    // 'PKR',
+    // 'PLN',
+    // 'PYG',
+    // 'QAR',
+    // 'RON',
+    // 'RSD',
+    // 'RUB',
+    // 'RWF',
+    // 'SAR',
+    // 'SBD',
+    // 'SCR',
+    // 'SEK',
+    // 'SGD',
+    // 'SHP',
+    // 'SLE',
+    // 'SOS',
+    // 'SRD',
+    // 'STD',
+    // 'SZL',
+    // 'THB',
+    // 'TJS',
+    // 'TOP',
+    // 'TRY',
+    // 'TTD',
+    // 'TWD',
+    // 'TZS',
+    // 'UAH',
+    // 'UGX',
+    // 'UYU',
+    // 'UZS',
+    // 'VND',
+    // 'VUV',
+    // 'WST',
+    // 'XAF',
+    // 'XCD',
+    // 'XCG',
+    // 'XOF',
+    // 'XPF',
+    // 'YER',
+    // 'ZAR',
+    // 'ZMW',
+  ];
+
+  // Bankily service
+  final _bankilyService = BankilyService();
+
+  // Transaction tracking
+  final transactionId = ''.obs;
+  final operationId = ''.obs;
+
+  @override
+  void onInit() {
+    super.onInit();
+    try {
+      loggerNoStack.i('PaymentController initialized');
+      merchantIdRevoke();
+      _extractArguments();
+      _calculateTotal();
+      _generateOperationId();
+      loggerNoStack.i(
+        'PaymentController initialization complete - Operation ID: ${operationId.value}',
+      );
+    } catch (e, stackTrace) {
+      loggerNoStack.e('Error initializing PaymentController: $e');
+      loggerNoStack.e('Stack trace: $stackTrace');
+    }
+  }
+
+  void _extractArguments() {
+    try {
+      final args = Get.arguments as Map<String, dynamic>?;
+
+      loggerNoStack.d('Extracting payment arguments: $args');
+
+      if (args != null) {
+        doctorName = args['doctorName'] ?? '';
+        doctorImageUrl = args['doctorImageUrl'] ?? '';
+        doctorGender = args['doctorGender'] ?? '';
+        doctorSpecialization = args['doctorSpecialization'] ?? '';
+        doctorId = args['doctorId'] ?? '';
+        userId = args['userId'] ?? '';
+        appointmentDate = args['appointmentDate'] ?? '';
+        appointmentTime = args['appointmentTime'] ?? '';
+        slotId = args['slotId'] ?? '';
+        amount = args['amount'] ?? '0';
+        phone = args['phone'] ?? '';
+        description = args['description'] ?? '';
+
+        subtotal.value = double.tryParse(amount) ?? 0.0;
+        phoneController.text = phone;
+
+        loggerNoStack.i(
+          'Arguments extracted - Doctor: $doctorName, Amount: $amount, Date: $appointmentDate',
+        );
+      } else {
+        loggerNoStack.w('No arguments provided to PaymentController');
+      }
+    } catch (e, stackTrace) {
+      loggerNoStack.e('Error extracting arguments: $e');
+      loggerNoStack.e('Stack trace: $stackTrace');
+    }
+  }
+
+  void _calculateTotal() {
+    try {
+      total.value =
+          subtotal.value + serviceFees.value + tax.value - discount.value;
+      loggerNoStack.d(
+        'Total calculated: Subtotal=$subtotal, Fees=$serviceFees, Tax=$tax, Discount=$discount, Total=$total',
+      );
+    } catch (e, stackTrace) {
+      loggerNoStack.e('Error calculating total: $e');
+      loggerNoStack.e('Stack trace: $stackTrace');
+    }
+  }
+
+  void _generateOperationId() {
+    try {
+      // Generate unique operation ID with current date prefix for Bankily
+      final now = DateTime.now();
+      final datePrefix =
+          '${now.year}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}';
+
+      // Safely get user ID suffix (max 6 chars, or full length if shorter)
+      String userIdSuffix = userId.isNotEmpty
+          ? userId.substring(0, userId.length > 6 ? 6 : userId.length)
+          : 'USER';
+
+      // Format: YYYYMMDD_OPR_timestamp_userSuffix
+      operationId.value =
+          '${datePrefix}_OPR_${now.millisecondsSinceEpoch}_$userIdSuffix';
+      loggerNoStack.i('Generated operation ID: ${operationId.value}');
+    } catch (e, stackTrace) {
+      loggerNoStack.e('Error generating operation ID: $e');
+      loggerNoStack.e('Stack trace: $stackTrace');
+      // Fallback to basic operation ID with date
+      final datePrefix = DateTime.now()
+          .toIso8601String()
+          .substring(0, 10)
+          .replaceAll('-', '');
+      operationId.value =
+          '${datePrefix}_OPR_${DateTime.now().millisecondsSinceEpoch}_FALLBACK';
+      loggerNoStack.w('Using fallback operation ID: ${operationId.value}');
+    }
+  }
+
+  void setStripeCurrencyCode(String code) {
+    try {
+      if (stripeSupportedCurrencies.contains(code)) {
+        stripeCurrencyCode = code;
+        loggerNoStack.i('Stripe currency set to: $code');
+      } else {
+        loggerNoStack.w('Attempted to set unsupported Stripe currency: $code');
+      }
+    } catch (e, stackTrace) {
+      loggerNoStack.e('Error setting Stripe currency code: $e');
+      loggerNoStack.e('Stack trace: $stackTrace');
+    }
+  }
+
+  void selectPaymentMethod(int index) {
+    try {
+      selectedPaymentMethod.value = index;
+      loggerNoStack.i('Payment method selected: $index');
+    } catch (e, stackTrace) {
+      loggerNoStack.e('Error selecting payment method: $e');
+      loggerNoStack.e('Stack trace: $stackTrace');
+    }
+  }
+
+  void applyCoupon() async {
+    try {
+      final couponCode = couponController.text.trim();
+
+      loggerNoStack.i('Applying coupon: $couponCode');
+
+      if (couponCode.isEmpty) {
+        loggerNoStack.w('Coupon code is empty');
+        Get.snackbar(
+          'error'.tr,
+          'please_enter_a_coupon_code'.tr,
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+        return;
+      }
+
+      // Show loading indicator
+      Get.snackbar(
+        'validating'.tr,
+        'checking_coupon_validity'.tr,
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.blue,
+        colorText: Colors.white,
+        duration: const Duration(seconds: 2),
+      );
+
+      // Validate coupon with database
+      final validationResult = await _validateCoupon(couponCode);
+
+      if (validationResult['isValid'] == true) {
+        // Apply discount
+        final discountType = validationResult['discountType'] ?? 'percentage';
+        final discountValue = validationResult['discountValue'] ?? 10.0;
+
+        if (discountType == 'percentage') {
+          discount.value = subtotal.value * (discountValue / 100);
+        } else {
+          // Fixed amount discount
+          discount.value = discountValue;
+        }
+
+        // Ensure discount doesn't exceed subtotal
+        if (discount.value > subtotal.value) {
+          discount.value = subtotal.value;
+        }
+
+        _calculateTotal();
+
+        loggerNoStack.i(
+          'Coupon applied successfully - Discount: ${discount.value}',
+        );
+
+        Get.snackbar(
+          'success'.tr,
+          'coupon_applied_successfully'.tr.replaceAll(
+            '{amount}',
+            '\$${discount.value.toStringAsFixed(2)}',
+          ),
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+        );
+      } else {
+        loggerNoStack.w('Invalid coupon: ${validationResult['message']}');
+        Get.snackbar(
+          'invalid_coupon'.tr,
+          validationResult['message'] ?? 'this_coupon_is_not_valid'.tr,
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+      }
+    } catch (e, stackTrace) {
+      loggerNoStack.e('Error applying coupon: $e');
+      loggerNoStack.e('Stack trace: $stackTrace');
+      Get.snackbar(
+        'error'.tr,
+        'failed_to_validate_coupon'.tr,
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    }
+  }
+
+  /// Validate coupon against database rules
+  Future<Map<String, dynamic>> _validateCoupon(String couponCode) async {
+    try {
+      loggerNoStack.i('🎫 Validating coupon: $couponCode');
+
+      final supabase = Supabase.instance.client;
+
+      // Step 1: Find the coupon
+      final couponResponse = await supabase
+          .from('coupon')
+          .select('*')
+          .eq('coupon_code', couponCode.toUpperCase())
+          .maybeSingle();
+
+      if (couponResponse == null) {
+        loggerNoStack.w('❌ Coupon not found: $couponCode');
+        return {'isValid': false, 'message': 'Coupon code not found'};
+      }
+
+      loggerNoStack.d('Found coupon: $couponResponse');
+
+      final couponId = couponResponse['id'];
+      final validUntil = DateTime.parse(couponResponse['valid_until']);
+      final oneUse = couponResponse['one_use'] ?? true;
+      final numberOfUses = couponResponse['number_of_uses'] ?? 1;
+      final forUser = couponResponse['for_user'];
+      final isUsed = couponResponse['is_used'] ?? false;
+
+      // Step 2: Check if coupon has expired
+      final now = DateTime.now();
+      if (now.isAfter(validUntil)) {
+        loggerNoStack.w(
+          '❌ Coupon expired: $couponCode (expired on $validUntil)',
+        );
+        return {'isValid': false, 'message': 'This coupon has expired'};
+      }
+
+      // Step 3: Check if coupon is for a specific user
+      if (forUser != null && forUser.isNotEmpty && forUser != userId) {
+        loggerNoStack.w(
+          '❌ Coupon not for this user: $couponCode (for: $forUser, current: $userId)',
+        );
+        return {
+          'isValid': false,
+          'message': 'This coupon is not valid for your account',
+        };
+      }
+
+      // Step 4: Check if it's a one-use coupon and already used
+      if (oneUse && isUsed) {
+        loggerNoStack.w('❌ One-use coupon already used: $couponCode');
+        return {
+          'isValid': false,
+          'message': 'This coupon has already been used',
+        };
+      }
+
+      // Step 5: For multi-use coupons, check usage count and user-specific usage
+      if (!oneUse) {
+        // Check total usage count
+        final usageCountResponse = await supabase
+            .from('coupon_usage')
+            .select('id')
+            .eq('coupon_id', couponId);
+
+        final totalUsageCount = usageCountResponse.length;
+
+        if (totalUsageCount >= numberOfUses) {
+          loggerNoStack.w(
+            '❌ Multi-use coupon reached max uses: $couponCode ($totalUsageCount/$numberOfUses)',
+          );
+          return {
+            'isValid': false,
+            'message': 'This coupon has reached its maximum number of uses',
+          };
+        }
+
+        // Check if current user has already used this coupon
+        final userUsageResponse = await supabase
+            .from('coupon_usage')
+            .select('id')
+            .eq('coupon_id', couponId)
+            .eq('user_id', userId)
+            .maybeSingle();
+
+        if (userUsageResponse != null) {
+          loggerNoStack.w(
+            '❌ User already used this coupon: $couponCode (user: $userId)',
+          );
+          return {
+            'isValid': false,
+            'message': 'You have already used this coupon',
+          };
+        }
+      }
+
+      // Step 6: If all checks pass, coupon is valid
+      loggerNoStack.i('✅ Coupon is valid: $couponCode');
+
+      // For demo purposes, return a 10% discount
+      // In production, you would store discount info in the coupon table
+      return {
+        'isValid': true,
+        'couponId': couponId,
+        'discountType': 'percentage', // or 'fixed'
+        'discountValue': 10.0, // 10% or $10
+        'message': 'Coupon is valid',
+      };
+    } catch (e, stackTrace) {
+      loggerNoStack.e('❌ Error validating coupon: $e');
+      loggerNoStack.e('Stack trace: $stackTrace');
+      return {
+        'isValid': false,
+        'message': 'Error validating coupon. Please try again.',
+      };
+    }
+  }
+
+  /// Mark coupon as used after successful payment
+  Future<void> _markCouponAsUsed(String couponCode) async {
+    try {
+      if (couponCode.isEmpty || discount.value <= 0) {
+        loggerNoStack.d('No coupon to mark as used');
+        return;
+      }
+
+      loggerNoStack.i('🎫 Marking coupon as used: $couponCode');
+
+      final supabase = Supabase.instance.client;
+
+      // Get coupon details
+      final couponResponse = await supabase
+          .from('coupon')
+          .select('id, one_use')
+          .eq('coupon_code', couponCode.toUpperCase())
+          .single();
+
+      final couponId = couponResponse['id'];
+      final oneUse = couponResponse['one_use'] ?? true;
+
+      if (oneUse) {
+        // Mark one-use coupon as used
+        await supabase
+            .from('coupon')
+            .update({'is_used': true})
+            .eq('id', couponId);
+
+        loggerNoStack.i('✅ One-use coupon marked as used');
+      } else {
+        // Add usage record for multi-use coupon
+        await supabase.from('coupon_usage').insert({
+          'coupon_id': couponId,
+          'user_id': userId,
+          'used_at': DateTime.now().toIso8601String(),
+        });
+
+        loggerNoStack.i('✅ Multi-use coupon usage recorded');
+      }
+    } catch (e, stackTrace) {
+      loggerNoStack.e('❌ Error marking coupon as used: $e');
+      loggerNoStack.e('Stack trace: $stackTrace');
+      // Don't throw - this is auxiliary functionality
+    }
+  }
+
+  /// get merchant id to get paid
+
+  void merchantIdRevoke() async {
+    try {
+      await _bankilyService.initializeAndAuthenticate();
+
+      loggerNoStack.i(
+        'Merchant ID retrieved: ${_bankilyService.commercentCode}',
+      );
+      merchantId.value = _bankilyService.commercentCode.toString();
+      update();
+      // Use the merchantId as needed
+    } catch (e, stackTrace) {
+      loggerNoStack.e('❌ Error retrieving merchant ID: $e');
+      loggerNoStack.e('Stack trace: $stackTrace');
+    }
+  }
+
+  /// Process payment through Bankily
+  Future<void> processBankilyPayment() async {
+    loggerNoStack.i('=== Starting Bankily Payment Process ===');
+
+    try {
+      // Validate inputs
+      loggerNoStack.d('Validating payment inputs...');
+
+      if (phoneController.text.isEmpty) {
+        loggerNoStack.w('Phone number is empty');
+        Get.snackbar(
+          'error'.tr,
+          'please_enter_your_phone_number'.tr,
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+        return;
+      }
+
+      if (passcodeController.text.isEmpty) {
+        loggerNoStack.w('Passcode is empty');
+        Get.snackbar(
+          'error'.tr,
+          'please_enter_your_bankily_passcode'.tr,
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+        return;
+      }
+
+      isProcessingPayment.value = true;
+
+      loggerNoStack.i('Payment inputs validated');
+      loggerNoStack.i('Phone: ${phoneController.text}');
+      loggerNoStack.i('Operation ID: ${operationId.value}');
+      loggerNoStack.i('Amount: ${total.value.toStringAsFixed(2)}');
+
+      // Save initial transaction record as 'waiting'
+      // await _saveTransactionHistory(status: 'waiting');
+      await _savePaymentHistory(
+        status: 'waiting',
+        gateway: 'bankily',
+        currency: 'MRU',
+      );
+
+      // Step 1: Initialize and authenticate with Bankily service
+      loggerNoStack.i('🔧 Step 1: Initializing Bankily service...');
+      final authResult = await _bankilyService.initializeAndAuthenticate();
+
+      if (authResult['success'] != true) {
+        loggerNoStack.e(
+          '❌ Bankily authentication failed: ${authResult['message']}',
+        );
+
+        // Update records to failed status
+        // await _updateTransactionHistory(status: 'failed');
+        await _updatePaymentHistory(
+          status: 'failed',
+          gateway: 'bankily',
+          currency: 'MRU',
+        );
+
+        Get.snackbar(
+          'Authentication Error',
+          'Failed to connect to payment service: ${authResult['message']}',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+        return;
+      }
+
+      loggerNoStack.i('✅ Bankily service authenticated successfully');
+
+      // Step 2: Process payment through Bankily
+      loggerNoStack.i('💳 Step 2: Processing payment through Bankily...');
+
+      final paymentResult = await _bankilyService.processPaymentWithAuth(
+        clientPhone: phoneController.text.trim(),
+        passcode: passcodeController.text.trim(),
+        operationId: operationId.value,
+        amount: total.value.toStringAsFixed(2),
+        language: 'FR',
+      );
+
+      final errorCode = paymentResult['errorCode'];
+      final errorMessage = paymentResult['errorMessage'];
+      final paymentTransactionId = paymentResult['transactionId'];
+
+      loggerNoStack.i(
+        'Payment result - ErrorCode: $errorCode, Message: $errorMessage, TxnId: $paymentTransactionId',
+      );
+
+      if (errorCode != '0') {
+        loggerNoStack.e('❌ Payment failed - Error: $errorMessage');
+
+        // Update records to failed status
+        // await _updateTransactionHistory(status: 'failed');
+        await _updatePaymentHistory(
+          status: 'failed',
+          gateway: 'bankily',
+          currency: 'MRU',
+        );
+
+        Get.snackbar(
+          'Payment Failed',
+          errorMessage ?? 'Payment processing failed',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+        return;
+      }
+
+      // Step 3: Wait and verify payment completion
+      loggerNoStack.i('⏳ Step 3: Waiting for payment confirmation...');
+
+      bool paymentConfirmed = false;
+      int maxAttempts = 10; // Check for up to 30 seconds (3 seconds * 10)
+      int attempt = 0;
+
+      while (attempt < maxAttempts && !paymentConfirmed) {
+        attempt++;
+        loggerNoStack.d(
+          'Checking payment status - Attempt $attempt/$maxAttempts',
+        );
+
+        // Wait 3 seconds before checking
+        await Future.delayed(const Duration(seconds: 3));
+
+        final statusResult = await _bankilyService.checkTransactionWithAuth(
+          operationId: operationId.value,
+        );
+
+        final status = statusResult['status'];
+        final statusErrorCode = statusResult['errorCode'];
+
+        loggerNoStack.d(
+          'Status check result - Status: $status, ErrorCode: $statusErrorCode',
+        );
+
+        if (statusErrorCode == '0') {
+          if (status == 'TS') {
+            // Transaction Successful
+            paymentConfirmed = true;
+            transactionId.value =
+                statusResult['transactionId'] ??
+                paymentTransactionId ??
+                'UNKNOWN';
+            loggerNoStack.i(
+              '✅ Payment confirmed successful! Transaction ID: ${transactionId.value}',
+            );
+            break;
+          } else if (status == 'TF') {
+            // Transaction Failed
+            loggerNoStack.e('❌ Payment failed during processing');
+
+            // Update records to failed status
+            // await _updateTransactionHistory(status: 'failed');
+            await _updatePaymentHistory(
+              status: 'failed',
+              gateway: 'bankily',
+              currency: 'MRU',
+            );
+
+            Get.snackbar(
+              'Payment Failed',
+              'Transaction was declined. Please try again.',
+              snackPosition: SnackPosition.BOTTOM,
+              backgroundColor: Colors.red,
+              colorText: Colors.white,
+            );
+            return;
+          } else if (status == 'TA') {
+            // Transaction Pending - continue waiting
+            loggerNoStack.d('⏳ Payment still pending, continuing to wait...');
+            continue;
+          }
+        } else {
+          loggerNoStack.w(
+            '⚠️ Error checking transaction status: ${statusResult['errorMessage']}',
+          );
+        }
+      }
+
+      if (!paymentConfirmed) {
+        loggerNoStack.e('❌ Payment confirmation timeout');
+
+        // Update records to failed status (timeout)
+        // await _updateTransactionHistory(status: 'failed');
+        await _updatePaymentHistory(
+          status: 'failed',
+          gateway: 'bankily',
+          currency: 'MRU',
+        );
+
+        Get.snackbar(
+          'Payment Timeout',
+          'Payment is taking longer than expected. Please check your transaction status.',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.orange,
+          colorText: Colors.white,
+        );
+        return;
+      }
+
+      // Step 4: Update records to success status BEFORE creating booking
+      loggerNoStack.i('✅ Step 4: Updating payment records to success...');
+      // await _updateTransactionHistory(status: 'success');
+      await _updatePaymentHistory(
+        status: 'success',
+        gateway: 'bankily',
+        currency: 'MRU',
+      );
+
+      // Step 5: Mark coupon as used if a coupon was applied
+      if (couponController.text.trim().isNotEmpty && discount.value > 0) {
+        loggerNoStack.i('🎫 Step 5: Marking coupon as used...');
+        await _markCouponAsUsed(couponController.text.trim());
+      }
+
+      // Step 6: Create booking only after payment is confirmed and records updated
+      loggerNoStack.i(
+        '📝 Step 6: Creating booking after payment confirmation...',
+      );
+      await _createBookingInSupabase();
+
+      loggerNoStack.i('✅ Payment and booking completed successfully!');
+      Get.snackbar(
+        'Success',
+        'Payment successful! Your appointment has been booked.',
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+      );
+
+      // Navigate to appointments tab in user tab screen
+      await Future.delayed(const Duration(seconds: 1));
+      Get.offAllNamed(
+        Routes.userTabScreen,
+        arguments: {'initialTab': 2},
+      );
+    } catch (e, stackTrace) {
+      loggerNoStack.e('❌ CRITICAL ERROR in processBankilyPayment: $e');
+      loggerNoStack.e('Stack trace: $stackTrace');
+
+      try {
+        // Update records to failed status on critical error
+        // await _updateTransactionHistory(status: 'failed');
+        await _updatePaymentHistory(
+          status: 'failed',
+          gateway: 'bankily',
+          currency: 'MRU',
+        );
+      } catch (updateError) {
+        loggerNoStack.e(
+          '❌ Error updating payment records after failure: $updateError',
+        );
+      }
+
+      Get.snackbar(
+        'Error',
+        'Payment processing failed: ${e.toString()}',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    } finally {
+      isProcessingPayment.value = false;
+      loggerNoStack.i('=== Bankily Payment Process Complete ===');
+    }
+  }
+
+  /// Save initial transaction history record
+  // Future<void> _saveTransactionHistory({required String status}) async {
+  //   try {
+  //     loggerNoStack.i('💾 Saving transaction history with status: $status');
+
+  //     final supabase = Supabase.instance.client;
+
+  //     final transactionData = {
+  //       'operation_id': operationId.value,
+  //       'patient_id': userId,
+  //       'doctor_id': doctorId,
+  //       'total_amount': total.value,
+  //       'total_actual_amount': subtotal.value,
+  //       'operation_status': status,
+  //       'action_type': 'income', // This is income for the doctor
+
+  //       'income_history': status == 'success' ? total.value : 0,
+  //       'withrowl_history': 0,
+  //       'payment_date': DateTime.now().toIso8601String(),
+  //       'booking_id': null, // Will be updated when booking is created
+  //       'payment_gateway': gateway,
+  //       'payment_currency': currency,
+  //       'created_at': DateTime.now().toIso8601String(),
+  //     };
+
+  //     loggerNoStack.d('Transaction data: $transactionData');
+
+  //     await supabase.from('payment_history').insert(transactionData);
+
+  //     loggerNoStack.i('✅ Transaction history saved successfully');
+  //   } catch (e, stackTrace) {
+  //     loggerNoStack.e('❌ Error saving transaction history: $e');
+  //     loggerNoStack.e('Stack trace: $stackTrace');
+  //     // Don't throw - this is auxiliary data
+  //   }
+  // }
+
+  /// Update transaction history status
+  // Future<void> _updateTransactionHistory({required String status}) async {
+  //   try {
+  //     loggerNoStack.i('🔄 Updating transaction history status to: $status');
+
+  //     final supabase = Supabase.instance.client;
+
+  //     await supabase
+  //         .from('payment_history')
+  //         .update({'operation_status': status})
+  //         .eq('operation_id', operationId.value);
+
+  //     loggerNoStack.i('✅ Transaction history updated successfully');
+  //   } catch (e, stackTrace) {
+  //     loggerNoStack.e('❌ Error updating transaction history: $e');
+  //     loggerNoStack.e('Stack trace: $stackTrace');
+  //     // Don't throw - this is auxiliary data
+  //   }
+  // }
+
+  /// Save initial payment history record
+  Future<void> _savePaymentHistory({
+    required String status,
+    String? gateway,
+    String? currency,
+  }) async {
+    try {
+      loggerNoStack.i('💾 Saving payment history with status: $status');
+
+      final supabase = Supabase.instance.client;
+      Logger().e(subtotal.value);
+
+      final paymentData = {
+        'doctor_id': doctorId,
+        'patient_id': userId,
+        'operation_id': operationId.value,
+
+        'total_amount': total.value,
+        'total_actual_amount': subtotal.value, // Original amount before fees
+        'income_history': status == 'success' ? total.value : 0,
+        'withrowl_history': 0,
+        'action_type': 'income', // This is income for the doctor
+        'operation_status': status,
+        'payment_date': DateTime.now().toIso8601String(),
+        'booking_id': null, // Will be updated when booking is created
+        'payment_gateway': gateway,
+        'payment_currency': currency,
+      };
+
+      loggerNoStack.d('Payment data: $paymentData');
+
+      await supabase.from('payment_history').insert(paymentData);
+
+      loggerNoStack.i('✅ Payment history saved successfully');
+    } catch (e, stackTrace) {
+      loggerNoStack.e('❌ Error saving payment history: $e');
+      loggerNoStack.e('Stack trace: $stackTrace');
+      // Don't throw - this is auxiliary data
+    }
+  }
+
+  /// Update payment history status
+  Future<void> _updatePaymentHistory({
+    required String status,
+    String? gateway,
+    String? currency,
+  }) async {
+    try {
+      loggerNoStack.i('🔄 Updating payment history status to: $status');
+
+      final supabase = Supabase.instance.client;
+
+      final updateData = {
+        'operation_status': status,
+        'income_history': status == 'success' ? total.value : 0,
+        if (gateway != null) 'payment_gateway': gateway,
+        if (currency != null) 'payment_currency': currency,
+      };
+
+      await supabase
+          .from('payment_history')
+          .update(updateData)
+          .eq('patient_id', userId)
+          .eq('doctor_id', doctorId)
+          .eq('total_amount', total.value)
+          .order('payment_date', ascending: false) // Get the most recent one
+          .limit(1);
+
+      loggerNoStack.i('✅ Payment history updated successfully');
+    } catch (e, stackTrace) {
+      loggerNoStack.e('❌ Error updating payment history: $e');
+      loggerNoStack.e('Stack trace: $stackTrace');
+      // Don't throw - this is auxiliary data
+    }
+  }
+
+  /// Generate a unique booking ID with current date prefix
+  String _generateBookingId() {
+    try {
+      final now = DateTime.now();
+      final datePrefix =
+          '${now.year}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}';
+
+      // Safely get user ID suffix (max 4 chars)
+      String userIdSuffix = userId.isNotEmpty
+          ? userId.substring(0, userId.length > 4 ? 4 : userId.length)
+          : 'USER';
+
+      // Format: YYYYMMDD_BKG_timestamp_userSuffix
+      final bookingId =
+          '${datePrefix}_BKG_${now.millisecondsSinceEpoch}_$userIdSuffix';
+      loggerNoStack.i('Generated booking ID: $bookingId');
+      return bookingId;
+    } catch (e, stackTrace) {
+      loggerNoStack.e('Error generating booking ID: $e');
+      loggerNoStack.e('Stack trace: $stackTrace');
+      // Fallback to basic booking ID with date
+      final datePrefix = DateTime.now()
+          .toIso8601String()
+          .substring(0, 10)
+          .replaceAll('-', '');
+      return '${datePrefix}_BKG_${DateTime.now().millisecondsSinceEpoch}_FALLBACK';
+    }
+  }
+
+  /// Create booking directly in Supabase
+  Future<void> _createBookingInSupabase() async {
+    try {
+      loggerNoStack.i('📝 Creating booking in Supabase...');
+
+      // Get current Firebase user
+      final user = firebaseHelper.currentUser;
+
+      if (user == null) {
+        loggerNoStack.e('❌ User is not authenticated');
+        throw Exception('User not authenticated. Please sign in again.');
+      }
+
+      final patientId = user.uid;
+      loggerNoStack.i('✅ Patient ID: $patientId');
+      loggerNoStack.i('✅ Patient Email: ${user.email}');
+
+      // Parse booking date and time
+      final bookingDate = DateTime.parse(appointmentDate);
+      final timeParts = appointmentTime.split(':');
+      final bookingTime = TimeOfDay(
+        hour: int.parse(timeParts[0]),
+        minute: int.parse(timeParts[1]),
+      );
+
+      // Format time as HH:mm:ss
+      final formattedTime =
+          '${bookingTime.hour.toString().padLeft(2, '0')}:${bookingTime.minute.toString().padLeft(2, '0')}:00';
+
+      loggerNoStack.d(
+        'Booking Date: ${bookingDate.toIso8601String().split('T')[0]}',
+      );
+      loggerNoStack.d('Booking Time: $formattedTime');
+
+      // Generate unique booking ID with date prefix
+      final bookingId = _generateBookingId();
+
+      // Create booking data
+      final bookingData = {
+        'patient_id': patientId,
+        'doctor_id': doctorId,
+        'availability_id': slotId.isNotEmpty ? slotId : null,
+        'status': 'confirmed', // confirmed, pending, cancelled, completed
+        'price': total.value.toStringAsFixed(2),
+        'payment_intent_id': transactionId.value,
+        'video_session_id': null, // Will be set when video call starts
+        'created_at': DateTime.now().toIso8601String(),
+        'booking_date': bookingDate.toIso8601String().split(
+          'T',
+        )[0], // YYYY-MM-DD
+        'booking_time': formattedTime, // HH:mm:ss
+      };
+
+      loggerNoStack.d('Booking data to insert: $bookingData');
+
+      // Insert booking into Supabase using the supabase client
+      final supabase = Supabase.instance.client;
+      final response = await supabase
+          .from('bookings')
+          .insert(bookingData)
+          .select()
+          .single();
+
+      loggerNoStack.i('✅ Booking created successfully!');
+      loggerNoStack.d('Booking response: $response');
+
+      // Update payment and transaction history with booking ID
+      await _updateRecordsWithBookingId(bookingId);
+
+      // Show success details
+      loggerNoStack.i('=== Booking Details ===');
+      loggerNoStack.i('Booking ID: ${response['id']}');
+      loggerNoStack.i('Status: ${response['status']}');
+      loggerNoStack.i('Patient: $patientId');
+      loggerNoStack.i('Doctor: ${response['doctor_id']}');
+      loggerNoStack.i(
+        'Date: ${response['booking_date']} at ${response['booking_time']}',
+      );
+      loggerNoStack.i('Price: \$${response['price']}');
+      loggerNoStack.i('======================');
+    } catch (e, stackTrace) {
+      loggerNoStack.e('❌ Error creating booking in Supabase: $e');
+      loggerNoStack.e('Stack trace: $stackTrace');
+
+      // More detailed error messages
+      if (e.toString().contains('not authenticated')) {
+        throw Exception('Authentication failed. Please sign in again.');
+      } else if (e.toString().contains('violates')) {
+        throw Exception('Database constraint error. Please check your data.');
+      } else if (e.toString().contains('duplicate key')) {
+        throw Exception('This booking already exists. Please try again.');
+      } else {
+        throw Exception('Failed to create booking: $e');
+      }
+    }
+  }
+
+  /// Update payment and transaction history with booking ID
+  Future<void> _updateRecordsWithBookingId(String bookingId) async {
+    try {
+      loggerNoStack.i('🔗 Updating records with booking ID: $bookingId');
+
+      final supabase = Supabase.instance.client;
+
+      // Update transaction history
+      await supabase
+          .from('payment_history')
+          .update({'booking_id': bookingId})
+          .eq('operation_id', operationId.value);
+
+      // Update payment history
+      await supabase
+          .from('payment_history')
+          .update({'booking_id': bookingId})
+          .eq('patient_id', userId)
+          .eq('doctor_id', doctorId)
+          .eq('total_amount', total.value)
+          .order('payment_date', ascending: false)
+          .limit(1);
+
+      loggerNoStack.i('✅ Records updated with booking ID successfully');
+    } catch (e, stackTrace) {
+      loggerNoStack.e('❌ Error updating records with booking ID: $e');
+      loggerNoStack.e('Stack trace: $stackTrace');
+      // Don't throw - this is auxiliary data
+    }
+  }
+
+  /// Convert MRU to USD (approximate exchange rate)
+  /// TODO: Replace with real-time exchange rate API in production
+  double _convertToUSD(double amountInMRU) {
+    // Approximate exchange rate: 1 USD = 40 MRU
+    // This should be fetched from a real exchange rate API in production
+    const exchangeRate = 50.0;
+    final amountInUSD = amountInMRU / exchangeRate;
+
+    loggerNoStack.i(
+      '💱 Currency conversion: $amountInMRU MRU = ${amountInUSD.toStringAsFixed(2)} USD (rate: 1 USD = $exchangeRate MRU)',
+    );
+
+    return amountInUSD;
+  }
+
+  /// Create a Stripe PaymentIntent for the current total amount
+  Future<Map<String, dynamic>> _createStripePaymentIntent() async {
+    try {
+      // Convert the amount to USD since Stripe requires USD
+      final amountInUSD = _convertToUSD(total.value);
+      final amountInMinorUnits = (amountInUSD * 100).round();
+
+      loggerNoStack.i(
+        '💳 Creating Stripe PaymentIntent - Original Amount: ${total.value} MRU, Converted Amount: $amountInMinorUnits cents USD',
+      );
+
+      final body = {
+        'amount': amountInMinorUnits.toString(),
+        'currency': stripeCurrencyCode,
+        'payment_method_types[]': 'card',
+      };
+
+      final response = await http.post(
+        Uri.parse('https://api.stripe.com/v1/payment_intents'),
+        headers: {
+          'Authorization': 'Bearer $stripeSecretKey',
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: body,
+      );
+
+      if (response.statusCode != 200) {
+        loggerNoStack.e(
+          '❌ Failed to create Stripe PaymentIntent: ${response.body}',
+        );
+        throw Exception('Failed to create payment session. Please try again.');
+      }
+
+      final data = jsonDecode(response.body) as Map<String, dynamic>;
+      loggerNoStack.i('✅ Stripe PaymentIntent created: ${data['id']}');
+      return data;
+    } catch (e, stackTrace) {
+      loggerNoStack.e('❌ Error creating Stripe PaymentIntent: $e');
+      loggerNoStack.e('Stack trace: $stackTrace');
+      rethrow;
+    }
+  }
+
+  /// Safely show a snackbar only when an overlay context is available to avoid
+  /// crashes if the controller is used outside a widget tree.
+  void _showSafeSnackbar({
+    required String title,
+    required String message,
+    Color backgroundColor = Colors.black,
+    SnackPosition position = SnackPosition.BOTTOM,
+  }) {
+    // Prefer any available context that has an Overlay ancestor.
+    final overlayContext =
+        Get.overlayContext ?? Get.key.currentContext ?? Get.context;
+
+    // If still no usable context, skip to avoid crashing.
+    if (overlayContext == null) {
+      loggerNoStack.w(
+        'Skipped showing snackbar "$title": no overlay context available.',
+      );
+      return;
+    }
+
+    try {
+      // Validate that an Overlay exists above the chosen context.
+      final overlay = Overlay.maybeOf(overlayContext, rootOverlay: true);
+      if (overlay == null) {
+        loggerNoStack.w(
+          'Skipped showing snackbar "$title": overlay widget not found.',
+        );
+        return;
+      }
+
+      Get.showSnackbar(
+        GetSnackBar(
+          titleText: Text(
+            title,
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          messageText: Text(
+            message,
+            style: const TextStyle(color: Colors.white),
+          ),
+          snackPosition: position,
+          backgroundColor: backgroundColor,
+          duration: const Duration(seconds: 3),
+          margin: const EdgeInsets.all(12),
+          borderRadius: 8,
+        ),
+      );
+    } catch (err, stack) {
+      loggerNoStack.e('Failed to show snackbar "$title": $err');
+      loggerNoStack.e(stack);
+    }
+  }
+
+  /// Process payment through Stripe (card payment)
+  Future<void> _processStripePayment() async {
+    loggerNoStack.i('=== Starting Stripe Payment Process ===');
+
+    try {
+      // Prevent double submission
+      if (isProcessingPayment.value) {
+        loggerNoStack.w(
+          'Stripe payment already in progress, ignoring duplicate request',
+        );
+        return;
+      }
+
+      isProcessingPayment.value = true;
+
+      // Save initial transaction record as 'waiting'
+      // await _saveTransactionHistory(status: 'waiting');
+      await _savePaymentHistory(
+        status: 'waiting',
+        gateway: 'stripe',
+        currency: stripeCurrencyCode,
+      );
+
+      // 1) Create PaymentIntent on Stripe
+      stripePaymentIntent = await _createStripePaymentIntent();
+
+      // 2) Initialize Stripe payment sheet
+      await Stripe.instance.initPaymentSheet(
+        paymentSheetParameters: SetupPaymentSheetParameters(
+          paymentIntentClientSecret:
+              stripePaymentIntent!['client_secret'] as String,
+          merchantDisplayName: 'Videocalling',
+        ),
+      );
+
+      // 3) Present payment sheet
+      await Stripe.instance.presentPaymentSheet();
+
+      // If we reach here, payment succeeded
+      transactionId.value =
+          stripePaymentIntent?['id']?.toString() ?? 'STRIPE_UNKNOWN';
+
+      loggerNoStack.i(
+        '✅ Stripe payment successful, PaymentIntent ID: ${transactionId.value}',
+      );
+
+      // Update records to success
+      // await _updateTransactionHistory(status: 'success');
+      await _updatePaymentHistory(
+        status: 'success',
+        gateway: 'stripe',
+        currency: stripeCurrencyCode,
+      );
+
+      // Mark coupon as used if applicable
+      if (couponController.text.trim().isNotEmpty && discount.value > 0) {
+        await _markCouponAsUsed(couponController.text.trim());
+      }
+
+      // Create booking
+      await _createBookingInSupabase();
+
+      loggerNoStack.i('✅ Stripe payment and booking completed successfully!');
+      _showSafeSnackbar(
+        title: 'Success',
+        message: 'Payment successful! Your appointment has been booked.',
+        position: SnackPosition.TOP,
+        backgroundColor: Colors.green,
+      );
+
+      // Navigate to appointments tab in user tab screen
+      await Future.delayed(const Duration(seconds: 1));
+      Get.offAllNamed(
+        Routes.userTabScreen,
+        arguments: {'initialTab': 2},
+      );
+    } on StripeException catch (e, stackTrace) {
+      loggerNoStack.e('❌ StripeException during payment: $e');
+      loggerNoStack.e('Stack trace: $stackTrace');
+
+      // Update records to failed
+      // await _updateTransactionHistory(status: 'failed');
+      await _updatePaymentHistory(
+        status: 'failed',
+        gateway: 'stripe',
+        currency: stripeCurrencyCode,
+      );
+
+      _showSafeSnackbar(
+        title: 'Payment Failed',
+        message: 'Payment was cancelled or failed. Please try again.',
+        position: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+      );
+    } catch (e, stackTrace) {
+      loggerNoStack.e('❌ CRITICAL ERROR in _processStripePayment: $e');
+      loggerNoStack.e('Stack trace: $stackTrace');
+
+      try {
+        // await _updateTransactionHistory(status: 'failed');
+        await _updatePaymentHistory(
+          status: 'failed',
+          gateway: 'stripe',
+          currency: stripeCurrencyCode,
+        );
+      } catch (updateError) {
+        loggerNoStack.e(
+          '❌ Error updating payment records after Stripe failure: $updateError',
+        );
+      }
+
+      _showSafeSnackbar(
+        title: 'Error',
+        message: 'Payment failed: ${e.toString()}',
+        position: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+      );
+    } finally {
+      isProcessingPayment.value = false;
+      stripePaymentIntent = null;
+      loggerNoStack.i('=== Stripe Payment Process Complete ===');
+    }
+  }
+
+  void processPayment() async {
+    loggerNoStack.i('=== Processing Payment ===');
+    loggerNoStack.i('Selected payment method: ${selectedPaymentMethod.value}');
+
+    if (isProcessingPayment.value) {
+      loggerNoStack.w(
+        'Payment already in progress, ignoring duplicate request',
+      );
+      return;
+    }
+
+    try {
+      if (selectedPaymentMethod.value == 1) {
+        // Visa/MasterCard payment through Bankily
+        loggerNoStack.i('Processing Visa/MasterCard payment via Bankily...');
+        await processBankilyPayment();
+        return; // Don't set isProcessingPayment to false here, it's handled in processBankilyPayment
+      } else if (selectedPaymentMethod.value == 2) {
+        // Stripe card payment
+        loggerNoStack.i('Processing card payment via Stripe...');
+        await _processStripePayment();
+        return;
+      } else {
+        // For other payment methods, save payment history first
+        isProcessingPayment.value = true;
+        // await _saveTransactionHistory(status: 'waiting');
+        await _savePaymentHistory(
+          status: 'waiting',
+          gateway: 'other',
+          currency: null,
+        );
+
+        try {
+          // Get the make appointment controller
+          final makeAppointmentController =
+              Get.find<MakeAppointmentController>();
+
+          // Process other payment methods
+          loggerNoStack.i('Processing other payment method...');
+          await makeAppointmentController.bookAppointment(type: "online");
+
+          // If booking succeeds, update records to success
+          // await _updateTransactionHistory(status: 'success');
+          await _updatePaymentHistory(
+            status: 'success',
+            gateway: 'other',
+            currency: null,
+          );
+
+          // Mark coupon as used if a coupon was applied
+          if (couponController.text.trim().isNotEmpty && discount.value > 0) {
+            loggerNoStack.i(
+              '🎫 Marking coupon as used for other payment method...',
+            );
+            await _markCouponAsUsed(couponController.text.trim());
+          }
+
+          loggerNoStack.i('Payment and booking completed successfully');
+        } catch (paymentError) {
+          // If payment/booking fails, update records to failed
+          // await _updateTransactionHistory(status: 'failed');
+          await _updatePaymentHistory(
+            status: 'failed',
+            gateway: 'other',
+            currency: null,
+          );
+
+          loggerNoStack.e('Payment failed: $paymentError');
+          rethrow; // Re-throw to be caught by outer catch
+        }
+      }
+    } catch (e, stackTrace) {
+      loggerNoStack.e('❌ CRITICAL ERROR in processPayment: $e');
+      loggerNoStack.e('Stack trace: $stackTrace');
+      Get.snackbar(
+        'Error',
+        'Payment failed: ${e.toString()}',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    } finally {
+      if (selectedPaymentMethod.value != 1 &&
+          selectedPaymentMethod.value != 2) {
+        isProcessingPayment.value = false;
+      }
+      loggerNoStack.i('=== Payment Process Complete ===');
+    }
+  }
+
+  @override
+  void onClose() {
+    try {
+      loggerNoStack.i('Disposing PaymentController resources');
+      couponController.dispose();
+      phoneController.dispose();
+      passcodeController.dispose();
+      cardNumberController.dispose();
+      cardHolderNameController.dispose();
+      expirationDateController.dispose();
+      cvvController.dispose();
+      super.onClose();
+      loggerNoStack.i('PaymentController disposed successfully');
+    } catch (e, stackTrace) {
+      loggerNoStack.e('Error disposing PaymentController: $e');
+      loggerNoStack.e('Stack trace: $stackTrace');
+    }
+  }
+}

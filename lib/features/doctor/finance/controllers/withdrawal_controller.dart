@@ -1,0 +1,152 @@
+import 'package:videocalling/core/config/app_imports.dart';
+
+class WithdrawalController extends GetxController {
+  final supabaseHelper = SupabaseHelper();
+  final TextEditingController amountController = TextEditingController();
+
+  RxDouble totalBalance = 0.0.obs;
+  RxDouble withdrawalAmount = 0.0.obs;
+  RxDouble remainingBalance = 0.0.obs;
+  RxBool isProcessing = false.obs;
+  RxString doctorId = "".obs;
+
+  @override
+  void onInit() {
+    super.onInit();
+
+    // Get total balance from arguments
+    totalBalance.value = Get.arguments?['totalBalance'] ?? 0.0;
+    remainingBalance.value = totalBalance.value;
+
+    // Get doctor ID from storage
+    doctorId.value =
+        StorageService.readData(key: LocalStorageKeys.userId) ?? "";
+
+    // Listen to amount changes
+    amountController.addListener(_onAmountChanged);
+  }
+
+  void _onAmountChanged() {
+    withdrawalAmount.value = double.tryParse(amountController.text) ?? 0.0;
+    remainingBalance.value = totalBalance.value - withdrawalAmount.value;
+  }
+
+  bool get isValidAmount {
+    return withdrawalAmount.value > 0 &&
+        withdrawalAmount.value <= totalBalance.value;
+  }
+
+  void processWithdrawal() {
+    // Validation
+    if (withdrawalAmount.value <= 0) {
+      Get.snackbar(
+        'error'.tr,
+        'please_enter_valid_amount'.tr,
+        backgroundColor: Colors.red[100],
+        colorText: Colors.red[900],
+        snackPosition: SnackPosition.BOTTOM,
+        margin: const EdgeInsets.all(16),
+      );
+      return;
+    }
+
+    if (withdrawalAmount.value > totalBalance.value) {
+      Get.snackbar(
+        'error'.tr,
+        'insufficient_balance'.tr,
+        backgroundColor: Colors.red[100],
+        colorText: Colors.red[900],
+        snackPosition: SnackPosition.BOTTOM,
+        margin: const EdgeInsets.all(16),
+      );
+      return;
+    }
+
+    // Show confirmation dialog
+    Get.dialog(
+      AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text('confirm_withdrawal'.tr),
+        content: Text(
+          'confirm_withdrawal_message'.trParams({
+            'amount': '\$${withdrawalAmount.value.toStringAsFixed(2)}',
+          }),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: Text('cancel'.tr, style: TextStyle(color: Colors.grey[700])),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Get.back(); // Close dialog
+              submitWithdrawal();
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.color1,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            child: Text(
+              'confirm'.tr,
+              style: const TextStyle(color: Colors.white),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void submitWithdrawal() async {
+    try {
+      isProcessing.value = true;
+
+      // Insert withdrawal record into Supabase payment_history
+      await supabaseHelper.client.from('payment_history').insert({
+        'doctor_id': doctorId.value,
+        'patient_id': doctorId.value, // For withdrawal, doctor acts as both
+        'total_amount': withdrawalAmount.value,
+        'total_actual_amount': withdrawalAmount.value,
+        'withrowl_history': withdrawalAmount.value,
+        'income_history': 0,
+        'action_type': 'withrowl',
+        'operation_status': 'waiting',
+        'payment_date': DateTime.now().toIso8601String(),
+      });
+
+      isProcessing.value = false;
+
+      // Success - go back to income report
+      Get.back();
+
+      Get.snackbar(
+        'success'.tr,
+        'withdrawal_request_submitted'.tr,
+        backgroundColor: Colors.green[100],
+        colorText: Colors.green[900],
+        snackPosition: SnackPosition.BOTTOM,
+        margin: const EdgeInsets.all(16),
+        duration: const Duration(seconds: 3),
+      );
+    } catch (e) {
+      isProcessing.value = false;
+      loggerNoStack.e('Error submitting withdrawal: $e');
+
+      Get.snackbar(
+        'error'.tr,
+        'withdrawal_request_failed'.tr,
+        backgroundColor: Colors.red[100],
+        colorText: Colors.red[900],
+        snackPosition: SnackPosition.BOTTOM,
+        margin: const EdgeInsets.all(16),
+      );
+    }
+  }
+
+  @override
+  void onClose() {
+    amountController.dispose();
+    super.onClose();
+  }
+}

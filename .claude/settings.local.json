@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(flutter build apk:*)",
+      "Bash(adb uninstall:*)",
+      "Bash(flutter run:*)",
+      "Bash(keytool:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

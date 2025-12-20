@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "370157145915",
+    "firebase_url": "https://estaraht.europe-west9.firebasedatabase.app",
+    "project_id": "estaraht",
+    "storage_bucket": "estaraht.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:370157145915:android:1a572cd7ae074b4a53b11e",
+        "android_client_info": {
+          "package_name": "com.estaraht.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAKGaMgq6Mz4J1N2lKffRUE_J2bsA3Xflo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

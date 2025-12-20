@@ -1,0 +1,29 @@
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+rootProject.buildDir = '../build'
+subprojects {
+    project.buildDir = "${rootProject.buildDir}/${project.name}"
+    
+    // Force all subprojects to use the same compileSdkVersion
+    afterEvaluate { project ->
+        if (project.hasProperty('android')) {
+            android {
+                if (compileSdkVersion != null) {
+                    compileSdkVersion 36
+                }
+            }
+        }
+    }
+}
+subprojects {
+    project.evaluationDependsOn(':app')
+}
+
+tasks.register("clean", Delete) {
+    delete rootProject.buildDir
+}

@@ -1,0 +1,71 @@
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.build/
+.buildlog/
+.history
+.svn/
+.swiftpm/
+migrate_working_dir/
+
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# The .vscode folder contains launch configuration and tasks you configure in
+# VS Code which you may wish to be included in version control, so this line
+# is commented out by default.
+#.vscode/
+
+# Flutter/Dart/Pub related
+**/doc/api/
+**/ios/Flutter/.last_build_id
+
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+/build/
+ios/Pods/
+# Symbolication related
+app.*.symbols
+
+# Obfuscation related
+app.*.map.json
+
+# Android Studio will place build artifacts here
+/android/app/debug
+/android/app/profile
+/android/app/release
+/ios/Flutter/Flutter.framework
+/ios/Flutter/Flutter.podspec
+/ios/Flutter/Generated.xcconfig
+/ios/Flutter/ephemeral/
+/ios/Pods/
+
+/ios/.symlinks/plugins/agora_rtc_engine/
+/ios/.symlinks/plugins/app_links/
+/ios/.symlinks/plugins/firebase_crashlytics/
+/ios/.symlinks/plugins/flutter_inappwebview_ios/
+/ios/.symlinks/plugins/iris_method_channel/
+/ios/.symlinks/plugins/sqflite_darwin/
+/ios/Runner.xcodeproj/project.xcworkspace/xcuserdata/abbassi.xcuserdatad/UserInterfaceState.xcuserstate
+
+# Android Keystore - Keep these files secure and DO NOT commit to version control
+*.jks
+*.keystore
+key.properties
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+# Keep .env.example
+!.env.example
