@@ -29,13 +29,12 @@ class _IndemandDoctorScreenState extends State<IndemandDoctorScreen> {
   @override
   Widget build(BuildContext context) {
     final bool isArabic = Get.locale?.languageCode == 'ar';
-
     return Scaffold(
       backgroundColor: Colors.white,
       body: Column(
         children: [
           _buildHeader(context, isArabic),
-
+          _buildFilterChips(isArabic),
           // Content
           Expanded(
             child: GetX<IndemandDoctorController>(
@@ -101,7 +100,7 @@ class _IndemandDoctorScreenState extends State<IndemandDoctorScreen> {
                 decoration: InputDecoration(
                   contentPadding: const EdgeInsets.symmetric(
                     horizontal: 16,
-                    vertical: 12,
+                    vertical: 20,
                   ),
                   hintText: 'find_a_therapist'.tr,
                   hintStyle: TextStyle(
@@ -139,28 +138,80 @@ class _IndemandDoctorScreenState extends State<IndemandDoctorScreen> {
             ),
 
             // Subheading label: Most in-demand doctors
-            const SizedBox(height: 20),
-            Align(
-              alignment: isArabic
-                  ? Alignment.centerRight
-                  : Alignment.centerLeft,
-              child: Text(
-                'most_in_demand_doctors'
-                    .tr, // add this key in your translations
-                style: const TextStyle(
-                  fontFamily: 'Roboto',
-                  color: Color(0xFF424242), // equivalent to Colors.grey[800]
-                  fontSize: 16,
-                  fontWeight: FontWeight.w400,
-                  height: 1.0, // 100% line height
-                  letterSpacing: 0.0,
-                ),
-                textAlign: isArabic ? TextAlign.right : TextAlign.left,
-              ),
-            ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildFilterChips(bool isArabic) {
+    return SizedBox(
+      height: 48,
+      child: Obx(() {
+        // Show loading indicator while fetching categories
+        if (controller.isCategoriesLoading.value) {
+          return const Center(
+            child: SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF3961F1)),
+              ),
+            ),
+          );
+        }
+
+        // Show categories list
+        return ListView.builder(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 34),
+          itemCount: controller.categories.length,
+          itemBuilder: (context, index) {
+            final category = controller.categories[index];
+            final displayName = isArabic
+                ? (category['name_ar'] ?? category['name_en'] ?? '')
+                : (category['name_en'] ?? '');
+            final categoryValue = category['value'] ?? '';
+
+            return GetBuilder<IndemandDoctorController>(
+              builder: (ctrl) {
+                final isSelected = ctrl.selectedCategoryIndex == index;
+
+                return Container(
+                  margin: const EdgeInsets.only(right: 8),
+                  child: FilterChip(
+                    label: Text(
+                      displayName,
+                      style: TextStyle(
+                        color: isSelected ? Colors.white : Colors.black,
+                        fontSize: 13,
+                        fontWeight: isSelected
+                            ? FontWeight.w500
+                            : FontWeight.w400,
+                      ),
+                    ),
+                    selected: isSelected,
+                    backgroundColor: Colors.white,
+                    selectedColor: const Color(0xFF3961F1),
+                    side: BorderSide(color: Colors.grey[300]!),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    onSelected: (bool selected) {
+                      if (selected) {
+                        ctrl.onCategorySelected(index, categoryValue);
+                      }
+                    },
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    visualDensity: VisualDensity.compact,
+                  ),
+                );
+              },
+            );
+          },
+        );
+      }),
     );
   }
 
@@ -304,14 +355,8 @@ class _IndemandDoctorScreenState extends State<IndemandDoctorScreen> {
                   child: Row(
                     children: [
                       Text(
-                        '50 ${isArabic ? 'أوقية' : 'MRU'}',
+                        '${doctor.bookingPrice?.toInt().toString() ?? '0'} ${isArabic ? 'أوقية' : 'MRU'}',
                         style: TextStyle(fontSize: 12, color: Colors.grey[800]),
-                      ),
-                      const SizedBox(width: 4),
-                      const Icon(
-                        Icons.attach_money,
-                        size: 14,
-                        color: Color(0xFF3961F1),
                       ),
                     ],
                   ),
@@ -329,18 +374,18 @@ class _IndemandDoctorScreenState extends State<IndemandDoctorScreen> {
                     imageUrl: doctor.image ?? "",
                     height: 64,
                     width: 64,
-                    fit: BoxFit.cover,
+                    fit: BoxFit.fill,
                     placeholder: (context, url) => Image.asset(
                       AppImages.getDoctorPlaceholder(doctor.gender),
                       height: 64,
                       width: 64,
-                      fit: BoxFit.cover,
+                      fit: BoxFit.contain,
                     ),
                     errorWidget: (context, url, err) => Image.asset(
                       AppImages.getDoctorPlaceholder(doctor.gender),
                       height: 64,
                       width: 64,
-                      fit: BoxFit.cover,
+                      fit: BoxFit.fill,
                     ),
                   ),
                 ),
@@ -384,16 +429,49 @@ class _IndemandDoctorScreenState extends State<IndemandDoctorScreen> {
               spacing: 8,
               runSpacing: 8,
               children: [
-                _SpecChip(label: doctor.specialization ?? "N/A"),
-                _SpecChip(label: doctor.specialization ?? "N/A"),
+                _SpecChip(
+                  label: doctor.specialization!.isEmpty
+                      ? "N/A"
+                      : doctor.specialization ?? "N/A",
+                ),
+                _SpecChip(
+                  label: doctor.specialization!.isEmpty
+                      ? "N/A"
+                      : doctor.specialization ?? "N/A",
+                ),
               ],
             ),
-
-            const SizedBox(height: 16),
 
             // Buttons
             Row(
               children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () {
+                      Get.toNamed(
+                        Routes.doctorDetailScreen,
+                        arguments: {'id': "${doctor.doctorId}"},
+                      );
+                    },
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Colors.black87,
+                      side: BorderSide(color: Colors.grey[300]!),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
+                    child: Text(
+                      isArabic ? 'الصفحة الشخصية' : 'Profile',
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () {
@@ -417,32 +495,6 @@ class _IndemandDoctorScreenState extends State<IndemandDoctorScreen> {
                     ),
                     child: Text(
                       'book_now'.tr,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () {
-                      Get.toNamed(
-                        Routes.doctorDetailScreen,
-                        arguments: {'id': "${doctor.doctorId}"},
-                      );
-                    },
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.black87,
-                      side: BorderSide(color: Colors.grey[300]!),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                    ),
-                    child: Text(
-                      isArabic ? 'الصفحة الشخصية' : 'Profile',
                       style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,

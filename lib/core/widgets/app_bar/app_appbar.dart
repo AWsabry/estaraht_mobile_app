@@ -449,10 +449,8 @@ class CustomHomeScreenAppBar extends StatelessWidget {
                   // Action buttons
                   Row(
                     children: [
-                      Expanded(
-                        flex: Get.locale?.languageCode == 'en'
-                            ? 1
-                            : 1, // 2/3 width if English
+                      SizedBox(
+                        width: 150,
                         child: ElevatedButton(
                           onPressed: () {
                             Get.toNamed(Routes.indemandDoctorScreen);

@@ -20,6 +20,121 @@ class IndemandDoctorController extends GetxController {
   final int itemsPerPage = 20;
   bool hasMore = true;
 
+  // Category selection
+  int selectedCategoryIndex = 0;
+  String selectedCategory = "";
+  RxList<Map<String, String>> categories = <Map<String, String>>[].obs;
+  RxBool isCategoriesLoading = false.obs;
+
+  /// Fetch categories from Supabase specializations table
+  Future<void> fetchCategories() async {
+    try {
+      isCategoriesLoading.value = true;
+
+      print('📋 Fetching categories from Supabase...');
+
+      final response = await supabaseHelper.client
+          .from('specializations')
+          .select('name')
+          .order('name', ascending: true);
+
+      print('✅ Fetched ${response.length} categories from Supabase');
+
+      // Clear existing categories
+      categories.clear();
+
+      // Add "All" category first
+      categories.add({'name_en': 'All', 'name_ar': 'الجميع', 'value': ''});
+
+      // Add categories from database
+      for (var spec in response) {
+        final name = spec['name'] ?? '';
+        categories.add({
+          'name_en': name,
+          'name_ar': name,
+          'value': name,
+        });
+      }
+
+      print('✅ Total categories loaded: ${categories.length}');
+      isCategoriesLoading.value = false;
+    } catch (e, stackTrace) {
+      print('❌ Error fetching categories: $e');
+      print('Stack trace: $stackTrace');
+      isCategoriesLoading.value = false;
+
+      // Fallback to default categories if fetch fails
+      categories.value = [
+        {'name_en': 'All', 'name_ar': 'الجميع', 'value': ''},
+        {
+          'name_en': 'Relationships',
+          'name_ar': 'العلاقات',
+          'value': 'Relationships',
+        },
+        {'name_en': 'Addiction', 'name_ar': 'الإدمان', 'value': 'Addiction'},
+        {
+          'name_en': 'Family therapy',
+          'name_ar': 'العلاج النفسي',
+          'value': 'Family therapy',
+        },
+        {'name_en': 'ADHD', 'name_ar': 'التوتر وفرط الحركة', 'value': 'ADHD'},
+      ];
+    }
+  }
+
+  /// Handle category selection
+  void onCategorySelected(int index, String category) async {
+    selectedCategoryIndex = index;
+    selectedCategory = category;
+
+    // Reset pagination and state
+    currentPage = 0;
+    hasMore = true;
+    isLoading.value = true;
+    isErrorInLoading.value = false;
+    doctors.clear();
+
+    try {
+      var query = supabaseHelper.client.from('doctors').select();
+
+      // If not "All" category, filter by category/specialization
+      if (index != 0 && category.isNotEmpty) {
+        query = query.or(
+          'specialization.ilike.%$category%,department_name.ilike.%$category%',
+        );
+      }
+
+      // Apply search keyword if exists
+      if (searchKeyword.value.isNotEmpty) {
+        query = query.or(
+          'full_name.ilike.%${searchKeyword.value}%,specialization.ilike.%${searchKeyword.value}%,email.ilike.%${searchKeyword.value}%',
+        );
+      }
+
+      final response = await query
+          .range(0, itemsPerPage - 1)
+          .order('full_name', ascending: true);
+
+      print('✅ Found ${response.length} doctors for category "$category"');
+
+      // Convert Supabase response to SDoctorData
+      for (var doctor in response) {
+        doctors.add(SDoctorData.fromJson(doctor));
+      }
+
+      // Check if there are more items
+      hasMore = response.length >= itemsPerPage;
+
+      isLoading.value = false;
+    } catch (e, stackTrace) {
+      print('❌ Error filtering doctors by category: $e');
+      print('Stack trace: $stackTrace');
+      isLoading.value = false;
+      isErrorInLoading.value = true;
+    }
+    update();
+  }
+
   // Fetch all doctors (initial load or when clearing search)
   Future<void> fetchAll({bool reset = true}) async {
     try {
@@ -105,14 +220,42 @@ class IndemandDoctorController extends GetxController {
 
     try {
       currentPage++;
-      final term = searchKeyword.value.trim();
-      if (term.isEmpty) {
-        await fetchAll(reset: false);
-      } else {
-        await search(term, reset: false);
+      final startRange = currentPage * itemsPerPage;
+      final endRange = startRange + itemsPerPage - 1;
+
+      var query = supabaseHelper.client.from('doctors').select();
+
+      // Apply category filter if not "All"
+      if (selectedCategoryIndex != 0 && selectedCategory.isNotEmpty) {
+        query = query.or(
+          'specialization.ilike.%$selectedCategory%,department_name.ilike.%$selectedCategory%',
+        );
       }
+
+      // Apply search keyword if exists
+      final term = searchKeyword.value.trim();
+      if (term.isNotEmpty) {
+        query = query.or(
+          'full_name.ilike.%$term%,specialization.ilike.%$term%,email.ilike.%$term%',
+        );
+      }
+
+      final response = await query
+          .range(startRange, endRange)
+          .order('full_name', ascending: true);
+
+      print('✅ Loaded ${response.length} more doctors (page $currentPage)');
+
+      // Convert and add to list
+      for (var doctor in response) {
+        doctors.add(SDoctorData.fromJson(doctor));
+      }
+
+      // Check if there are more items
+      hasMore = response.length >= itemsPerPage;
     } catch (e) {
-      // ignore
+      print('❌ Error loading more doctors: $e');
+      currentPage--; // Revert page increment on error
     } finally {
       isLoadingMore.value = false;
     }
@@ -121,6 +264,10 @@ class IndemandDoctorController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+
+    // Fetch categories from Supabase first
+    fetchCategories();
+
     // Initial load: all doctors
     searchKeyword.value = keyword;
     if (keyword.isNotEmpty) {

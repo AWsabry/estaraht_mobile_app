@@ -1,5 +1,6 @@
 import 'package:videocalling/core/config/app_imports.dart';
 import 'package:videocalling/features/patient/doctors/models/sdoctor_model.dart';
+
 class DoctorSearchScreen extends StatefulWidget {
   const DoctorSearchScreen({super.key});
 
@@ -109,7 +110,7 @@ class _DoctorSearchScreenState extends State<DoctorSearchScreen> {
                     horizontal: 16,
                     vertical: 12,
                   ),
-                  hintText: isArabic ? 'البحث عن طبيب' : 'Find a therapist',
+                  // hintText: isArabic ? 'البحث عن طبيب' : 'Find a therapist',
                   hintStyle: TextStyle(
                     color: Colors.grey[600],
                     fontSize: 15,

@@ -1,25 +1,24 @@
 import 'package:clarity_flutter/clarity_flutter.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:videocalling/core/config/app_imports.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import 'firebase_options.dart';
 
 void main() async {
-  // Load environment variables FIRST
-  await dotenv.load(fileName: ".env");
-
-  final config = ClarityConfig(
-    projectId: dotenv.env['CLARITY_PROJECT_ID'] ?? "",
-    logLevel: LogLevel
-        .None, // Note: Use "LogLevel.Verbose" value while te   sting to debug initialization issues.
-  );
-
   // Run everything inside runZonedGuarded to ensure same zone
   runZonedGuarded(
     () async {
       WidgetsFlutterBinding.ensureInitialized();
 
+      // Load environment variables FIRST
+      await dotenv.load(fileName: ".env");
+
+      final config = ClarityConfig(
+        projectId: dotenv.env['CLARITY_PROJECT_ID'] ?? "",
+        logLevel: LogLevel
+            .None, // Note: Use "LogLevel.Verbose" value while te   sting to debug initialization issues.
+      );
       await Supabase.initialize(
         url: dotenv.env['SUPABASE_URL'] ?? '',
         anonKey: dotenv.env['SUPABASE_ANON_KEY'] ?? '',
