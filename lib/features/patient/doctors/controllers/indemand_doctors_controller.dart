@@ -96,34 +96,75 @@ class IndemandDoctorController extends GetxController {
 
     try {
       var query = supabaseHelper.client.from('doctors').select();
+      final searchTerm = searchKeyword.value.trim();
 
       // If not "All" category, filter by category/specialization
       if (index != 0 && category.isNotEmpty) {
+        // Trim and normalize category for better matching
+        final normalizedCategory = category.trim();
+        query = query.ilike('specialization', '%$normalizedCategory%');
+      }
+
+      // Apply search keyword if exists - need to combine with category filter properly
+      // Since Supabase .or() creates OR conditions, we need to filter results in memory
+      // when both filters are active to ensure AND logic
+      if (searchTerm.isNotEmpty) {
         query = query.or(
-          'specialization.ilike.%$category%,department_name.ilike.%$category%',
+          'full_name.ilike.%$searchTerm%,specialization.ilike.%$searchTerm%,email.ilike.%$searchTerm%',
         );
       }
 
-      // Apply search keyword if exists
-      if (searchKeyword.value.isNotEmpty) {
-        query = query.or(
-          'full_name.ilike.%${searchKeyword.value}%,specialization.ilike.%${searchKeyword.value}%,email.ilike.%${searchKeyword.value}%',
-        );
-      }
+      // Fetch more results than needed to account for in-memory filtering
+      final fetchLimit = (index != 0 && category.isNotEmpty && searchTerm.isNotEmpty) 
+          ? itemsPerPage * 3  // Fetch more if both filters active
+          : itemsPerPage;
 
       final response = await query
-          .range(0, itemsPerPage - 1)
+          .range(0, fetchLimit - 1)
           .order('full_name', ascending: true);
 
-      print('✅ Found ${response.length} doctors for category "$category"');
+      print('✅ Found ${response.length} doctors for category "$category"${searchTerm.isNotEmpty ? " and search \"$searchTerm\"" : ""}');
 
-      // Convert Supabase response to SDoctorData
+      // Convert Supabase response to SDoctorData and apply in-memory filtering if needed
+      List<SDoctorData> filteredDoctors = [];
       for (var doctor in response) {
-        doctors.add(SDoctorData.fromJson(doctor));
+        final doctorData = SDoctorData.fromJson(doctor);
+        
+        // If both category and search filters are active, verify both match (AND logic)
+        bool matchesCategory = true;
+        bool matchesSearch = true;
+        
+        if (index != 0 && category.isNotEmpty) {
+          final normalizedCategory = category.trim().toLowerCase();
+          final specialization = (doctorData.specialization ?? '').toLowerCase();
+          matchesCategory = specialization.contains(normalizedCategory);
+        }
+        
+        if (searchTerm.isNotEmpty) {
+          final normalizedSearch = searchTerm.toLowerCase();
+          final fullName = (doctorData.fullName ?? '').toLowerCase();
+          final specialization = (doctorData.specialization ?? '').toLowerCase();
+          final email = (doctorData.email ?? '').toLowerCase();
+          matchesSearch = fullName.contains(normalizedSearch) || 
+                         specialization.contains(normalizedSearch) || 
+                         email.contains(normalizedSearch);
+        }
+        
+        // Only add if both filters match (when both are active)
+        if (matchesCategory && matchesSearch) {
+          filteredDoctors.add(doctorData);
+          
+          // Stop if we have enough results
+          if (filteredDoctors.length >= itemsPerPage) {
+            break;
+          }
+        }
       }
 
+      doctors.value = filteredDoctors;
+
       // Check if there are more items
-      hasMore = response.length >= itemsPerPage;
+      hasMore = filteredDoctors.length >= itemsPerPage;
 
       isLoading.value = false;
     } catch (e, stackTrace) {
@@ -221,38 +262,70 @@ class IndemandDoctorController extends GetxController {
     try {
       currentPage++;
       final startRange = currentPage * itemsPerPage;
-      final endRange = startRange + itemsPerPage - 1;
 
       var query = supabaseHelper.client.from('doctors').select();
+      final term = searchKeyword.value.trim();
 
       // Apply category filter if not "All"
       if (selectedCategoryIndex != 0 && selectedCategory.isNotEmpty) {
-        query = query.or(
-          'specialization.ilike.%$selectedCategory%,department_name.ilike.%$selectedCategory%',
-        );
+        final normalizedCategory = selectedCategory.trim();
+        query = query.ilike('specialization', '%$normalizedCategory%');
       }
 
       // Apply search keyword if exists
-      final term = searchKeyword.value.trim();
       if (term.isNotEmpty) {
         query = query.or(
           'full_name.ilike.%$term%,specialization.ilike.%$term%,email.ilike.%$term%',
         );
       }
 
+      // Fetch more results if both filters active
+      final fetchLimit = (selectedCategoryIndex != 0 && selectedCategory.isNotEmpty && term.isNotEmpty) 
+          ? itemsPerPage * 3
+          : itemsPerPage;
+      final fetchEnd = startRange + fetchLimit - 1;
+
       final response = await query
-          .range(startRange, endRange)
+          .range(startRange, fetchEnd)
           .order('full_name', ascending: true);
 
       print('✅ Loaded ${response.length} more doctors (page $currentPage)');
 
-      // Convert and add to list
+      // Convert and filter results in memory if both filters active
+      List<SDoctorData> filteredDoctors = [];
       for (var doctor in response) {
-        doctors.add(SDoctorData.fromJson(doctor));
+        final doctorData = SDoctorData.fromJson(doctor);
+        
+        // If both category and search filters are active, verify both match
+        bool matchesCategory = true;
+        bool matchesSearch = true;
+        
+        if (selectedCategoryIndex != 0 && selectedCategory.isNotEmpty) {
+          final normalizedCategory = selectedCategory.trim().toLowerCase();
+          final specialization = (doctorData.specialization ?? '').toLowerCase();
+          matchesCategory = specialization.contains(normalizedCategory);
+        }
+        
+        if (term.isNotEmpty) {
+          final normalizedSearch = term.toLowerCase();
+          final fullName = (doctorData.fullName ?? '').toLowerCase();
+          final specialization = (doctorData.specialization ?? '').toLowerCase();
+          final email = (doctorData.email ?? '').toLowerCase();
+          matchesSearch = fullName.contains(normalizedSearch) || 
+                         specialization.contains(normalizedSearch) || 
+                         email.contains(normalizedSearch);
+        }
+        
+        if (matchesCategory && matchesSearch) {
+          filteredDoctors.add(doctorData);
+        }
       }
 
+      // Add filtered results to list
+      doctors.addAll(filteredDoctors);
+
       // Check if there are more items
-      hasMore = response.length >= itemsPerPage;
+      hasMore = filteredDoctors.length >= itemsPerPage;
     } catch (e) {
       print('❌ Error loading more doctors: $e');
       currentPage--; // Revert page increment on error

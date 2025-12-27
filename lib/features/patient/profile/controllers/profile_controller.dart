@@ -122,7 +122,7 @@ class UserEditController extends GetxController {
       final userId = firebaseHelper.currentUserId;
       if (userId == null) {
         Get.back();
-        customDialog(s1: 'error'.tr, s2: 'No authenticated user found');
+        customDialog(s1: 'error'.tr, s2: 'no_authenticated_user'.tr);
         return;
       }
 

@@ -316,7 +316,7 @@ class DAppointmentDetailsController extends GetxController {
     } catch (e) {
       Get.back();
       loggerNoStack.e('Error changing status: $e');
-      messageDialog('error'.tr, 'Failed to update appointment status');
+      messageDialog('error'.tr, 'failed_to_update_appointment'.tr);
     }
   }
 

@@ -1,8 +1,9 @@
 import 'package:videocalling/core/config/app_imports.dart';
+
 class ReviewsScreen extends GetView<ReviewController> {
   final ReviewController reviewController = Get.put(ReviewController());
 
-   ReviewsScreen({super.key});
+  ReviewsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -29,11 +30,7 @@ class ReviewsScreen extends GetView<ReviewController> {
             ),
           ),
           leading: IconButton(
-            icon: const Icon(
-              Icons.arrow_back,
-              size: 20,
-              color: Colors.black,
-            ),
+            icon: const Icon(Icons.arrow_back, size: 20, color: Colors.black),
             onPressed: () =>
                 Get.back(result: reviewController.isChangesMade.value),
           ),
@@ -76,14 +73,11 @@ class ReviewsScreen extends GetView<ReviewController> {
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.mood_bad_rounded,
-            size: 80,
-            color: Colors.grey[400],
-          ),
+          Icon(Icons.mood_bad_rounded, size: 80, color: Colors.grey[400]),
           const SizedBox(height: 16),
           Text(
             'unable_to_load_data'.tr,
+            textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w500,
@@ -118,8 +112,7 @@ class ReviewsScreen extends GetView<ReviewController> {
             height: 40,
             child: CircularProgressIndicator(
               strokeWidth: 3,
-              valueColor:
-                  AlwaysStoppedAnimation<Color>(Color(0xFF204FCF)),
+              valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF204FCF)),
             ),
           ),
           const SizedBox(height: 16),
@@ -214,19 +207,11 @@ class ReviewsScreen extends GetView<ReviewController> {
                 width: 40,
                 placeholder: (context, url) => Container(
                   color: Colors.grey[200],
-                  child: Icon(
-                    Icons.person,
-                    color: Colors.grey[400],
-                    size: 24,
-                  ),
+                  child: Icon(Icons.person, color: Colors.grey[400], size: 24),
                 ),
                 errorWidget: (context, url, err) => Container(
                   color: Colors.grey[200],
-                  child: Icon(
-                    Icons.person,
-                    color: Colors.grey[400],
-                    size: 24,
-                  ),
+                  child: Icon(Icons.person, color: Colors.grey[400], size: 24),
                 ),
               ),
             ),
@@ -248,17 +233,18 @@ class ReviewsScreen extends GetView<ReviewController> {
                   const SizedBox(height: 2),
                   Row(
                     children: List.generate(
-                        5,
-                        (i) => Padding(
-                              padding: const EdgeInsets.only(right: 3),
-                              child: Icon(
-                                i < rating ? Icons.star : Icons.star_border,
-                                size: 16,
-                                color: i < rating
-                                    ? const Color(0xFFFFB800)
-                                    : Colors.grey[400],
-                              ),
-                            )),
+                      5,
+                      (i) => Padding(
+                        padding: const EdgeInsets.only(right: 3),
+                        child: Icon(
+                          i < rating ? Icons.star : Icons.star_border,
+                          size: 16,
+                          color: i < rating
+                              ? const Color(0xFFFFB800)
+                              : Colors.grey[400],
+                        ),
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -267,10 +253,7 @@ class ReviewsScreen extends GetView<ReviewController> {
             // Review date
             Text(
               review.date ?? "",
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.grey[600],
-              ),
+              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
             ),
           ],
         ),
@@ -312,9 +295,10 @@ class ReviewsScreen extends GetView<ReviewController> {
             if (reviewController.isLoggedIn.value) {
               _showReviewBottomSheet(context);
             } else {
-              await Get.toNamed(Routes.loginUserScreen, arguments: {
-                "isBack": false,
-              });
+              await Get.toNamed(
+                Routes.loginUserScreen,
+                arguments: {"isBack": false},
+              );
             }
           },
           borderRadius: BorderRadius.circular(8),
@@ -346,139 +330,131 @@ class ReviewsScreen extends GetView<ReviewController> {
   void _showReviewBottomSheet(BuildContext context) {
     Get.bottomSheet(
       isScrollControlled: true,
-      Obx(() => Container(
-            padding: EdgeInsets.only(
-              bottom: MediaQuery.of(context).viewInsets.bottom,
-            ),
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.vertical(
-                top: Radius.circular(20),
-              ),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Review sheet header
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'add_a_review'.tr,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black,
+      Obx(
+        () => Container(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Review sheet header
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'add_a_review'.tr,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black,
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () => Get.back(),
+                      icon: const Icon(Icons.close),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                      iconSize: 20,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+
+                // Rating selector
+                Text(
+                  'your_rating'.tr,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.black,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List.generate(
+                    5,
+                    (index) => GestureDetector(
+                      onTap: () => reviewController.starCount.value = index + 1,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                        child: Icon(
+                          reviewController.starCount.value >= index + 1
+                              ? Icons.star_rounded
+                              : Icons.star_border_rounded,
+                          size: 32,
+                          color: reviewController.starCount.value >= index + 1
+                              ? const Color(0xFFFFB800)
+                              : Colors.grey[400],
                         ),
                       ),
-                      IconButton(
-                        onPressed: () => Get.back(),
-                        icon: const Icon(Icons.close),
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(),
-                        iconSize: 20,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-
-                  // Rating selector
-                  Text(
-                    'your_rating'.tr,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.black,
                     ),
                   ),
-                  const SizedBox(height: 12),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: List.generate(
-                        5,
-                        (index) => GestureDetector(
-                              onTap: () =>
-                                  reviewController.starCount.value = index + 1,
-                              child: Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 4),
-                                child: Icon(
-                                  reviewController.starCount.value >= index + 1
-                                      ? Icons.star_rounded
-                                      : Icons.star_border_rounded,
-                                  size: 32,
-                                  color: reviewController.starCount.value >=
-                                          index + 1
-                                      ? const Color(0xFFFFB800)
-                                      : Colors.grey[400],
-                                ),
-                              ),
-                            )),
-                  ),
-                  const SizedBox(height: 24),
+                ),
+                const SizedBox(height: 24),
 
-                  // Review text field
-                  TextField(
-                    controller: reviewController.textEditingController,
-                    maxLines: 4,
-                    decoration: InputDecoration(
-                      hintText: 'enter_message'.tr,
-                      hintStyle: TextStyle(
-                        color: Colors.grey[400],
-                        fontSize: 14,
-                      ),
-                      filled: true,
-                      fillColor: Colors.grey[100],
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide.none,
-                      ),
-                      contentPadding: const EdgeInsets.all(16),
+                // Review text field
+                TextField(
+                  controller: reviewController.textEditingController,
+                  maxLines: 4,
+                  decoration: InputDecoration(
+                    hintText: 'enter_message'.tr,
+                    hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
+                    filled: true,
+                    fillColor: Colors.grey[100],
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
                     ),
-                    style: const TextStyle(
-                      color: Colors.black,
-                      fontSize: 14,
-                    ),
-                    onChanged: (val) => reviewController.message.value = val,
+                    contentPadding: const EdgeInsets.all(16),
                   ),
-                  const SizedBox(height: 24),
+                  style: const TextStyle(color: Colors.black, fontSize: 14),
+                  onChanged: (val) => reviewController.message.value = val,
+                ),
+                const SizedBox(height: 24),
 
-                  // Submit button
-                  Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      onTap: () {
-                        Get.focusScope?.unfocus();
-                        reviewController.uploadReview();
-                      },
-                      borderRadius: BorderRadius.circular(8),
-                      child: Ink(
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF204FCF),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Container(
-                          height: 48,
-                          alignment: Alignment.center,
-                          child: Text(
-                            'btn_submit'.tr,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                            ),
+                // Submit button
+                Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: () {
+                      Get.focusScope?.unfocus();
+                      reviewController.uploadReview();
+                    },
+                    borderRadius: BorderRadius.circular(8),
+                    child: Ink(
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF204FCF),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Container(
+                        height: 48,
+                        alignment: Alignment.center,
+                        child: Text(
+                          'btn_submit'.tr,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ),
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          )),
+          ),
+        ),
+      ),
     );
   }
 }
