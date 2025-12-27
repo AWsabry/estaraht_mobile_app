@@ -49,6 +49,7 @@ class UAllAppointmentsController extends GetxController {
           .from('bookings')
           .select('''
             *,
+            status,
             doctors!doctor_id (
               doctor_id,
               full_name,
@@ -107,7 +108,7 @@ class UAllAppointmentsController extends GetxController {
             address: doctorData?['bio']?.toString() ?? '',
             image: doctorData?['profile_img_url']?.toString() ?? '',
             departmentName:
-                doctorData?['specialization']?.toString() ?? 'General',
+                doctorData?['specialization']?.toString() ?? 'Specialist',
             status: status,
           );
 

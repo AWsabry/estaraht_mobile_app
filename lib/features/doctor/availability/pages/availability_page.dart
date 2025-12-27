@@ -338,6 +338,7 @@ class DAvailabilityManagementScreen
           const SizedBox(height: 16),
           Text(
             'unable_to_load_data'.tr,
+            textAlign: TextAlign.center,
             style: TextStyle(fontSize: 16, color: Colors.grey[600]),
           ),
           const SizedBox(height: 16),

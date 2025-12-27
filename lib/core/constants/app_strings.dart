@@ -9,8 +9,12 @@ class Words extends Translations {
       'phone_number_already_exists': 'Phone number already exists',
       'invalid_email': 'Invalid email',
       'invalid_password': 'Invalid password',
-      'an_unexpected_error_occurred': 'An unexpected error occurred',
-      'registration_failed_user_exists': 'Registration failed user exists',
+      'invalid_credentials':
+          'The email or password you entered is incorrect. Please check and try again.',
+      'an_unexpected_error_occurred':
+          'Something went wrong. Please try again, and if the problem persists, contact support.',
+      'registration_failed_user_exists':
+          'An account with this email already exists. Please try logging in instead.',
       'thu': 'Thu',
       'tue': 'Tue',
       'stress': 'Stress',
@@ -66,6 +70,12 @@ class Words extends Translations {
       'OTP': "Verification code (OTP)",
       'appointment_date': ' Appointment Date',
       'video_call': 'Video Call',
+      'connecting': 'Connecting...',
+      'waiting_for_participants': 'Waiting for others to join...',
+      'participant': 'participant',
+      'participants': 'participants',
+      'initializing': 'Initializing...',
+      'connected': 'Connected',
       'contact_info': 'Contact Information',
       'payment_success_title': 'Payment Successful',
       'payment_success': 'Your payment was successful!',
@@ -78,7 +88,7 @@ class Words extends Translations {
       'pay_with_bankily': 'Pay with Bankily',
       'phone_number_hint': 'Enter your phone number',
       'pay_with_visa_or_mastercard_via_bankily':
-          'Pay with Visa or Mastercard via Bankily',
+          'Pay with Visa or Mastercard via Bankily (For people located in Mauritania)',
       'credit_or_debit_card': 'Credit or Debit Card',
       'total': 'Total',
       'tax': 'Tax',
@@ -141,6 +151,8 @@ class Words extends Translations {
       'activate_account_button': 'Activate Account',
       'resend_code_button': 'Resend Code',
       'resend_code_text': 'Didn\'t receive the code?',
+      'a_new_code_has_been_sent':
+          'Great! A new verification code has been sent to your email. Please check your inbox.',
 
       /// Patient Signup screen
       'create_account_title': 'Create your \n account in one step',
@@ -238,9 +250,10 @@ class Words extends Translations {
       /// dialog
       'ok_btn': 'Ok',
       'error': 'Error!',
-      'error2': 'Please try again',
-      'error3': 'Something Wrong',
-      'unable_to_save_token': 'Unable to save token to server',
+      'error2': 'Something went wrong. Please try again.',
+      'error3': 'We encountered an issue. Please try again later.',
+      'unable_to_save_token':
+          'We couldn\'t save your device information. Please try again.',
       'turn_on_location_and_retry': 'Turn on location and retry',
       'creating_account': 'Creating Account',
       'creating_account1': 'Please wait while creating account...',
@@ -255,7 +268,54 @@ class Words extends Translations {
       'success': 'Successful',
       'success_str': 'Success',
       'payment_success': 'Your payment success',
+      'finalizing_setup': 'Almost there!',
+      'registration_successful':
+          'Welcome! Your account has been created successfully',
       'not_logged_in': 'You are not logged in',
+      'invalid_otp_or_used':
+          'This verification code is invalid or has already been used. Please request a new one.',
+      'invalid_otp_code':
+          'The verification code you entered is incorrect. Please try again.',
+      'otp_expired':
+          'This verification code has expired. Please request a new code.',
+      'database_error':
+          'We encountered an issue connecting to our servers. Please try again.',
+      'authentication_error':
+          'We couldn\'t verify your identity. Please try again.',
+      'failed_to_resend_otp':
+          'We couldn\'t send a new code right now. Please try again in a moment.',
+      'no_authenticated_user': 'Please log in to continue.',
+      'please_enter_old_password':
+          'Please enter your current password to continue.',
+      'please_enter_new_password': 'Please enter a new password.',
+      'please_confirm_new_password': 'Please confirm your new password.',
+      'passwords_do_not_match':
+          'The new password and confirmation don\'t match. Please try again.',
+      'password_too_short': 'Password must be at least 6 characters long.',
+      'password_changed_successfully':
+          'Great! Your password has been changed successfully. A verification email has been sent to your inbox.',
+      'old_password_incorrect':
+          'The current password you entered is incorrect. Please try again.',
+      'password_too_weak':
+          'The new password is too weak. Please use a stronger password with a mix of letters, numbers, and symbols.',
+      'please_login_again':
+          'For your security, please log in again to continue.',
+      'too_many_attempts':
+          'Too many attempts. Please wait a moment and try again.',
+      'failed_to_change_password':
+          'We couldn\'t change your password right now. Please try again.',
+      'unable_to_change_password':
+          'Unable to change password at this time. Please try again later.',
+      'failed_to_update_appointment':
+          'We couldn\'t update the appointment status. Please try again.',
+      'login_failed':
+          'We couldn\'t log you in. Please check your email and password and try again.',
+      'not_authenticated': 'Please log in to access this feature.',
+      'enter_6_digits_otp': 'Please enter the 6-digit verification code.',
+      'payment_processing_failed':
+          'We couldn\'t process your payment right now. Please try again or use a different payment method.',
+      'payment_failed':
+          'Your payment couldn\'t be completed. Please check your payment details and try again.',
       'reporting_dialog1': 'Processing',
       'reporting_dialog2': 'Please wait while reporting issue...',
       'reporting_dialog3': 'No issue selected',
@@ -333,7 +393,10 @@ class Words extends Translations {
       'sign_in_title_1': 'Sign in to continue',
       'terms_and_conditions': 'Term & Conditions',
       'about': 'About us',
-      'unable_to_load_data': 'Something went wrong, Unable to load data',
+      'unable_to_load_data':
+          'We couldn\'t load the information right now. Please check your connection and try again.',
+      'unable_to_save_data':
+          'We couldn\'t save your changes. Please try again.',
       'report_issue1': 'Doctor not taking appointments on time',
       'report_issue2': 'Doctor is spam and details are incorrect',
       'report_issue3': 'Address details are incorrect',
@@ -346,7 +409,7 @@ class Words extends Translations {
       'enter_name': 'Enter Name',
       'enter_number': 'Enter mobile number',
       'enter_email_hint': 'Enter your email',
-      'enter_email_error': 'Enter valid email address',
+      'enter_email_error': 'Please enter a valid email address.',
       'password_not_match': 'Password doesn\'t match',
       'confirm_password': 'Confirm Password',
       'password': 'Password',
@@ -396,7 +459,8 @@ class Words extends Translations {
       /// textfield error
       'valid_mobile_number': 'Enter valid mobile number',
       'description': 'Description',
-      'common_textfield_error': 'This field is required',
+      'common_textfield_error':
+          'This field is required. Please fill it in to continue.',
       'please_select_image': 'Please select image',
       'enter_report_hint': 'Enter report name',
       'enter_report_error': 'Please enter report name',
@@ -513,10 +577,10 @@ class Words extends Translations {
       'method4_title': 'Paytm',
       'method5_title': 'Braintree',
       'method5_description':
-          'use your credit/debit card or PayPal account to pay consultation fee',
+          'Use your credit/debit card or PayPal account to pay consultation fee',
       'method6_title': 'Stripe',
       'method6_description':
-          'use your credit/debit card to pay consultation fee',
+          'Use your credit/debit card to pay consultation fee',
       'stripe_currency': 'Stripe currency',
       'method7_title': 'Razorpay',
       'common_description': 'use your credit/debit card to pay appointment fee',
@@ -568,7 +632,7 @@ class Words extends Translations {
       'income_report_tile_text4': 'Select Date Range',
       'income_report_str': 'Income Report',
       'detailed_report': 'Detailed Reports',
-      'details': 'details',
+      'details': 'Details',
       'total_income_str': '@option total income',
       'filter_report_by': 'Filter Reports by',
       'not_any_income_str': '@option you have not any income.',
@@ -688,8 +752,10 @@ class Words extends Translations {
       'phone_number_already_exists': 'رقم الهاتف مستخدم من قبل',
       'invalid_email': 'البريد الإلكتروني غير صالح',
       'invalid_password': 'كلمة المرور غير صالحة',
-      'an_unexpected_error_occurred': 'حدث خطأ غير متوقع',
-      'registration_failed_user_exists': 'فشل التسجيل لأن المستخدم موجود',
+      'an_unexpected_error_occurred':
+          'حدث خطأ ما. يرجى المحاولة مرة أخرى، وإذا استمرت المشكلة، يرجى الاتصال بالدعم.',
+      'registration_failed_user_exists':
+          'يوجد حساب بهذا البريد الإلكتروني بالفعل. يرجى محاولة تسجيل الدخول بدلاً من ذلك.',
       'no_notifications': "لا توجد إشعارات",
       'no_notifications_desc': "ليس لديك إشعارات في الوقت الحالي.",
       'notification_deleted': "تم حذف الإشعار",
@@ -726,6 +792,12 @@ class Words extends Translations {
 
       'appointment_date': ' تاريخ الموعد',
       'video_call': 'مكالمة فيديو',
+      'connecting': 'جاري الاتصال...',
+      'waiting_for_participants': 'في انتظار انضمام الآخرين...',
+      'participant': 'مشارك',
+      'participants': 'مشاركون',
+      'initializing': 'جاري التهيئة...',
+      'connected': 'متصل',
       'contact_info': 'معلومات الاتصال',
       'payment_success_title': 'نجاح الدفع',
       'payment_success': 'تم الدفع بنجاح!',
@@ -737,7 +809,7 @@ class Words extends Translations {
       'pay_with_bankily': 'الدفع عبر بنكلي',
       'phone_number_hint': 'أدخل رقم هاتفك',
       'pay_with_visa_or_mastercard_via_bankily':
-          'الدفع بفيزا أو ماستركارد عبر بنكلي',
+          'الدفع بفيزا أو ماستركارد عبر بنكلي (للأشخاص الموجودين في موريتانيا)',
       'credit_or_debit_card': 'بطاقة ائتمان أو خصم',
 
       'total': 'الإجمالي',
@@ -829,6 +901,8 @@ class Words extends Translations {
       'activate_account_button': 'تفعيل الحساب',
       'resend_code_button': 'ارسل مجددًا',
       'resend_code_text': 'لم تستلم الرمز؟',
+      'a_new_code_has_been_sent':
+          'رائع! تم إرسال رمز تحقق جديد إلى بريدك الإلكتروني. يرجى التحقق من صندوق الوارد.',
       'consultations': 'المواعيد',
       'verify_otp_title': 'تحقق من OTP',
       'verify_otp_description':
@@ -903,9 +977,10 @@ class Words extends Translations {
       /// dialog
       'ok_btn': 'حسنا',
       'error': 'خطأ!',
-      'error2': 'يرجى المحاولة مرة أخرى',
-      'error3': 'هناك خطأ ما',
-      'unable_to_save_token': 'غير قادر على حفظ الرمز على الخادم',
+      'error2': 'حدث خطأ ما. يرجى المحاولة مرة أخرى.',
+      'error3': 'واجهنا مشكلة. يرجى المحاولة مرة أخرى لاحقاً.',
+      'unable_to_save_token':
+          'لم نتمكن من حفظ معلومات جهازك. يرجى المحاولة مرة أخرى.',
       'turn_on_location_and_retry': 'قم بتشغيل الموقع وحاول مرة أخرى',
       'creating_account': 'إنشاء حساب',
       'creating_account1': 'يرجى الانتظار أثناء إنشاء الحساب...',
@@ -920,7 +995,50 @@ class Words extends Translations {
       'success': 'نجاح',
       'success_str': 'تم بنجاح',
       'payment_success': 'تم الدفع بنجاح',
+      'finalizing_setup': 'أوشكنا على الانتهاء!',
+      'registration_successful': 'مرحباً! تم إنشاء حسابك بنجاح',
       'not_logged_in': 'أنت لست مسجلاً الدخول',
+      'invalid_otp_or_used':
+          'رمز التحقق هذا غير صالح أو تم استخدامه بالفعل. يرجى طلب رمز جديد.',
+      'invalid_otp_code':
+          'رمز التحقق الذي أدخلته غير صحيح. يرجى المحاولة مرة أخرى.',
+      'otp_expired': 'انتهت صلاحية رمز التحقق هذا. يرجى طلب رمز جديد.',
+      'database_error':
+          'واجهنا مشكلة في الاتصال بخوادمنا. يرجى المحاولة مرة أخرى.',
+      'authentication_error':
+          'لم نتمكن من التحقق من هويتك. يرجى المحاولة مرة أخرى.',
+      'failed_to_resend_otp':
+          'لم نتمكن من إرسال رمز جديد الآن. يرجى المحاولة مرة أخرى بعد قليل.',
+      'no_authenticated_user': 'يرجى تسجيل الدخول للمتابعة.',
+      'please_enter_old_password': 'يرجى إدخال كلمة المرور الحالية للمتابعة.',
+      'please_enter_new_password': 'يرجى إدخال كلمة مرور جديدة.',
+      'please_confirm_new_password': 'يرجى تأكيد كلمة المرور الجديدة.',
+      'passwords_do_not_match':
+          'كلمة المرور الجديدة والتأكيد غير متطابقين. يرجى المحاولة مرة أخرى.',
+      'password_too_short': 'يجب أن تكون كلمة المرور 6 أحرف على الأقل.',
+      'password_changed_successfully':
+          'رائع! تم تغيير كلمة المرور بنجاح. تم إرسال بريد إلكتروني للتحقق إلى صندوق الوارد الخاص بك.',
+      'old_password_incorrect':
+          'كلمة المرور الحالية التي أدخلتها غير صحيحة. يرجى المحاولة مرة أخرى.',
+      'password_too_weak':
+          'كلمة المرور الجديدة ضعيفة جداً. يرجى استخدام كلمة مرور أقوى تحتوي على مزيج من الأحرف والأرقام والرموز.',
+      'please_login_again': 'لأمانك، يرجى تسجيل الدخول مرة أخرى للمتابعة.',
+      'too_many_attempts':
+          'محاولات كثيرة جداً. يرجى الانتظار قليلاً والمحاولة مرة أخرى.',
+      'failed_to_change_password':
+          'لم نتمكن من تغيير كلمة المرور الآن. يرجى المحاولة مرة أخرى.',
+      'unable_to_change_password':
+          'غير قادر على تغيير كلمة المرور في الوقت الحالي. يرجى المحاولة مرة أخرى لاحقاً.',
+      'failed_to_update_appointment':
+          'لم نتمكن من تحديث حالة الموعد. يرجى المحاولة مرة أخرى.',
+      'login_failed':
+          'لم نتمكن من تسجيل الدخول. يرجى التحقق من بريدك الإلكتروني وكلمة المرور والمحاولة مرة أخرى.',
+      'not_authenticated': 'يرجى تسجيل الدخول للوصول إلى هذه الميزة.',
+      'enter_6_digits_otp': 'يرجى إدخال رمز التحقق المكون من 6 أرقام.',
+      'payment_processing_failed':
+          'لم نتمكن من معالجة دفعتك الآن. يرجى المحاولة مرة أخرى أو استخدام طريقة دفع أخرى.',
+      'payment_failed':
+          'لم نتمكن من إكمال دفعتك. يرجى التحقق من تفاصيل الدفع والمحاولة مرة أخرى.',
       'reporting_dialog1': 'جاري المعالجة',
       'reporting_dialog2': 'يرجى الانتظار أثناء الإبلاغ عن المشكلة...',
       'reporting_dialog3': 'لا توجد مشكلة محددة',
@@ -997,7 +1115,12 @@ class Words extends Translations {
       'sign_in_title_1': 'تسجيل الدخول للمتابعة',
       'terms_and_conditions': 'الشروط والأحكام',
       'about': 'معلومات عنا',
-      'unable_to_load_data': 'حدث خطأ ما، غير قادر على تحميل البيانات',
+      'unable_to_load_data':
+          'لم نتمكن من تحميل المعلومات الآن. يرجى التحقق من اتصالك والمحاولة مرة أخرى.',
+      'unable_to_save_data':
+          'لم نتمكن من حفظ تغييراتك. يرجى المحاولة مرة أخرى.',
+      'invalid_credentials':
+          'البريد الإلكتروني أو كلمة المرور التي أدخلتها غير صحيحة. يرجى التحقق والمحاولة مرة أخرى.',
       'report_issue1': 'الطبيب لا يأخذ المواعيد في الوقت المحدد',
       'report_issue2': 'الطبيب هو بريد عشوائي والتفاصيل غير صحيحة',
       'report_issue3': 'تفاصيل العنوان غير صحيحة',
@@ -1010,7 +1133,7 @@ class Words extends Translations {
       'enter_name': 'أدخل الاسم',
       'enter_number': 'أدخل رقم الهاتف المحمول',
       'enter_email_hint': 'أدخل بريدك الإلكتروني',
-      'enter_email_error': 'أدخل عنوان بريد إلكتروني صحيح',
+      'enter_email_error': 'يرجى إدخال عنوان بريد إلكتروني صحيح.',
       'password_not_match': 'كلمات المرور غير متطابقة',
       'confirm_password': 'تأكيد كلمة المرور',
       'password': 'كلمة المرور',
@@ -1057,7 +1180,7 @@ class Words extends Translations {
       /// textfield error
       'valid_mobile_number': 'أدخل رقم هاتف محمول صحيح',
       'description': 'الوصف',
-      'common_textfield_error': 'هذا الحقل مطلوب',
+      'common_textfield_error': 'هذا الحقل مطلوب. يرجى ملؤه للمتابعة.',
       'please_select_image': 'يرجى اختيار صورة',
       'enter_report_hint': 'أدخل اسم التقرير',
       'enter_report_error': 'يرجى إدخال اسم التقرير',
@@ -1371,8 +1494,10 @@ class Words extends Translations {
       'phone_number_already_exists': 'Le numéro de téléphone existe déjà',
       'invalid_email': 'L\'e-mail est invalide',
       'invalid_password': 'Le mot de passe est invalide',
-      'an_unexpected_error_occurred': 'Une erreur inattendue est survenue',
-      'registration_failed_user_exists': 'La création de compte a échoué',
+      'an_unexpected_error_occurred':
+          'Quelque chose s\'est mal passé. Veuillez réessayer, et si le problème persiste, contactez le support.',
+      'registration_failed_user_exists':
+          'Un compte avec cet e-mail existe déjà. Veuillez essayer de vous connecter à la place.',
       'appointment_status_7': 'Annulé',
       'availability_management': 'Gestion de la disponibilité',
       'manage_availability': 'Gérez votre disponibilité',
@@ -1501,7 +1626,7 @@ class Words extends Translations {
           'Entrez votre adresse e-mail associée à votre compte',
       'we_will_email_a_password_reset_link':
           'Un lien de réinitialisation de mot de passe vous sera envoyé par e-mail',
-      'enter_email_error': 'Veuillez entrer une adresse e-mail valide',
+      'enter_email_error': 'Veuillez entrer une adresse e-mail valide.',
       'enter_email_hint': 'Entrez votre adresse e-mail',
       'password_reset_email_sent':
           'Email de réinitialisation de mot de passe envoyé',
@@ -1559,6 +1684,12 @@ class Words extends Translations {
       'OTP': "Code de Verification (OTP)",
       'appointment_date': ' Date de rendez-vous',
       'video_call': 'Appel vidéo',
+      'connecting': 'Connexion...',
+      'waiting_for_participants': 'En attente que d\'autres se joignent...',
+      'participant': 'participant',
+      'participants': 'participants',
+      'initializing': 'Initialisation...',
+      'connected': 'Connecté',
       'contact_info': 'Informations de contact',
       'payment_success_title': 'Succès du paiement',
       'payment_success': 'Paiement réussi',
@@ -1571,7 +1702,7 @@ class Words extends Translations {
       'pay_with_bankily': 'Payer avec Bankily',
       'phone_number_hint': 'Numéro de téléphone',
       'pay_with_visa_or_mastercard_via_bankily':
-          'Payer avec Visa ou Mastercard via Bankily',
+          'Payer avec Visa ou Mastercard via Bankily (Pour les personnes situées en Mauritanie)',
       'credit_or_debit_card': 'Carte de crédit ou de débit',
 
       'total': 'Total',
@@ -1629,7 +1760,8 @@ class Words extends Translations {
 
       'years_of_exp': ' années d\'expérience',
       'services_error': 'Veuillez entrer les services de spécialisation',
-      'common_textfield_error': 'Ce champ est obligatoire',
+      'common_textfield_error':
+          'Ce champ est obligatoire. Veuillez le remplir pour continuer.',
       'consultation_fee': 'Frais de consultation',
       'enter_number': 'Entrez le numéro de mobile',
       'phone_number': 'Numéro de téléphone',
@@ -1667,6 +1799,8 @@ class Words extends Translations {
       'activate_account_button': 'Activer le compte',
       'resend_code_button': 'Renvoyer le code',
       'resend_code_text': 'Vous n\'avez pas reçu le code? ',
+      'a_new_code_has_been_sent':
+          'Parfait! Un nouveau code de vérification a été envoyé à votre adresse e-mail. Veuillez vérifier votre boîte de réception.',
       'create_account_title': 'Créez votre \n compte en une étape',
       'create_doctor_account_title': 'Créez votre\n compte facilement',
       'journey_begins_here': 'Votre voyage vers l\'équilibre commence ici',
@@ -1760,10 +1894,11 @@ class Words extends Translations {
       /// dialog
       'ok_btn': 'Ok',
       'error': 'Erreur!',
-      'error2': 'Veuillez réessayer',
-      'error3': 'Quelque chose ne va pas',
+      'error2': 'Quelque chose s\'est mal passé. Veuillez réessayer.',
+      'error3':
+          'Nous avons rencontré un problème. Veuillez réessayer plus tard.',
       'unable_to_save_token':
-          'Impossible d\'enregistrer le jeton sur le serveur',
+          'Nous n\'avons pas pu enregistrer les informations de votre appareil. Veuillez réessayer.',
       'turn_on_location_and_retry': 'Activez la localisation et réessayez',
       'creating_account': 'Création du compte',
       'creating_account1':
@@ -1779,7 +1914,58 @@ class Words extends Translations {
       'success': 'Réussi',
       'success_str': 'Succès',
       'payment_success': 'Votre paiement a réussi',
+      'finalizing_setup': 'Presque terminé!',
+      'registration_successful':
+          'Bienvenue! Votre compte a été créé avec succès',
       'not_logged_in': 'Vous n\'êtes pas connecté',
+      'invalid_otp_or_used':
+          'Ce code de vérification est invalide ou a déjà été utilisé. Veuillez en demander un nouveau.',
+      'invalid_otp_code':
+          'Le code de vérification que vous avez entré est incorrect. Veuillez réessayer.',
+      'otp_expired':
+          'Ce code de vérification a expiré. Veuillez demander un nouveau code.',
+      'database_error':
+          'Nous avons rencontré un problème de connexion à nos serveurs. Veuillez réessayer.',
+      'authentication_error':
+          'Nous n\'avons pas pu vérifier votre identité. Veuillez réessayer.',
+      'failed_to_resend_otp':
+          'Nous n\'avons pas pu envoyer un nouveau code pour le moment. Veuillez réessayer dans un instant.',
+      'no_authenticated_user': 'Veuillez vous connecter pour continuer.',
+      'please_enter_old_password':
+          'Veuillez entrer votre mot de passe actuel pour continuer.',
+      'please_enter_new_password': 'Veuillez entrer un nouveau mot de passe.',
+      'please_confirm_new_password':
+          'Veuillez confirmer votre nouveau mot de passe.',
+      'passwords_do_not_match':
+          'Le nouveau mot de passe et la confirmation ne correspondent pas. Veuillez réessayer.',
+      'password_too_short':
+          'Le mot de passe doit contenir au moins 6 caractères.',
+      'password_changed_successfully':
+          'Parfait! Votre mot de passe a été modifié avec succès. Un e-mail de vérification a été envoyé à votre boîte de réception.',
+      'old_password_incorrect':
+          'Le mot de passe actuel que vous avez entré est incorrect. Veuillez réessayer.',
+      'password_too_weak':
+          'Le nouveau mot de passe est trop faible. Veuillez utiliser un mot de passe plus fort avec un mélange de lettres, chiffres et symboles.',
+      'please_login_again':
+          'Pour votre sécurité, veuillez vous reconnecter pour continuer.',
+      'too_many_attempts':
+          'Trop de tentatives. Veuillez attendre un moment et réessayer.',
+      'failed_to_change_password':
+          'Nous n\'avons pas pu modifier votre mot de passe pour le moment. Veuillez réessayer.',
+      'unable_to_change_password':
+          'Impossible de modifier le mot de passe pour le moment. Veuillez réessayer plus tard.',
+      'failed_to_update_appointment':
+          'Nous n\'avons pas pu mettre à jour le statut du rendez-vous. Veuillez réessayer.',
+      'login_failed':
+          'Nous n\'avons pas pu vous connecter. Veuillez vérifier votre e-mail et votre mot de passe et réessayer.',
+      'not_authenticated':
+          'Veuillez vous connecter pour accéder à cette fonctionnalité.',
+      'enter_6_digits_otp':
+          'Veuillez entrer le code de vérification à 6 chiffres.',
+      'payment_processing_failed':
+          'Nous n\'avons pas pu traiter votre paiement pour le moment. Veuillez réessayer ou utiliser un autre mode de paiement.',
+      'payment_failed':
+          'Votre paiement n\'a pas pu être complété. Veuillez vérifier vos détails de paiement et réessayer.',
       'reporting_dialog1': 'Traitement',
       'reporting_dialog2':
           'Veuillez patienter pendant le signalement du problème...',
@@ -1851,7 +2037,11 @@ class Words extends Translations {
       'connect_with_therapist':
           'Connectez-vous avec votre thérapeute facilement et',
       'unable_to_load_data':
-          'Une erreur est survenue, impossible de charger les données',
+          'Nous n\'avons pas pu charger les informations pour le moment. Veuillez vérifier votre connexion et réessayer.',
+      'unable_to_save_data':
+          'Nous n\'avons pas pu enregistrer vos modifications. Veuillez réessayer.',
+      'invalid_credentials':
+          'L\'e-mail ou le mot de passe que vous avez entré est incorrect. Veuillez vérifier et réessayer.',
 
       // Continue with ALL other translations...
       'appointment_status_1': 'Absent',

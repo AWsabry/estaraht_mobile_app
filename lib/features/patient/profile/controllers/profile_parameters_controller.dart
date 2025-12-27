@@ -4,29 +4,20 @@ class ProfileParametersController extends GetxController {
   final supabase = supabaseHelper;
 
   // Observable for profile image URL
-  RxString profileImageUrl =
-      'https://media.istockphoto.com/id/1331281439/photo/cheerful-young-woman-in-white-t-shirt.jpg?s=612x612&w=0&k=20&c=kctE1SBfFR43rbst2Z4sxElTj1wvtDgAoqFwGJWNZoU='
-          .obs;
+  RxString profileImageUrl = ''.obs;
   RxString userName = ''.obs;
-  RxString userRole = ''.obs;
+  RxString userEmail = ''.obs;
+  RxString userPhone = ''.obs;
+  RxString userAge = ''.obs;
+  RxString userGender = ''.obs;
   RxInt sessionCount = 0.obs;
   RxBool isLoading = false.obs;
-  RxString userOcupation = ''.obs;
-  RxString userBio = ''.obs;
-
-  // Active tab index (0 = Bio, 1 = Medical File)
-  RxInt activeTabIndex = 0.obs;
 
   @override
   void onInit() {
     super.onInit();
     loadUserProfile();
     loadSessionCounts();
-  }
-
-  /// Change active tab
-  void changeTab(int index) {
-    activeTabIndex.value = index;
   }
 
   /// Load user profile data from Supabase
@@ -38,10 +29,13 @@ class ProfileParametersController extends GetxController {
       if (user == null) {
         // Load from local storage if available
         profileImageUrl.value =
-            StorageService.readData(key: LocalStorageKeys.profileImage) ??
-            'https://media.istockphoto.com/id/1331281439/photo/cheerful-young-woman-in-white-t-shirt.jpg?s=612x612&w=0&k=20&c=kctE1SBfFR43rbst2Z4sxElTj1wvtDgAoqFwGJWNZoU=';
+            StorageService.readData(key: LocalStorageKeys.profileImage) ?? '';
         userName.value =
             StorageService.readData(key: LocalStorageKeys.name) ?? '';
+        userEmail.value =
+            StorageService.readData(key: LocalStorageKeys.email) ?? '';
+        userPhone.value =
+            StorageService.readData(key: LocalStorageKeys.phone) ?? '';
         return;
       }
 
@@ -52,15 +46,22 @@ class ProfileParametersController extends GetxController {
           .eq('id', user.uid)
           .single();
 
-      profileImageUrl.value = response['profile_pic'] ?? '';
-      userName.value = response['name'] ?? '';
-      // Add other fields as needed
+      profileImageUrl.value = response['profile_pic']?.toString() ?? '';
+      userName.value = response['name']?.toString() ?? '';
+      userEmail.value = response['email']?.toString() ?? '';
+      userPhone.value = response['phone']?.toString() ?? '';
+      userAge.value = response['age']?.toString() ?? '';
+      userGender.value = response['gender']?.toString() ?? '';
     } catch (e) {
       // If error, try to load from local storage
       profileImageUrl.value =
           StorageService.readData(key: LocalStorageKeys.profileImage) ?? '';
       userName.value =
           StorageService.readData(key: LocalStorageKeys.name) ?? '';
+      userEmail.value =
+          StorageService.readData(key: LocalStorageKeys.email) ?? '';
+      userPhone.value =
+          StorageService.readData(key: LocalStorageKeys.phone) ?? '';
     } finally {
       isLoading.value = false;
     }
@@ -90,5 +91,4 @@ class ProfileParametersController extends GetxController {
       isLoading.value = false;
     }
   }
-
 }

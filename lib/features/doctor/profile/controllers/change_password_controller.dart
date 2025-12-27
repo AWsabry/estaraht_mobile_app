@@ -32,24 +32,24 @@ class DChangePasswordController extends GetxController {
   changePassword() async {
     // Validate inputs
     if (oldpassword.text.isEmpty) {
-      customDialog(s1: 'error'.tr, s2: 'Please enter your old password');
+      customDialog(s1: 'error'.tr, s2: 'please_enter_old_password'.tr);
       return;
     }
 
     if (newpassword.text.isEmpty) {
-      customDialog(s1: 'error'.tr, s2: 'Please enter a new password');
+      customDialog(s1: 'error'.tr, s2: 'please_enter_new_password'.tr);
       return;
     }
 
     if (confirmpassword.text.isEmpty) {
-      customDialog(s1: 'error'.tr, s2: 'Please confirm your new password');
+      customDialog(s1: 'error'.tr, s2: 'please_confirm_new_password'.tr);
       return;
     }
 
     if (newpassword.text != confirmpassword.text) {
       customDialog(
         s1: 'error'.tr,
-        s2: 'New password and confirmation do not match',
+        s2: 'passwords_do_not_match'.tr,
       );
       return;
     }
@@ -57,7 +57,7 @@ class DChangePasswordController extends GetxController {
     if (newpassword.text.length < 6) {
       customDialog(
         s1: 'error'.tr,
-        s2: 'Password must be at least 6 characters',
+        s2: 'password_too_short'.tr,
       );
       return;
     }
@@ -84,7 +84,7 @@ class DChangePasswordController extends GetxController {
       // Show success dialog
       customDialog(
         s1: 'success_str'.tr,
-        s2: 'Password changed successfully. A verification email has been sent.',
+        s2: 'password_changed_successfully'.tr,
         onPressed: () {
           Get.back();
           Get.back();
@@ -97,20 +97,19 @@ class DChangePasswordController extends GetxController {
       String errorMessage;
       switch (e.code) {
         case 'wrong-password':
-          errorMessage = 'The old password is incorrect';
+          errorMessage = 'old_password_incorrect'.tr;
           break;
         case 'weak-password':
-          errorMessage =
-              'The new password is too weak. Please use a stronger password';
+          errorMessage = 'password_too_weak'.tr;
           break;
         case 'requires-recent-login':
-          errorMessage = 'Please log in again to change your password';
+          errorMessage = 'please_login_again'.tr;
           break;
         case 'too-many-requests':
-          errorMessage = 'Too many attempts. Please try again later';
+          errorMessage = 'too_many_attempts'.tr;
           break;
         default:
-          errorMessage = e.message ?? 'Failed to change password';
+          errorMessage = 'failed_to_change_password'.tr;
       }
 
       customDialog(s1: 'error'.tr, s2: errorMessage);
@@ -119,12 +118,12 @@ class DChangePasswordController extends GetxController {
       loggerNoStack.e('Error changing password: $e');
       loggerNoStack.e('Stack trace: $stackTrace');
 
-      String errorMessage = 'Unable to change password. Please try again.';
+      String errorMessage = 'unable_to_change_password'.tr;
 
       if (e.toString().contains('old password is incorrect')) {
-        errorMessage = 'The old password is incorrect';
+        errorMessage = 'old_password_incorrect'.tr;
       } else if (e.toString().contains('No authenticated user')) {
-        errorMessage = 'Please log in again to change your password';
+        errorMessage = 'please_login_again'.tr;
       }
 
       customDialog(s1: 'error'.tr, s2: errorMessage);
