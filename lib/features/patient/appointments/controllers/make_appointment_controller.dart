@@ -205,9 +205,11 @@ class MakeAppointmentController extends GetxController {
     }
   }
 
-  /// Get available time slots for a specific date (filters out booked slots)
+  /// Get all time slots for a specific date with booking status
   /// This method calculates the day of week from the date and fetches slots
-  Future<List<String>> getTimeSlotsForDate(DateTime selectedDate) async {
+  Future<List<Map<String, dynamic>>> getTimeSlotsWithStatusForDate(
+    DateTime selectedDate,
+  ) async {
     try {
       // Convert Dart weekday (1=Monday, 7=Sunday) to database format (0=Sunday, 1=Monday, etc.)
       // Dart: Monday=1, Tuesday=2, ..., Sunday=7
@@ -224,50 +226,53 @@ class MakeAppointmentController extends GetxController {
         return [];
       }
 
-      // Filter out already booked slots
+      // Get booked slots for this date
       String dateString = selectedDate.toString().substring(0, 10);
-      List<String> availableSlots = await filterBookedSlots(
-        allSlots,
-        dateString,
-      );
+      Set<String> bookedTimes = await getBookedSlots(dateString);
+
+      // Create list with booking status for each slot
+      List<Map<String, dynamic>> slotsWithStatus = allSlots.map((slot) {
+        bool isBooked = bookedTimes.contains(slot);
+        return {
+          'time': slot,
+          'is_booked': isBooked,
+        };
+      }).toList();
 
       loggerNoStack.i(
-        'Available slots after filtering booked: ${availableSlots.length}/${allSlots.length}',
+        'Total slots: ${allSlots.length}, Booked: ${bookedTimes.length}',
       );
-      return availableSlots;
+      return slotsWithStatus;
     } catch (e) {
       loggerNoStack.e('Error getting time slots for date: $e');
       return [];
     }
   }
 
-  /// Filter out time slots that are already booked
-  Future<List<String>> filterBookedSlots(
-    List<String> allSlots,
-    String date,
-  ) async {
+  /// Get booked time slots for a specific date
+  Future<Set<String>> getBookedSlots(String date) async {
     try {
-      loggerNoStack.t('Checking booked slots for date $date');
+      loggerNoStack.t('Checking booked slots for date $date, doctorId: $doctorId');
 
       final bookedSlots = await supabase
           .from('bookings')
-          .select('booking_time')
+          .select('booking_time, status')
           .eq('doctor_id', doctorId)
           .eq('booking_date', date);
 
-      loggerNoStack.d('Booked slots response: $bookedSlots');
+      loggerNoStack.d('Booked slots response (${bookedSlots.length} records): $bookedSlots');
 
       if (bookedSlots.isEmpty) {
         loggerNoStack.i('No bookings found for this date');
-        return allSlots;
+        return {};
       }
 
       // Extract booked time slots and filter by status
       Set<String> bookedTimes = {};
       for (var booking in bookedSlots) {
-        // Only exclude confirmed and pending bookings
+        // Only exclude confirmed, pending, and accepted bookings
         String status = booking['status']?.toString().toLowerCase() ?? '';
-        if ((status == 'confirmed' || status == 'pending') &&
+        if ((status == 'confirmed' || status == 'pending' || status == 'accepted') &&
             booking['booking_time'] != null) {
           // booking_time might be in format "09:00:00" or "09:00"
           String timeStr = booking['booking_time'].toString();
@@ -281,17 +286,11 @@ class MakeAppointmentController extends GetxController {
       }
 
       loggerNoStack.i('Booked times: $bookedTimes');
-
-      // Filter out booked slots
-      List<String> availableSlots = allSlots.where((slot) {
-        return !bookedTimes.contains(slot);
-      }).toList();
-
-      return availableSlots;
+      return bookedTimes;
     } catch (e) {
-      loggerNoStack.e('Error filtering booked slots: $e');
-      // If error occurs, return all slots to avoid blocking users
-      return allSlots;
+      loggerNoStack.e('Error getting booked slots: $e');
+      // If error occurs, return empty set to avoid blocking users
+      return {};
     }
   }
 
@@ -338,7 +337,7 @@ class MakeAppointmentController extends GetxController {
 
     // Check availability for the first available date (if any)
     if (availableDates.isNotEmpty) {
-      checkAvailabilityFromSupabase(availableDates[0], true, i: 0);
+      await checkAvailabilityFromSupabase(availableDates[0], true, i: 0);
     } else {
       // No available dates found
       isNoSlot.value = true;
@@ -359,8 +358,18 @@ class MakeAppointmentController extends GetxController {
       isNoSlot.value = false;
       date = selectedDate.toString().substring(0, 10);
 
+      // Update isToday based on selected date
+      DateTime today = DateTime.now();
+      String todayStr = today.toString().substring(0, 10);
+      bool wasTodayBefore = isToday.value;
+      isToday.value = (date == todayStr);
+
+      loggerNoStack.i(
+        'Date comparison - Today: $todayStr, Selected: $date, isToday changed from $wasTodayBefore to ${isToday.value}',
+      );
+
       loggerNoStack.t(
-        'Checking availability for date: $date, weekday: ${selectedDate.weekday}',
+        'Checking availability for date: $date, weekday: ${selectedDate.weekday}, isToday: ${isToday.value}',
       );
 
       // Check if doctor is available on this date
@@ -369,12 +378,13 @@ class MakeAppointmentController extends GetxController {
       loggerNoStack.d('Is available: $isAvailable');
 
       if (isAvailable) {
-        // Get time slots for this date
-        List<String> timeSlots = await getTimeSlotsForDate(selectedDate);
+        // Get time slots with booking status for this date
+        List<Map<String, dynamic>> timeSlotsWithStatus =
+            await getTimeSlotsWithStatusForDate(selectedDate);
 
-        loggerNoStack.d('Time slots found: ${timeSlots.length}');
+        loggerNoStack.d('Time slots found: ${timeSlotsWithStatus.length}');
 
-        if (timeSlots.isNotEmpty) {
+        if (timeSlotsWithStatus.isNotEmpty) {
           // Convert to the format expected by the UI
           selectedSlot.clear();
           slotName.value = "";
@@ -382,30 +392,43 @@ class MakeAppointmentController extends GetxController {
           currentSlotsIndex.value = 0;
           previousSelectedTimingSlot.value = 0;
 
-          // Split into Morning/Evening slots
-          List<String> morningSlots = [];
-          List<String> eveningSlots = [];
+          // Split into Morning/Evening slots with booking status
+          List<Map<String, dynamic>> morningSlots = [];
+          List<Map<String, dynamic>> eveningSlots = [];
 
-          for (String timeSlot in timeSlots) {
+          for (var slotData in timeSlotsWithStatus) {
+            String timeSlot = slotData['time'];
+            bool isBooked = slotData['is_booked'];
+
             try {
               // Parse hour from time slot (e.g., "10:00" -> 10)
               String hourStr = timeSlot.split(':')[0].trim();
               int hour = int.parse(hourStr);
 
+              Map<String, dynamic> slotInfo = {
+                'id': timeSlot.hashCode,
+                'name': timeSlot,
+                'is_book': isBooked ? '1' : '0',
+              };
+
               if (hour < 12) {
-                morningSlots.add(timeSlot);
+                morningSlots.add(slotInfo);
               } else {
-                eveningSlots.add(timeSlot);
+                eveningSlots.add(slotInfo);
               }
             } catch (e) {
               loggerNoStack.e('Error parsing time slot "$timeSlot": $e');
               // If parsing fails, default to evening
-              eveningSlots.add(timeSlot);
+              eveningSlots.add({
+                'id': timeSlot.hashCode,
+                'name': timeSlot,
+                'is_book': isBooked ? '1' : '0',
+              });
             }
           }
 
           loggerNoStack.d(
-            'Morning slots: $morningSlots, Evening slots: $eveningSlots',
+            'Morning slots: ${morningSlots.length}, Evening slots: ${eveningSlots.length}',
           );
 
           List<Map<String, dynamic>> slotsData = [];
@@ -414,79 +437,49 @@ class MakeAppointmentController extends GetxController {
             slotsData = [
               {
                 'title': 'Morning',
-                'slottime': morningSlots
-                    .map(
-                      (time) => {
-                        'id': time.hashCode, // Pass as int, not String
-                        'name': time,
-                        'is_book': '0',
-                      },
-                    )
-                    .toList(),
+                'slottime': morningSlots,
               },
               {
                 'title': 'Evening',
-                'slottime': eveningSlots
-                    .map(
-                      (time) => {
-                        'id': time.hashCode, // Pass as int, not String
-                        'name': time,
-                        'is_book': '0',
-                      },
-                    )
-                    .toList(),
+                'slottime': eveningSlots,
               },
             ];
           } else if (morningSlots.isNotEmpty) {
             slotsData = [
               {
                 'title': 'Morning',
-                'slottime': morningSlots
-                    .map(
-                      (time) => {
-                        'id': time.hashCode, // Pass as int, not String
-                        'name': time,
-                        'is_book': '0',
-                      },
-                    )
-                    .toList(),
+                'slottime': morningSlots,
               },
             ];
           } else if (eveningSlots.isNotEmpty) {
             slotsData = [
               {
                 'title': 'Evening',
-                'slottime': eveningSlots
-                    .map(
-                      (time) => {
-                        'id': time.hashCode, // Pass as int, not String
-                        'name': time,
-                        'is_book': '0',
-                      },
-                    )
-                    .toList(),
+                'slottime': eveningSlots,
               },
             ];
           } else {
-            // All day
+            // All day - create slot info with booking status
+            List<Map<String, dynamic>> allDaySlots = timeSlotsWithStatus
+                .map(
+                  (slotData) => {
+                    'id': slotData['time'].hashCode,
+                    'name': slotData['time'],
+                    'is_book': slotData['is_booked'] ? '1' : '0',
+                  },
+                )
+                .toList();
+
             slotsData = [
               {
                 'title': 'All Day',
-                'slottime': timeSlots
-                    .map(
-                      (time) => {
-                        'id': time.hashCode, // Pass as int, not String
-                        'name': time,
-                        'is_book': '0',
-                      },
-                    )
-                    .toList(),
+                'slottime': allDaySlots,
               },
             ];
           }
 
           loggerNoStack.i(
-            'Created ${slotsData.length} slot groups with ${timeSlots.length} total slots',
+            'Created ${slotsData.length} slot groups with ${timeSlotsWithStatus.length} total slots',
           );
 
           // Convert to MakeAppointmentClass1 format
@@ -535,14 +528,22 @@ class MakeAppointmentController extends GetxController {
   initializeTimeSlotsFromSupabase(int index) {
     selectedTimingSlot.clear();
     try {
+      loggerNoStack.d(
+        'Initializing time slots for index $index, total slots: ${makeAppointmentClass!.data![index].slottime!.length}',
+      );
       for (
         int i = 0;
         i < makeAppointmentClass!.data![index].slottime!.length;
         i++
       ) {
         selectedTimingSlot.add(false.obs);
+        var slot = makeAppointmentClass!.data![index].slottime![i];
+        loggerNoStack.d(
+          'Slot $i: ${slot.name} - is_book: ${slot.isBook}',
+        );
       }
     } catch (e) {
+      loggerNoStack.e('Error initializing time slots: $e');
       isNoSlot.value = true;
       isLoading.value = false;
     }

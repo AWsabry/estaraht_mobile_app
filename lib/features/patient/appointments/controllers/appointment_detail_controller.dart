@@ -1,9 +1,7 @@
-import 'package:videocalling/core/config/app_imports.dart';
-import 'package:http/http.dart' as http;
-import 'package:path/path.dart';
-import 'package:videocalling/core/utils/logger.dart';
 import 'dart:developer' as developer;
-import 'package:videocalling/features/video_call/pages/call_screen.dart';
+
+import 'package:http/http.dart' as http;
+import 'package:videocalling/core/config/app_imports.dart';
 
 class UserAppointmentDetailsController extends GetxController {
   String id = Get.arguments['id'];
@@ -42,7 +40,8 @@ class UserAppointmentDetailsController extends GetxController {
               phone_number,
               specialization,
               profile_img_url,
-              booking_price
+              booking_price,
+              bio
             ),
             patients!fk_bookings_patient (
               id,
@@ -58,6 +57,11 @@ class UserAppointmentDetailsController extends GetxController {
       // Map Supabase response to DoctorAppointmentDetailsClass format
       final doctorData = response['doctors'];
       final patientData = response['patients'];
+
+      // Get doctor bio from Supabase doctors.bio
+      final doctorBio = doctorData?['bio']?.toString() ?? '';
+
+      print('📋 Doctor bio from Supabase: $doctorBio');
 
       final appointmentData = {
         'success': 1,
@@ -78,8 +82,8 @@ class UserAppointmentDetailsController extends GetxController {
               ? 1
               : (response['status'] == 'completed' ? 2 : 0),
           'phone': patientData?['phone']?.toString(),
-          'email': patientData?['email']?.toString(),
-          'description': '',
+          'email': doctorData?['email']?.toString(),
+          'description': doctorBio,
           'prescription': '',
           'device_token': [],
           'remain_time': '',

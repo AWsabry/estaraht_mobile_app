@@ -1,11 +1,13 @@
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:videocalling/core/config/app_imports.dart';
 import 'package:videocalling/features/patient/appointments/models/make_appointment_class.dart';
+
 class MakeAppointment extends GetView<MakeAppointmentController> {
   final MakeAppointmentController makeAppointmentController = Get.put(
     MakeAppointmentController(),
   );
 
-   MakeAppointment({super.key});
+  MakeAppointment({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -19,13 +21,16 @@ class MakeAppointment extends GetView<MakeAppointmentController> {
         leading: Container(),
         elevation: 0,
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(100),
+          preferredSize: Size.fromHeight(100.h),
           child: Container(
             height: 60,
             width: double.infinity,
             color: Colors.white,
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 20.0,
+                vertical: 8.0,
+              ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
@@ -92,7 +97,7 @@ class MakeAppointment extends GetView<MakeAppointmentController> {
                       () => Row(
                         children: [
                           const Icon(Icons.arrow_forward),
-                         const  SizedBox(width: 8),
+                          const SizedBox(width: 8),
 
                           /// Show actual available date range instead of fixed 7 days
                           Text(
@@ -150,13 +155,16 @@ class MakeAppointment extends GetView<MakeAppointmentController> {
                                 }
 
                                 // Fix: Check if selected date is actually today, not just index 0
-                                DateTime selectedDate = makeAppointmentController.availableDates[i];
+                                DateTime selectedDate =
+                                    makeAppointmentController.availableDates[i];
                                 DateTime today = DateTime.now();
-                                bool isSelectedDateToday = selectedDate.year == today.year &&
-                                                         selectedDate.month == today.month &&
-                                                         selectedDate.day == today.day;
+                                bool isSelectedDateToday =
+                                    selectedDate.year == today.year &&
+                                    selectedDate.month == today.month &&
+                                    selectedDate.day == today.day;
 
-                                makeAppointmentController.isToday.value = isSelectedDateToday;
+                                makeAppointmentController.isToday.value =
+                                    isSelectedDateToday;
 
                                 makeAppointmentController
                                         .isSelected[makeAppointmentController
@@ -305,119 +313,148 @@ class MakeAppointment extends GetView<MakeAppointmentController> {
 
   Widget _buildDoctorInfoCard(bool isArabic) {
     return Container(
-      margin: const EdgeInsets.only(left: 32, right: 32, top: 40, bottom: 12),
-      padding: const EdgeInsets.all(16),
+      margin: EdgeInsets.only(left: 32.w, right: 32.w, top: 10.h, bottom: 12.h),
+      padding: EdgeInsets.all(16.h),
       decoration: BoxDecoration(
         color: const Color(0xFFF6F6F6),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Doctor image
           ClipRRect(
             borderRadius: BorderRadius.circular(40),
             child: Image.network(
-              makeAppointmentController.image, // Replace with actual doctor image
-              width: 50,
-              height: 50,
+              makeAppointmentController.image,
+              width: 50.w,
+              height: 50.h,
               fit: BoxFit.cover,
               errorBuilder: (context, error, stackTrace) => Container(
-                width: 50,
-                height: 50,
+                width: 50.w,
+                height: 50.h,
                 color: Colors.grey[200],
-                child: const Icon(Icons.person, size: 40),
+                child: Icon(Icons.person, size: 40.sp),
               ),
             ),
           ),
-          const SizedBox(width: 10),
+          SizedBox(width: 12.w),
 
           // Doctor info
           Expanded(
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(
-                  width: 160,
+                // Name and specialist section
+                Expanded(
+                  flex: 2,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        makeAppointmentController.name,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w400,
+                        makeAppointmentController.name.isEmpty
+                            ? makeAppointmentController.name
+                            : makeAppointmentController.name[0].toUpperCase() +
+                                  makeAppointmentController.name.substring(1),
+                        style: TextStyle(
+                          fontSize: 16.sp,
+                          fontWeight: FontWeight.w700,
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
+                      SizedBox(height: 4.h),
                       Text(
                         'specialist'.tr,
-                        style: const TextStyle(
-                          fontSize: 12,
+                        style: TextStyle(
+                          fontSize: 11.sp,
                           fontWeight: FontWeight.w400,
                         ),
                       ),
                     ],
                   ),
                 ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      child: Row(
+
+                SizedBox(width: 8.w),
+
+                // Icons section
+                Flexible(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          SvgPicture.asset(AppImages.payment, width: 20),
-                          const SizedBox(width: 8),
-                          Text(
-                            '${makeAppointmentController.consultationFee} ${CURRENCY.trim()}',
-                            style: const TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w400,
+                          SvgPicture.asset(
+                            AppImages.payment,
+                            width: 16.w,
+                            height: 16.h,
+                          ),
+                          SizedBox(width: 6.w),
+                          Flexible(
+                            child: Text(
+                              '${makeAppointmentController.consultationFee} ${CURRENCY.trim()}',
+                              style: TextStyle(
+                                fontSize: 10.sp,
+                                fontWeight: FontWeight.w400,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         ],
                       ),
-                    ),
-                    const SizedBox(height: 8),
-                    Container(
-                      child: Row(
+                      SizedBox(height: 8.h),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
                         children: [
                           SvgPicture.asset(
                             AppImages.videoCallIcon,
-                            width: 20,
-                            height: 20,
+                            width: 16.w,
+                            height: 16.h,
                           ),
-                          const SizedBox(width: 8),
-                          Text(
-                            'sessions'.tr,
-                            style: const TextStyle(
-                              fontSize: 12,
-                              height: 1.3,
-                              fontWeight: FontWeight.w400,
+                          SizedBox(width: 6.w),
+                          Flexible(
+                            child: Text(
+                              'sessions'.tr,
+                              style: TextStyle(
+                                fontSize: 10.sp,
+                                height: 1.3,
+                                fontWeight: FontWeight.w400,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         ],
                       ),
-                    ),
-                    const SizedBox(height: 8),
-                    Container(
-                      child: Row(
+                      SizedBox(height: 8.h),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
                         children: [
                           SvgPicture.asset(
                             AppImages.appointmentTime,
-                            width: 20,
+                            width: 16.w,
+                            height: 16.h,
                           ),
-                          const SizedBox(width: 8),
-                          Text(
-                            '45 ${"min".tr}',
-                            style: const TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w400,
+                          SizedBox(width: 6.w),
+                          Flexible(
+                            child: Text(
+                              '45 ${"min".tr}',
+                              style: TextStyle(
+                                fontSize: 10.sp,
+                                fontWeight: FontWeight.w400,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         ],
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ],
             ),

@@ -96,7 +96,7 @@ class DoctorLoginController extends GetxController {
       print("Erreur d'authentification Firebase : ${e.message}");
       isPasswordError.value = true;
       passErrorText.value = 'invalid_credentials'.tr;
-      customDialog(s1: 'error'.tr, s2: e.message ?? '');
+      customDialog(s1: 'error'.tr, s2: e.message ?? 'authentication_error'.tr);
     } catch (e) {
       Get.back();
       print("Une erreur inattendue est survenue : $e");

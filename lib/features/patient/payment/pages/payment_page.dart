@@ -1,3 +1,4 @@
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:videocalling/core/config/app_imports.dart';
 
 class PaymentScreen extends GetView<PaymentController> {
@@ -124,12 +125,12 @@ class PaymentScreen extends GetView<PaymentController> {
 
   Widget _buildAppointmentDetailsCard(bool isArabic) {
     return Card(
-      margin: const EdgeInsets.all(16),
+      margin: EdgeInsets.all(16.w),
       elevation: 0,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      color: const Color.fromRGBO(246, 246, 246, 1),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      color: const Color(0xFFF6F6F6),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(16.h),
         child: Column(
           crossAxisAlignment: isArabic
               ? CrossAxisAlignment.end
@@ -145,24 +146,24 @@ class PaymentScreen extends GetView<PaymentController> {
                   borderRadius: BorderRadius.circular(40),
                   child: CachedNetworkImage(
                     imageUrl: controller.doctorImageUrl,
-                    height: 60,
-                    width: 60,
+                    height: 50.h,
+                    width: 50.w,
                     fit: BoxFit.cover,
                     placeholder: (context, url) => Image.asset(
                       AppImages.getDoctorPlaceholder(controller.doctorGender),
-                      height: 60,
-                      width: 60,
+                      height: 50.h,
+                      width: 50.w,
                       fit: BoxFit.cover,
                     ),
                     errorWidget: (context, url, error) => Image.asset(
                       AppImages.getDoctorPlaceholder(controller.doctorGender),
-                      height: 60,
-                      width: 60,
+                      height: 50.h,
+                      width: 50.w,
                       fit: BoxFit.cover,
                     ),
                   ),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: 12.w),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: isArabic
@@ -170,18 +171,23 @@ class PaymentScreen extends GetView<PaymentController> {
                         : CrossAxisAlignment.start,
                     children: [
                       Text(
-                        controller.doctorName,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
+                        controller.doctorName.isEmpty
+                            ? controller.doctorName
+                            : controller.doctorName[0].toUpperCase() +
+                                  controller.doctorName.substring(1),
+                        style: TextStyle(
+                          fontSize: 16.sp,
+                          fontWeight: FontWeight.w700,
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(height: 2),
+                      SizedBox(height: 4.h),
                       Text(
                         controller.doctorSpecialization,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: Colors.black54,
+                        style: TextStyle(
+                          fontSize: 11.sp,
+                          fontWeight: FontWeight.w400,
                         ),
                       ),
                     ],
@@ -192,10 +198,12 @@ class PaymentScreen extends GetView<PaymentController> {
                     Get.back();
                   },
                   child: Text(
-                    "edit".tr,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: Color(0xFF3366FF),
+                    "edit".tr.isEmpty
+                        ? "edit".tr
+                        : "edit".tr[0].toUpperCase() + "edit".tr.substring(1),
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      color: const Color(0xFF3366FF),
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -203,55 +211,85 @@ class PaymentScreen extends GetView<PaymentController> {
               ],
             ),
 
-            const SizedBox(height: 16),
+            SizedBox(height: 16.h),
 
-            // --- Appointment Date/Time ---
+            // --- Appointment Details (Date/Time, Amount, Duration) ---
             Row(
               children: [
-                SvgPicture.asset(
-                  AppImages.appointmentTime,
-                  height: 24,
-                  width: 24,
-                ),
-                const SizedBox(width: 8),
+                // --- Appointment Date/Time ---
+                SizedBox(width: 8.w),
+                // --- Appointment Amount ---
                 Expanded(
-                  child: Text(
-                    "${controller.appointmentDate} at ${controller.appointmentTime}",
-                    style: const TextStyle(fontSize: 14, color: Colors.black87),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      SvgPicture.asset(
+                        AppImages.payment,
+                        width: 16.w,
+                        height: 16.h,
+                      ),
+                      SizedBox(width: 6.w),
+                      Flexible(
+                        child: Text(
+                          'MRU ${controller.amount}',
+                          style: TextStyle(
+                            fontSize: 11.sp,
+                            fontWeight: FontWeight.w700,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ],
-            ),
-
-            const SizedBox(height: 12),
-
-            // --- Appointment Amount ---
-            Row(
-              children: [
-                SvgPicture.asset(AppImages.payment),
-                const SizedBox(width: 8),
-                const Text(
-                  'MRU',
-                  style: TextStyle(fontSize: 14, color: Colors.black87),
+                SizedBox(width: 8.w),
+                // --- Appointment Duration ---
+                Expanded(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      SvgPicture.asset(
+                        AppImages.appointmentTime,
+                        width: 16.w,
+                        height: 16.h,
+                      ),
+                      SizedBox(width: 6.w),
+                      Flexible(
+                        child: Text(
+                          '45 ${"min".tr}',
+                          style: TextStyle(
+                            fontSize: 11.sp,
+                            fontWeight: FontWeight.w700,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                const SizedBox(width: 8),
-                Text(
-                  "${controller.amount} ",
-                  style: const TextStyle(fontSize: 14, color: Colors.black87),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            // --- Appointment Duration ---
-            Row(
-              children: [
-                SvgPicture.asset(AppImages.appointmentTime, width: 20),
-                const SizedBox(width: 8),
-                Text(
-                  '45 ${"min".tr}',
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w400,
+                Expanded(
+                  child: Row(
+                    children: [
+                      SvgPicture.asset(
+                        AppImages.appointmentTime,
+                        width: 16.w,
+                        height: 16.h,
+                      ),
+                      SizedBox(width: 6.w),
+                      Flexible(
+                        child: Text(
+                          "${controller.appointmentDate} at\n${controller.appointmentTime}",
+                          style: TextStyle(
+                            fontSize: 11.sp,
+                            fontWeight: FontWeight.w700,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -263,92 +301,99 @@ class PaymentScreen extends GetView<PaymentController> {
   }
 
   Widget _buildPaymentMethodsList(bool isArabic) {
-    return Column(
-      children: [
-        _buildPaymentOption(
-          title: 'pay_with_bankily'.tr,
-          subtitle: 'pay_with_visa_or_mastercard_via_bankily'.tr,
-          index: 1,
-          isArabic: isArabic,
-          logos: [Image.asset(AppImages.bankily, height: 50, width: 50)],
-        ),
-        const SizedBox(height: 8),
-        _buildPaymentOption(
-          title: 'method6_title'.tr, // Stripe
-          subtitle: 'method6_description'.tr,
-          index: 2,
-          isArabic: isArabic,
-          icon: Icons.credit_card,
-        ),
-        Obx(() {
-          if (controller.selectedPaymentMethod.value != 2) {
-            return const SizedBox.shrink();
-          }
-          return Padding(
-            padding: const EdgeInsets.only(top: 12.0, left: 16.0, right: 16.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'stripe_currency'.tr,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Column(
+        children: [
+          _buildPaymentOption(
+            title: 'pay_with_bankily'.tr,
+            subtitle: 'pay_with_visa_or_mastercard_via_bankily'.tr,
+            index: 1,
+            isArabic: isArabic,
+            logos: [Image.asset(AppImages.bankily, height: 50, width: 50)],
+          ),
+          const SizedBox(height: 8),
+          _buildPaymentOption(
+            title: 'method6_title'.tr, // Stripe
+            subtitle: 'method6_description'.tr,
+            index: 2,
+            isArabic: isArabic,
+            icon: Icons.credit_card,
+          ),
+          Obx(() {
+            if (controller.selectedPaymentMethod.value != 2) {
+              return const SizedBox.shrink();
+            }
+            return Padding(
+              padding: const EdgeInsets.only(
+                top: 12.0,
+                left: 16.0,
+                right: 16.0,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'stripe_currency'.tr,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 4,
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.black26),
+                      color: Colors.white,
+                    ),
+                    child: DropdownButton<String>(
+                      value: controller.stripeCurrencyCode,
+                      underline: const SizedBox.shrink(),
+                      onChanged: (value) {
+                        if (value != null) {
+                          controller.setStripeCurrencyCode(value);
+                        }
+                      },
+                      items: controller.stripeSupportedCurrencies
+                          .map(
+                            (code) => DropdownMenuItem<String>(
+                              value: code,
+                              child: Text(code),
+                            ),
+                          )
+                          .toList(),
+                    ),
                   ),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.black26),
-                    color: Colors.white,
-                  ),
-                  child: DropdownButton<String>(
-                    value: controller.stripeCurrencyCode,
-                    underline: const SizedBox.shrink(),
-                    onChanged: (value) {
-                      if (value != null) {
-                        controller.setStripeCurrencyCode(value);
-                      }
-                    },
-                    items: controller.stripeSupportedCurrencies
-                        .map(
-                          (code) => DropdownMenuItem<String>(
-                            value: code,
-                            child: Text(code),
-                          ),
-                        )
-                        .toList(),
-                  ),
-                ),
-              ],
-            ),
-          );
-        }),
-        /*  const SizedBox(height: 8),
-        _buildPaymentOption(
-          title: 'e_wallet'.tr,
-          subtitle: 'pay_at_the_clinic'.tr,
-          index: 2,
-          isArabic: isArabic,
-          logos:[
-            SvgPicture.asset(AppImages.wallet, height: 20),
-          ],
-        ),
-        const SizedBox(height: 8),*/
-        /*_buildPaymentOption(
-          title: 'app_wallet'.tr,
-          subtitle: 'pay_at_the_clinic'.tr,
-          index: 3,
-          isArabic: isArabic,
-          logos:[
-            SvgPicture.asset(AppImages.wallet, height: 20),
-          ],
-        ),*/
-      ],
+                ],
+              ),
+            );
+          }),
+          /*  const SizedBox(height: 8),
+          _buildPaymentOption(
+            title: 'e_wallet'.tr,
+            subtitle: 'pay_at_the_clinic'.tr,
+            index: 2,
+            isArabic: isArabic,
+            logos:[
+              SvgPicture.asset(AppImages.wallet, height: 20),
+            ],
+          ),
+          const SizedBox(height: 8),*/
+          /*_buildPaymentOption(
+            title: 'app_wallet'.tr,
+            subtitle: 'pay_at_the_clinic'.tr,
+            index: 3,
+            isArabic: isArabic,
+            logos:[
+              SvgPicture.asset(AppImages.wallet, height: 20),
+            ],
+          ),*/
+        ],
+      ),
     );
   }
 

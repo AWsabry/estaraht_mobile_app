@@ -1,11 +1,12 @@
 import 'package:videocalling/core/config/app_imports.dart';
 import 'package:videocalling/core/utils/logger.dart';
+
 class DoctorDetailScreen extends GetView<DoctorDetailController> {
   final DoctorDetailController detailController = Get.put(
     DoctorDetailController(),
   );
 
-   DoctorDetailScreen({super.key});
+  DoctorDetailScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -660,7 +661,9 @@ class DoctorDetailScreen extends GetView<DoctorDetailController> {
                                         ),
                                         if (isToday)
                                           Container(
-                                            margin: const EdgeInsets.only(top: 4),
+                                            margin: const EdgeInsets.only(
+                                              top: 4,
+                                            ),
                                             padding: const EdgeInsets.symmetric(
                                               horizontal: 6,
                                               vertical: 2,
@@ -708,7 +711,10 @@ class DoctorDetailScreen extends GetView<DoctorDetailController> {
                         padding: const EdgeInsets.all(20),
                         child: Text(
                           'no_available_dates'.tr,
-                          style: const TextStyle(color: Colors.grey, fontSize: 14),
+                          style: const TextStyle(
+                            color: Colors.grey,
+                            fontSize: 14,
+                          ),
                         ),
                       ),
                     ),
@@ -741,7 +747,9 @@ class DoctorDetailScreen extends GetView<DoctorDetailController> {
                                   vertical: 4,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFF3961F1).withOpacity(0.1),
+                                  color: const Color(
+                                    0xFF3961F1,
+                                  ).withOpacity(0.1),
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: Text(
@@ -808,7 +816,9 @@ class DoctorDetailScreen extends GetView<DoctorDetailController> {
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xFF3961F1),
                                 foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(vertical: 16),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 16,
+                                ),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
@@ -980,7 +990,10 @@ class DoctorDetailScreen extends GetView<DoctorDetailController> {
             children: [
               Text(
                 name,
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                ),
               ),
               const SizedBox(height: 4),
               Text(

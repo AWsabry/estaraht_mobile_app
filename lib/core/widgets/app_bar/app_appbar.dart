@@ -1,3 +1,4 @@
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:videocalling/core/config/app_imports.dart';
 
 class CustomAppBar extends StatelessWidget {
@@ -23,8 +24,9 @@ class CustomAppBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
+      bottom: false,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 12),
+        padding: EdgeInsets.symmetric(horizontal: 22.h, vertical: 4.h),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -290,8 +292,9 @@ class CustomHomeScreenAppBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
+      bottom: false,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(22, 24, 22, 24),
+        padding: const EdgeInsets.fromLTRB(22, 16, 22, 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
