@@ -2,12 +2,11 @@ import 'package:mailer/mailer.dart' as mailer;
 import 'package:mailer/mailer.dart';
 import 'package:mailer/smtp_server/gmail.dart';
 import 'package:videocalling/core/config/app_imports.dart';
-import 'package:videocalling/core/utils/logger.dart';
 
 class EmailService {
   // Use environment variables or secure storage
-  static String get _username => 'a.cheikh@estaraht.com';
-  static String get _appPassword => 'hjdv jtln rovz vohm';
+  static String get _username => 'noreply@estaraht.com';
+  static String get _appPassword => 'yjNWTahRQuRb6dT%';
   static const String _appName = 'Estaraht';
 
   /// Validate email format
