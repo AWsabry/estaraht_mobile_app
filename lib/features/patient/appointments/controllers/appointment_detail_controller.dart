@@ -1,9 +1,7 @@
-import 'package:videocalling/core/config/app_imports.dart';
-import 'package:http/http.dart' as http;
-import 'package:path/path.dart';
-import 'package:videocalling/core/utils/logger.dart';
 import 'dart:developer' as developer;
-import 'package:videocalling/features/video_call/pages/call_screen.dart';
+
+import 'package:http/http.dart' as http;
+import 'package:videocalling/core/config/app_imports.dart';
 
 class UserAppointmentDetailsController extends GetxController {
   String id = Get.arguments['id'];

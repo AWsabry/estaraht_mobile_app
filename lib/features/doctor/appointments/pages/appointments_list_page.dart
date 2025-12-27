@@ -1,4 +1,5 @@
 import 'package:videocalling/core/config/app_imports.dart';
+
 class DoctorAllAppointments extends GetView<DAllAppointmentsController> {
   final DAllAppointmentsController appointmentsController = Get.put(
     DAllAppointmentsController(),
@@ -356,29 +357,30 @@ class DoctorAllAppointments extends GetView<DAllAppointmentsController> {
 
   Widget _buildEmptyAppointments() {
     return Container(
-      padding: const EdgeInsets.all(120),
-      margin: const EdgeInsets.all(16),
+      // margin: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
       ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Icons.event_busy_outlined, size: 120, color: Colors.grey[400]),
-          const SizedBox(height: 24),
-          Text(
-            'doctor_not_appointment_text'.tr,
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.grey[700],
-              fontFamily: AppFontStyleTextStrings.regular,
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.event_busy_outlined, size: 120, color: Colors.grey[400]),
+            const SizedBox(height: 24),
+            Text(
+              'doctor_not_appointment_text'.tr,
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey[700],
+                fontFamily: AppFontStyleTextStrings.regular,
+              ),
+              textAlign: TextAlign.center,
             ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 16),
-        ],
+            const SizedBox(height: 16),
+          ],
+        ),
       ),
     );
   }

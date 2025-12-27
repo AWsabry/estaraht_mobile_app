@@ -4,7 +4,8 @@
       "Bash(flutter build apk:*)",
       "Bash(adb uninstall:*)",
       "Bash(flutter run:*)",
-      "Bash(keytool:*)"
+      "Bash(keytool:*)",
+      "Bash(flutter analyze:*)"
     ],
     "deny": [],
     "ask": []

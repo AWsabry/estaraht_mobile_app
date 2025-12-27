@@ -5,6 +5,8 @@ class Words extends Translations {
   Map<String, Map<String, String>> get keys => {
     'en_US': {
       'try_again': 'Try again',
+      'profile_completed_successfully': 'Profile completed successfully',
+      'finalizing_setup': 'Finalizing setup...',
       'email_already_exists': 'Email already exists',
       'phone_number_already_exists': 'Phone number already exists',
       'invalid_email': 'Invalid email',
@@ -71,7 +73,7 @@ class Words extends Translations {
       'payment_success': 'Your payment was successful!',
       'withdrawal_amount': "amount",
       'total_balance': "total balance",
-      'financial': 'financial',
+      'financial': 'Financial',
       'enter_valid_email': 'Enter valid email',
       'enter_the_coupon_here': 'Enter the coupon here',
 
@@ -210,6 +212,13 @@ class Words extends Translations {
       // Doctor Detail Screen
       'bio': 'Bio',
       'specialization': 'Specialization',
+      'select_specialization': 'Select Specialization',
+      'select_specialization_error': 'Please select a specialization',
+      'add_new_specialization': 'Add New Specialization',
+      'specialization_name': 'Specialization Name',
+      'adding_specialization': 'Adding specialization...',
+      'specialization_added_successfully': 'Specialization added successfully',
+      'error_adding_specialization': 'Error adding specialization',
       'available_appointments': 'Available appointments',
       'reviews': 'Reviews',
       'write_comment': 'Write a comment',
@@ -682,6 +691,8 @@ class Words extends Translations {
       ' retry': ' Retry',
     },
     'ar_MR': {
+      'profile_completed_successfully': 'تم إكمال الملف الشخصي بنجاح',
+      'finalizing_setup': 'جاري التهيئة...',
       'details': 'تفاصيل',
       'try_again': 'حاول مرة اخرى',
       'email_already_exists': 'البريد الإلكتروني مستخدم من قبل',
@@ -873,6 +884,13 @@ class Words extends Translations {
       // Doctor Detail Screen
       'bio': 'السيرة الذاتية',
       'specialization': 'التخصص',
+      'select_specialization': 'اختر التخصص',
+      'select_specialization_error': 'يرجى اختيار التخصص',
+      'add_new_specialization': 'إضافة تخصص جديد',
+      'specialization_name': 'اسم التخصص',
+      'adding_specialization': 'جاري إضافة التخصص...',
+      'specialization_added_successfully': 'تمت إضافة التخصص بنجاح',
+      'error_adding_specialization': 'خطأ في إضافة التخصص',
       'available_appointments': 'المواعيد المتاحة',
       'reviews': 'المراجعات',
       'write_comment': 'اكتب تعليقًا',
@@ -1362,6 +1380,8 @@ class Words extends Translations {
       'select_valid_time': 'الرجاء اختيار نطاق زمني صالح',
     },
     'fr_FR': {
+      'profile_completed_successfully': 'Profil complété avec succès',
+      'finalizing_setup': 'Finalisation de la configuration...',
       'details': 'détails',
       'try_again': 'essayer à nouveau',
       'profile': 'Profil',
@@ -1564,7 +1584,7 @@ class Words extends Translations {
       'payment_success': 'Paiement réussi',
       'withdrawal_amount': "montant",
       'total_balance': "solde total",
-      'financial': 'financière',
+      'financial': 'Financière',
       'enter_valid_email': 'Entrez une adresse e-mail valide',
       'enter_the_coupon_here': 'Entrez le coupon ici',
 
@@ -1732,6 +1752,14 @@ class Words extends Translations {
       // Doctor Detail Screen
       'bio': 'Biographie',
       'specialization': 'Spécialisation',
+      'select_specialization': 'Sélectionner la spécialisation',
+      'select_specialization_error': 'Veuillez sélectionner une spécialisation',
+      'add_new_specialization': 'Ajouter une nouvelle spécialisation',
+      'specialization_name': 'Nom de la spécialisation',
+      'adding_specialization': 'Ajout de la spécialisation...',
+      'specialization_added_successfully': 'Spécialisation ajoutée avec succès',
+      'error_adding_specialization':
+          'Erreur lors de l\'ajout de la spécialisation',
       'available_appointments': 'Rendez-vous disponibles',
       'reviews': 'Avis',
       'write_comment': 'Écrire un commentaire',
