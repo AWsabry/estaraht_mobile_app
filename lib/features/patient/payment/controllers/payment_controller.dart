@@ -860,8 +860,8 @@ class PaymentController extends GetxController {
       }
 
       Get.snackbar(
-        'Error',
-        'Payment processing failed: ${e.toString()}',
+        'error'.tr,
+        'payment_processing_failed'.tr,
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red,
         colorText: Colors.white,
@@ -1388,8 +1388,8 @@ class PaymentController extends GetxController {
       }
 
       _showSafeSnackbar(
-        title: 'Error',
-        message: 'Payment failed: ${e.toString()}',
+        title: 'error'.tr,
+        message: 'payment_failed'.tr,
         position: SnackPosition.BOTTOM,
         backgroundColor: Colors.red,
       );
@@ -1475,8 +1475,8 @@ class PaymentController extends GetxController {
       loggerNoStack.e('❌ CRITICAL ERROR in processPayment: $e');
       loggerNoStack.e('Stack trace: $stackTrace');
       Get.snackbar(
-        'Error',
-        'Payment failed: ${e.toString()}',
+        'error'.tr,
+        'payment_failed'.tr,
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red,
         colorText: Colors.white,

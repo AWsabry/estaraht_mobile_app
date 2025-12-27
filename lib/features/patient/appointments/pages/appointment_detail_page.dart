@@ -1,10 +1,12 @@
 import 'package:videocalling/core/config/app_imports.dart';
+
 class UserAppointmentDetailsScreen
     extends GetView<UserAppointmentDetailsController> {
-  final UserAppointmentDetailsController detailsController =
-      Get.put(UserAppointmentDetailsController());
+  final UserAppointmentDetailsController detailsController = Get.put(
+    UserAppointmentDetailsController(),
+  );
 
-   UserAppointmentDetailsScreen({super.key});
+  UserAppointmentDetailsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -19,10 +21,11 @@ class UserAppointmentDetailsScreen
         title: Text(
           'appointment'.tr,
           style: TextStyle(
-              color: Colors.black,
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              fontFamily: AppFontStyleTextStrings.medium),
+            color: Colors.black,
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            fontFamily: AppFontStyleTextStrings.medium,
+          ),
         ),
         centerTitle: false,
         leading: IconButton(
@@ -32,31 +35,31 @@ class UserAppointmentDetailsScreen
         ),
         titleSpacing: 0,
       ),
-      body: Obx(() => detailsController.isErrorInLoading.value
-          ? _buildErrorState()
-          : FutureBuilder(
-              future: detailsController.getAppointmentDetails,
-              builder: (context, AsyncSnapshot snapshot) {
-                if (snapshot.hasError) {
-                  return Center(
-                    child: Text(
-                      snapshot.error.toString(),
-                      style: TextStyle(
-                        color: Colors.grey[700],
-                        fontSize: 16,
+      body: Obx(
+        () => detailsController.isErrorInLoading.value
+            ? _buildErrorState()
+            : FutureBuilder(
+                future: detailsController.getAppointmentDetails,
+                builder: (context, AsyncSnapshot snapshot) {
+                  if (snapshot.hasError) {
+                    return Center(
+                      child: Text(
+                        snapshot.error.toString(),
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: Colors.grey[700], fontSize: 16),
                       ),
-                    ),
-                  );
-                }
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return _buildLoadingState();
-                } else if (snapshot.connectionState == ConnectionState.none) {
-                  return Container();
-                } else {
-                  return _buildAppointmentDetails(context, isArabic);
-                }
-              },
-            )),
+                    );
+                  }
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return _buildLoadingState();
+                  } else if (snapshot.connectionState == ConnectionState.none) {
+                    return Container();
+                  } else {
+                    return _buildAppointmentDetails(context, isArabic);
+                  }
+                },
+              ),
+      ),
     );
   }
 
@@ -67,18 +70,12 @@ class UserAppointmentDetailsScreen
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.search_off_rounded,
-              size: 100,
-              color: Colors.grey[400],
-            ),
+            Icon(Icons.search_off_rounded, size: 100, color: Colors.grey[400]),
             const SizedBox(height: 20),
             Text(
               'unable_to_load_data'.tr,
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey[600],
-              ),
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 16, color: Colors.grey[600]),
             ),
           ],
         ),
@@ -133,9 +130,7 @@ class UserAppointmentDetailsScreen
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -151,7 +146,9 @@ class UserAppointmentDetailsScreen
                     children: [
                       Text(
                         detailsController
-                            .doctorAppointmentDetailsClass!.data!.doctorName!,
+                            .doctorAppointmentDetailsClass!
+                            .data!
+                            .doctorName!,
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -213,15 +210,14 @@ class UserAppointmentDetailsScreen
                     children: [
                       Text(
                         'time'.tr,
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey[700],
-                        ),
+                        style: TextStyle(fontSize: 14, color: Colors.grey[700]),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         detailsController
-                            .doctorAppointmentDetailsClass!.data!.slot!,
+                            .doctorAppointmentDetailsClass!
+                            .data!
+                            .slot!,
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -243,7 +239,9 @@ class UserAppointmentDetailsScreen
       borderRadius: BorderRadius.circular(16),
       child: CachedNetworkImage(
         imageUrl: detailsController
-            .doctorAppointmentDetailsClass!.data!.doctorImage
+            .doctorAppointmentDetailsClass!
+            .data!
+            .doctorImage
             .toString(),
         height: 80,
         width: 80,
@@ -307,11 +305,7 @@ class UserAppointmentDetailsScreen
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            Icons.circle,
-            size: 8,
-            color: statusColor,
-          ),
+          Icon(Icons.circle, size: 8, color: statusColor),
           const SizedBox(width: 6),
           Text(
             statusText,
@@ -330,9 +324,7 @@ class UserAppointmentDetailsScreen
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -340,13 +332,10 @@ class UserAppointmentDetailsScreen
           children: [
             Text(
               'contact_info'.tr,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
-        /*    _buildContactItem(
+            /*    _buildContactItem(
               context: context,
               icon: Icons.phone,
               title: 'phone_number'.tr,
@@ -367,11 +356,15 @@ class UserAppointmentDetailsScreen
               value:
                   detailsController.doctorAppointmentDetailsClass!.data!.email!,
               onTap: () {
-                launch(Uri(
-                  scheme: 'mailto',
-                  path: detailsController
-                      .doctorAppointmentDetailsClass!.data!.email,
-                ).toString());
+                launch(
+                  Uri(
+                    scheme: 'mailto',
+                    path: detailsController
+                        .doctorAppointmentDetailsClass!
+                        .data!
+                        .email,
+                  ).toString(),
+                );
               },
               isArabic: isArabic,
             ),
@@ -380,7 +373,7 @@ class UserAppointmentDetailsScreen
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'description'.tr,
+                  'bio'.tr,
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
@@ -390,11 +383,16 @@ class UserAppointmentDetailsScreen
                 const SizedBox(height: 8),
                 Text(
                   detailsController
-                      .doctorAppointmentDetailsClass!.data!.description!,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[600],
-                  ),
+                          .doctorAppointmentDetailsClass!
+                          .data!
+                          .description!
+                          .isNotEmpty
+                      ? detailsController
+                            .doctorAppointmentDetailsClass!
+                            .data!
+                            .description!
+                      : 'bio_not_available'.tr,
+                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                 ),
               ],
             ),
@@ -413,7 +411,7 @@ class UserAppointmentDetailsScreen
                   ),
                 ),
                 const SizedBox(width: 16),
-              /*  Expanded(
+                /*  Expanded(
                   child: _buildActionButton(
                     icon: Icons.chat,
                     label: 'chat'.tr,
@@ -453,11 +451,7 @@ class UserAppointmentDetailsScreen
             color: const Color(0xFF3366FF).withOpacity(0.1),
             borderRadius: BorderRadius.circular(10),
           ),
-          child: Icon(
-            icon,
-            color: const Color(0xFF3366FF),
-            size: 20,
-          ),
+          child: Icon(icon, color: const Color(0xFF3366FF), size: 20),
         ),
         const SizedBox(width: 16),
         Expanded(
@@ -475,10 +469,7 @@ class UserAppointmentDetailsScreen
               const SizedBox(height: 4),
               Text(
                 value,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey[600],
-                ),
+                style: TextStyle(fontSize: 14, color: Colors.grey[600]),
               ),
             ],
           ),
@@ -505,9 +496,7 @@ class UserAppointmentDetailsScreen
         backgroundColor: const Color(0xFF3366FF),
         elevation: 0,
         padding: const EdgeInsets.symmetric(vertical: 12),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -528,19 +517,20 @@ class UserAppointmentDetailsScreen
   }
 
   Widget _buildPrescriptionCard(BuildContext context, bool isArabic) {
-    final hasPrescriptions = !(detailsController
-                .doctorAppointmentDetailsClass!.prescription
-                .toString() ==
-            "null" ||
-        detailsController
-            .doctorAppointmentDetailsClass!.prescription!.medicine!.isEmpty);
+    final hasPrescriptions =
+        !(detailsController.doctorAppointmentDetailsClass!.prescription
+                    .toString() ==
+                "null" ||
+            detailsController
+                .doctorAppointmentDetailsClass!
+                .prescription!
+                .medicine!
+                .isEmpty);
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -553,10 +543,7 @@ class UserAppointmentDetailsScreen
                   width: 40,
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
-                      colors: [
-                        Color(0xFF3366FF),
-                        Color(0xFF00CCFF),
-                      ],
+                      colors: [Color(0xFF3366FF), Color(0xFF00CCFF)],
                       begin: Alignment.bottomLeft,
                       end: Alignment.topRight,
                     ),
@@ -588,10 +575,7 @@ class UserAppointmentDetailsScreen
                         hasPrescriptions
                             ? 'user_no_prescription_msg1'.tr
                             : 'user_no_prescription_msg'.tr,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey[600],
-                        ),
+                        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                       ),
                     ],
                   ),
@@ -600,10 +584,7 @@ class UserAppointmentDetailsScreen
             ),
             if (hasPrescriptions) ...[
               const SizedBox(height: 16),
-              Divider(
-                color: Colors.grey[300],
-                thickness: 1,
-              ),
+              Divider(color: Colors.grey[300], thickness: 1),
               const SizedBox(height: 8),
               _buildPrescriptionList(context, isArabic),
               const SizedBox(height: 16),
@@ -642,26 +623,26 @@ class UserAppointmentDetailsScreen
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: detailsController
-          .doctorAppointmentDetailsClass!.prescription!.medicine!.length,
-      separatorBuilder: (context, index) => Divider(
-        color: Colors.grey[300],
-        thickness: 1,
-        height: 32,
-      ),
+          .doctorAppointmentDetailsClass!
+          .prescription!
+          .medicine!
+          .length,
+      separatorBuilder: (context, index) =>
+          Divider(color: Colors.grey[300], thickness: 1, height: 32),
       itemBuilder: (context, i) {
         final medicine = detailsController
-            .doctorAppointmentDetailsClass!.prescription!.medicine![i];
+            .doctorAppointmentDetailsClass!
+            .prescription!
+            .medicine![i];
 
         return Column(
-          crossAxisAlignment:
-              isArabic ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+          crossAxisAlignment: isArabic
+              ? CrossAxisAlignment.end
+              : CrossAxisAlignment.start,
           children: [
             Text(
               medicine.medicine_name ?? "",
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
               textAlign: isArabic ? TextAlign.right : TextAlign.left,
@@ -681,8 +662,9 @@ class UserAppointmentDetailsScreen
             ),
             const SizedBox(height: 12),
             Column(
-              crossAxisAlignment:
-                  isArabic ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+              crossAxisAlignment: isArabic
+                  ? CrossAxisAlignment.end
+                  : CrossAxisAlignment.start,
               children: [
                 Text(
                   'medicine_param3'.tr,
@@ -696,17 +678,18 @@ class UserAppointmentDetailsScreen
                 Wrap(
                   spacing: 8,
                   runSpacing: 8,
-                  textDirection:
-                      isArabic ? TextDirection.rtl : TextDirection.ltr,
+                  textDirection: isArabic
+                      ? TextDirection.rtl
+                      : TextDirection.ltr,
                   children: [
                     for (int j = 0; j < medicine.time!.length; j++)
                       Container(
-                        padding:
-                            const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
                         decoration: BoxDecoration(
-                          border: Border.all(
-                            color: const Color(0xFF3366FF),
-                          ),
+                          border: Border.all(color: const Color(0xFF3366FF)),
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(
@@ -737,26 +720,20 @@ class UserAppointmentDetailsScreen
     );
   }
 
-  Widget _buildInfoRow(
-      {required String title, required String value, required bool isArabic}) {
+  Widget _buildInfoRow({
+    required String title,
+    required String value,
+    required bool isArabic,
+  }) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       textDirection: isArabic ? TextDirection.rtl : TextDirection.ltr,
       children: [
         Text(
           title,
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-          ),
+          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
         ),
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 14,
-            color: Colors.grey[600],
-          ),
-        ),
+        Text(value, style: TextStyle(fontSize: 14, color: Colors.grey[600])),
       ],
     );
   }
@@ -764,19 +741,18 @@ class UserAppointmentDetailsScreen
   Widget _buildReportsCard(BuildContext context, bool isArabic) {
     final hasReports =
         (detailsController.doctorAppointmentDetailsClass!.image?.length ?? 0) !=
-            0;
+        0;
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment:
-              isArabic ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+          crossAxisAlignment: isArabic
+              ? CrossAxisAlignment.end
+              : CrossAxisAlignment.start,
           children: [
             Row(
               textDirection: isArabic ? TextDirection.rtl : TextDirection.ltr,
@@ -813,10 +789,7 @@ class UserAppointmentDetailsScreen
                         hasReports
                             ? 'user_no_report_msg1'.tr
                             : 'user_no_report_msg'.tr,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey[600],
-                        ),
+                        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                       ),
                     ],
                   ),
@@ -830,21 +803,23 @@ class UserAppointmentDetailsScreen
               ListView.separated(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                itemCount: detailsController
-                        .doctorAppointmentDetailsClass!.image?.length ??
+                itemCount:
+                    detailsController
+                        .doctorAppointmentDetailsClass!
+                        .image
+                        ?.length ??
                     0,
-                separatorBuilder: (context, index) => Divider(
-                  color: Colors.grey[300],
-                  thickness: 1,
-                  height: 24,
-                ),
+                separatorBuilder: (context, index) =>
+                    Divider(color: Colors.grey[300], thickness: 1, height: 24),
                 itemBuilder: (context, i) {
                   final report = detailsController
-                      .doctorAppointmentDetailsClass!.image![i];
+                      .doctorAppointmentDetailsClass!
+                      .image![i];
 
                   return Row(
-                    textDirection:
-                        isArabic ? TextDirection.rtl : TextDirection.ltr,
+                    textDirection: isArabic
+                        ? TextDirection.rtl
+                        : TextDirection.ltr,
                     children: [
                       ClipRRect(
                         borderRadius: BorderRadius.circular(8),
@@ -857,7 +832,10 @@ class UserAppointmentDetailsScreen
                             height: 70,
                             width: 70,
                             color: Colors.grey[200],
-                            child: const Icon(Icons.broken_image, color: Colors.grey),
+                            child: const Icon(
+                              Icons.broken_image,
+                              color: Colors.grey,
+                            ),
                           ),
                         ),
                       ),
@@ -868,8 +846,9 @@ class UserAppointmentDetailsScreen
                           style: const TextStyle(fontSize: 14),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
-                          textAlign:
-                              isArabic ? TextAlign.right : TextAlign.left,
+                          textAlign: isArabic
+                              ? TextAlign.right
+                              : TextAlign.left,
                         ),
                       ),
                       IconButton(
@@ -879,25 +858,26 @@ class UserAppointmentDetailsScreen
                         ),
                         onPressed: () async {
                           customDialog1(
-                              s1: 'reporting_dialog1'.tr,
-                              s2: 'please_wait_while_processing'.tr);
+                            s1: 'reporting_dialog1'.tr,
+                            s2: 'please_wait_while_processing'.tr,
+                          );
 
                           await detailsController
                               .downloadAndSaveImage(
-                            "${Apis.reportImagePath}${report.image}",
-                          )
+                                "${Apis.reportImagePath}${report.image}",
+                              )
                               .then((value) {
-                            if (value) {
-                              Get.back();
-                              customDialog(
-                                onPressed: () {
+                                if (value) {
                                   Get.back();
-                                },
-                                s1: 'success'.tr,
-                                s2: 'image_save_success'.tr,
-                              );
-                            }
-                          });
+                                  customDialog(
+                                    onPressed: () {
+                                      Get.back();
+                                    },
+                                    s1: 'success'.tr,
+                                    s2: 'image_save_success'.tr,
+                                  );
+                                }
+                              });
                         },
                       ),
                     ],

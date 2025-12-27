@@ -3,6 +3,7 @@ import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:videocalling/core/config/app_imports.dart';
 
 class CallScreen extends StatefulWidget {
   final String channelName;
@@ -261,7 +262,7 @@ class _CallScreenState extends State<CallScreen> {
                         Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Text(
-                            'Initializing...',
+                            'initializing'.tr,
                             style: TextStyle(
                               color: Colors.white.withValues(alpha: 0.5),
                               fontSize: 10,
@@ -289,8 +290,8 @@ class _CallScreenState extends State<CallScreen> {
                 const SizedBox(height: 8),
                 Text(
                   _isJoined
-                    ? '${_formatDuration(_callDuration)} • ${_remoteUids.length} ${_remoteUids.length == 1 ? "participant" : "participants"}'
-                    : 'Connexion...',
+                    ? '${_formatDuration(_callDuration)} • ${_remoteUids.length} ${_remoteUids.length == 1 ? "participant".tr : "participants".tr}'
+                    : 'connecting'.tr,
                   style: const TextStyle(color: Colors.white70, fontSize: 16),
                 ),
               ],
@@ -354,13 +355,13 @@ class _CallScreenState extends State<CallScreen> {
           children: [
             const CircularProgressIndicator(color: Colors.white),
             const SizedBox(height: 20),
-            const Text(
-              'En attente des participants...',
-              style: TextStyle(color: Colors.white, fontSize: 16),
+            Text(
+              'waiting_for_participants'.tr,
+              style: const TextStyle(color: Colors.white, fontSize: 16),
             ),
             const SizedBox(height: 10),
             Text(
-              'Status: ${_isJoined ? "Connected" : "Connecting..."}',
+              'Status: ${_isJoined ? "connected".tr : "connecting".tr}',
               style: const TextStyle(color: Colors.white54, fontSize: 12),
             ),
           ],

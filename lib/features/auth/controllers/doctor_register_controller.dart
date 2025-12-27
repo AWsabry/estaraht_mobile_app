@@ -225,7 +225,7 @@ class DoctorRegisterController extends GetxController {
     } on FirebaseAuthException catch (e) {
       Get.back();
       print("Firebase Auth Error: ${e.message}");
-      customDialog(s1: 'error'.tr, s2: e.message ?? 'An error occurred');
+      customDialog(s1: 'error'.tr, s2: e.message ?? 'an_unexpected_error_occurred'.tr);
     } catch (e) {
       Get.back();
       print("An unexpected error occurred: $e");

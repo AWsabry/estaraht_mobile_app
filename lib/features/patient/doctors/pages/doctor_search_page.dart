@@ -249,6 +249,7 @@ class _DoctorSearchScreenState extends State<DoctorSearchScreen> {
           const SizedBox(height: 16),
           Text(
             'unable_to_load_data'.tr,
+            textAlign: TextAlign.center,
             style: TextStyle(color: Colors.grey[700], fontSize: 14),
           ),
           const SizedBox(height: 24),
