@@ -61,6 +61,7 @@ class DoctorAppointmentDetails extends GetView<DAppointmentDetailsController> {
             const SizedBox(height: 20),
             Text(
               'unable_to_load_data'.tr,
+              textAlign: TextAlign.center,
               style: TextStyle(fontSize: 16, color: Colors.grey[600]),
             ),
           ],

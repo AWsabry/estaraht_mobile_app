@@ -1,5 +1,4 @@
 import 'package:videocalling/core/config/app_imports.dart';
-import 'package:videocalling/core/utils/logger.dart';
 import 'package:videocalling/features/doctor/appointments/models/dappointment_list_model.dart';
 
 class DAllAppointmentsController extends GetxController {
@@ -32,8 +31,8 @@ class DAllAppointmentsController extends GetxController {
           .select('*, patients(name, profile_img_url)')
           .eq('doctor_id', doctorId)
           .order('created_at', ascending: false);
-      loggerNoStack.i("this is the response ${response.first}");
       if (response.isNotEmpty) {
+        loggerNoStack.i("this is the response ${response.first}");
         isLoaded.value = true;
         isAppointmentAvailable.value = true;
         // Map response to DoctorAppointmentData list
@@ -49,6 +48,7 @@ class DAllAppointmentsController extends GetxController {
       }
     } catch (e) {
       isErrorInLoading.value = true;
+      loggerNoStack.e("Error fetching past appointments: $e");
     }
   }
 

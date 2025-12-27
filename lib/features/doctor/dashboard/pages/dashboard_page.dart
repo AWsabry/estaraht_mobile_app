@@ -1,5 +1,4 @@
 import 'package:videocalling/core/config/app_imports.dart';
-import 'package:videocalling/core/utils/logger.dart';
 
 class DoctorDashboard extends GetView<DoctorDashboardController> {
   final DoctorDashboardController dashboardController = Get.put(
@@ -171,7 +170,7 @@ class DoctorDashboard extends GetView<DoctorDashboardController> {
         .toList();
 
     return SizedBox(
-      height: 260,
+      height: 230,
       child: filteredAppointments.isEmpty
           ? _buildEmptyAppointmentsView(Get.context!)
           : ListView.builder(
@@ -292,15 +291,15 @@ class DoctorDashboard extends GetView<DoctorDashboardController> {
                     ),
                     const SizedBox(height: 4),
                     // Two interests per row
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 4,
-                      children: [
-                        _buildInterestChip('anxiety'.tr),
-                        _buildInterestChip('relationships'.tr),
-                        _buildInterestChip('adhd'.tr),
-                      ],
-                    ),
+                    // Wrap(
+                    //   spacing: 8,
+                    //   runSpacing: 4,
+                    //   children: [
+                    //     _buildInterestChip('anxiety'.tr),
+                    //     _buildInterestChip('relationships'.tr),
+                    //     _buildInterestChip('adhd'.tr),
+                    //   ],
+                    // ),
 
                     // One interest on second row
                   ],
@@ -316,7 +315,7 @@ class DoctorDashboard extends GetView<DoctorDashboardController> {
                 ),
               ),
 
-              // Profile button
+              // Start button
               Padding(
                 padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
                 child: Center(

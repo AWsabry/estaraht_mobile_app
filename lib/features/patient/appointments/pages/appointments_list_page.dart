@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart' as material;
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:videocalling/core/config/app_imports.dart';
 import 'package:videocalling/features/patient/appointments/models/uall_appointment_model.dart';
+
 class UAllAppointments extends GetView<UAllAppointmentsController> {
   final UAllAppointmentsController appointmentsController = Get.put(
     UAllAppointmentsController(),
@@ -110,6 +112,7 @@ class UAllAppointments extends GetView<UAllAppointmentsController> {
             const SizedBox(height: 16),
             Text(
               'error_loading_appointments'.tr,
+
               style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 18),
               textAlign: TextAlign.center,
             ),
@@ -338,6 +341,7 @@ class UAllAppointments extends GetView<UAllAppointmentsController> {
     BuildContext context,
   ) {
     final bool isPastSession = appointmentsController.selectedTab.value == 0;
+    final bool isArabic = Get.locale?.languageCode == 'ar';
 
     return Container(
       decoration: BoxDecoration(
@@ -358,68 +362,85 @@ class UAllAppointments extends GetView<UAllAppointmentsController> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            appointmentsController.selectedTab.value == 1
-                ? const SizedBox(height: 8)
-                : const SizedBox(height: 12),
+            SizedBox(
+              height: appointmentsController.selectedTab.value == 1 ? 8 : 12,
+            ),
+            // Doctor info row
             Row(
+              textDirection: isArabic ? TextDirection.rtl : TextDirection.ltr,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                // Doctor image with info indicator
-                Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(25),
-                      child: CachedNetworkImage(
-                        imageUrl: appointment.image ?? '',
-                        height: 50,
-                        width: 50,
-                        fit: BoxFit.cover,
-                        placeholder: (context, url) => Image.asset(
-                          AppImages.getDoctorPlaceholder(appointment.gender),
-                          height: 50,
-                          width: 50,
-                          fit: BoxFit.cover,
-                        ),
-                        errorWidget: (context, url, err) => Image.asset(
-                          AppImages.getDoctorPlaceholder(appointment.gender),
-                          height: 50,
-                          width: 50,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
+                // Doctor image
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(25),
+                  child: CachedNetworkImage(
+                    imageUrl: appointment.image ?? '',
+                    height: 50.h,
+                    width: 50.w,
+                    fit: BoxFit.cover,
+                    placeholder: (context, url) => Image.asset(
+                      AppImages.getDoctorPlaceholder(appointment.gender),
+                      height: 50,
+                      width: 50,
+                      fit: BoxFit.cover,
                     ),
-                  ],
+                    errorWidget: (context, url, err) => Image.asset(
+                      AppImages.getDoctorPlaceholder(appointment.gender),
+                      height: 50.h,
+                      width: 50,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: isArabic ? 0 : 12),
+                SizedBox(width: isArabic ? 12 : 0),
 
                 // Doctor name and specialty
                 Expanded(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
+                    crossAxisAlignment: isArabic
+                        ? CrossAxisAlignment.end
+                        : CrossAxisAlignment.start,
                     children: [
-                      Container(
-                        constraints: const BoxConstraints(maxWidth: 90),
-                        child: Text(
-                          appointment.name ?? 'Unknown',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 15,
-                            height: Get.locale?.languageCode == 'ar' ? 1 : 1.0,
-                          ),
-                          softWrap: true,
+                      Text(
+                        (appointment.name ?? 'Unknown').isEmpty
+                            ? (appointment.name ?? 'Unknown')
+                            : (appointment.name ?? 'Unknown')[0].toUpperCase() +
+                                  (appointment.name ?? 'Unknown').substring(1),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                          height: isArabic ? 1.2 : 1.0,
                         ),
+                        textAlign: isArabic ? TextAlign.right : TextAlign.left,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 4),
                       Text(
                         appointment.departmentName ?? 'Specialist',
                         style: TextStyle(
-                          fontSize: 12,
-                          height: 1.2,
+                          fontSize: 12.sp,
+                          fontWeight: FontWeight.w500,
                           color: Colors.grey[600],
                         ),
+                        textAlign: isArabic ? TextAlign.right : TextAlign.left,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        appointmentsController.statusMap[appointment.status] ??
+                            appointment.status ??
+                            'Unknown',
+                        style: TextStyle(
+                          fontSize: 11,
+                          height: 1.2,
+                          color: Colors.grey[500],
+                        ),
+                        textAlign: isArabic ? TextAlign.right : TextAlign.left,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -429,30 +450,35 @@ class UAllAppointments extends GetView<UAllAppointmentsController> {
               ],
             ),
 
-            // Date and time
+            // Date and time row
             Padding(
               padding: EdgeInsets.only(
                 top: appointmentsController.selectedTab.value == 1 ? 12 : 32,
-                left: 0,
               ),
               child: Row(
+                textDirection: isArabic ? TextDirection.rtl : TextDirection.ltr,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Date and time text
                   Expanded(
                     child: Text(
-                      Get.locale?.languageCode == 'ar'
+                      isArabic
                           ? "${_formatDateArabic(appointment.date ?? '')} \n ${_formatTimeArabic(appointment.slot ?? '')} "
                           : "${_formatDate(appointment.date ?? '')} at ${_formatTime(appointment.slot ?? '')}",
                       style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w400,
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w700,
                         color: Colors.grey[800],
-                        height: Get.locale?.languageCode == 'ar' ? 1.3 : 1.0,
+                        height: isArabic ? 1.3 : 1.0,
                       ),
+                      textAlign: isArabic ? TextAlign.right : TextAlign.left,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  const SizedBox(width: 6),
+                  SizedBox(width: isArabic ? 0 : 6),
+                  SizedBox(width: isArabic ? 6 : 0),
+                  // Time icon
                   SvgPicture.asset(
                     AppImages.appointmentTime,
                     color: AppColors.color1,
@@ -635,7 +661,7 @@ class UAllAppointments extends GetView<UAllAppointmentsController> {
         child: Text(
           'review'.tr,
           style: TextStyle(
-            color: Colors.white,
+            color: Colors.black,
             fontSize: 12,
             fontFamily: Get.locale?.languageCode == 'ar'
                 ? 'NotoKufiArabic'

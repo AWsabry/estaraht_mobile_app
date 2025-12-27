@@ -62,7 +62,7 @@ class UserHomeScreen extends GetView<UserHomeController> {
                               'most_in_demand_doctors'.tr,
                               style: const TextStyle(
                                 fontSize: 16,
-                                fontWeight: FontWeight.w400,
+                                fontWeight: FontWeight.w700,
                               ),
                             ),
                             // Commented TextButton can be restored here if needed
@@ -227,7 +227,7 @@ class UserHomeScreen extends GetView<UserHomeController> {
                                                     ),
                                                   ),
                                                   Text(
-                                                    data.departmentName ?? "",
+                                                    data.specialization ?? "",
                                                     overflow:
                                                         TextOverflow.ellipsis,
                                                     style: const TextStyle(
@@ -267,12 +267,20 @@ class UserHomeScreen extends GetView<UserHomeController> {
                                               spacing: 4,
                                               runSpacing: 4,
                                               children: [
-                                                _buildSpecialtyChip("Anxiety"),
                                                 _buildSpecialtyChip(
-                                                  "Relationships",
+                                                  data.specialization ?? "",
                                                 ),
-                                                _buildSpecialtyChip("ADHD"),
                                               ],
+                                            ),
+                                            const SizedBox(height: 8),
+                                            Text(
+                                              "Bio: ${data.bio ?? ""}",
+                                              maxLines: 3,
+                                              style: const TextStyle(
+                                                fontSize: 10,
+                                                height: 1.2,
+                                                fontWeight: FontWeight.w300,
+                                              ),
                                             ),
                                           ],
                                         ),

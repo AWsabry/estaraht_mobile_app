@@ -125,7 +125,7 @@ class OtpController extends GetxController {
         if (otpRecords.isEmpty) {
           print('❌ No valid OTP record found');
           isOtpError.value = true;
-          errorMessage.value = 'Invalid OTP or already used';
+          errorMessage.value = 'invalid_otp_or_used'.tr;
           isLoading.value = false;
           return;
         }
@@ -138,7 +138,7 @@ class OtpController extends GetxController {
         if (otpRecord['otp_code'] != otpCode.value) {
           print('❌ OTP codes do not match');
           isOtpError.value = true;
-          errorMessage.value = 'Invalid OTP code';
+          errorMessage.value = 'invalid_otp_code'.tr;
           isLoading.value = false;
           return;
         }
@@ -154,7 +154,7 @@ class OtpController extends GetxController {
         if (now.isAfter(expiresAt)) {
           print('❌ OTP has expired');
           isOtpError.value = true;
-          errorMessage.value = 'OTP has expired. Please request a new one.';
+          errorMessage.value = 'otp_expired'.tr;
           isLoading.value = false;
           return;
         }
@@ -283,13 +283,13 @@ class OtpController extends GetxController {
     } on PostgrestException catch (e) {
       isLoading.value = false;
       isOtpError.value = true;
-      errorMessage.value = 'Database error: ${e.message}';
+      errorMessage.value = 'database_error'.tr;
       print("❌ PostgrestException during OTP verification: ${e.message}");
       print("Details: ${e.details}");
     } on FirebaseAuthException catch (e) {
       isLoading.value = false;
       isOtpError.value = true;
-      errorMessage.value = e.message ?? 'Authentication error';
+      errorMessage.value = 'authentication_error'.tr;
       print("❌ FirebaseAuthException during OTP verification: ${e.message}");
     } catch (e, stackTrace) {
       isLoading.value = false;
@@ -383,7 +383,7 @@ class OtpController extends GetxController {
       }
 
       Get.snackbar(
-        'Success',
+        'success_str'.tr,
         'a_new_code_has_been_sent'.tr,
         snackPosition: SnackPosition.BOTTOM,
       );
@@ -391,16 +391,16 @@ class OtpController extends GetxController {
     } on PostgrestException catch (e) {
       print('❌ Database error during resend: ${e.message}');
       Get.snackbar(
-        'Error',
-        'Failed to resend OTP',
+        'error'.tr,
+        'failed_to_resend_otp'.tr,
         snackPosition: SnackPosition.BOTTOM,
       );
     } on AuthException catch (e) {
-      Get.snackbar('Error', e.message, snackPosition: SnackPosition.BOTTOM);
+      Get.snackbar('error'.tr, 'failed_to_resend_otp'.tr, snackPosition: SnackPosition.BOTTOM);
       print("Supabase Resend OTP Error: ${e.message}");
     } catch (e) {
       Get.snackbar(
-        'Error',
+        'error'.tr,
         'an_unexpected_error_occurred'.tr,
         snackPosition: SnackPosition.BOTTOM,
       );

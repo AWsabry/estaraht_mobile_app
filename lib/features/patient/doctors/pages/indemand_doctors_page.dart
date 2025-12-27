@@ -234,6 +234,7 @@ class _IndemandDoctorScreenState extends State<IndemandDoctorScreen> {
           const SizedBox(height: 12),
           Text(
             'unable_to_load_data'.tr,
+            textAlign: TextAlign.center,
             style: TextStyle(color: Colors.grey[700], fontSize: 14),
           ),
           const SizedBox(height: 16),

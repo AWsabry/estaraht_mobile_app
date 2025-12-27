@@ -39,6 +39,9 @@ class DoctorPastAppointmentsController extends GetxController {
       }
     } else {
       isErrorInLoading.value = true;
+      loggerNoStack.e(
+        "Failed to fetch past appointments. Status: ${response.statusCode}",
+      );
     }
     Client().close();
   }

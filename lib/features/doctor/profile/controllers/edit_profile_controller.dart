@@ -1,11 +1,5 @@
-import 'dart:developer';
-
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:videocalling/core/config/app_imports.dart';
-import 'package:dio/dio.dart' as dio;
-
-import 'dart:developer' as dev;
-import 'package:videocalling/core/utils/logger.dart';
 import 'package:videocalling/features/doctor/availability/models/holiday_model.dart';
 import 'package:videocalling/features/doctor/profile/models/doctor_profile_details_model.dart';
 import 'package:videocalling/features/doctor/profile/models/doctor_schdule_details_model.dart';
@@ -220,20 +214,25 @@ class DoctorProfileController extends GetxController {
 
   fetchDoctorSchedule() async {
     isScheduleLoaded.value = false;
-    final response = await get(
-      Uri.parse(
-        "${Apis.ServerAddress}/api/getdoctorschedule?doctor_id=${doctorId.value}",
-      ),
-    ).timeout(const Duration(seconds: Apis.timeOut));
-    if (response.statusCode == 200) {
-      final jsonResponse = jsonDecode(response.body);
-      if (jsonResponse['success'].toString() == "1") {
-        doctorScheduleDetails = DoctorScheduleDetails.fromJson(jsonResponse);
+    try {
+      final response = await get(
+        Uri.parse(
+          "${Apis.ServerAddress}/api/getdoctorschedule?doctor_id=${doctorId.value}",
+        ),
+      ).timeout(const Duration(seconds: Apis.timeOut));
+      if (response.statusCode == 200) {
+        final jsonResponse = jsonDecode(response.body);
+        if (jsonResponse['success'].toString() == "1") {
+          doctorScheduleDetails = DoctorScheduleDetails.fromJson(jsonResponse);
 
-        isScheduleLoaded.value = true;
+          isScheduleLoaded.value = true;
+        }
+      } else {
+        loggerNoStack.e("Failed to fetch doctor schedule. Status: ${response.statusCode}");
       }
-    } else {
-      isErrorInLoading.value = true;
+    } catch (e, stackTrace) {
+      loggerNoStack.e("Error fetching doctor schedule: $e");
+      loggerNoStack.e("Stack trace: $stackTrace");
     }
   }
 
@@ -376,6 +375,10 @@ class DoctorProfileController extends GetxController {
   File? sImage;
   RxBool sImageSelected = false.obs;
 
+  // Specializations from database
+  RxList<String> specializationsList = <String>[].obs;
+  RxBool isSpecializationsLoading = false.obs;
+
   String? base64image;
 
   Future getImage() async {
@@ -408,6 +411,73 @@ class DoctorProfileController extends GetxController {
     onInit();
   }
 
+  /// Fetch specializations from Supabase
+  Future<void> fetchSpecializations() async {
+    try {
+      isSpecializationsLoading.value = true;
+      loggerNoStack.i('Fetching specializations from Supabase...');
+
+      final response = await supabaseHelper.client
+          .from('specialization')
+          .select('name')
+          .order('name', ascending: true);
+
+      loggerNoStack.i('Fetched ${response.length} specializations');
+
+      // Clear existing specializations
+      specializationsList.clear();
+
+      // Add specializations from database
+      for (var spec in response) {
+        final name = spec['name'] ?? '';
+        if (name.isNotEmpty) {
+          specializationsList.add(name);
+        }
+      }
+
+      isSpecializationsLoading.value = false;
+    } catch (e, stackTrace) {
+      loggerNoStack.e('Error fetching specializations: $e');
+      loggerNoStack.e('Stack trace: $stackTrace');
+      isSpecializationsLoading.value = false;
+    }
+  }
+
+  /// Add new specialization to Supabase
+  Future<bool> addNewSpecialization(String specializationName) async {
+    try {
+      loggerNoStack.i('Adding new specialization: $specializationName');
+
+      // Check if specialization already exists
+      final existingSpec = await supabaseHelper.client
+          .from('specializations')
+          .select('name')
+          .eq('name', specializationName)
+          .maybeSingle();
+
+      if (existingSpec != null) {
+        loggerNoStack.i('Specialization already exists');
+        return true; // Already exists, no need to add
+      }
+
+      // Insert new specialization
+      await supabaseHelper.client.from('specializations').insert({
+        'name': specializationName,
+        'created_at': DateTime.now().toIso8601String(),
+      });
+
+      loggerNoStack.i('New specialization added successfully');
+
+      // Refresh the list
+      await fetchSpecializations();
+      return true;
+    } catch (e, stackTrace) {
+      loggerNoStack.e('Error adding new specialization: $e');
+      loggerNoStack.e('Stack trace: $stackTrace');
+      return false;
+    }
+  }
+
   // Check if coming from registration
   @override
   void onInit() {
@@ -424,6 +494,7 @@ class DoctorProfileController extends GetxController {
     StorageService.readData(key: LocalStorageKeys.userId) ?? "";
     future = fetchDoctorProfileDetails();
     future2 = fetchDoctorSchedule();
+    fetchSpecializations(); // Fetch specializations list
   }
 
   ValueNotifier<String?> selectedValue = ValueNotifier(null);
@@ -470,14 +541,6 @@ class DoctorProfileController extends GetxController {
   }
 
   Widget step1({required BuildContext context}) {
-    final languageController = Get.find<LanguageController>();
-    final String currentLang = languageController.currentLanguage.value;
-    final bool isArabic = currentLang == 'ar';
-
-    // Create a temporary controller to show only current language content
-    final localizedspecializationController = TextEditingController(
-      text: getLocalizedText(specializationController.text, currentLang),
-    );
     return Obx(
       () => Container(
         color: Colors.white,
@@ -632,7 +695,7 @@ class DoctorProfileController extends GetxController {
                     const SizedBox(height: 24),
 
                     // Specialty dropdown
-                    const SizedBox(height: 20),
+                    _buildSpecializationDropdown(context),
 
                     const SizedBox(height: 20),
 
@@ -678,28 +741,6 @@ class DoctorProfileController extends GetxController {
 
                     _buildModernTextArea(
                       context: context,
-                      labelText: 'specialization'.tr,
-                      controller:
-                          localizedspecializationController, // Use localized controller for display
-                      errorText: isServiceError.value
-                          ? 'services_error'.tr
-                          : null,
-                      hasError: isServiceError.value,
-                      maxLines: 4,
-                      onChanged: (val) {
-                        if (val.isNotEmpty) {
-                          isServiceError.value = false;
-                        }
-                        // Update the multi-language format when text changes
-                        updateServiceText(val, currentLang);
-                        update();
-                      },
-                    ),
-
-                    const SizedBox(height: 20),
-
-                    _buildModernTextArea(
-                      context: context,
                       labelText: 'years_of_exp'.tr,
                       controller: yearsOfExpController,
                       errorText: isHealthCareError.value
@@ -726,6 +767,202 @@ class DoctorProfileController extends GetxController {
           ),
         ),
       ),
+    );
+  }
+
+  // Specialization dropdown with "Add New" option
+  Widget _buildSpecializationDropdown(BuildContext context) {
+    return Obx(
+      () => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              color: isDepartmentError.value
+                  ? Colors.red.withOpacity(0.05)
+                  : Colors.grey.withOpacity(0.05),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: isDepartmentError.value
+                    ? AppColors.RED700
+                    : Colors.grey[300]!,
+                width: 1,
+              ),
+            ),
+            child: DropdownButtonFormField<String>(
+              value: specializationsList.contains(selectedValue.value)
+                  ? selectedValue.value
+                  : null,
+              decoration: InputDecoration(
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 18,
+                ),
+                labelText: 'specialization'.tr,
+                labelStyle: TextStyle(
+                  color: isDepartmentError.value
+                      ? AppColors.RED700
+                      : Colors.grey[600],
+                  fontSize: 15,
+                ),
+                border: InputBorder.none,
+                enabledBorder: InputBorder.none,
+                focusedBorder: InputBorder.none,
+                errorBorder: InputBorder.none,
+                focusedErrorBorder: InputBorder.none,
+              ),
+              hint: Text(
+                'select_specialization'.tr,
+                style: TextStyle(color: Colors.grey[600], fontSize: 15),
+              ),
+              isExpanded: true,
+              icon: Icon(
+                Icons.keyboard_arrow_down,
+                color: isDepartmentError.value
+                    ? AppColors.RED700
+                    : Colors.grey[700],
+              ),
+              items: [
+                // Existing specializations from database
+                ...specializationsList.map((String specialization) {
+                  return DropdownMenuItem<String>(
+                    value: specialization,
+                    child: Text(
+                      specialization,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        color: Colors.black87,
+                      ),
+                    ),
+                  );
+                }).toList(),
+                // "Add New" option
+                DropdownMenuItem<String>(
+                  value: '__add_new__',
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.add_circle_outline,
+                        color: AppColors.color1,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'add_new_specialization'.tr,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          color: AppColors.color1,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+              onChanged: (String? newValue) async {
+                if (newValue == '__add_new__') {
+                  // Show dialog to add new specialization
+                  await _showAddSpecializationDialog(context);
+                } else {
+                  selectedValue.value = newValue;
+                  if (newValue != null) {
+                    isDepartmentError.value = false;
+                  }
+                  update();
+                }
+              },
+            ),
+          ),
+          if (isDepartmentError.value)
+            Padding(
+              padding: const EdgeInsets.only(left: 16, top: 8),
+              child: Text(
+                'select_specialization_error'.tr,
+                style: TextStyle(color: AppColors.RED700, fontSize: 12),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  // Show dialog to add new specialization
+  Future<void> _showAddSpecializationDialog(BuildContext context) async {
+    final TextEditingController newSpecController = TextEditingController();
+
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('add_new_specialization'.tr),
+          content: TextField(
+            controller: newSpecController,
+            decoration: InputDecoration(
+              labelText: 'specialization_name'.tr,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            autofocus: true,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Get.back();
+              },
+              child: Text('cancel'.tr),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                final newSpec = newSpecController.text.trim();
+                if (newSpec.isNotEmpty) {
+                  // Show loading dialog
+                  Get.back(); // Close the input dialog first
+                  customDialog1(
+                    s1: 'please_wait'.tr,
+                    s2: 'adding_specialization'.tr,
+                  );
+
+                  // Add to database
+                  final success = await addNewSpecialization(newSpec);
+
+                  Get.back(); // Close loading dialog
+
+                  if (success) {
+                    // Set the newly added specialization as selected
+                    selectedValue.value = newSpec;
+                    isDepartmentError.value = false;
+                    update();
+
+                    Fluttertoast.showToast(
+                      msg: 'specialization_added_successfully'.tr,
+                      toastLength: Toast.LENGTH_SHORT,
+                      gravity: ToastGravity.BOTTOM,
+                      backgroundColor: Colors.green,
+                      textColor: Colors.white,
+                    );
+                  } else {
+                    Fluttertoast.showToast(
+                      msg: 'error_adding_specialization'.tr,
+                      toastLength: Toast.LENGTH_SHORT,
+                      gravity: ToastGravity.BOTTOM,
+                      backgroundColor: Colors.red,
+                      textColor: Colors.white,
+                    );
+                  }
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.color1,
+              ),
+              child: Text(
+                'add'.tr,
+                style: const TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 
