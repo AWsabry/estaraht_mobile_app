@@ -1,9 +1,8 @@
 import 'package:videocalling/core/config/app_imports.dart';
-import 'package:videocalling/features/doctor/appointments/pages/appointments_list_page.dart';
 import 'package:videocalling/features/doctor/dashboard/pages/dashboard_page.dart';
-import 'package:videocalling/features/doctor/appointments/pages/past_appointments_page.dart';
 import 'package:videocalling/features/doctor/finance/pages/income_report_page.dart';
 import 'package:videocalling/features/doctor/more/pages/more_page.dart';
+import 'package:videocalling/features/doctor/consultations/pages/consultations_page.dart';
 
 class DoctorTabController extends GetxController {
   RxInt currentTabIndex = 0.obs;
@@ -51,13 +50,13 @@ class DoctorTabController extends GetxController {
   Widget getPage(int pageIndex) {
     switch (pageIndex) {
       case 0:
-        return DoctorDashboard(); // Replace with your actual home page
+        return DoctorDashboard(); // Doctor dashboard/home
       case 1:
-        return DoctorAllAppointments(); // Replace with your actual appointments page
+        return const DoctorConsultationsPage(); // Consultations screen with Appointments & Chat tabs
       case 2:
-        return IncomeReportScreen();
+        return IncomeReportScreen(); // Financial screen
       case 3:
-        return MoreInfoScreen();
+        return MoreInfoScreen(); // Settings/more screen
       default:
         return DoctorDashboard();
     }

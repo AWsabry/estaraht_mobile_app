@@ -291,6 +291,19 @@ class DoctorRegisterController extends GetxController {
         value: '100$userId',
       );
 
+      // Sync doctor profile to Firebase Realtime Database for chat
+      try {
+        await FirebaseDatabase.instance.ref('100$userId').update({
+          'name': name.value,
+          'image': '', // Empty for new registrations
+          'phone': phoneNumber.value.isNotEmpty ? "+20${phoneNumber.value}" : "",
+          'email': email.value,
+        });
+        print('✅ Doctor profile synced to Firebase Realtime Database');
+      } catch (e) {
+        print('❌ Failed to sync doctor profile to Firebase: $e');
+      }
+
       // 3. Send welcome email
       try {
         await EmailService.sendWelcomeEmail(

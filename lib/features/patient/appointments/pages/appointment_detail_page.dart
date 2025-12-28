@@ -411,21 +411,26 @@ class UserAppointmentDetailsScreen
                   ),
                 ),
                 const SizedBox(width: 16),
-                /*  Expanded(
+                Expanded(
                   child: _buildActionButton(
                     icon: Icons.chat,
                     label: 'chat'.tr,
                     onTap: () async {
-                      await Get.toNamed(Routes.chatScreen, arguments: {
-                        'userName': detailsController
-                            .doctorAppointmentDetailsClass!.data!.doctorName,
-                        'uid': '100${detailsController.doctorId.value}',
-                        'isUser': false,
-                      });
+                      await Get.toNamed(
+                        Routes.chatScreen,
+                        arguments: {
+                          'userName': detailsController
+                              .doctorAppointmentDetailsClass!
+                              .data!
+                              .doctorName,
+                          'uid': '100${detailsController.doctorId.value}',
+                          'isUser': false,
+                        },
+                      );
                       Get.delete<ChatController>();
                     },
                   ),
-                ),*/
+                ),
               ],
             ),
           ],

@@ -1,4 +1,3 @@
-/*
 import 'package:videocalling/core/config/app_imports.dart';
 
 class PatientChatListController extends GetxController {
@@ -30,6 +29,7 @@ class PatientChatListController extends GetxController {
               time: DateTime.parse(values['time'].toString()).toString(),
               type: int.parse(values['type'].toString()),
               userUid: key,
+              userName: values['userName'] ?? 'Unknown Doctor',
             ));
           }
         });
@@ -131,4 +131,3 @@ class PatientChatListController extends GetxController {
     }
   }
 }
-*/

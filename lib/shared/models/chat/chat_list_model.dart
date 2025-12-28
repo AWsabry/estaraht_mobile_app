@@ -5,6 +5,7 @@ class ChatListDetails {
   String channelId;
   int messageCount;
   String userUid;
+  String userName;
 
   ChatListDetails(
       {required this.message,
@@ -12,5 +13,6 @@ class ChatListDetails {
         required this.type,
         required this.channelId,
         required this.messageCount,
-        required this.userUid});
+        required this.userUid,
+        required this.userName});
 }

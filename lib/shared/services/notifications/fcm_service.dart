@@ -1,31 +1,30 @@
-import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/foundation.dart';
-import 'package:get/get.dart';
 import 'package:videocalling/core/config/app_imports.dart';
-import 'package:videocalling/core/utils/logger.dart';
 
 /// FCM Service to handle Firebase Cloud Messaging
 class FCMService {
-  static final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
+  static final FirebaseMessaging _firebaseMessaging =
+      FirebaseMessaging.instance;
   static String? _fcmToken;
 
   /// Initialize FCM service
   static Future<void> initialize() async {
     try {
       // Request permission for notifications
-      NotificationSettings settings = await _firebaseMessaging.requestPermission(
-        alert: true,
-        announcement: false,
-        badge: true,
-        carPlay: false,
-        criticalAlert: false,
-        provisional: false,
-        sound: true,
-      );
+      NotificationSettings settings = await _firebaseMessaging
+          .requestPermission(
+            alert: true,
+            announcement: false,
+            badge: true,
+            carPlay: false,
+            criticalAlert: false,
+            provisional: false,
+            sound: true,
+          );
 
       if (settings.authorizationStatus == AuthorizationStatus.authorized) {
         loggerNoStack.i('✅ FCM: User granted permission');
-      } else if (settings.authorizationStatus == AuthorizationStatus.provisional) {
+      } else if (settings.authorizationStatus ==
+          AuthorizationStatus.provisional) {
         loggerNoStack.i('⚠️ FCM: User granted provisional permission');
       } else {
         loggerNoStack.w('❌ FCM: User declined or has not accepted permission');
@@ -122,10 +121,13 @@ class FCMService {
 
   /// Handle messages when app is terminated
   static Future<void> _handleTerminatedMessage() async {
-    RemoteMessage? initialMessage = await _firebaseMessaging.getInitialMessage();
+    RemoteMessage? initialMessage = await _firebaseMessaging
+        .getInitialMessage();
 
     if (initialMessage != null) {
-      loggerNoStack.i('📨 Terminated message opened: ${initialMessage.messageId}');
+      loggerNoStack.i(
+        '📨 Terminated message opened: ${initialMessage.messageId}',
+      );
 
       if (kDebugMode) {
         print('Initial message data: ${initialMessage.data}');
@@ -160,25 +162,38 @@ class FCMService {
   }
 
   /// Handle payment completed notification
-  static Future<void> _handlePaymentCompletedNotification(Map<String, dynamic> data) async {
+  static Future<void> _handlePaymentCompletedNotification(
+    Map<String, dynamic> data,
+  ) async {
     final appointmentId = data['appointment_id'];
     final doctorId = data['doctor_id'];
 
     if (doctorId != null) {
       // Navigate to doctor's appointment details
-      Get.toNamed(Routes.dAppointmentDetailScreen, arguments: {'id': appointmentId});
+      Get.toNamed(
+        Routes.dAppointmentDetailScreen,
+        arguments: {'id': appointmentId},
+      );
     }
   }
 
   /// Handle appointment notification
-  static Future<void> _handleAppointmentNotification(Map<String, dynamic> data) async {
+  static Future<void> _handleAppointmentNotification(
+    Map<String, dynamic> data,
+  ) async {
     final appointmentId = data['appointment_id'];
     final isDoctor = data['is_doctor'] == 'true';
 
     if (isDoctor) {
-      Get.toNamed(Routes.dAppointmentDetailScreen, arguments: {'id': appointmentId});
+      Get.toNamed(
+        Routes.dAppointmentDetailScreen,
+        arguments: {'id': appointmentId},
+      );
     } else {
-      Get.toNamed(Routes.uAppointmentDetailScreen, arguments: {'id': appointmentId});
+      Get.toNamed(
+        Routes.uAppointmentDetailScreen,
+        arguments: {'id': appointmentId},
+      );
     }
   }
 
@@ -188,15 +203,16 @@ class FCMService {
     final uid = data['uid'];
     final isUser = data['is_user'] == 'true';
 
-    Get.toNamed(Routes.chatScreen, arguments: {
-      'userName': userName,
-      'uid': uid,
-      'isUser': isUser,
-    });
+    Get.toNamed(
+      Routes.chatScreen,
+      arguments: {'userName': userName, 'uid': uid, 'isUser': isUser},
+    );
   }
 
   /// Handle video call notification
-  static Future<void> _handleVideoCallNotification(Map<String, dynamic> data) async {
+  static Future<void> _handleVideoCallNotification(
+    Map<String, dynamic> data,
+  ) async {
     // Handle video call logic here
     loggerNoStack.i('📹 Video call notification received');
     // You can add your video call handling logic here
@@ -209,7 +225,11 @@ class FCMService {
       loggerNoStack.i('✅ Subscribed to topic: $topic');
     } catch (e, stackTrace) {
       loggerNoStack.e('❌ Failed to subscribe to topic $topic: $e');
-      logErrorToCrashlytics(e, stackTrace, reason: 'Failed to subscribe to FCM topic');
+      logErrorToCrashlytics(
+        e,
+        stackTrace,
+        reason: 'Failed to subscribe to FCM topic',
+      );
     }
   }
 
@@ -220,7 +240,11 @@ class FCMService {
       loggerNoStack.i('✅ Unsubscribed from topic: $topic');
     } catch (e, stackTrace) {
       loggerNoStack.e('❌ Failed to unsubscribe from topic $topic: $e');
-      logErrorToCrashlytics(e, stackTrace, reason: 'Failed to unsubscribe from FCM topic');
+      logErrorToCrashlytics(
+        e,
+        stackTrace,
+        reason: 'Failed to unsubscribe from FCM topic',
+      );
     }
   }
 
@@ -234,7 +258,11 @@ class FCMService {
       loggerNoStack.i('🗑️ FCM token deleted');
     } catch (e, stackTrace) {
       loggerNoStack.e('❌ Failed to delete FCM token: $e');
-      logErrorToCrashlytics(e, stackTrace, reason: 'Failed to delete FCM token');
+      logErrorToCrashlytics(
+        e,
+        stackTrace,
+        reason: 'Failed to delete FCM token',
+      );
     }
   }
 }
@@ -243,7 +271,6 @@ class FCMService {
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   // Initialize Firebase if not already initialized
-  await Firebase.initializeApp();
 
   if (kDebugMode) {
     print('📨 Background message received: ${message.messageId}');

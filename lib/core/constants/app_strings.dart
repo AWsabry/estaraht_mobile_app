@@ -72,6 +72,7 @@ class Words extends Translations {
       'OTP': "Verification code (OTP)",
       'appointment_date': ' Appointment Date',
       'video_call': 'Video Call',
+      'chat': 'Chat',
       'connecting': 'Connecting...',
       'waiting_for_participants': 'Waiting for others to join...',
       'participant': 'participant',
@@ -124,6 +125,9 @@ class Words extends Translations {
       'withdrawal_info':
           'You can withdraw your earnings\n to your bank account.',
       'confirm_withdrawal': 'Confirm Withdrawal',
+      'confirm_withdrawal_message':
+          'Are you sure you want to withdraw \$ {amount}?',
+
       'loading_transactions': 'Loading transactions...',
       'withdrawals': 'Withdrawals',
       'profits': ' Profits',
@@ -458,6 +462,7 @@ class Words extends Translations {
           '"To initiate chat with doctor you need to book appointment first”',
       'no_chats_description_doctor':
           '"You can initiate chat with user from appointment detail”',
+
       'all_appointment': 'All appointments',
       'not_appointment1': 'You don\'t have any appointment',
       'not_appointment2': 'Find best doctors near you by speciality,',
@@ -648,6 +653,7 @@ class Words extends Translations {
 
       /// chat screen
       'media_upload_title': 'Choose type',
+      'consultation_payment': 'Consultation Payment',
       'send_text_field_hint': 'Type a message here...',
       'first_conversation_title': 'You didn\'t made any conversation yet',
       'first_conversation_title1': 'Say Hi',
@@ -704,6 +710,7 @@ class Words extends Translations {
       'call_accept_dialog_subtitle': 'Please wait your call is accepting...',
       'doctor_dashboard': 'Doctor dashboard',
       'appointments_str': 'Appointments',
+      'messages': 'Messages',
       'see_all': 'see all',
       'pdf_downloading': 'Pdf Downloading...',
       'downloading_done': 'Downloading Done !',
@@ -755,6 +762,8 @@ class Words extends Translations {
       ' retry': ' Retry',
     },
     'ar_MR': {
+      'confirm_withdrawal_message': 'هل أنت متأكد من أنك تريد سحب \$ {amount}؟',
+      'consultation_payment': 'دفع المشاورة',
       'profile_completed_successfully': 'تم إكمال الملف الشخصي بنجاح',
       'finalizing_setup': 'جاري التهيئة...',
       'details': 'تفاصيل',
@@ -803,6 +812,7 @@ class Words extends Translations {
 
       'appointment_date': ' تاريخ الموعد',
       'video_call': 'مكالمة فيديو',
+      'chat': 'محادثة',
       'connecting': 'جاري الاتصال...',
       'waiting_for_participants': 'في انتظار انضمام الآخرين...',
       'participant': 'مشارك',
@@ -1433,6 +1443,7 @@ class Words extends Translations {
       'call_accept_dialog_subtitle': 'يرجى الانتظار حتى يتم قبول المكالمة...',
       'doctor_dashboard': 'لوحة تحكم الطبيب',
       'appointments_str': 'المواعيد',
+      'messages': 'الرسائل',
       'see_all': 'عرض الكل',
       'pdf_downloading': 'جاري تنزيل PDF...',
       'downloading_done': 'تم التنزيل!',
@@ -1503,6 +1514,9 @@ class Words extends Translations {
       'select_valid_time': 'الرجاء اختيار نطاق زمني صالح',
     },
     'fr_FR': {
+      'confirm_withdrawal_message':
+          'Êtes-vous sûr de vouloir retirer \$ {amount}?',
+      'consultation_payment': 'Paiement de la consultation',
       'profile_completed_successfully': 'Profil complété avec succès',
       'finalizing_setup': 'Finalisation de la configuration...',
       'details': 'détails',

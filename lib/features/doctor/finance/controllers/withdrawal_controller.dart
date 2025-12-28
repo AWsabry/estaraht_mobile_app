@@ -103,9 +103,8 @@ class WithdrawalController extends GetxController {
       isProcessing.value = true;
 
       // Insert withdrawal record into Supabase payment_history
-      await supabaseHelper.client.from('payment_history').insert({
+      await supabaseHelper.client.from('withdraws').insert({
         'doctor_id': doctorId.value,
-        'patient_id': doctorId.value, // For withdrawal, doctor acts as both
         'total_amount': withdrawalAmount.value,
         'total_actual_amount': withdrawalAmount.value,
         'withrowl_history': withdrawalAmount.value,
