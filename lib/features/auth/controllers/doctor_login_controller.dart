@@ -1,6 +1,6 @@
-import 'package:videocalling/core/config/app_imports.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:videocalling/core/config/app_imports.dart';
 
 class DoctorLoginController extends GetxController {
   // Instance du client Supabase
@@ -107,13 +107,17 @@ class DoctorLoginController extends GetxController {
   // --- NOUVELLE FONCTION POUR GÉRER LA LOGIQUE POST-CONNEXION ---
   Future<void> _handleSuccessfulLogin(Map<String, dynamic> profile) async {
     try {
-      final doctorId = profile['id'].toString();
+      final doctorId = profile['doctor_id'].toString();
       final name = profile['name'] ?? '';
       final profilePic = profile['profile_pic'] ?? '';
 
       // Mettre à jour Firebase Realtime Database
 
       // Sauvegarder les données dans le stockage local
+      StorageService.writeBoolData(
+        key: LocalStorageKeys.isLoggedIn,
+        value: true,
+      );
       StorageService.writeBoolData(
         key: LocalStorageKeys.isLoggedInAsDoctor,
         value: true,
@@ -139,6 +143,21 @@ class DoctorLoginController extends GetxController {
         key: LocalStorageKeys.callerImage,
         value: profilePic,
       );
+
+      // Sync doctor profile to Firebase Realtime Database for chat
+      try {
+        await FirebaseDatabase.instance.ref('100$doctorId').update({
+          'name': name,
+          'image': profilePic,
+          'phone': profile['phone'] ?? "",
+          'email': profile['email'] ?? "",
+        });
+        loggerNoStack.d(
+          '✅ Doctor profile synced to Firebase Realtime Database',
+        );
+      } catch (e) {
+        loggerNoStack.e('❌ Failed to sync doctor profile to Firebase: $e');
+      }
 
       // Removed ConnectyCube login - proceed directly to dashboard
       Get.back();

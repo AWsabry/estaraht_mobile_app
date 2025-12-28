@@ -46,10 +46,18 @@ void main() async {
       }
 
       // Initialize Firebase
-      if (Platform.isAndroid) {
-        await Firebase.initializeApp(options: DefaultFirebaseOptions.android);
-      } else {
-        await Firebase.initializeApp(options: DefaultFirebaseOptions.ios);
+      try {
+        if (Firebase.apps.isEmpty) {
+          if (Platform.isAndroid) {
+            await Firebase.initializeApp(options: DefaultFirebaseOptions.android);
+          } else {
+            await Firebase.initializeApp(options: DefaultFirebaseOptions.ios);
+          }
+        }
+      } catch (e) {
+        if (kDebugMode) {
+          print('⚠️ Firebase already initialized: $e');
+        }
       }
 
       // Set up FCM background message handler BEFORE other Firebase services

@@ -113,6 +113,33 @@ class DoctorProfileController extends GetxController {
           .eq('doctor_id', doctorId.value);
 
       loggerNoStack.i('Profile updated successfully');
+
+      // Sync doctor profile to Firebase Realtime Database for chat
+      try {
+        final userIdWithAscii = '100${doctorId.value}';
+        final Map<String, dynamic> firebaseData = {
+          'name': nameController.text,
+          'phone': phoneController.text,
+          'email': StorageService.readData(key: LocalStorageKeys.email) ?? '',
+        };
+
+        // Add image URL if available
+        if (imageUrl != null) {
+          firebaseData['image'] = imageUrl;
+        } else if (doctorProfileDetails?.data?.image != null) {
+          firebaseData['image'] = doctorProfileDetails!.data!.image!;
+        }
+
+        await FirebaseDatabase.instance
+            .ref(userIdWithAscii)
+            .update(firebaseData);
+        loggerNoStack.d(
+          '✅ Doctor profile synced to Firebase Realtime Database',
+        );
+      } catch (e) {
+        loggerNoStack.e('❌ Failed to sync doctor profile to Firebase: $e');
+      }
+
       Get.back();
       isSuccessful.value = true;
 
@@ -228,7 +255,9 @@ class DoctorProfileController extends GetxController {
           isScheduleLoaded.value = true;
         }
       } else {
-        loggerNoStack.e("Failed to fetch doctor schedule. Status: ${response.statusCode}");
+        loggerNoStack.e(
+          "Failed to fetch doctor schedule. Status: ${response.statusCode}",
+        );
       }
     } catch (e, stackTrace) {
       loggerNoStack.e("Error fetching doctor schedule: $e");
@@ -418,7 +447,7 @@ class DoctorProfileController extends GetxController {
       loggerNoStack.i('Fetching specializations from Supabase...');
 
       final response = await supabaseHelper.client
-          .from('specialization')
+          .from('specializations')
           .select('name')
           .order('name', ascending: true);
 

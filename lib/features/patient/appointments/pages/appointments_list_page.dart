@@ -13,21 +13,6 @@ class UAllAppointments extends GetView<UAllAppointmentsController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        flexibleSpace: CustomAppBar(title: 'all_appointment'.tr),
-        leading: Container(),
-        elevation: 0,
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(100),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16.0,
-              vertical: 8.0,
-            ),
-            child: _buildSessionTypeTabs(),
-          ),
-        ),
-      ),
       body: Column(
         children: [
           Obx(

@@ -4,7 +4,7 @@ Widget noChats({required String title}) {
   return Column(
     children: [
       Container(
-        height: Get.height * 0.6,
+        padding: EdgeInsets.only(top: Get.height * 0.075),
         margin: const EdgeInsets.all(55),
         alignment: Alignment.center,
         child: Column(

@@ -1,3 +1,4 @@
+import 'package:logger/logger.dart';
 import 'package:videocalling/core/config/app_imports.dart';
 
 class DoctorChatListController extends GetxController {
@@ -20,6 +21,7 @@ class DoctorChatListController extends GetxController {
 
         chatListMap.forEach((key, values) {
           if (values['last_msg'] != null) {
+            Logger().e("a7aaaa $values");
             chatListDetailsPA.add(
               ChatListDetails(
                 channelId: values['channelId'],
@@ -28,6 +30,7 @@ class DoctorChatListController extends GetxController {
                 time: DateTime.parse(values['time'].toString()).toString(),
                 type: int.parse(values['type'].toString()),
                 userUid: key,
+                userName: values['userName'] ?? 'Unknown User',
               ),
             );
           }

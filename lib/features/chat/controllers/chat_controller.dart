@@ -1,3 +1,4 @@
+import 'package:logger/logger.dart';
 import 'package:videocalling/core/config/app_imports.dart';
 
 class ChatController extends GetxController {
@@ -80,6 +81,24 @@ class ChatController extends GetxController {
 
     myUid.value =
         StorageService.readData(key: LocalStorageKeys.userIdWithAscii) ?? "";
+
+    // Fallback: if userIdWithAscii is empty, construct it from userId
+    if (myUid.value.isEmpty) {
+      final userId =
+          StorageService.readData(key: LocalStorageKeys.userId) ?? "";
+      final isDoctor =
+          StorageService.readData(key: LocalStorageKeys.isLoggedInAsDoctor) ??
+          false;
+      if (userId.isNotEmpty) {
+        myUid.value = isDoctor ? "100$userId" : "117$userId";
+        // Save it for future use
+        StorageService.writeStringData(
+          key: LocalStorageKeys.userIdWithAscii,
+          value: myUid.value,
+        );
+      }
+    }
+
     senderName.value =
         StorageService.readData(key: LocalStorageKeys.name) ?? "";
 
@@ -179,6 +198,7 @@ class ChatController extends GetxController {
         "messageCount": 0,
         "status": 1,
         "channelId": channelId.value,
+        "userName": userName,
       });
 
       DatabaseReference dbRef2 = FirebaseDatabase.instance
@@ -201,6 +221,7 @@ class ChatController extends GetxController {
               : snapshot['messageCount'] + 1,
           "status": 0,
           "channelId": channelId.value,
+          "userName": senderName.value,
         });
       });
       isFirstMessage.value = false;
@@ -315,7 +336,7 @@ class ChatController extends GetxController {
           .ref(myUid.value)
           .child("chatlist")
           .child(uid);
-
+      Logger().e("a7aaaa $userName");
       await dbRef.set({
         "time": DateTime.now().toString(),
         "last_msg": msg,
@@ -323,6 +344,7 @@ class ChatController extends GetxController {
         "messageCount": 0,
         "status": 1,
         "channelId": channelId.value,
+        "userName": userName,
       });
 
       DatabaseReference dbRef2 = FirebaseDatabase.instance
@@ -343,6 +365,7 @@ class ChatController extends GetxController {
               : snapshot['messageCount'] + 1,
           "status": 0,
           "channelId": channelId.value,
+          "userName": senderName.value,
         });
       });
       isFirstMessage.value = false;
@@ -351,7 +374,6 @@ class ChatController extends GetxController {
           .ref(myUid.value)
           .child("chatlist")
           .child(uid);
-
       await dbRef.update({
         "time": DateTime.now().toString(),
         "last_msg": msg,
@@ -447,6 +469,7 @@ class ChatController extends GetxController {
         "messageCount": 0,
         "status": 1,
         "channelId": channelId.value,
+        "userName": userName,
       });
 
       DatabaseReference dbRef2 = FirebaseDatabase.instance
@@ -464,6 +487,7 @@ class ChatController extends GetxController {
           "messageCount": snapshot.isEmpty ? 1 : snapshot['messageCount'] + 1,
           "status": 0,
           "channelId": channelId.value,
+          "userName": senderName.value,
         });
       });
       isFirstMessage.value = false;

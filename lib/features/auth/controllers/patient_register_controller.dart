@@ -375,6 +375,19 @@ class RegisterPatientController extends GetxController {
       );
       print("✅ User data saved to local storage");
 
+      // Sync user profile to Firebase Realtime Database for chat
+      try {
+        await FirebaseDatabase.instance.ref('117$userId').update({
+          'name': name.value,
+          'image': '', // Empty for new registrations
+          'phone': phoneNumber.value.isNotEmpty ? "+20${phoneNumber.value}" : "",
+          'email': email.value,
+        });
+        print('✅ Patient profile synced to Firebase Realtime Database');
+      } catch (e) {
+        print('❌ Failed to sync patient profile to Firebase: $e');
+      }
+
       print('📧 Sending welcome email (async)...');
       // Send welcome email (don't wait for it)
       EmailService.sendWelcomeEmail(

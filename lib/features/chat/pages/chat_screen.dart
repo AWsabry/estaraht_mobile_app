@@ -337,23 +337,44 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                                               ),
                                             ],
                                           ),
-                                          Row(
-                                            mainAxisAlignment:
+                                          Column(
+                                            crossAxisAlignment:
                                                 snapshot
                                                         .data!
                                                         .docs[index]['uid'] ==
                                                     chatController.myUid.value
-                                                ? MainAxisAlignment.end
-                                                : MainAxisAlignment.start,
+                                                ? CrossAxisAlignment.end
+                                                : CrossAxisAlignment.start,
                                             children: [
-                                              Container(
-                                                constraints: BoxConstraints(
-                                                  maxWidth:
-                                                      MediaQuery.of(
-                                                        context,
-                                                      ).size.width -
-                                                      120,
+                                              if (snapshot.data!.docs[index]['uid'] != chatController.myUid.value)
+                                                Padding(
+                                                  padding: const EdgeInsets.only(left: 8, bottom: 4),
+                                                  child: Text(
+                                                    chatController.userName,
+                                                    style: TextStyle(
+                                                      fontSize: 12,
+                                                      color: AppColors.grey,
+                                                      fontFamily: AppFontStyleTextStrings.medium,
+                                                    ),
+                                                  ),
                                                 ),
+                                              Row(
+                                                mainAxisAlignment:
+                                                    snapshot
+                                                            .data!
+                                                            .docs[index]['uid'] ==
+                                                        chatController.myUid.value
+                                                    ? MainAxisAlignment.end
+                                                    : MainAxisAlignment.start,
+                                                children: [
+                                                  Container(
+                                                    constraints: BoxConstraints(
+                                                      maxWidth:
+                                                          MediaQuery.of(
+                                                            context,
+                                                          ).size.width -
+                                                          120,
+                                                    ),
                                                 decoration: BoxDecoration(
                                                   borderRadius:
                                                       k >=
@@ -520,6 +541,8 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                                                             .docs[index]['uid'],
                                                       ),
                                                 ),
+                                              ),
+                                                ],
                                               ),
                                             ],
                                           ),

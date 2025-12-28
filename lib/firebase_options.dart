@@ -55,6 +55,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '697656704769',
     projectId: 'estaraht-f867e',
     storageBucket: 'estaraht-f867e.firebasestorage.app',
+    databaseURL: 'https://estaraht-f867e-default-rtdb.firebaseio.com',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
@@ -63,6 +64,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '697656704769',
     projectId: 'estaraht-f867e',
     storageBucket: 'estaraht-f867e.firebasestorage.app',
+    databaseURL: 'https://estaraht-f867e-default-rtdb.firebaseio.com',
     iosBundleId: 'com.owldots.estarhtapppro',
   );
 

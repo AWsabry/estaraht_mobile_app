@@ -1,7 +1,7 @@
 import 'package:videocalling/core/config/app_imports.dart';
-import 'package:videocalling/features/patient/appointments/pages/appointments_list_page.dart';
 import 'package:videocalling/features/patient/doctors/pages/indemand_doctors_page.dart';
 import 'package:videocalling/features/patient/more/pages/more_page.dart';
+import 'package:videocalling/features/patient/consultations/pages/consultations_page.dart';
 class PatientTabController extends GetxController {
   RxInt currentTabIndex = 0.obs;
   RxInt index = 0.obs; // Added missing index property
@@ -45,9 +45,9 @@ class PatientTabController extends GetxController {
       case 0:
         return UserHomeScreen(); // Patient home screen
       case 1:
-        return const IndemandDoctorScreen(); // Appointments/doctors screen
+        return const IndemandDoctorScreen(); // Doctors screen
       case 2:
-        return UAllAppointments(); // Chat/consultations screen
+        return const ConsultationsPage(); // Consultations screen with Appointments & Chat tabs
       case 3:
         return MoreScreen(); // Settings/more screen
       default:

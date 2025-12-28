@@ -138,6 +138,7 @@ export 'package:videocalling/features/patient/doctors/controllers/review_control
 export 'package:videocalling/features/patient/profile/controllers/profile_controller.dart';
 export 'package:videocalling/features/patient/profile/controllers/profile_parameters_controller.dart';
 export 'package:videocalling/features/patient/chat/controllers/chat_list_controller.dart';
+export 'package:videocalling/features/patient/chat/pages/chat_list_page.dart';
 export 'package:videocalling/features/patient/payment/controllers/payment_controller.dart';
 export 'package:videocalling/features/patient/more/controllers/more_controller.dart';
 export 'package:videocalling/features/patient/more/controllers/notification_controller.dart';
@@ -164,6 +165,7 @@ export 'package:videocalling/features/doctor/finance/controllers/withdrawal_cont
 export 'package:videocalling/features/doctor/finance/controllers/subscription_controller.dart';
 export 'package:videocalling/features/doctor/finance/controllers/choose_plan_controller.dart';
 export 'package:videocalling/features/doctor/chat/controllers/chat_list_controller.dart';
+export 'package:videocalling/features/doctor/chat/pages/chat_list_page.dart';
 export 'package:videocalling/features/doctor/more/controllers/more_controller.dart';
 
 // Features - Other

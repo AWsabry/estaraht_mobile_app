@@ -229,6 +229,19 @@ class UserLoginController extends GetxController {
         value: '117$patientId',
       );
 
+      // Sync user profile to Firebase Realtime Database for chat
+      try {
+        await FirebaseDatabase.instance.ref('117$patientId').update({
+          'name': name.value,
+          'image': image.value,
+          'phone': phoneNumber.value,
+          'email': email.value,
+        });
+        loggerNoStack.d('✅ Patient profile synced to Firebase Realtime Database');
+      } catch (e) {
+        loggerNoStack.e('❌ Failed to sync patient profile to Firebase: $e');
+      }
+
       // NOTE: La logique pour ConnectyCube doit être ajoutée ici si nécessaire
       // en récupérant les IDs depuis la table 'patients'.
       loggerNoStack.d('reach here after saving local storage');

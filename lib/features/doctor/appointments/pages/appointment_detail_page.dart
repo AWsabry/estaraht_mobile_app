@@ -390,6 +390,45 @@ class DoctorAppointmentDetails extends GetView<DAppointmentDetailsController> {
                     ),
                   ),
                   const SizedBox(width: 16),
+                  Expanded(
+                    child: _buildActionButton(
+                      icon: Icons.chat,
+                      label: 'chat'.tr,
+                      onTap: () async {
+                        // Get patient ID from appointment data
+                        final patientId =
+                            detailsController
+                                .doctorAppointmentDetailsClass
+                                .data
+                                ?.userId
+                                ?.toString() ??
+                            detailsController.userId.value;
+
+                        if (patientId.isEmpty) {
+                          Get.snackbar(
+                            'error'.tr,
+                            'Patient ID not found',
+                            snackPosition: SnackPosition.BOTTOM,
+                          );
+                          return;
+                        }
+
+                        await Get.toNamed(
+                          Routes.chatScreen,
+                          arguments: {
+                            'userName':
+                                detailsController
+                                    .doctorAppointmentDetailsClass
+                                    .data
+                                    ?.userName ??
+                                '',
+                            'uid': '117$patientId',
+                            'isUser': true,
+                          },
+                        );
+                      },
+                    ),
+                  ),
                 ],
               ),
             ],

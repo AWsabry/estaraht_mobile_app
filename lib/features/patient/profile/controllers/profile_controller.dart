@@ -175,6 +175,23 @@ class UserEditController extends GetxController {
           key: LocalStorageKeys.profileImage,
           value: publicUrl ?? profileImage,
         );
+
+        // Sync updated profile to Firebase Realtime Database for chat
+        try {
+          final userIdWithAscii = StorageService.readData(key: LocalStorageKeys.userIdWithAscii) ?? '';
+          if (userIdWithAscii.isNotEmpty) {
+            await FirebaseDatabase.instance.ref(userIdWithAscii).update({
+              'name': name.value,
+              'image': publicUrl ?? profileImage,
+              'phone': phoneNumber.value,
+              'email': email.value,
+            });
+            print('✅ Patient profile synced to Firebase Realtime Database');
+          }
+        } catch (e) {
+          print('❌ Failed to sync patient profile to Firebase: $e');
+        }
+
         Get.back();
         Get.back();
       }
