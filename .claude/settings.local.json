@@ -5,7 +5,11 @@
       "Bash(adb uninstall:*)",
       "Bash(flutter run:*)",
       "Bash(keytool:*)",
-      "Bash(flutter analyze:*)"
+      "Bash(flutter analyze:*)",
+      "Bash(printf:*)",
+      "Bash(supabase db push:*)",
+      "Bash(supabase db diff:*)",
+      "Bash(psql:*)"
     ],
     "deny": [],
     "ask": []

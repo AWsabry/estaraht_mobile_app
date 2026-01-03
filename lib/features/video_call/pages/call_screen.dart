@@ -4,12 +4,16 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:videocalling/core/config/app_imports.dart';
+import 'package:videocalling/shared/services/session_management_service.dart';
 
 class CallScreen extends StatefulWidget {
   final String channelName;
   final String token;
   final bool isVideoCall;
   final String opponentName;
+  final String? bookingId; // Optional booking ID for session completion
+  final String? patientId; // Optional patient ID for session completion
+  final String? doctorId; // Optional doctor ID for session completion
 
   const CallScreen({
     Key? key,
@@ -17,6 +21,9 @@ class CallScreen extends StatefulWidget {
     required this.token,
     required this.isVideoCall,
     required this.opponentName,
+    this.bookingId,
+    this.patientId,
+    this.doctorId,
   }) : super(key: key);
 
   @override
@@ -192,8 +199,42 @@ class _CallScreenState extends State<CallScreen> {
     await _engine.release();
   }
 
-  void _onCallEnd() {
-    Navigator.of(context).pop();
+  void _onCallEnd() async {
+    // Auto-complete session when video call ends (if booking info provided)
+    if (widget.bookingId != null && widget.patientId != null && widget.doctorId != null) {
+      try {
+        loggerNoStack.i('📞 Video call ended - Auto-completing session: ${widget.bookingId}');
+
+        // Mark booking as completed automatically
+        await supabaseHelper.client.from('bookings').update({
+          'status': 'completed',
+          'completed_at': DateTime.now().toIso8601String(),
+          'doctor_confirmed': true, // Auto-confirm from video call end
+          'patient_confirmed': true, // Auto-confirm from video call end
+        }).eq('id', widget.bookingId!);
+
+        // Use session management service for payment transfer
+        final sessionService = SessionManagementService();
+        await sessionService.completeSession(widget.patientId!);
+
+        // Transfer payment to doctor
+        await sessionService.confirmSessionFromDoctor(
+          bookingId: widget.bookingId!,
+          patientId: widget.patientId!,
+          doctorId: widget.doctorId!,
+        );
+
+        loggerNoStack.i('✅ Session auto-completed after video call');
+      } catch (e, stackTrace) {
+        loggerNoStack.e('❌ Error auto-completing session after call: $e');
+        loggerNoStack.e('Stack trace: $stackTrace');
+        // Don't block call ending if completion fails
+      }
+    }
+
+    if (mounted) {
+      Navigator.of(context).pop();
+    }
   }
 
   void _onToggleMute() {

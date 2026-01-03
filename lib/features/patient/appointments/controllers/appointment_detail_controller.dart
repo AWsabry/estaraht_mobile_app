@@ -2,6 +2,7 @@ import 'dart:developer' as developer;
 
 import 'package:http/http.dart' as http;
 import 'package:videocalling/core/config/app_imports.dart';
+import 'package:videocalling/shared/services/session_management_service.dart';
 
 class UserAppointmentDetailsController extends GetxController {
   String id = Get.arguments['id'];
@@ -15,6 +16,12 @@ class UserAppointmentDetailsController extends GetxController {
   Timer? countdownTimer;
   Duration myDuration = const Duration(hours: 01, seconds: 60);
   RxBool isSecondNagetive = false.obs;
+
+  // Session completion tracking
+  RxBool isConfirmingSession = false.obs;
+  RxBool patientConfirmed = false.obs;
+  RxBool doctorConfirmed = false.obs;
+  RxString bookingStatus = ''.obs;
 
   fetchAppointmentDetails() async {
     try {
@@ -33,6 +40,9 @@ class UserAppointmentDetailsController extends GetxController {
             price,
             payment_intent_id,
             video_session_id,
+            doctor_confirmed,
+            patient_confirmed,
+            completed_at,
             doctors!fk_bookings_doctor (
               doctor_id,
               full_name,
@@ -54,6 +64,11 @@ class UserAppointmentDetailsController extends GetxController {
           .eq('id', id)
           .single();
 
+      // Track confirmation status
+      bookingStatus.value = response['status']?.toString() ?? '';
+      patientConfirmed.value = response['patient_confirmed'] ?? false;
+      doctorConfirmed.value = response['doctor_confirmed'] ?? false;
+
       // Map Supabase response to DoctorAppointmentDetailsClass format
       final doctorData = response['doctors'];
       final patientData = response['patients'];
@@ -62,6 +77,27 @@ class UserAppointmentDetailsController extends GetxController {
       final doctorBio = doctorData?['bio']?.toString() ?? '';
 
       print('📋 Doctor bio from Supabase: $doctorBio');
+
+      // Map Supabase status to numeric codes (same as appointments list)
+      String statusStr = response['status']?.toString() ?? 'confirmed';
+      int mappedStatus;
+      if (statusStr == 'confirmed' || statusStr == 'pending') {
+        mappedStatus = 1; // Received
+      } else if (statusStr == 'approved') {
+        mappedStatus = 2;
+      } else if (statusStr == 'in_progress') {
+        mappedStatus = 3;
+      } else if (statusStr == 'completed') {
+        mappedStatus = 4;
+      } else if (statusStr == 'cancelled' || statusStr == 'rejected') {
+        mappedStatus = 5;
+      } else if (statusStr == 'refunded') {
+        mappedStatus = 6;
+      } else if (statusStr == 'absent') {
+        mappedStatus = 0;
+      } else {
+        mappedStatus = 1; // Default to received for unknown statuses
+      }
 
       final appointmentData = {
         'success': 1,
@@ -78,9 +114,7 @@ class UserAppointmentDetailsController extends GetxController {
           'user_image': patientData?['profile_img_url']?.toString(),
           'date': response['booking_date']?.toString(),
           'slot': response['booking_time']?.toString(),
-          'status': response['status'] == 'confirmed'
-              ? 1
-              : (response['status'] == 'completed' ? 2 : 0),
+          'status': mappedStatus,
           'phone': patientData?['phone']?.toString(),
           'email': doctorData?['email']?.toString(),
           'description': doctorBio,
@@ -196,6 +230,42 @@ class UserAppointmentDetailsController extends GetxController {
       developer.log(
         "============== END VIDEO MEETING (PATIENT SIDE) ==============",
       );
+    }
+  }
+
+  /// Confirm session completion from patient side
+  Future<void> confirmSessionCompletion() async {
+    try {
+      isConfirmingSession.value = true;
+
+      loggerNoStack.i('Patient confirming session completion for booking: $id');
+
+      // Use session management service
+      final sessionService = SessionManagementService();
+      final result = await sessionService.confirmSessionFromPatient(
+        bookingId: id,
+        patientId: userId.value,
+      );
+
+      if (result.success) {
+        // Update local state
+        patientConfirmed.value = true;
+
+        if (result.bothConfirmed) {
+          // Both confirmed - session completed
+          bookingStatus.value = 'completed';
+
+          // Refresh appointment details
+          await fetchAppointmentDetails();
+        } else {
+          // Waiting for doctor confirmation
+        }
+      } else {}
+    } catch (e, stackTrace) {
+      loggerNoStack.e('Error confirming session: $e');
+      loggerNoStack.e('Stack trace: $stackTrace');
+    } finally {
+      isConfirmingSession.value = false;
     }
   }
 

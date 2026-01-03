@@ -13,16 +13,7 @@ class DoctorAllAppointments extends GetView<DAllAppointmentsController> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        flexibleSpace: const CustomAppBar(title: ''),
-        elevation: 0,
-        bottom: const PreferredSize(
-          preferredSize: Size.fromHeight(40),
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-          ),
-        ),
-      ),
+
       body: Obx(
         () => appointmentsController.isErrorInLoading.value
             ? _buildErrorState()
@@ -80,26 +71,29 @@ class DoctorAllAppointments extends GetView<DAllAppointmentsController> {
         SingleChildScrollView(
           controller: appointmentsController.scrollController,
           physics: const BouncingScrollPhysics(),
-          child: Column(
-            children: [
-              ListView.builder(
-                itemCount: appointmentsController.nextUrl.value != "null"
-                    ? appointmentsController.list.length + 1
-                    : appointmentsController.list.length,
-                shrinkWrap: true,
-                padding: EdgeInsets.zero,
-                physics: const NeverScrollableScrollPhysics(),
-                itemBuilder: (context, index) {
-                  if (appointmentsController.list.length == index &&
-                      appointmentsController.nextUrl.value != "null") {
-                    return _buildLoadMoreIndicator();
-                  } else {
-                    return _buildAppointmentCard(context, index, isArabic);
-                  }
-                },
-              ),
-              const SizedBox(height: 24),
-            ],
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            child: Column(
+              children: [
+                ListView.builder(
+                  itemCount: appointmentsController.nextUrl.value != "null"
+                      ? appointmentsController.list.length + 1
+                      : appointmentsController.list.length,
+                  shrinkWrap: true,
+                  padding: EdgeInsets.zero,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemBuilder: (context, index) {
+                    if (appointmentsController.list.length == index &&
+                        appointmentsController.nextUrl.value != "null") {
+                      return _buildLoadMoreIndicator();
+                    } else {
+                      return _buildAppointmentCard(context, index, isArabic);
+                    }
+                  },
+                ),
+                const SizedBox(height: 24),
+              ],
+            ),
           ),
         ),
         if (appointmentsController.isLoadingMore.value)
@@ -126,7 +120,7 @@ class DoctorAllAppointments extends GetView<DAllAppointmentsController> {
     final appointment = appointmentsController.list[index];
 
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 34, vertical: 8),
+      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
 
       elevation: 0,
       shape: RoundedRectangleBorder(
@@ -136,11 +130,16 @@ class DoctorAllAppointments extends GetView<DAllAppointmentsController> {
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
         onTap: () async {
-          await Get.toNamed(
+          final result = await Get.toNamed(
             Routes.dAppointmentDetailScreen,
             arguments: {'id': appointment.id.toString()},
           );
           Get.delete<DAppointmentDetailsController>();
+
+          // Refresh list if changes were made
+          if (result == true) {
+            appointmentsController.fetchPastAppointments();
+          }
         },
         child: Padding(
           padding: const EdgeInsets.all(16),

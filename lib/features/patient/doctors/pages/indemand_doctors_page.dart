@@ -495,7 +495,7 @@ class _IndemandDoctorScreenState extends State<IndemandDoctorScreen> {
                       padding: const EdgeInsets.symmetric(vertical: 12),
                     ),
                     child: Text(
-                      'book_now'.tr,
+                      'book'.tr,
                       style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,

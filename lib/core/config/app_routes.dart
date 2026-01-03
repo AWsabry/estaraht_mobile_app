@@ -61,6 +61,8 @@ abstract class Routes {
   static const dSearchScreen = _Paths.dSearchScreen;
   static const uAppointmentPdfScreen = _Paths.uAppointmentPdfScreen;
   static const userPaymentScreen = _Paths.userPaymentScreen;
+  static const paymentPlansScreen = _Paths.paymentPlansScreen;
+  static const planPaymentScreen = _Paths.planPaymentScreen;
 
   static const doctorProfileViewScreen = _Paths.doctorProfileViewScreen;
   static const doctorEditProfileScreen = '/doctor-edit-profile';
@@ -129,6 +131,8 @@ abstract class _Paths {
   static const chatScreen = '/chat-screen';
   static const uAppointmentPdfScreen = '/user-appointment-pdf-screen';
   static const doctorEditProfileScreen = '/doctor-edit-profile-screen';
+  static const paymentPlansScreen = '/payment-plans-screen';
+  static const planPaymentScreen = '/plan-payment-screen';
 
   // New: in-demand
   static const indemandDoctorScreen = '/indemand-doctor-screen';

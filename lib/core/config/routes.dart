@@ -1,80 +1,77 @@
 import 'package:videocalling/core/config/app_imports.dart';
-import 'package:videocalling/features/auth/doctor_register_binding.dart';
 import 'package:videocalling/features/auth/doctor_login_binding.dart';
-import 'package:videocalling/features/auth/patient_login_binding.dart';
-import 'package:videocalling/features/auth/patient_register_binding.dart';
+import 'package:videocalling/features/auth/doctor_register_binding.dart';
 import 'package:videocalling/features/auth/forget_password_binding.dart';
 import 'package:videocalling/features/auth/otp_binding.dart';
-import 'package:videocalling/features/auth/pages/patient_login_screen.dart';
-import 'package:videocalling/features/auth/pages/patient_register_screen.dart';
-import 'package:videocalling/features/auth/pages/forget_password_screen.dart';
-import 'package:videocalling/features/auth/pages/otp_screen.dart';
+import 'package:videocalling/features/auth/patient_login_binding.dart';
+import 'package:videocalling/features/auth/patient_register_binding.dart';
+import 'package:videocalling/features/doctor/appointments/dall_appointments_binding.dart';
+import 'package:videocalling/features/doctor/appointments/dappointment_details_binding.dart';
+import 'package:videocalling/features/doctor/appointments/pages/appointment_detail_page.dart';
+import 'package:videocalling/features/doctor/appointments/pages/appointments_list_page.dart';
+import 'package:videocalling/features/doctor/availability/add_holiday_binding.dart';
+import 'package:videocalling/features/doctor/availability/davailability_management_binding.dart';
+import 'package:videocalling/features/doctor/availability/pages/availability_page.dart';
+import 'package:videocalling/features/doctor/availability/pages/holiday_page.dart';
+import 'package:videocalling/features/doctor/finance/add_bank_details_binding.dart';
 import 'package:videocalling/features/doctor/finance/doctor_choose_plan_binding.dart';
 import 'package:videocalling/features/doctor/finance/income_report_binding.dart';
-import 'package:videocalling/features/doctor/finance/add_bank_details_binding.dart';
+import 'package:videocalling/features/doctor/finance/pages/bank_details_page.dart';
 import 'package:videocalling/features/doctor/finance/pages/choose_plan_page.dart';
 import 'package:videocalling/features/doctor/finance/pages/income_report_page.dart';
 import 'package:videocalling/features/doctor/finance/pages/subscription_page.dart';
-import 'package:videocalling/features/doctor/finance/pages/bank_details_page.dart';
 import 'package:videocalling/features/doctor/finance/subscription_list_binding.dart';
 import 'package:videocalling/features/doctor/more/dmy_photo_viewer.dart';
 import 'package:videocalling/features/doctor/more/dmy_photo_viewer_binding.dart';
-import 'package:videocalling/features/doctor/more/search_medicine_screen.dart';
 import 'package:videocalling/features/doctor/more/search_medicine_binding.dart';
+import 'package:videocalling/features/doctor/more/search_medicine_screen.dart';
 import 'package:videocalling/features/doctor/profile/change_password_binding.dart';
-import 'package:videocalling/features/doctor/profile/step_three_details_binding.dart';
 import 'package:videocalling/features/doctor/profile/doctor_edit_profile_binding.dart';
 import 'package:videocalling/features/doctor/profile/pages/change_password_page.dart';
-import 'package:videocalling/features/doctor/profile/pages/step_three_page.dart';
 import 'package:videocalling/features/doctor/profile/pages/edit_profile_page.dart';
+import 'package:videocalling/features/doctor/profile/pages/step_three_page.dart';
+import 'package:videocalling/features/doctor/profile/step_three_details_binding.dart';
 import 'package:videocalling/features/doctor/tabs/pages/tabs_page.dart';
 import 'package:videocalling/features/doctor/tabs/tab_screen_binding.dart';
-import 'package:videocalling/features/doctor/appointments/dall_appointments_binding.dart';
-import 'package:videocalling/features/doctor/appointments/dappointment_details_binding.dart';
-import 'package:videocalling/features/doctor/appointments/pages/appointments_list_page.dart';
-import 'package:videocalling/features/doctor/appointments/pages/appointment_detail_page.dart';
-import 'package:videocalling/features/doctor/availability/add_holiday_binding.dart';
-import 'package:videocalling/features/doctor/availability/davailability_management_binding.dart';
-import 'package:videocalling/features/doctor/availability/pages/holiday_page.dart';
-import 'package:videocalling/features/doctor/availability/pages/availability_page.dart';
-import 'package:videocalling/features/patient/appointments/pages/pdf_viewer_page.dart';
-import 'package:videocalling/features/patient/appointments/pdf_viewer_binding.dart';
 import 'package:videocalling/features/patient/appointments/make_appointment_binding.dart';
-import 'package:videocalling/features/patient/appointments/uappointment_detail_binding.dart';
-import 'package:videocalling/features/patient/appointments/uall_appointments_binding.dart';
-import 'package:videocalling/features/patient/appointments/pages/make_appointment_page.dart';
 import 'package:videocalling/features/patient/appointments/pages/appointment_detail_page.dart';
 import 'package:videocalling/features/patient/appointments/pages/appointments_list_page.dart';
-import 'package:videocalling/features/patient/tabs/pages/tabs_page.dart';
-import 'package:videocalling/features/patient/tabs/ptab_screen_binding.dart';
-import 'package:videocalling/features/patient/more/notification_binding.dart';
-import 'package:videocalling/features/patient/more/term_and_condition_binding.dart';
-import 'package:videocalling/features/patient/more/about_us_binding.dart';
-import 'package:videocalling/features/patient/more/report_issue_binding.dart';
-import 'package:videocalling/features/patient/more/pages/notification_page.dart';
-import 'package:videocalling/features/patient/more/pages/terms_page.dart';
-import 'package:videocalling/features/patient/more/pages/about_us_page.dart';
-import 'package:videocalling/features/patient/more/pages/report_issue_page.dart';
-import 'package:videocalling/features/patient/profile/profile_parameters_binding.dart';
-import 'package:videocalling/features/patient/profile/user_edit_profile_binding.dart';
-import 'package:videocalling/features/patient/profile/pages/profile_parameters_page.dart';
-import 'package:videocalling/features/patient/profile/pages/profile_page.dart';
-import 'package:videocalling/features/patient/payment/payment_binding.dart';
-import 'package:videocalling/features/patient/payment/pages/payment_page.dart';
+import 'package:videocalling/features/patient/appointments/pages/make_appointment_page.dart';
+import 'package:videocalling/features/patient/appointments/pages/pdf_viewer_page.dart';
+import 'package:videocalling/features/patient/appointments/pdf_viewer_binding.dart';
+import 'package:videocalling/features/patient/appointments/uall_appointments_binding.dart';
+import 'package:videocalling/features/patient/appointments/uappointment_detail_binding.dart';
+import 'package:videocalling/features/patient/doctors/dall_nearby_binding.dart';
+import 'package:videocalling/features/patient/doctors/doctor_detail_binding.dart';
+import 'package:videocalling/features/patient/doctors/dsearch_binding.dart';
+import 'package:videocalling/features/patient/doctors/in_demande_doctor_binding.dart';
+import 'package:videocalling/features/patient/doctors/pages/doctor_detail_page.dart';
+import 'package:videocalling/features/patient/doctors/pages/doctor_search_page.dart';
+import 'package:videocalling/features/patient/doctors/pages/indemand_doctors_page.dart';
+import 'package:videocalling/features/patient/doctors/pages/nearby_doctors_page.dart';
+import 'package:videocalling/features/patient/doctors/pages/review_page.dart';
+import 'package:videocalling/features/patient/doctors/pages/speciality_doctors_page.dart';
+import 'package:videocalling/features/patient/doctors/pages/speciality_page.dart';
+import 'package:videocalling/features/patient/doctors/review_binding.dart';
 import 'package:videocalling/features/patient/doctors/speciality_binding.dart';
 import 'package:videocalling/features/patient/doctors/speciality_doctor_binding.dart';
-import 'package:videocalling/features/patient/doctors/in_demande_doctor_binding.dart';
-import 'package:videocalling/features/patient/doctors/doctor_detail_binding.dart';
-import 'package:videocalling/features/patient/doctors/review_binding.dart';
-import 'package:videocalling/features/patient/doctors/dall_nearby_binding.dart';
-import 'package:videocalling/features/patient/doctors/dsearch_binding.dart';
-import 'package:videocalling/features/patient/doctors/pages/speciality_page.dart';
-import 'package:videocalling/features/patient/doctors/pages/speciality_doctors_page.dart';
-import 'package:videocalling/features/patient/doctors/pages/indemand_doctors_page.dart';
-import 'package:videocalling/features/patient/doctors/pages/doctor_detail_page.dart';
-import 'package:videocalling/features/patient/doctors/pages/review_page.dart';
-import 'package:videocalling/features/patient/doctors/pages/nearby_doctors_page.dart';
-import 'package:videocalling/features/patient/doctors/pages/doctor_search_page.dart';
+import 'package:videocalling/features/patient/more/about_us_binding.dart';
+import 'package:videocalling/features/patient/more/notification_binding.dart';
+import 'package:videocalling/features/patient/more/pages/about_us_page.dart';
+import 'package:videocalling/features/patient/more/pages/notification_page.dart';
+import 'package:videocalling/features/patient/more/pages/report_issue_page.dart';
+import 'package:videocalling/features/patient/more/pages/terms_page.dart';
+import 'package:videocalling/features/patient/more/report_issue_binding.dart';
+import 'package:videocalling/features/patient/more/term_and_condition_binding.dart';
+import 'package:videocalling/features/patient/payment/pages/payment_page.dart';
+import 'package:videocalling/features/patient/payment/payment_binding.dart';
+import 'package:videocalling/features/patient/payment_plans/pages/payment_plans_page.dart';
+import 'package:videocalling/features/patient/payment_plans/payment_plans_binding.dart';
+import 'package:videocalling/features/patient/profile/pages/profile_page.dart';
+import 'package:videocalling/features/patient/profile/pages/profile_parameters_page.dart';
+import 'package:videocalling/features/patient/profile/profile_parameters_binding.dart';
+import 'package:videocalling/features/patient/profile/user_edit_profile_binding.dart';
+import 'package:videocalling/features/patient/tabs/binding/patient_tab_binding.dart';
 
 part 'app_routes.dart';
 
@@ -216,11 +213,10 @@ class AppPages {
       binding: DoctorLoginBinding(),
     ),
 
-    /// patient side screen
     GetPage(
-      name: _Paths.userTabScreen,
+      name: Routes.userTabScreen,
       page: () => const PatientTabsScreen(),
-      binding: PatientTabScreenBinding(),
+      binding: PatientTabsBinding(),
     ),
     GetPage(
       name: _Paths.notificationScreen,
@@ -292,6 +288,20 @@ class AppPages {
     GetPage(
       name: _Paths.userPaymentScreen,
       page: () => const PaymentScreen(),
+      binding: PaymentBinding(),
+      transition: Transition.rightToLeft,
+      transitionDuration: const Duration(milliseconds: 250),
+    ),
+    GetPage(
+      name: _Paths.paymentPlansScreen,
+      page: () => const PaymentPlansPage(),
+      binding: PaymentPlansBinding(),
+      transition: Transition.rightToLeft,
+      transitionDuration: const Duration(milliseconds: 250),
+    ),
+    GetPage(
+      name: _Paths.planPaymentScreen,
+      page: () => const PaymentScreen(), // Reuse existing payment screen
       binding: PaymentBinding(),
       transition: Transition.rightToLeft,
       transitionDuration: const Duration(milliseconds: 250),

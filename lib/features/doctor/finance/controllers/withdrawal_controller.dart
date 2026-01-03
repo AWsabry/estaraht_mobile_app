@@ -102,7 +102,7 @@ class WithdrawalController extends GetxController {
     try {
       isProcessing.value = true;
 
-      // Insert withdrawal record into Supabase payment_history
+      // Add withdrawal to withdraws table only
       await supabaseHelper.client.from('withdraws').insert({
         'doctor_id': doctorId.value,
         'total_amount': withdrawalAmount.value,
@@ -116,22 +116,13 @@ class WithdrawalController extends GetxController {
 
       isProcessing.value = false;
 
-      // Success - go back to income report
-      Get.back();
-
-      Get.snackbar(
-        'success'.tr,
-        'withdrawal_request_submitted'.tr,
-        backgroundColor: Colors.green[100],
-        colorText: Colors.green[900],
-        snackPosition: SnackPosition.BOTTOM,
-        margin: const EdgeInsets.all(16),
-        duration: const Duration(seconds: 3),
-      );
+      // Success - go back with result
+      Get.back(result: {'success': true, 'amount': withdrawalAmount.value});
     } catch (e) {
       isProcessing.value = false;
       loggerNoStack.e('Error submitting withdrawal: $e');
 
+      // Show error snackbar (still on this page)
       Get.snackbar(
         'error'.tr,
         'withdrawal_request_failed'.tr,

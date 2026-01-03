@@ -552,56 +552,39 @@ class UAllAppointments extends GetView<UAllAppointmentsController> {
   }
 
   Widget _buildSessionActionButtons(UAppointmentData appointment) {
+    // Status '5' = Rejected, check both numeric and string values
+    final isRejected =
+        appointment.status == '5' ||
+        appointment.status?.toLowerCase() == 'rejected' ||
+        appointment.status?.toLowerCase() == 'cancelled';
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        // Postpone button
-        // SizedBox(
-        //   height: 32, // Reduced height
-        //   width: 120, // Fixed width
-        //   child: OutlinedButton(
-        //     onPressed: () {
-        //       Get.toNamed(
-        //         Routes.uAppointmentDetailScreen,
-        //         arguments: {'id': appointment.id.toString()},
-        //       );
-        //     },
-        //     style: OutlinedButton.styleFrom(
-        //       side: const BorderSide(color: Colors.grey),
-        //       shape: RoundedRectangleBorder(
-        //         borderRadius: BorderRadius.circular(60),
-        //       ),
-        //     ),
-        //     child: Text(
-        //       'postpone'.tr,
-        //       style: TextStyle(
-        //         fontSize: 12,
-        //         fontFamily: Get.locale?.languageCode == 'ar'
-        //             ? 'NotoKufiArabic'
-        //             : 'Roboto',
-        //       ),
-        //     ),
-        //   ),
-        // ),
         const SizedBox(height: 16),
 
         // Attend session button
         SizedBox(
           height: 32,
-          width: 120, // Fixed width
+          width: 120,
           child: ElevatedButton(
-            onPressed: () {
-              Get.toNamed(
-                Routes.uAppointmentDetailScreen,
-                arguments: {'id': appointment.id.toString()},
-              );
-            },
+            onPressed: isRejected
+                ? null
+                : () {
+                    Get.toNamed(
+                      Routes.uAppointmentDetailScreen,
+                      arguments: {'id': appointment.id.toString()},
+                    );
+                  },
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF3366FF),
+              backgroundColor: isRejected
+                  ? Colors.grey[400]
+                  : const Color(0xFF3366FF),
               elevation: 0,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(60),
               ),
+              disabledBackgroundColor: Colors.grey[400],
             ),
             child: Text(
               'attend_session'.tr,
@@ -784,6 +767,7 @@ class UAllAppointments extends GetView<UAllAppointmentsController> {
         child: ElevatedButton(
           onPressed: onTap,
           style: ElevatedButton.styleFrom(
+            padding: const EdgeInsets.symmetric(vertical: 10),
             textStyle: TextStyle(
               fontSize: Get.locale?.languageCode == 'fr' ? 12 : 14,
               fontFamily: Get.locale?.languageCode == 'ar'

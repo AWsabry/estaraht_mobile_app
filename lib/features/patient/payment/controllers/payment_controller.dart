@@ -6,13 +6,14 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:videocalling/core/config/routes.dart';
 import 'package:videocalling/core/config/app_variables.dart';
+import 'package:videocalling/core/config/routes.dart';
 import 'package:videocalling/core/utils/logger.dart';
 import 'package:videocalling/features/patient/appointments/controllers/make_appointment_controller.dart';
+import 'package:videocalling/features/patient/payment_plans/controllers/payment_plans_controller.dart';
+import 'package:videocalling/features/patient/payment_plans/models/payment_plan_model.dart';
 import 'package:videocalling/shared/services/auth/firebase_helper.dart';
 import 'package:videocalling/shared/services/payment/bankily_service.dart';
-
 
 class PaymentController extends GetxController {
   // Payment method selection
@@ -35,17 +36,17 @@ class PaymentController extends GetxController {
 
   // Arguments from navigation
   late String doctorName;
-  late String doctorId;
+  String doctorId = '';
   late String userId;
-  late String appointmentDate;
-  late String appointmentTime;
-  late String slotId;
+  String appointmentDate = '';
+  String appointmentTime = '';
+  String slotId = '';
   late String amount;
   late String phone;
   late String description;
-  late String doctorSpecialization;
-  late String doctorImageUrl;
-  late String doctorGender;
+  String doctorSpecialization = '';
+  String doctorImageUrl = '';
+  String doctorGender = '';
 
   // Payment summary
   final subtotal = 0.0.obs;
@@ -225,6 +226,10 @@ class PaymentController extends GetxController {
     }
   }
 
+  // Check if this is a plan payment
+  bool isPlanPayment = false;
+  PaymentPlan? selectedPlan;
+
   void _extractArguments() {
     try {
       final args = Get.arguments as Map<String, dynamic>?;
@@ -232,24 +237,48 @@ class PaymentController extends GetxController {
       loggerNoStack.d('Extracting payment arguments: $args');
 
       if (args != null) {
-        doctorName = args['doctorName'] ?? '';
-        doctorImageUrl = args['doctorImageUrl'] ?? '';
-        doctorGender = args['doctorGender'] ?? '';
-        doctorSpecialization = args['doctorSpecialization'] ?? '';
-        doctorId = args['doctorId'] ?? '';
-        userId = args['userId'] ?? '';
-        appointmentDate = args['appointmentDate'] ?? '';
-        appointmentTime = args['appointmentTime'] ?? '';
-        slotId = args['slotId'] ?? '';
-        amount = args['amount'] ?? '0';
-        phone = args['phone'] ?? '';
-        description = args['description'] ?? '';
+        // Check if this is a plan payment
+        isPlanPayment = args['isPlanPayment'] == true;
 
+        if (isPlanPayment) {
+          // Extract plan payment data
+          final planJson = args['plan'] as Map<String, dynamic>?;
+          if (planJson != null) {
+            selectedPlan = PaymentPlan.fromJson(planJson);
+            doctorName = args['doctorName'] ?? 'Estarht Subscription';
+            amount = args['amount'] ?? selectedPlan!.price.toString();
+            description =
+                args['description'] ??
+                '${selectedPlan!.planName} - ${selectedPlan!.sessions} sessions';
+            phone = args['phone'] ?? '';
+
+            loggerNoStack.i(
+              'Plan payment detected - Plan: ${selectedPlan!.planName}, '
+              'Sessions: ${selectedPlan!.sessions}, Price: \$${selectedPlan!.price}',
+            );
+          }
+        } else {
+          // Extract appointment payment data
+          doctorName = args['doctorName'] ?? '';
+          doctorImageUrl = args['doctorImageUrl'] ?? '';
+          doctorGender = args['doctorGender'] ?? '';
+          doctorSpecialization = args['doctorSpecialization'] ?? '';
+          doctorId = args['doctorId'] ?? '';
+          appointmentDate = args['appointmentDate'] ?? '';
+          appointmentTime = args['appointmentTime'] ?? '';
+          slotId = args['slotId'] ?? '';
+          amount = args['amount'] ?? '0';
+          phone = args['phone'] ?? '';
+          description = args['description'] ?? '';
+        }
+
+        userId = args['userId'] ?? firebaseHelper.currentUser?.uid ?? '';
         subtotal.value = double.tryParse(amount) ?? 0.0;
         phoneController.text = phone;
 
         loggerNoStack.i(
-          'Arguments extracted - Doctor: $doctorName, Amount: $amount, Date: $appointmentDate',
+          'Arguments extracted - Type: ${isPlanPayment ? "Plan" : "Appointment"}, '
+          'Amount: $amount${isPlanPayment ? "" : ", Doctor: $doctorName"}',
         );
       } else {
         loggerNoStack.w('No arguments provided to PaymentController');
@@ -634,7 +663,11 @@ class PaymentController extends GetxController {
       loggerNoStack.i('Payment inputs validated');
       loggerNoStack.i('Phone: ${phoneController.text}');
       loggerNoStack.i('Operation ID: ${operationId.value}');
-      loggerNoStack.i('Amount: ${total.value.toStringAsFixed(2)}');
+      loggerNoStack.i('Amount (USD): ${total.value.toStringAsFixed(2)}');
+
+      // Convert USD to MRU for Bankily payment
+      final amountInMRU = _convertToMRU(total.value);
+      loggerNoStack.i('Amount (MRU): ${amountInMRU.toStringAsFixed(2)}');
 
       // Save initial transaction record as 'waiting'
       // await _saveTransactionHistory(status: 'waiting');
@@ -680,7 +713,7 @@ class PaymentController extends GetxController {
         clientPhone: phoneController.text.trim(),
         passcode: passcodeController.text.trim(),
         operationId: operationId.value,
-        amount: total.value.toStringAsFixed(2),
+        amount: amountInMRU.toStringAsFixed(2),
         language: 'FR',
       );
 
@@ -820,27 +853,44 @@ class PaymentController extends GetxController {
         await _markCouponAsUsed(couponController.text.trim());
       }
 
-      // Step 6: Create booking only after payment is confirmed and records updated
-      loggerNoStack.i(
-        '📝 Step 6: Creating booking after payment confirmation...',
-      );
-      await _createBookingInSupabase();
+      // Step 6: Process based on payment type
+      if (isPlanPayment && selectedPlan != null) {
+        // Handle plan subscription
+        loggerNoStack.i('💳 Step 6: Processing plan subscription...');
+        await _processPlansSubscription();
 
-      loggerNoStack.i('✅ Payment and booking completed successfully!');
-      Get.snackbar(
-        'Success',
-        'Payment successful! Your appointment has been booked.',
-        snackPosition: SnackPosition.TOP,
-        backgroundColor: Colors.green,
-        colorText: Colors.white,
-      );
+        loggerNoStack.i('✅ Plan subscription completed successfully!');
+        Get.snackbar(
+          'Success',
+          'Subscription successful! ${selectedPlan!.sessions} sessions added to your account.',
+          snackPosition: SnackPosition.TOP,
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+        );
 
-      // Navigate to appointments tab in user tab screen
-      await Future.delayed(const Duration(seconds: 1));
-      Get.offAllNamed(
-        Routes.userTabScreen,
-        arguments: {'initialTab': 2},
-      );
+        // Navigate to plans tab in user tab screen
+        await Future.delayed(const Duration(seconds: 1));
+        Get.offAllNamed(Routes.userTabScreen, arguments: {'initialTab': 3});
+      } else {
+        // Handle appointment booking
+        loggerNoStack.i(
+          '📝 Step 6: Creating booking after payment confirmation...',
+        );
+        await _createBookingInSupabase();
+
+        loggerNoStack.i('✅ Payment and booking completed successfully!');
+        Get.snackbar(
+          'Success',
+          'Payment successful! Your appointment has been booked.',
+          snackPosition: SnackPosition.TOP,
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+        );
+
+        // Navigate to appointments tab in user tab screen
+        await Future.delayed(const Duration(seconds: 1));
+        Get.offAllNamed(Routes.userTabScreen, arguments: {'initialTab': 2});
+      }
     } catch (e, stackTrace) {
       loggerNoStack.e('❌ CRITICAL ERROR in processBankilyPayment: $e');
       loggerNoStack.e('Stack trace: $stackTrace');
@@ -1034,6 +1084,90 @@ class PaymentController extends GetxController {
     }
   }
 
+  /// Process plan subscription after successful payment
+  Future<void> _processPlansSubscription() async {
+    try {
+      if (selectedPlan == null) {
+        throw Exception('No plan selected for subscription');
+      }
+
+      loggerNoStack.i(
+        '💳 Processing subscription for plan: ${selectedPlan!.planName}',
+      );
+
+      final user = firebaseHelper.currentUser;
+      if (user == null) {
+        throw Exception('User not authenticated');
+      }
+
+      // Get or create PaymentPlansController
+      PaymentPlansController plansController;
+      if (Get.isRegistered<PaymentPlansController>()) {
+        plansController = Get.find<PaymentPlansController>();
+      } else {
+        plansController = Get.put(PaymentPlansController());
+      }
+
+      // Subscribe to the plan
+      await plansController.subscribeToPlan(
+        plan: selectedPlan!,
+        paymentGateway: selectedPaymentMethod.value == 1 ? 'bankily' : 'stripe',
+        paymentId: transactionId.value,
+        paymentCurrency: selectedPaymentMethod.value == 1
+            ? 'MRU'
+            : stripeCurrencyCode,
+      );
+
+      loggerNoStack.i(
+        '✅ Subscription processed - ${selectedPlan!.sessions} sessions added',
+      );
+    } catch (e, stackTrace) {
+      loggerNoStack.e('❌ Error processing plan subscription: $e');
+      loggerNoStack.e('Stack trace: $stackTrace');
+      rethrow;
+    }
+  }
+
+  /// Deduct session from patient's available sessions and add to pending
+  Future<void> _deductSessionFromPatient(String patientId) async {
+    try {
+      loggerNoStack.i('📉 Deducting session from patient...');
+
+      // Get current session counts
+      final patientData = await Supabase.instance.client
+          .from('patients')
+          .select('sessions_available, sessions_pending')
+          .eq('id', patientId)
+          .single();
+
+      final currentAvailable = patientData['sessions_available'] ?? 0;
+      final currentPending = patientData['sessions_pending'] ?? 0;
+
+      if (currentAvailable <= 0) {
+        loggerNoStack.w('⚠️ No sessions available to deduct');
+        // Don't throw error - this might be a direct payment
+        return;
+      }
+
+      // Deduct 1 from available, add 1 to pending
+      await Supabase.instance.client
+          .from('patients')
+          .update({
+            'sessions_available': currentAvailable - 1,
+            'sessions_pending': currentPending + 1,
+          })
+          .eq('id', patientId);
+
+      loggerNoStack.i(
+        '✅ Session deducted: Available $currentAvailable -> ${currentAvailable - 1}, Pending $currentPending -> ${currentPending + 1}',
+      );
+    } catch (e, stackTrace) {
+      loggerNoStack.e('❌ Error deducting session: $e');
+      loggerNoStack.e('Stack trace: $stackTrace');
+      // Don't throw - this is not critical for booking creation
+    }
+  }
+
   /// Create booking directly in Supabase
   Future<void> _createBookingInSupabase() async {
     try {
@@ -1050,6 +1184,9 @@ class PaymentController extends GetxController {
       final patientId = user.uid;
       loggerNoStack.i('✅ Patient ID: $patientId');
       loggerNoStack.i('✅ Patient Email: ${user.email}');
+
+      // Deduct session from patient's available count
+      await _deductSessionFromPatient(patientId);
 
       // Parse booking date and time
       final bookingDate = DateTime.parse(appointmentDate);
@@ -1162,30 +1299,29 @@ class PaymentController extends GetxController {
     }
   }
 
-  /// Convert MRU to USD (approximate exchange rate)
+  /// Convert USD to MRU (approximate exchange rate)
   /// TODO: Replace with real-time exchange rate API in production
-  double _convertToUSD(double amountInMRU) {
-    // Approximate exchange rate: 1 USD = 40 MRU
+  double _convertToMRU(double amountInUSD) {
+    // Approximate exchange rate: 1 USD = 50 MRU
     // This should be fetched from a real exchange rate API in production
     const exchangeRate = 50.0;
-    final amountInUSD = amountInMRU / exchangeRate;
+    final amountInMRU = amountInUSD * exchangeRate;
 
     loggerNoStack.i(
-      '💱 Currency conversion: $amountInMRU MRU = ${amountInUSD.toStringAsFixed(2)} USD (rate: 1 USD = $exchangeRate MRU)',
+      '💱 Currency conversion: $amountInUSD USD = ${amountInMRU.toStringAsFixed(2)} MRU (rate: 1 USD = $exchangeRate MRU)',
     );
 
-    return amountInUSD;
+    return amountInMRU;
   }
 
   /// Create a Stripe PaymentIntent for the current total amount
   Future<Map<String, dynamic>> _createStripePaymentIntent() async {
     try {
-      // Convert the amount to USD since Stripe requires USD
-      final amountInUSD = _convertToUSD(total.value);
-      final amountInMinorUnits = (amountInUSD * 100).round();
+      // Total is already in USD, convert to minor units
+      final amountInMinorUnits = (total.value * 100).round();
 
       loggerNoStack.i(
-        '💳 Creating Stripe PaymentIntent - Original Amount: ${total.value} MRU, Converted Amount: $amountInMinorUnits cents USD',
+        '💳 Creating Stripe PaymentIntent - Amount: $amountInMinorUnits cents USD',
       );
 
       final body = {
@@ -1335,23 +1471,39 @@ class PaymentController extends GetxController {
         await _markCouponAsUsed(couponController.text.trim());
       }
 
-      // Create booking
-      await _createBookingInSupabase();
+      // Process based on payment type
+      if (isPlanPayment && selectedPlan != null) {
+        // Handle plan subscription
+        await _processPlansSubscription();
 
-      loggerNoStack.i('✅ Stripe payment and booking completed successfully!');
-      _showSafeSnackbar(
-        title: 'Success',
-        message: 'Payment successful! Your appointment has been booked.',
-        position: SnackPosition.TOP,
-        backgroundColor: Colors.green,
-      );
+        loggerNoStack.i('✅ Stripe plan subscription completed successfully!');
+        _showSafeSnackbar(
+          title: 'Success',
+          message:
+              'Subscription successful! ${selectedPlan!.sessions} sessions added to your account.',
+          position: SnackPosition.TOP,
+          backgroundColor: Colors.green,
+        );
 
-      // Navigate to appointments tab in user tab screen
-      await Future.delayed(const Duration(seconds: 1));
-      Get.offAllNamed(
-        Routes.userTabScreen,
-        arguments: {'initialTab': 2},
-      );
+        // Navigate to plans tab in user tab screen
+        await Future.delayed(const Duration(seconds: 1));
+        Get.offAllNamed(Routes.userTabScreen, arguments: {'initialTab': 3});
+      } else {
+        // Create booking
+        await _createBookingInSupabase();
+
+        loggerNoStack.i('✅ Stripe payment and booking completed successfully!');
+        _showSafeSnackbar(
+          title: 'Success',
+          message: 'Payment successful! Your appointment has been booked.',
+          position: SnackPosition.TOP,
+          backgroundColor: Colors.green,
+        );
+
+        // Navigate to appointments tab in user tab screen
+        await Future.delayed(const Duration(seconds: 1));
+        Get.offAllNamed(Routes.userTabScreen, arguments: {'initialTab': 2});
+      }
     } on StripeException catch (e, stackTrace) {
       loggerNoStack.e('❌ StripeException during payment: $e');
       loggerNoStack.e('Stack trace: $stackTrace');
