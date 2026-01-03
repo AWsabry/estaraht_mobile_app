@@ -1,3 +1,4 @@
+import 'package:logger/logger.dart';
 import 'package:videocalling/core/config/app_imports.dart';
 import 'package:videocalling/features/doctor/appointments/pages/add_medicine_page.dart';
 import 'package:videocalling/features/doctor/more/search_medicine_controller.dart';
@@ -96,6 +97,8 @@ class DoctorAppointmentDetails extends GetView<DAppointmentDetailsController> {
           _buildPatientInfoCard(context, isArabic),
           const SizedBox(height: 16),
           _buildContactInfoCard(context, isArabic),
+          const SizedBox(height: 16),
+          _buildSessionCompletionCard(context),
           const SizedBox(height: 16),
           /* if (detailsController.apStatus.value == 4) ...[
             _buildPrescriptionCard(context, isArabic),
@@ -246,7 +249,7 @@ class DoctorAppointmentDetails extends GetView<DAppointmentDetailsController> {
   Widget _buildStatusChip(BuildContext context, bool isArabic) {
     String statusText = '';
     Color statusColor;
-
+    Logger().e(detailsController.apStatus.value);
     switch (detailsController.apStatus.value) {
       case 0:
         statusText = 'appointment_status_1'.tr; // pending
@@ -1104,6 +1107,178 @@ class DoctorAppointmentDetails extends GetView<DAppointmentDetailsController> {
           ),
         );
       },
+    );
+  }
+
+  /// Session completion confirmation card for doctor
+  Widget _buildSessionCompletionCard(BuildContext context) {
+    return Obx(() {
+      // Only show for accepted/confirmed bookings that haven't been completed yet
+      final status = detailsController.bookingStatus.value;
+      final isCompleted = status == 'completed';
+      final isAccepted = status == 'accepted' || status == 'confirmed';
+
+      if (!isAccepted || isCompleted) {
+        return const SizedBox.shrink();
+      }
+
+      final patientConfirmed = detailsController.patientConfirmed.value;
+      final doctorConfirmed = detailsController.doctorConfirmed.value;
+
+      return Card(
+        margin: const EdgeInsets.symmetric(horizontal: 16),
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(color: Colors.blue.shade100, width: 2),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Title
+              Row(
+                children: [
+                  Icon(Icons.check_circle_outline, color: Colors.blue.shade700, size: 24),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'confirm_session_completion'.tr,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.blue.shade900,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+
+              // Description
+              Text(
+                'both_parties_must_confirm'.tr,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey[700],
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // Confirmation status indicators
+              Row(
+                children: [
+                  _buildConfirmationIndicator(
+                    icon: Icons.person,
+                    label: 'patient'.tr,
+                    isConfirmed: patientConfirmed,
+                  ),
+                  const SizedBox(width: 24),
+                  _buildConfirmationIndicator(
+                    icon: Icons.medical_services,
+                    label: 'you'.tr,
+                    isConfirmed: doctorConfirmed,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+
+              // Confirmation button
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: doctorConfirmed
+                      ? null
+                      : () => detailsController.confirmSessionCompletion(),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: doctorConfirmed ? Colors.grey : Colors.blue.shade700,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: doctorConfirmed ? 0 : 2,
+                  ),
+                  child: detailsController.isConfirmingSession.value
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          ),
+                        )
+                      : Text(
+                          doctorConfirmed
+                              ? 'session_already_confirmed'.tr
+                              : 'confirm_session_completion'.tr,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
+                        ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    });
+  }
+
+  Widget _buildConfirmationIndicator({
+    required IconData icon,
+    required String label,
+    required bool isConfirmed,
+  }) {
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: isConfirmed ? Colors.green.shade50 : Colors.grey.shade100,
+            shape: BoxShape.circle,
+          ),
+          child: Icon(
+            icon,
+            color: isConfirmed ? Colors.green.shade700 : Colors.grey.shade400,
+            size: 20,
+          ),
+        ),
+        const SizedBox(width: 8),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: Colors.grey[800],
+              ),
+            ),
+            const SizedBox(height: 2),
+            Row(
+              children: [
+                Icon(
+                  isConfirmed ? Icons.check_circle : Icons.radio_button_unchecked,
+                  size: 14,
+                  color: isConfirmed ? Colors.green.shade700 : Colors.grey.shade400,
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  isConfirmed ? 'confirmed'.tr : 'pending',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: isConfirmed ? Colors.green.shade700 : Colors.grey.shade500,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ],
     );
   }
 }

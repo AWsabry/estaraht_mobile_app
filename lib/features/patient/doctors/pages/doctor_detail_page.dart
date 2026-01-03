@@ -1,5 +1,4 @@
 import 'package:videocalling/core/config/app_imports.dart';
-import 'package:videocalling/core/utils/logger.dart';
 
 class DoctorDetailScreen extends GetView<DoctorDetailController> {
   final DoctorDetailController detailController = Get.put(
@@ -297,7 +296,7 @@ class DoctorDetailScreen extends GetView<DoctorDetailController> {
                             ),
                           ),
                           child: Text(
-                            'book_now'.tr,
+                            'book'.tr,
                             style: const TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,

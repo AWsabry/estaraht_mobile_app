@@ -282,8 +282,9 @@ class MakeAppointment extends GetView<MakeAppointmentController> {
                     width: double.infinity,
                     margin: const EdgeInsets.all(34),
                     child: ElevatedButton(
-                      onPressed: () => makeAppointmentController
-                          .navigateToPaymentScreen(context),
+                      onPressed: () => makeAppointmentController.processPayment(
+                        context: context,
+                      ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF3366FF),
                         elevation: 0,

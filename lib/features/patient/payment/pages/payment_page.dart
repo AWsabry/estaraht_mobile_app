@@ -74,19 +74,35 @@ class PaymentScreen extends GetView<PaymentController> {
                     // Payment methods list
                     _buildPaymentMethodsList(isArabic),
 
-                    // Appointment details card
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Text(
-                        'details'.tr,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
+                    // Details card (only show for appointments, not for plans)
+                    if (!controller.isPlanPayment) ...[
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Text(
+                          'details'.tr,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
-                    ),
+                      _buildAppointmentDetailsCard(isArabic),
+                    ],
 
-                    _buildAppointmentDetailsCard(isArabic),
+                    // Plan details card (only for plan payments)
+                    if (controller.isPlanPayment) ...[
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Text(
+                          'subscription_details'.tr,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                      _buildPlanDetailsCard(),
+                    ],
 
                     // Bankily payment fields (shown only when Visa/MasterCard is selected)
                     /*      Obx(() {
@@ -119,6 +135,93 @@ class PaymentScreen extends GetView<PaymentController> {
           // Bottom button
           _buildConfirmPaymentButton(),
         ],
+      ),
+    );
+  }
+
+  Widget _buildPlanDetailsCard() {
+    final langCode = Get.find<LanguageController>().currentLanguage.value;
+    return Card(
+      margin: EdgeInsets.all(16.w),
+      elevation: 0,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      color: const Color(0xFFF6F6F6),
+      child: Padding(
+        padding: EdgeInsets.all(20.h),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Plan name
+            Text(
+              langCode == 'ar'
+                  ? controller.selectedPlan?.planNameAr ?? controller.doctorName
+                  : langCode == 'fr'
+                  ? controller.selectedPlan?.planNameFr ?? controller.doctorName
+                  : controller.selectedPlan?.planName ?? controller.doctorName,
+              style: TextStyle(
+                fontSize: 18.sp,
+                fontWeight: FontWeight.w700,
+                color: Colors.black87,
+              ),
+            ),
+            SizedBox(height: 12.h),
+
+            // Plan description
+            Text(
+              langCode == 'ar'
+                  ? controller.selectedPlan?.descriptionAr ??
+                        controller.description
+                  : langCode == 'fr'
+                  ? controller.selectedPlan?.descriptionFr ??
+                        controller.description
+                  : controller.selectedPlan?.description ??
+                        controller.description,
+
+              style: TextStyle(
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w400,
+                color: Colors.black54,
+              ),
+            ),
+            SizedBox(height: 16.h),
+
+            const Divider(thickness: 1, color: Colors.black12),
+            SizedBox(height: 16.h),
+
+            // Amount
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    SvgPicture.asset(
+                      AppImages.payment,
+                      width: 20.w,
+                      height: 20.h,
+                    ),
+                    SizedBox(width: 8.w),
+                    Text(
+                      'amount'.tr,
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black54,
+                      ),
+                    ),
+                  ],
+                ),
+                Text(
+                  'USD ${controller.amount}',
+                  style: TextStyle(
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.w700,
+                    color: const Color(0xFF3366FF),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -231,7 +334,7 @@ class PaymentScreen extends GetView<PaymentController> {
                       SizedBox(width: 6.w),
                       Flexible(
                         child: Text(
-                          'MRU ${controller.amount}',
+                          'USD ${controller.amount}',
                           style: TextStyle(
                             fontSize: 11.sp,
                             fontWeight: FontWeight.w700,
@@ -507,23 +610,23 @@ class PaymentScreen extends GetView<PaymentController> {
     required double discount,
     required double total,
   }) {
-    // Check if Stripe is selected (payment method 2)
-    final isStripeSelected = controller.selectedPaymentMethod.value == 2;
-    final currency = isStripeSelected ? 'USD' : 'MRU';
+    // Check if Bankily is selected (payment method 1)
+    final isBankilySelected = controller.selectedPaymentMethod.value == 1;
+    final currency = isBankilySelected ? 'MRU' : 'USD';
     const exchangeRate = 50.0; // 1 USD = 50 MRU
 
-    // Convert amounts to USD if Stripe is selected
-    final displaySubtotal = isStripeSelected
-        ? subtotal / exchangeRate
+    // Convert amounts to MRU if Bankily is selected (amounts are in USD by default)
+    final displaySubtotal = isBankilySelected
+        ? subtotal * exchangeRate
         : subtotal;
-    final displayServiceFees = isStripeSelected
-        ? serviceFees / exchangeRate
+    final displayServiceFees = isBankilySelected
+        ? serviceFees * exchangeRate
         : serviceFees;
-    final displayTax = isStripeSelected ? tax / exchangeRate : tax;
-    final displayDiscount = isStripeSelected
-        ? discount / exchangeRate
+    final displayTax = isBankilySelected ? tax * exchangeRate : tax;
+    final displayDiscount = isBankilySelected
+        ? discount * exchangeRate
         : discount;
-    final displayTotal = isStripeSelected ? total / exchangeRate : total;
+    final displayTotal = isBankilySelected ? total * exchangeRate : total;
 
     return Card(
       margin: const EdgeInsets.all(16),
@@ -591,8 +694,8 @@ class PaymentScreen extends GetView<PaymentController> {
 
             const SizedBox(height: 20),
 
-            // Show currency conversion notice if Stripe is selected
-            if (isStripeSelected) ...[
+            // Show currency conversion notice if Bankily is selected
+            if (isBankilySelected) ...[
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
@@ -609,7 +712,7 @@ class PaymentScreen extends GetView<PaymentController> {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        'Amounts converted to USD (1 USD = $exchangeRate MRU)',
+                        'Amounts converted to MRU (1 USD = $exchangeRate MRU)',
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.blue.shade700,
@@ -796,6 +899,15 @@ class PaymentScreen extends GetView<PaymentController> {
     required double discount,
     required double total,
   }) {
+    const exchangeRate = 50.0; // 1 USD = 50 MRU
+
+    // Convert amounts from USD to MRU for Bankily display
+    final displaySubtotal = subtotal * exchangeRate;
+    final displayServiceFees = serviceFees * exchangeRate;
+    final displayTax = tax * exchangeRate;
+    final displayDiscount = discount * exchangeRate;
+    final displayTotal = total * exchangeRate;
+
     return Card(
       margin: const EdgeInsets.all(16),
       elevation: 0,
@@ -918,26 +1030,26 @@ class PaymentScreen extends GetView<PaymentController> {
             const SizedBox(height: 20),
             _buildSummaryRow(
               'subtotal'.tr,
-              'MRU ${subtotal.toStringAsFixed(2)}',
+              'MRU ${displaySubtotal.toStringAsFixed(2)}',
               isArabic,
             ),
             const SizedBox(height: 8),
             _buildSummaryRow(
               'service_fees'.tr,
-              'MRU ${serviceFees.toStringAsFixed(2)}',
+              'MRU ${displayServiceFees.toStringAsFixed(2)}',
               isArabic,
             ),
             const SizedBox(height: 8),
             _buildSummaryRow(
               'tax'.tr,
-              'MRU ${tax.toStringAsFixed(2)}',
+              'MRU ${displayTax.toStringAsFixed(2)}',
               isArabic,
             ),
             if (discount > 0) ...[
               const SizedBox(height: 8),
               _buildSummaryRow(
                 'discount'.tr,
-                '-MRU ${discount.toStringAsFixed(2)}',
+                '-MRU ${displayDiscount.toStringAsFixed(2)}',
                 isArabic,
                 isDiscount: true,
               ),
@@ -950,7 +1062,7 @@ class PaymentScreen extends GetView<PaymentController> {
             // --- Total ---
             _buildSummaryRow(
               'total'.tr,
-              'MRU ${total.toStringAsFixed(2)}',
+              'MRU ${displayTotal.toStringAsFixed(2)}',
               isArabic,
               isBold: true,
             ),

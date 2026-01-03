@@ -33,6 +33,9 @@ class CallManager {
     required String token,
     required bool isVideoCall,
     required String opponentName,
+    String? bookingId, // Optional for session completion
+    String? patientId, // Optional for session completion
+    String? doctorId, // Optional for session completion
   }) async {
     if (_engine == null) {
       await init();
@@ -49,6 +52,9 @@ class CallManager {
           token: token,
           isVideoCall: isVideoCall,
           opponentName: opponentName,
+          bookingId: bookingId,
+          patientId: patientId,
+          doctorId: doctorId,
         ),
       );
     } catch (e) {

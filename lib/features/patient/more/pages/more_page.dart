@@ -68,15 +68,6 @@ class MoreScreen extends GetView<PatientMoreScreenController> {
             onTap: () => Get.toNamed(Routes.editProfileScreen),
           ),
 
-          // Payment Settings
-          _buildSettingsItem(
-            icon: Icons.payment_outlined,
-            title: 'payment_settings'.tr,
-            onTap: () {
-              // Add payment settings navigation
-            },
-          ),
-
           // Language Settings
           _buildSettingsItem(
             icon: Icons.language_outlined,

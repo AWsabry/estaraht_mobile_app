@@ -92,18 +92,20 @@ class IncomeReportScreen extends GetView<IncomeReportController> {
             Padding(
               padding: const EdgeInsets.all(24),
               child: ElevatedButton(
-                onPressed: () {
-                  // Navigate to withdrawal screen with binding
-                  Get.to(
+                onPressed: () async {
+                  // Navigate to withdrawal screen with available balance
+                  final result = await Get.to(
                     () => const WithdrawalScreen(),
                     binding: WithdrawalBinding(),
                     arguments: {
-                      'totalBalance':
-                          reportController.incomeReport.data?.totalIncome
-                              ?.toDouble() ??
-                          0.0,
+                      'totalBalance': reportController.availableBalance.value,
                     },
                   );
+
+                  // Refresh the income report if withdrawal was successful
+                  if (result != null && result['success'] == true) {
+                    reportController.getIncomeReport('last 30 days');
+                  }
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.color1,
@@ -146,23 +148,14 @@ class IncomeReportScreen extends GetView<IncomeReportController> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   reportController.st.value
-                      ? reportController.incomeReport.success.toString() == "0"
-                            ? const Text(
-                                "\$0",
-                                style: TextStyle(
-                                  fontSize: 32,
-                                  fontWeight: FontWeight.w600,
-                                  color: AppColors.color1,
-                                ),
-                              )
-                            : Text(
-                                "\$${double.parse("${reportController.incomeReport.data!.totalIncome}").toStringAsFixed(0)}",
-                                style: const TextStyle(
-                                  fontSize: 32,
-                                  fontWeight: FontWeight.w600,
-                                  color: AppColors.color1,
-                                ),
-                              )
+                      ? Text(
+                          "\$${reportController.availableBalance.value.toStringAsFixed(0)}",
+                          style: const TextStyle(
+                            fontSize: 32,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.color1,
+                          ),
+                        )
                       : SizedBox(
                           height: 32,
                           child: Center(
@@ -174,9 +167,7 @@ class IncomeReportScreen extends GetView<IncomeReportController> {
                         ),
                   const SizedBox(height: 4),
                   Text(
-                    'total_income_str'.trParams({
-                      'option': reportController.showOption.value,
-                    }),
+                    'available_balance'.tr,
                     style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                   ),
                 ],

@@ -1,18 +1,14 @@
 // =======================================================================
 // ==================== IMPORTS NÉCESSAIRES ==========================
 // =======================================================================
-import 'dart:io';
-import 'dart:convert';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:http/http.dart';
 import 'dart:developer' as developer;
 
+import 'package:dio/dio.dart' as d;
+import 'package:logger/logger.dart';
 // Imports de votre projet
 import 'package:videocalling/core/config/app_imports.dart';
-import 'package:videocalling/core/utils/logger.dart';
-import 'package:dio/dio.dart' as d;
 import 'package:videocalling/features/doctor/more/dmy_photo_viewer_controller.dart';
+import 'package:videocalling/shared/services/session_management_service.dart';
 
 // =======================================================================
 // ==================== DÉBUT DE LA CLASSE CORRIGÉE ====================
@@ -41,6 +37,14 @@ class DAppointmentDetailsController extends GetxController {
   UploadImageModel uploadImageModel = UploadImageModel();
   List<Medicine> localData = [];
   TextEditingController textEditingController = TextEditingController();
+
+  // Session completion tracking
+  RxBool isConfirmingSession = false.obs;
+  RxBool patientConfirmed = false.obs;
+  RxBool doctorConfirmed = false.obs;
+  RxString bookingStatus = ''.obs;
+  RxString patientId = ''.obs;
+  RxString doctorId = ''.obs;
 
   // ==========================
   // MÉTHODE D'INITIALISATION
@@ -131,13 +135,20 @@ class DAppointmentDetailsController extends GetxController {
       final response = await supabaseHelper.client
           .from('bookings')
           .select(
-            ''' id, patient_id, doctor_id, booking_date, booking_time, status, price, doctors!fk_bookings_doctor (doctor_id, full_name, email, phone_number, specialization, profile_img_url), patients!fk_bookings_patient (id, name, email, phone, profile_img_url) ''',
+            ''' id, patient_id, doctor_id, booking_date, booking_time, status, price, doctor_confirmed, patient_confirmed, completed_at, doctors!fk_bookings_doctor (doctor_id, full_name, email, phone_number, specialization, profile_img_url), patients!fk_bookings_patient (id, name, email, phone, profile_img_url) ''',
           )
           .eq('id', id)
           .single();
 
       final doctorData = response['doctors'];
       final patientData = response['patients'];
+
+      // Track confirmation status
+      bookingStatus.value = response['status']?.toString() ?? '';
+      patientConfirmed.value = response['patient_confirmed'] ?? false;
+      doctorConfirmed.value = response['doctor_confirmed'] ?? false;
+      patientId.value = response['patient_id']?.toString() ?? '';
+      doctorId.value = response['doctor_id']?.toString() ?? '';
 
       int statusValue = 0;
       switch (response['status']?.toString().toLowerCase()) {
@@ -242,19 +253,6 @@ class DAppointmentDetailsController extends GetxController {
             mainAxisSize: MainAxisSize.min,
             children: [
               CustomButton(
-                onTap: () => customDialog2(
-                  s1: 'confirmation'.tr,
-                  s2: 'complete_appointment_subtitle'.tr,
-                  onPressedYes: () {
-                    Get.back();
-                    changeStatus("4");
-                  },
-                  onPressedNo: () => Get.back(),
-                ),
-                btnText: 'btn_complete'.tr /* ...styles */,
-              ),
-              const SizedBox(height: 10),
-              CustomButton(
                 onTap: () => changeStatus("0"),
                 btnText: 'btn_absent'.tr /* ...styles */,
               ),
@@ -310,6 +308,17 @@ class DAppointmentDetailsController extends GetxController {
           .update({'status': statusString})
           .eq('id', id);
 
+      // Get patient ID from booking
+      final bookingData = await supabaseHelper.client
+          .from('bookings')
+          .select('patient_id')
+          .eq('id', id)
+          .single();
+      final patientId = bookingData['patient_id']?.toString() ?? '';
+
+      // Update patient session counts based on status change
+      await _updatePatientSessions(status, patientId);
+
       Get.back();
       fetchAppointmentDetails();
       areChangesMade.value = true;
@@ -317,6 +326,78 @@ class DAppointmentDetailsController extends GetxController {
       Get.back();
       loggerNoStack.e('Error changing status: $e');
       messageDialog('error'.tr, 'failed_to_update_appointment'.tr);
+    }
+  }
+
+  /// Update patient session counts based on appointment status change
+  Future<void> _updatePatientSessions(String status, String patientId) async {
+    try {
+      // Get current patient session counts
+      final patientData = await supabaseHelper.client
+          .from('patients')
+          .select('sessions_available, sessions_pending')
+          .eq('id', patientId)
+          .single();
+      Logger().d(patientData);
+      Logger().e(status);
+      Logger().d("a7a");
+
+      final currentAvailable = patientData['sessions_available'] ?? 0;
+      final currentPending = patientData['sessions_pending'] ?? 0;
+
+      int newAvailable = currentAvailable;
+      int newPending = currentPending;
+
+      switch (status) {
+        case "3": // Accepted - deduct from pending (session is now active)
+          newPending = (currentPending - 1).clamp(0, 999);
+          loggerNoStack.i(
+            'Session accepted: pending $currentPending -> $newPending',
+          );
+          break;
+
+        case "4": // Completed - deduct from pending (session was used)
+          newPending = (currentPending - 1).clamp(0, 999);
+          loggerNoStack.i(
+            'Session completed: pending $currentPending -> $newPending',
+          );
+          break;
+
+        case "5": // Cancelled - refund session back to available
+        case "7": // Rejected - refund session back to available
+          newPending = (currentPending - 1).clamp(0, 999);
+          newAvailable = currentAvailable + 1;
+          loggerNoStack.i(
+            'Session cancelled/rejected: available $currentAvailable -> $newAvailable, '
+            'pending $currentPending -> $newPending',
+          );
+          break;
+
+        case "0": // Absent - refund session back to available
+        case "6": // Absent - refund session back to available
+          newPending = (currentPending - 1).clamp(0, 999);
+          newAvailable = currentAvailable + 1;
+          loggerNoStack.i(
+            'Patient absent: available $currentAvailable -> $newAvailable, '
+            'pending $currentPending -> $newPending',
+          );
+          break;
+      }
+
+      // Update patient session counts if changed
+      if (newAvailable != currentAvailable || newPending != currentPending) {
+        await supabaseHelper.client
+            .from('patients')
+            .update({
+              'sessions_available': newAvailable,
+              'sessions_pending': newPending,
+            })
+            .eq('id', patientId);
+
+        loggerNoStack.i('Patient session counts updated successfully');
+      }
+    } catch (e) {
+      loggerNoStack.e('Error updating patient sessions: $e');
     }
   }
 
@@ -708,5 +789,44 @@ class DAppointmentDetailsController extends GetxController {
       }
       d.Dio().close();
     });
+  }
+
+  /// Confirm session completion from doctor side
+  Future<void> confirmSessionCompletion() async {
+    try {
+      isConfirmingSession.value = true;
+
+      loggerNoStack.i('Doctor confirming session completion for booking: $id');
+
+      // Use session management service
+      final sessionService = SessionManagementService();
+      final result = await sessionService.confirmSessionFromDoctor(
+        bookingId: id,
+        patientId: patientId.value,
+        doctorId: doctorId.value,
+      );
+
+      if (result.success) {
+        // Update local state
+        doctorConfirmed.value = true;
+
+        if (result.bothConfirmed) {
+          // Both confirmed - session completed
+          bookingStatus.value = 'completed';
+
+          // Refresh appointment details
+          await fetchAppointmentDetails();
+        } else {
+          // Waiting for patient confirmation
+        }
+      } else {}
+    } catch (e, stackTrace) {
+      loggerNoStack.e('Error confirming session: $e');
+      loggerNoStack.e('Stack trace: $stackTrace');
+
+      ('error'.tr, 'failed_to_confirm_session'.tr, Colors.red);
+    } finally {
+      isConfirmingSession.value = false;
+    }
   }
 }

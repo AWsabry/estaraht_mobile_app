@@ -181,12 +181,10 @@ class UserHomeScreen extends GetView<UserHomeController> {
                                                           color: Theme.of(
                                                             context,
                                                           ).primaryColorLight,
-                                                          child: Center(
-                                                            child: Image.asset(
-                                                              AppImages
-                                                                  .tab3dUnselect,
-                                                              height: 50,
-                                                              width: 50,
+                                                          child: const Center(
+                                                            child: Icon(
+                                                              Icons.person,
+                                                              size: 25,
                                                             ),
                                                           ),
                                                         ),
@@ -275,10 +273,11 @@ class UserHomeScreen extends GetView<UserHomeController> {
                                             const SizedBox(height: 8),
                                             Text(
                                               "Bio: ${data.bio ?? ""}",
-                                              maxLines: 3,
+                                              maxLines: 1,
                                               style: const TextStyle(
-                                                fontSize: 10,
+                                                fontSize: 11,
                                                 height: 1.2,
+                                                overflow: TextOverflow.ellipsis,
                                                 fontWeight: FontWeight.w300,
                                               ),
                                             ),
@@ -393,7 +392,7 @@ class UserHomeScreen extends GetView<UserHomeController> {
                                                       ),
                                                 ),
                                                 child: Text(
-                                                  'book_now'.tr,
+                                                  'book'.tr,
                                                   style: const TextStyle(
                                                     fontSize: 11,
                                                     height: 1.2,
@@ -435,7 +434,7 @@ class UserHomeScreen extends GetView<UserHomeController> {
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
-        label,
+        label.isEmpty ? "N/A" : label,
         style: const TextStyle(
           fontSize: 10,
           height: 1.3,

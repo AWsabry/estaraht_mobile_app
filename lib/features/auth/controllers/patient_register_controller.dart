@@ -162,6 +162,10 @@ class RegisterPatientController extends GetxController {
           'fcm_token': token.value,
           'login_id':
               '${email.value.split('@')[0]}_${DateTime.now().millisecondsSinceEpoch}',
+          'sessions_available': 0,
+          'sessions_pending': 0,
+          'subscribed': false,
+          'subscribed_before': false,
         });
         print(
           '✅ Patient profile created in Supabase for user ID: ${authResponse.user!.uid}',

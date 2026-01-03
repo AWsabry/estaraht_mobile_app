@@ -1,6 +1,5 @@
 import 'package:http/http.dart' as http;
 import 'package:videocalling/core/config/app_imports.dart';
-import 'package:videocalling/core/utils/logger.dart';
 import 'package:videocalling/features/patient/appointments/models/make_appointment_class.dart';
 import 'package:videocalling/features/video_call/call_manager.dart';
 import 'package:videocalling/shared/models/availability_model.dart';
@@ -233,10 +232,7 @@ class MakeAppointmentController extends GetxController {
       // Create list with booking status for each slot
       List<Map<String, dynamic>> slotsWithStatus = allSlots.map((slot) {
         bool isBooked = bookedTimes.contains(slot);
-        return {
-          'time': slot,
-          'is_booked': isBooked,
-        };
+        return {'time': slot, 'is_booked': isBooked};
       }).toList();
 
       loggerNoStack.i(
@@ -252,7 +248,9 @@ class MakeAppointmentController extends GetxController {
   /// Get booked time slots for a specific date
   Future<Set<String>> getBookedSlots(String date) async {
     try {
-      loggerNoStack.t('Checking booked slots for date $date, doctorId: $doctorId');
+      loggerNoStack.t(
+        'Checking booked slots for date $date, doctorId: $doctorId',
+      );
 
       final bookedSlots = await supabase
           .from('bookings')
@@ -260,7 +258,9 @@ class MakeAppointmentController extends GetxController {
           .eq('doctor_id', doctorId)
           .eq('booking_date', date);
 
-      loggerNoStack.d('Booked slots response (${bookedSlots.length} records): $bookedSlots');
+      loggerNoStack.d(
+        'Booked slots response (${bookedSlots.length} records): $bookedSlots',
+      );
 
       if (bookedSlots.isEmpty) {
         loggerNoStack.i('No bookings found for this date');
@@ -272,7 +272,9 @@ class MakeAppointmentController extends GetxController {
       for (var booking in bookedSlots) {
         // Only exclude confirmed, pending, and accepted bookings
         String status = booking['status']?.toString().toLowerCase() ?? '';
-        if ((status == 'confirmed' || status == 'pending' || status == 'accepted') &&
+        if ((status == 'confirmed' ||
+                status == 'pending' ||
+                status == 'accepted') &&
             booking['booking_time'] != null) {
           // booking_time might be in format "09:00:00" or "09:00"
           String timeStr = booking['booking_time'].toString();
@@ -435,28 +437,16 @@ class MakeAppointmentController extends GetxController {
 
           if (morningSlots.isNotEmpty && eveningSlots.isNotEmpty) {
             slotsData = [
-              {
-                'title': 'Morning',
-                'slottime': morningSlots,
-              },
-              {
-                'title': 'Evening',
-                'slottime': eveningSlots,
-              },
+              {'title': 'Morning', 'slottime': morningSlots},
+              {'title': 'Evening', 'slottime': eveningSlots},
             ];
           } else if (morningSlots.isNotEmpty) {
             slotsData = [
-              {
-                'title': 'Morning',
-                'slottime': morningSlots,
-              },
+              {'title': 'Morning', 'slottime': morningSlots},
             ];
           } else if (eveningSlots.isNotEmpty) {
             slotsData = [
-              {
-                'title': 'Evening',
-                'slottime': eveningSlots,
-              },
+              {'title': 'Evening', 'slottime': eveningSlots},
             ];
           } else {
             // All day - create slot info with booking status
@@ -471,10 +461,7 @@ class MakeAppointmentController extends GetxController {
                 .toList();
 
             slotsData = [
-              {
-                'title': 'All Day',
-                'slottime': allDaySlots,
-              },
+              {'title': 'All Day', 'slottime': allDaySlots},
             ];
           }
 
@@ -538,9 +525,7 @@ class MakeAppointmentController extends GetxController {
       ) {
         selectedTimingSlot.add(false.obs);
         var slot = makeAppointmentClass!.data![index].slottime![i];
-        loggerNoStack.d(
-          'Slot $i: ${slot.name} - is_book: ${slot.isBook}',
-        );
+        loggerNoStack.d('Slot $i: ${slot.name} - is_book: ${slot.isBook}');
       }
     } catch (e) {
       loggerNoStack.e('Error initializing time slots: $e');
@@ -569,10 +554,156 @@ class MakeAppointmentController extends GetxController {
 
   processPayment({required BuildContext context}) async {
     Get.focusScope?.unfocus();
-    if (slotId.value.isEmpty || slotId.value.isEmpty) {
+
+    // Check if a time slot has been selected
+    if (slotId.value.isEmpty) {
       messageDialog('error'.tr, 'select_appointment_time'.tr);
-    } else {
-      bottomSheet(context: context);
+      return;
+    }
+
+    // Check if patient has available sessions
+    try {
+      final user = firebaseHelper.currentUser;
+      if (user != null) {
+        final patientData = await supabaseHelper.client
+            .from('patients')
+            .select('sessions_available')
+            .eq('id', user.uid)
+            .single();
+
+        final sessionsAvailable = patientData['sessions_available'] ?? 0;
+
+        loggerNoStack.i('Patient has $sessionsAvailable sessions available');
+
+        if (sessionsAvailable <= 0) {
+          // No sessions available - redirect to payment plans
+          loggerNoStack.w(
+            'Patient has no sessions available, redirecting to payment plans',
+          );
+
+          customDialog(
+            s1: 'no_sessions_available'.tr,
+            s2: 'please_subscribe_to_continue'.tr,
+            onPressed: () {
+              loggerNoStack.d('Navigating to payment plans screen');
+              Get.back(); // Close dialog
+              Get.offAllNamed(
+                Routes.userTabScreen,
+                arguments: {'initialTab': 3},
+              );
+            },
+          );
+          return;
+        }
+
+        // Patient has sessions - proceed with booking WITHOUT payment
+        bookAppointmentWithSession();
+      }
+    } catch (e, stackTrace) {
+      loggerNoStack.e('Error checking patient sessions: $e');
+      loggerNoStack.e('Stack trace: $stackTrace');
+      messageDialog('error'.tr, 'error2'.tr);
+    }
+  }
+
+  /// Book appointment using patient's available sessions (NO PAYMENT)
+  bookAppointmentWithSession() async {
+    try {
+      customDialog1(s1: 'reporting_dialog1'.tr, s2: 'appoint_make_dialog'.tr);
+
+      loggerNoStack.i('Creating booking with session deduction...');
+
+      final user = firebaseHelper.currentUser;
+      if (user == null) {
+        Get.back();
+        messageDialog('error'.tr, 'not_authenticated'.tr);
+        return;
+      }
+
+      final patientId = user.uid;
+
+      // 1. Deduct session from patient's available count
+      final patientData = await supabase
+          .from('patients')
+          .select('sessions_available, sessions_pending')
+          .eq('id', patientId)
+          .single();
+
+      final currentAvailable = patientData['sessions_available'] ?? 0;
+      final currentPending = patientData['sessions_pending'] ?? 0;
+
+      if (currentAvailable <= 0) {
+        Get.back();
+        messageDialog('error'.tr, 'no_sessions_available'.tr);
+        return;
+      }
+
+      // Deduct 1 from available, add 1 to pending
+      await supabase
+          .from('patients')
+          .update({
+            'sessions_available': currentAvailable - 1,
+            'sessions_pending': currentPending + 1,
+          })
+          .eq('id', patientId);
+
+      loggerNoStack.i(
+        'Session deducted: Available $currentAvailable -> ${currentAvailable - 1}, Pending $currentPending -> ${currentPending + 1}',
+      );
+
+      // 2. Create booking in Supabase
+      final bookingDate = DateTime.parse(date);
+      final timeParts = slotName.value.split(':');
+      final bookingTime = TimeOfDay(
+        hour: int.parse(timeParts[0]),
+        minute: int.parse(timeParts[1]),
+      );
+
+      final formattedTime =
+          '${bookingTime.hour.toString().padLeft(2, '0')}:${bookingTime.minute.toString().padLeft(2, '0')}:00';
+
+      final bookingData = {
+        'patient_id': patientId,
+        'doctor_id': doctorId,
+        'availability_id': slotId.value.isNotEmpty ? slotId.value : null,
+        'status': 'confirmed',
+        'price': '0', // No payment for session-based booking
+        'payment_intent_id': null, // No payment
+        'video_session_id': null,
+        'created_at': DateTime.now().toIso8601String(),
+        'booking_date': bookingDate.toIso8601String().split('T')[0],
+        'booking_time': formattedTime,
+      };
+
+      final response = await supabase
+          .from('bookings')
+          .insert(bookingData)
+          .select()
+          .single();
+
+      loggerNoStack.i('✅ Booking created successfully: ${response['id']}');
+
+      Get.back();
+      isAppointmentMadeSuccessfully.value = true;
+      customDialog(
+        dismiss: false,
+        s1: 'success'.tr,
+        s2: 'appointment_made_success'.tr,
+        onPressed: () {
+          Get.back();
+          Get.back();
+
+          Get.toNamed(
+            Routes.uAppointmentDetailScreen,
+            arguments: {'id': response['id'].toString()},
+          );
+        },
+      );
+    } catch (e, stackTrace) {
+      loggerNoStack.e('Error creating booking with session: $e');
+      loggerNoStack.e('Stack trace: $stackTrace');
+      Get.back();
+      messageDialog('error'.tr, 'error2'.tr);
     }
   }
 
@@ -680,7 +811,7 @@ class MakeAppointmentController extends GetxController {
                 onPressed: () {
                   Get.back();
                   Get.back();
-                  Get.back();
+
                   Get.toNamed(
                     Routes.uAppointmentDetailScreen,
                     arguments: {'id': AppointmentId.value},
@@ -698,7 +829,6 @@ class MakeAppointmentController extends GetxController {
             onPressed: () {
               Get.back();
               Get.back();
-              Get.back();
               Get.toNamed(
                 Routes.uAppointmentDetailScreen,
                 arguments: {'id': AppointmentId.value},
@@ -713,7 +843,6 @@ class MakeAppointmentController extends GetxController {
             s1: 'success'.tr,
             s2: 'appointment_made_success'.tr,
             onPressed: () {
-              Get.back();
               Get.back();
               Get.back();
               Get.toNamed(
@@ -990,7 +1119,7 @@ class MakeAppointmentController extends GetxController {
     );
   }
 
-  void navigateToPaymentScreen(BuildContext context) {
+  Future<void> navigateToPaymentScreen(BuildContext context) async {
     Get.focusScope?.unfocus();
 
     // Check if a time slot has been selected
@@ -1001,6 +1130,46 @@ class MakeAppointmentController extends GetxController {
         onPressed: () => Get.back(),
       );
       return;
+    }
+
+    // Check if patient has available sessions
+    try {
+      final user = firebaseHelper.currentUser;
+      if (user != null) {
+        final patientData = await supabaseHelper.client
+            .from('patients')
+            .select('sessions_available')
+            .eq('id', user.uid)
+            .single();
+
+        final sessionsAvailable = patientData['sessions_available'] ?? 0;
+
+        loggerNoStack.i('Patient has $sessionsAvailable sessions available');
+
+        if (sessionsAvailable <= 0) {
+          // No sessions available - redirect to payment plans
+          loggerNoStack.w(
+            'Patient has no sessions available, redirecting to payment plans',
+          );
+
+          customDialog(
+            s1: 'no_sessions_available'.tr,
+            s2: 'please_subscribe_to_continue'.tr,
+            onPressed: () {
+              Get.back(); // Close dialog
+              Get.offAllNamed(
+                Routes.userTabScreen,
+                arguments: {'initialTab': 3},
+              );
+            },
+          );
+          return;
+        }
+      }
+    } catch (e, stackTrace) {
+      loggerNoStack.e('Error checking patient sessions: $e');
+      loggerNoStack.e('Stack trace: $stackTrace');
+      // Continue with normal flow if check fails
     }
 
     // Prepare data with safer null checks

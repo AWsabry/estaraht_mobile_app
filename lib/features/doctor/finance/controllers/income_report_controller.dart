@@ -10,6 +10,9 @@ class IncomeReportController extends GetxController {
       'income_report_tile_short_text3'.tr.obs; // Default to "last 30 days" text
   final String initialDuration;
   RxString selectedFilter = 'income'.obs; // 'income', 'withdrawal', 'total'
+  
+  // Available balance (income - withdrawals) - always calculated
+  RxDouble availableBalance = 0.0.obs;
 
   IncomeReportController({this.initialDuration = "today"});
 
@@ -36,49 +39,60 @@ class IncomeReportController extends GetxController {
         startDate = endDate.subtract(const Duration(days: 30));
       }
 
-      // Build query based on selected filter
-      var query = supabaseHelper.client
-          .from('payment_history')
-          .select('total_amount, payment_date, action_type, operation_status')
-          .eq('doctor_id', doctorId.value)
-          .eq('operation_status', 'success')
-          .gte('payment_date', startDate.toIso8601String())
-          .lte('payment_date', endDate.toIso8601String());
+      // First, calculate available balance (ALL income - ALL withdrawals)
+      await _calculateAvailableBalance();
 
-      // Apply filter based on selected type
-      if (selectedFilter.value == 'income') {
-        query = query.eq('action_type', 'income');
-      } else if (selectedFilter.value == 'withdrawal') {
-        query = query.eq('action_type', 'withrowl');
-      }
-      // For 'total', don't filter by action_type
-
-      final response = await query.order('payment_date', ascending: false);
-
-      // Transform Supabase data to match existing model
+      // Transform data to match existing model
       List<IncomeRecord> incomeRecords = [];
       double totalIncome = 0;
-
-      // Group records by date and sum amounts
       Map<String, double> dailyIncome = {};
 
-      for (var record in response) {
-        // Extract date from timestamp
-        String dateStr = record['payment_date'].toString().substring(0, 10);
-        double amount = double.parse(record['total_amount'].toString());
+      // Get income from payment_history (for 'income' and 'total' filters)
+      if (selectedFilter.value == 'income' || selectedFilter.value == 'total') {
+        final incomeResponse = await supabaseHelper.client
+            .from('payment_history')
+            .select('total_amount, payment_date')
+            .eq('doctor_id', doctorId.value)
+            .eq('operation_status', 'success')
+            .eq('action_type', 'income')
+            .gte('payment_date', startDate.toIso8601String())
+            .lte('payment_date', endDate.toIso8601String())
+            .order('payment_date', ascending: false);
 
-        // For withdrawals, make amount negative
-        if (record['action_type'] == 'withrowl') {
-          amount = -amount;
+        for (var record in incomeResponse) {
+          String dateStr = record['payment_date'].toString().substring(0, 10);
+          double amount = double.parse(record['total_amount'].toString());
+
+          if (dailyIncome.containsKey(dateStr)) {
+            dailyIncome[dateStr] = dailyIncome[dateStr]! + amount;
+          } else {
+            dailyIncome[dateStr] = amount;
+          }
+          totalIncome += amount;
         }
+      }
 
-        if (dailyIncome.containsKey(dateStr)) {
-          dailyIncome[dateStr] = dailyIncome[dateStr]! + amount;
-        } else {
-          dailyIncome[dateStr] = amount;
+      // Get withdrawals from withdraws table (for 'withdrawal' and 'total' filters)
+      if (selectedFilter.value == 'withdrawal' || selectedFilter.value == 'total') {
+        final withdrawalResponse = await supabaseHelper.client
+            .from('withdraws')
+            .select('total_amount, payment_date')
+            .eq('doctor_id', doctorId.value)
+            .gte('payment_date', startDate.toIso8601String())
+            .lte('payment_date', endDate.toIso8601String())
+            .order('payment_date', ascending: false);
+
+        for (var record in withdrawalResponse) {
+          String dateStr = record['payment_date'].toString().substring(0, 10);
+          double amount = -double.parse(record['total_amount'].toString()); // Negative for withdrawals
+
+          if (dailyIncome.containsKey(dateStr)) {
+            dailyIncome[dateStr] = dailyIncome[dateStr]! + amount;
+          } else {
+            dailyIncome[dateStr] = amount;
+          }
+          totalIncome += amount;
         }
-
-        totalIncome += amount;
       }
 
       // Convert to IncomeRecord list
@@ -110,6 +124,43 @@ class IncomeReportController extends GetxController {
         'data': {'income_record': [], 'total_income': 0},
       });
       st.value = true;
+    }
+  }
+
+  /// Calculate the available balance (total income - total withdrawals)
+  Future<void> _calculateAvailableBalance() async {
+    try {
+      // Get ALL income from payment_history
+      final incomeResponse = await supabaseHelper.client
+          .from('payment_history')
+          .select('total_amount')
+          .eq('doctor_id', doctorId.value)
+          .eq('operation_status', 'success')
+          .eq('action_type', 'income');
+
+      double totalIncome = 0;
+      for (var record in incomeResponse) {
+        totalIncome += double.parse(record['total_amount'].toString());
+      }
+
+      // Get ALL withdrawals from withdraws table
+      final withdrawalResponse = await supabaseHelper.client
+          .from('withdraws')
+          .select('total_amount')
+          .eq('doctor_id', doctorId.value);
+
+      double totalWithdrawals = 0;
+      for (var record in withdrawalResponse) {
+        totalWithdrawals += double.parse(record['total_amount'].toString());
+      }
+
+      // Available balance = Income - Withdrawals
+      availableBalance.value = totalIncome - totalWithdrawals;
+      
+      loggerNoStack.i('Available Balance: \$${availableBalance.value} (Income: \$${totalIncome} - Withdrawals: \$${totalWithdrawals})');
+    } catch (e) {
+      loggerNoStack.e('Error calculating available balance: $e');
+      availableBalance.value = 0;
     }
   }
 

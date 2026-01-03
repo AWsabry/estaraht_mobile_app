@@ -1,9 +1,7 @@
 import 'package:videocalling/core/config/app_imports.dart';
-import 'package:videocalling/core/utils/logger.dart';
 import 'package:videocalling/features/doctor/profile/pages/profile_view_page.dart';
 import 'package:videocalling/features/video_call/call_manager.dart';
 import 'package:videocalling/features/video_call/video_call_imports.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 class MoreInfoScreen extends GetView<DMoreInfoController> {
   final DMoreInfoController infoController = Get.put(DMoreInfoController());
@@ -281,7 +279,7 @@ class MoreInfoScreen extends GetView<DMoreInfoController> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const SizedBox(height: 60),
+                  const SizedBox(height: 20),
 
                   // Language icon
                   Center(
