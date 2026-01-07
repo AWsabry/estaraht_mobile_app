@@ -39,7 +39,7 @@ dependencies:
 
   # for image
   video_player: ^2.10.0
-  #  file_picker:
+  file_picker: ^10.3.8
   image_picker: ^0.8.7+1
   cached_network_image: 3.3.0
   photo_view:
@@ -63,10 +63,12 @@ dependencies:
 
   # design package
   dotted_border: ^2.0.0+1
-  syncfusion_flutter_core: 26.2.10
-  syncfusion_flutter_datepicker: 26.2.10
+  syncfusion_flutter_core: 32.1.21
+  syncfusion_flutter_datepicker: ^32.1.21 
+  syncfusion_flutter_pdfviewer: 32.1.21
   sn_progress_dialog:
   table_calendar: ^3.0.3
+  flutter_rating_bar: ^4.0.1
   auto_size_text:
   fluttertoast:
 
@@ -151,6 +153,7 @@ flutter:
     - assets/make_appointment/
     - assets/login_screen/
     - assets/tabs/
+    - assets/email_templates/
     - assets/call/
     - assets/more_screen/
     - assets/splash/

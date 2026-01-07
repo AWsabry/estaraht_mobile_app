@@ -1,6 +1,4 @@
-import 'package:get/get.dart';
 import 'package:videocalling/core/config/app_imports.dart';
-import 'package:videocalling/core/utils/logger.dart';
 
 import '../models/availability_model.dart';
 

@@ -1,5 +1,4 @@
 import 'package:videocalling/core/config/app_imports.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 class SplashScreen extends GetView<SplashController> {
   const SplashScreen({super.key});

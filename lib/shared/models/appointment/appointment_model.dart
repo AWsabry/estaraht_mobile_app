@@ -37,20 +37,21 @@ class AData {
   int? to;
   int? total;
 
-  AData(
-      {this.currentPage,
-        this.appointmentData,
-        this.firstPageUrl,
-        this.from,
-        this.lastPage,
-        this.lastPageUrl,
-        this.links,
-        this.nextPageUrl,
-        this.path,
-        this.perPage,
-        this.prevPageUrl,
-        this.to,
-        this.total});
+  AData({
+    this.currentPage,
+    this.appointmentData,
+    this.firstPageUrl,
+    this.from,
+    this.lastPage,
+    this.lastPageUrl,
+    this.links,
+    this.nextPageUrl,
+    this.path,
+    this.perPage,
+    this.prevPageUrl,
+    this.to,
+    this.total,
+  });
 
   AData.fromJson(Map<String, dynamic> json) {
     currentPage = json['current_page'];
@@ -82,8 +83,7 @@ class AData {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['current_page'] = currentPage;
     if (appointmentData != null) {
-      data['data'] =
-          appointmentData!.map((v) => v.toJson()).toList();
+      data['data'] = appointmentData!.map((v) => v.toJson()).toList();
     }
     data['first_page_url'] = firstPageUrl;
     data['from'] = from;
@@ -113,16 +113,17 @@ class AppointmentData {
   String? departmentName;
   String? status;
 
-  AppointmentData(
-      {this.id,
-        this.date,
-        this.slot,
-        this.phone,
-        this.name,
-        this.address,
-        this.image,
-        this.departmentName,
-        this.status});
+  AppointmentData({
+    this.id,
+    this.date,
+    this.slot,
+    this.phone,
+    this.name,
+    this.address,
+    this.image,
+    this.departmentName,
+    this.status,
+  });
 
   AppointmentData.fromJson(Map<String, dynamic> json) {
     id = json['id'];

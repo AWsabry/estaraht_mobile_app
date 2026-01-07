@@ -1,6 +1,4 @@
 import 'package:videocalling/core/config/app_imports.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:videocalling/features/onboarding/controllers/onboarding_controller.dart';
 
 class OnboardingScreen extends StatelessWidget {
   const OnboardingScreen({Key? key}) : super(key: key);

@@ -1,5 +1,4 @@
 import 'package:videocalling/core/config/app_imports.dart';
-import 'package:videocalling/features/auth/pages/doctor_login_screen.dart';
 
 class TherapistOnboardingScreen extends StatelessWidget {
   const TherapistOnboardingScreen({Key? key}) : super(key: key);

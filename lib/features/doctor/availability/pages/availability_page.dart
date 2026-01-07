@@ -1,6 +1,4 @@
-import 'package:flutter/material.dart';
 import 'package:videocalling/core/config/app_imports.dart';
-import 'package:videocalling/features/doctor/availability/controllers/availability_controller.dart';
 
 class DAvailabilityManagementScreen
     extends GetView<DAvailabilityManagementController> {

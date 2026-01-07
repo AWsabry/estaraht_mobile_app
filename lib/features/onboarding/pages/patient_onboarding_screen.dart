@@ -1,6 +1,5 @@
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:videocalling/core/config/app_imports.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 class PatientOnboardingScreen extends StatelessWidget {
   const PatientOnboardingScreen({Key? key}) : super(key: key);

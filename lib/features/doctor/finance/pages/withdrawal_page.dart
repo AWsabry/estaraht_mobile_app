@@ -1,6 +1,4 @@
-import 'package:flutter/material.dart';
 import 'package:videocalling/core/config/app_imports.dart';
-import 'package:videocalling/features/doctor/finance/controllers/withdrawal_controller.dart';
 
 class WithdrawalScreen extends GetView<WithdrawalController> {
   const WithdrawalScreen({Key? key}) : super(key: key);

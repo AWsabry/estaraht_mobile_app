@@ -1,6 +1,5 @@
 import 'package:videocalling/core/config/app_imports.dart';
 import 'package:videocalling/features/patient/appointments/pages/appointments_list_page.dart';
-import 'package:videocalling/features/patient/chat/pages/chat_list_page.dart';
 
 class ConsultationsPage extends StatefulWidget {
   const ConsultationsPage({super.key});

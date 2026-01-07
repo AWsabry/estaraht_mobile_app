@@ -1,6 +1,6 @@
 import 'package:videocalling/core/config/app_imports.dart';
-import 'package:videocalling/features/doctor/profile/pages/edit_profile_page.dart';
 import 'package:videocalling/features/doctor/profile/models/review_model.dart';
+import 'package:videocalling/features/doctor/profile/pages/edit_profile_page.dart';
 
 class DoctorProfileView extends GetView<DoctorProfileViewController> {
   final DoctorProfileViewController detailController = Get.put(
@@ -316,8 +316,6 @@ class DoctorProfileView extends GetView<DoctorProfileViewController> {
     required String subtitle,
   }) {
     return Container(
-      width: 128,
-      height: 52,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.9),

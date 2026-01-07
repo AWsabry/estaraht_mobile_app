@@ -660,7 +660,7 @@ class ChatController extends GetxController {
         () => UploadItem(
           id: taskId,
           tag: tag,
-          type: MediaType.Video,
+          type: type == 'file' ? MediaType.Image : MediaType.Video,
           status: UploadTaskStatus.enqueued,
         ),
       );

@@ -1,4 +1,3 @@
-import 'package:logger/logger.dart';
 import 'package:videocalling/core/config/app_imports.dart';
 
 class ChatListScreen extends GetView<DoctorChatListController> {

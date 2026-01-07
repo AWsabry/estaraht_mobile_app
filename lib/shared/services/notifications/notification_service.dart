@@ -1,7 +1,4 @@
 import 'package:videocalling/core/config/app_imports.dart';
-import 'package:videocalling/core/config/routes.dart';
-import 'package:videocalling/features/doctor/appointments/controllers/appointment_detail_controller.dart';
-import 'package:videocalling/features/chat/controllers/chat_controller.dart';
 
 // Simplified notification service without flutter_local_notifications
 class NotificationHelper {

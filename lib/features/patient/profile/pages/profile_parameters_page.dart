@@ -1,5 +1,4 @@
 import 'package:videocalling/core/config/app_imports.dart';
-import 'dart:ui';
 
 class ProfileParametersScreen extends GetView<ProfileParametersController> {
   const ProfileParametersScreen({super.key});

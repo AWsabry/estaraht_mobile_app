@@ -3,12 +3,12 @@ import 'dart:math' as math;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' show OtpType;
 import 'package:videocalling/core/config/app_imports.dart';
+import 'package:videocalling/shared/models/country_pricing_model.dart';
+import 'package:videocalling/shared/services/pricing_service.dart';
 
 class DoctorRegisterController extends GetxController {
-  // Instance du client Supabase
   final supabase = supabaseHelper;
 
-  // --- Variables d'état (inchangées) ---
   final genderOptions = ["male", "female"].obs;
   final selectedGender = RxString("");
   RxString name = "".obs;
@@ -25,11 +25,51 @@ class DoctorRegisterController extends GetxController {
   RxBool isPassError = false.obs;
   RxBool isAgeError = false.obs;
   RxBool isGenderError = false.obs;
-  RxString token = "".obs; // Token FCM
+  RxString token = "".obs;
   RxString error = "".obs;
   RxBool passwordVisible = true.obs;
   RxBool passwordVisible1 = true.obs;
   final formKey = GlobalKey<FormState>();
+
+  RxString selectedCountryCode = "+222".obs;
+  RxString selectedCountryName = "Mauritania".obs;
+  RxList<CountryPricing> availableCountries = <CountryPricing>[].obs;
+  RxBool isLoadingCountries = false.obs;
+
+  final List<Map<String, String>> supportedCountries = [
+    {'code': '+222', 'name': 'Mauritania', 'flag': '🇲🇷'},
+    {'code': '+20', 'name': 'Egypt', 'flag': '🇪🇬'},
+    {'code': '+966', 'name': 'Saudi Arabia', 'flag': '🇸🇦'},
+    {'code': '+971', 'name': 'UAE', 'flag': '🇦🇪'},
+    {'code': '+965', 'name': 'Kuwait', 'flag': '🇰🇼'},
+    {'code': '+974', 'name': 'Qatar', 'flag': '🇶🇦'},
+    {'code': '+973', 'name': 'Bahrain', 'flag': '🇧🇭'},
+    {'code': '+968', 'name': 'Oman', 'flag': '🇴🇲'},
+    {'code': '+962', 'name': 'Jordan', 'flag': '🇯🇴'},
+    {'code': '+961', 'name': 'Lebanon', 'flag': '🇱🇧'},
+    {'code': '+963', 'name': 'Syria', 'flag': '🇸🇾'},
+    {'code': '+964', 'name': 'Iraq', 'flag': '🇮🇶'},
+    {'code': '+212', 'name': 'Morocco', 'flag': '🇲🇦'},
+    {'code': '+213', 'name': 'Algeria', 'flag': '🇩🇿'},
+    {'code': '+216', 'name': 'Tunisia', 'flag': '🇹🇳'},
+    {'code': '+218', 'name': 'Libya', 'flag': '🇱🇾'},
+    {'code': '+249', 'name': 'Sudan', 'flag': '🇸🇩'},
+  ];
+
+  void setCountryCode(String code, String name) {
+    selectedCountryCode.value = code;
+    selectedCountryName.value = name;
+  }
+
+  Future<void> loadCountryPricing() async {
+    isLoadingCountries.value = true;
+    try {
+      availableCountries.value = await pricingService.getAllPricing();
+    } catch (e) {
+      print('Error loading country pricing: $e');
+    }
+    isLoadingCountries.value = false;
+  }
 
   // --- Fonctions d'aide et de validation (inchangées) ---
   void setGender(String gender) {
@@ -122,13 +162,13 @@ class DoctorRegisterController extends GetxController {
       if (authResponse.user != null) {
         print('✅ User registered successfully: ${authResponse.user!.uid}');
 
-        // Insert into doctors table
+        // Insert into doctors table with country code
         await supabase.from('doctors').insert({
           'doctor_id': authResponse.user!.uid,
           'full_name': name.value,
           'email': email.value,
           'phone_number': phoneNumber.value.isNotEmpty
-              ? "+20${phoneNumber.value}"
+              ? "${selectedCountryCode.value}${phoneNumber.value}"
               : null,
           'age': int.tryParse(age.value),
           'gender': gender.value,
@@ -138,6 +178,8 @@ class DoctorRegisterController extends GetxController {
           'numb_patients': 0,
           'profile_img_url': "",
           'booking_price': 50,
+          'avg_session_time': 30,
+          'country_code': selectedCountryCode.value,
         });
         print(
           '✅ Doctor profile created in Supabase for user ID: ${authResponse.user!.uid}',
@@ -276,7 +318,11 @@ class DoctorRegisterController extends GetxController {
       );
       StorageService.writeStringData(
         key: LocalStorageKeys.phone,
-        value: phoneNumber.value.isNotEmpty ? "+20${phoneNumber.value}" : "",
+        value: phoneNumber.value.isNotEmpty ? "${selectedCountryCode.value}${phoneNumber.value}" : "",
+      );
+      StorageService.writeStringData(
+        key: 'country_code',
+        value: selectedCountryCode.value,
       );
       StorageService.writeStringData(
         key: LocalStorageKeys.age,
@@ -295,9 +341,10 @@ class DoctorRegisterController extends GetxController {
       try {
         await FirebaseDatabase.instance.ref('100$userId').update({
           'name': name.value,
-          'image': '', // Empty for new registrations
-          'phone': phoneNumber.value.isNotEmpty ? "+20${phoneNumber.value}" : "",
+          'image': '',
+          'phone': phoneNumber.value.isNotEmpty ? "${selectedCountryCode.value}${phoneNumber.value}" : "",
           'email': email.value,
+          'country_code': selectedCountryCode.value,
         });
         print('✅ Doctor profile synced to Firebase Realtime Database');
       } catch (e) {
@@ -359,5 +406,6 @@ class DoctorRegisterController extends GetxController {
   void onInit() {
     super.onInit();
     getToken();
+    loadCountryPricing();
   }
 }

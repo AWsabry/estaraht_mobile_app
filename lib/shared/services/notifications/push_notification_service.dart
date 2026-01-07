@@ -1,7 +1,6 @@
 import 'package:googleapis_auth/auth_io.dart';
 import 'package:http/http.dart' as http;
 import 'package:videocalling/core/config/app_imports.dart';
-import 'package:videocalling/core/utils/logger.dart';
 
 /// HTTP Push Notification Service for sending FCM notifications
 class PushNotificationService {

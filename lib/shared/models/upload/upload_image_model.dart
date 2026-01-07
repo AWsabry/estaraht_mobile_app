@@ -30,13 +30,14 @@ class UploadImageData {
   String? createdAt;
   int? id;
 
-  UploadImageData(
-      {this.name,
-        this.appointmentId,
-        this.image,
-        this.updatedAt,
-        this.createdAt,
-        this.id});
+  UploadImageData({
+    this.name,
+    this.appointmentId,
+    this.image,
+    this.updatedAt,
+    this.createdAt,
+    this.id,
+  });
 
   UploadImageData.fromJson(Map<String, dynamic> json) {
     name = json['name'];

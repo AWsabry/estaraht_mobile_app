@@ -1,5 +1,4 @@
 import 'package:videocalling/core/config/app_imports.dart';
-import 'package:videocalling/core/utils/logger.dart';
 import 'package:videocalling/features/doctor/profile/models/review_model.dart';
 import 'package:videocalling/features/patient/doctors/models/doctor_detail_model.dart';
 
@@ -118,12 +117,12 @@ class DoctorProfileViewController extends GetxController {
         try {
           final patientResponse = await supabaseHelper.client
               .from('patients')
-              .select('full_name, profile_img_url')
-              .eq('patient_id', reviewData['patient_id'])
+              .select('name, profile_img_url')
+              .eq('id', reviewData['patient_id'])
               .maybeSingle();
 
           if (patientResponse != null) {
-            reviewData['patient_name'] = patientResponse['full_name'];
+            reviewData['patient_name'] = patientResponse['name'];
             reviewData['patient_image'] = patientResponse['profile_img_url'];
           }
         } catch (e) {

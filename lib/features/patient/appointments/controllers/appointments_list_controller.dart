@@ -1,5 +1,4 @@
 import 'package:videocalling/core/config/app_imports.dart';
-import 'package:videocalling/core/utils/logger.dart';
 import 'package:videocalling/features/patient/appointments/models/uall_appointment_model.dart';
 
 class UAllAppointmentsController extends GetxController {
@@ -101,6 +100,7 @@ class UAllAppointmentsController extends GetxController {
 
           final appointmentData = UAppointmentData(
             id: booking['id']?.toString(),
+            doctorId: booking['doctor_id']?.toString(),
             date: bookingDate,
             slot: bookingTime,
             phone: doctorData?['phone_number']?.toString() ?? '',
@@ -110,6 +110,7 @@ class UAllAppointmentsController extends GetxController {
             departmentName:
                 doctorData?['specialization']?.toString() ?? 'Specialist',
             status: status,
+            gender: doctorData?['gender']?.toString(),
           );
 
           list.add(appointmentData);
@@ -291,11 +292,39 @@ class UAllAppointmentsController extends GetxController {
   void onInit() {
     super.onInit();
 
+    // Initialize with a small delay to ensure storage is ready
+    _initializeAppointments();
+
+    // Add listeners for tab and filter changes
+    ever(selectedTab, (_) => applyFilters());
+    ever(selectedFilter, (_) => applyFilters());
+
+    // Listen for userId changes and refetch
+    ever(userId, (value) {
+      if (value.isNotEmpty && list.isEmpty) {
+        loggerNoStack.d("📥 userId changed to: $value, fetching appointments");
+        fetchAppointments();
+      }
+    });
+
+    scrollController.addListener(() {
+      if (scrollController.position.pixels ==
+          scrollController.position.maxScrollExtent) {
+        loadMore();
+      }
+    });
+  }
+
+  Future<void> _initializeAppointments() async {
+    // Small delay to ensure storage and Firebase are ready
+    await Future.delayed(const Duration(milliseconds: 300));
+
     // Try to get userId from storage
     userId.value = StorageService.readData(key: LocalStorageKeys.userId) ?? "";
 
     if (userId.value.isEmpty) {
-      loggerNoStack.d("⚠️ Warning: userId is empty!");
+      loggerNoStack.d("⚠️ Warning: userId is empty in storage!");
+
       // Try to get from other storage locations
       var alternateId = StorageService.readData(
         key: LocalStorageKeys.userIdWithAscii,
@@ -306,27 +335,28 @@ class UAllAppointmentsController extends GetxController {
       }
     }
 
+    // If still empty, try to get from Firebase
+    if (userId.value.isEmpty) {
+      try {
+        final firebaseUser = supabaseHelper.client.auth.currentUser;
+        if (firebaseUser != null) {
+          userId.value = firebaseUser.id;
+          loggerNoStack.d("🔥 Got userId from Supabase auth: ${userId.value}");
+        }
+      } catch (e) {
+        loggerNoStack.e("Error getting user from auth: $e");
+      }
+    }
+
     if (userId.value.isNotEmpty) {
       loggerNoStack.d("User ID found: ${userId.value}, fetching appointments");
-      fetchAppointments().whenComplete(() {
-        loggerNoStack.d("✅ Initial fetchAppointments completed");
-      });
+      await fetchAppointments();
+      loggerNoStack.d("✅ Initial fetchAppointments completed");
     } else {
       isLoaded.value = true; // Set to true to avoid indefinite loading
       isErrorInLoading.value = true;
       loggerNoStack.d("❌ No user ID found, cannot fetch appointments");
     }
-
-    // Add listeners for tab and filter changes
-    ever(selectedTab, (_) => applyFilters());
-    ever(selectedFilter, (_) => applyFilters());
-
-    scrollController.addListener(() {
-      if (scrollController.position.pixels ==
-          scrollController.position.maxScrollExtent) {
-        loadMore();
-      }
-    });
   }
 
   @override

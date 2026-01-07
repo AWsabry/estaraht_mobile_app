@@ -57,6 +57,7 @@ class DoctorDData {
   String? fcmToken;
   int? nbSessions;
   double? sessionFee;
+  int? avgSessionTime; // in minutes
 
   DoctorDData({
     this.id,
@@ -89,6 +90,7 @@ class DoctorDData {
     this.fcmToken,
     this.nbSessions,
     this.sessionFee,
+    this.avgSessionTime,
   });
 
   DoctorDData.fromJson(Map<String, dynamic> json) {
@@ -150,6 +152,9 @@ class DoctorDData {
     sessionFee = json['session_fee'] != null
         ? double.tryParse(json['session_fee'].toString()) ?? 0
         : 0;
+    avgSessionTime = json['avg_session_time'] is int
+        ? json['avg_session_time']
+        : int.tryParse(json['avg_session_time']?.toString() ?? '30');
   }
 
   Map<String, dynamic> toJson() {
@@ -183,6 +188,7 @@ class DoctorDData {
     data['numb_session'] = nbSessions;
     data['booking_price'] = sessionFee;
     data['fcm_token'] = fcmToken;
+    data['avg_session_time'] = avgSessionTime;
     return data;
   }
 }

@@ -96,6 +96,7 @@ class DoctorProfileController extends GetxController {
         'booking_price': feeController.text,
         'bio': aboutUsController.text,
         'years_of_exp': int.tryParse(yearsOfExpController.text) ?? 0,
+        'avg_session_time': int.tryParse(avgSessionTimeController.text) ?? 30,
         'updated_at': DateTime.now().toIso8601String(),
       };
 
@@ -299,6 +300,9 @@ class DoctorProfileController extends GetxController {
           totalReview: jsonResponse['number_review'] is int
               ? jsonResponse['number_review']
               : int.tryParse(jsonResponse['number_review']?.toString() ?? '0'),
+          avgSessionTime: jsonResponse['avg_session_time'] is int
+              ? jsonResponse['avg_session_time']
+              : int.tryParse(jsonResponse['avg_session_time']?.toString() ?? '30'),
           specializations:
               (jsonResponse['specialization'] != null &&
                   jsonResponse['specialization'].toString().isNotEmpty)
@@ -342,6 +346,8 @@ class DoctorProfileController extends GetxController {
       textEditingController.text = jsonResponse['address']?.toString() ?? '';
       yearsOfExpController.text =
           doctorProfileDetails?.data?.yearsOfExp?.toString() ?? '';
+      avgSessionTimeController.text =
+          doctorProfileDetails?.data?.avgSessionTime?.toString() ?? '30';
 
       isLoading.value = false;
       isProfileLoaded.value = true;
@@ -388,6 +394,7 @@ class DoctorProfileController extends GetxController {
   TextEditingController worktimeController = TextEditingController();
   TextEditingController yearsOfExpController = TextEditingController();
   TextEditingController feeController = TextEditingController();
+  TextEditingController avgSessionTimeController = TextEditingController();
 
   RxString password = "".obs;
 

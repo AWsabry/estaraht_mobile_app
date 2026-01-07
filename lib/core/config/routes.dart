@@ -1,4 +1,5 @@
 import 'package:videocalling/core/config/app_imports.dart';
+import 'package:videocalling/shared/widgets/pdf_viewer_screen.dart';
 import 'package:videocalling/features/auth/doctor_login_binding.dart';
 import 'package:videocalling/features/auth/doctor_register_binding.dart';
 import 'package:videocalling/features/auth/forget_password_binding.dart';
@@ -361,6 +362,10 @@ class AppPages {
       name: _Paths.otpScreen,
       page: () => const OtpScreen(),
       binding: OtpBinding(),
+    ),
+    GetPage(
+      name: '/session-pdf-viewer',
+      page: () => const PdfViewerScreen(),
     ),
   ];
 }

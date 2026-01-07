@@ -48,11 +48,18 @@ class AvailabilityModel {
 
   // Helper method to get day name
   String getDayName() {
-    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const days = [
+      'Sunday',
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday',
+      'Saturday',
+    ];
     if (dayNumber >= 0 && dayNumber < days.length) {
       return days[dayNumber];
     }
     return 'Unknown';
   }
 }
-
