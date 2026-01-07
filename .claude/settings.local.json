@@ -9,7 +9,8 @@
       "Bash(printf:*)",
       "Bash(supabase db push:*)",
       "Bash(supabase db diff:*)",
-      "Bash(psql:*)"
+      "Bash(psql:*)",
+      "Bash(flutter doctor:*)"
     ],
     "deny": [],
     "ask": []

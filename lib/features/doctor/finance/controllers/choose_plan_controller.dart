@@ -1,7 +1,6 @@
 import 'package:videocalling/core/config/app_imports.dart';
 import 'package:dio/dio.dart';
 import 'package:http/http.dart' as http;
-import 'package:sn_progress_dialog/progress_dialog.dart';
 import 'package:videocalling/features/doctor/finance/models/doctor_choose_plan_model.dart';
 import 'package:videocalling/features/doctor/more/dmy_photo_viewer_controller.dart';
 

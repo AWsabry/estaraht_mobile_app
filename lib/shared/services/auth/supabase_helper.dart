@@ -131,8 +131,12 @@ class SupabaseHelper {
     if (user != null && session != null) {
       loggerNoStack.i('✅ User authenticated: ${user.id}');
       loggerNoStack.i('✅ Session active');
-      loggerNoStack.i('✅ Access token present: ${session.accessToken.isNotEmpty}');
-      loggerNoStack.i('Session expires at: ${session.expiresAt != null ? DateTime.fromMillisecondsSinceEpoch(session.expiresAt! * 1000) : 'N/A'}');
+      loggerNoStack.i(
+        '✅ Access token present: ${session.accessToken.isNotEmpty}',
+      );
+      loggerNoStack.i(
+        'Session expires at: ${session.expiresAt != null ? DateTime.fromMillisecondsSinceEpoch(session.expiresAt! * 1000) : 'N/A'}',
+      );
     } else {
       loggerNoStack.e('❌ No active session found');
       if (user == null) loggerNoStack.e('  - No user');

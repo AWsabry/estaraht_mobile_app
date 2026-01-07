@@ -196,24 +196,31 @@ class DoctorDetailScreen extends GetView<DoctorDetailController> {
                     subtitle: "of_experience".tr,
                   ),
                   const SizedBox(height: 8),
-                  _buildStatCard(
-                    svgIcon: AppImages.reviewsIcon,
-                    iconColor: AppColors.color1,
-                    title:
-                        detailController.doctorDetailsClass?.data?.avgratting
-                            ?.toStringAsFixed(1) ??
-                        '4.8',
-                    subtitle: "reviews".tr,
+                  Obx(
+                    () => _buildStatCard(
+                      svgIcon: AppImages.reviewsIcon,
+                      iconColor: AppColors.color1,
+                      title: detailController.averageRating.value > 0
+                          ? detailController.averageRating.value
+                                .toStringAsFixed(1)
+                          : (detailController
+                                    .doctorDetailsClass
+                                    ?.data
+                                    ?.avgratting
+                                    ?.toStringAsFixed(1) ??
+                                '0.0'),
+                      subtitle:
+                          '${detailController.totalReviews.value} ${"reviews".tr}',
+                    ),
                   ),
                   const SizedBox(height: 8),
-                  _buildStatCard(
-                    svgIcon: AppImages.groupOfPeaple,
-                    iconColor: AppColors.color1,
-                    title:
-                        detailController.doctorDetailsClass?.data?.nbSessions
-                            ?.toString() ??
-                        '2000',
-                    subtitle: "patients".tr,
+                  Obx(
+                    () => _buildStatCard(
+                      svgIcon: AppImages.groupOfPeaple,
+                      iconColor: AppColors.color1,
+                      title: detailController.uniquePatients.value.toString(),
+                      subtitle: "patients".tr,
+                    ),
                   ),
                 ],
               ),
@@ -236,7 +243,7 @@ class DoctorDetailScreen extends GetView<DoctorDetailController> {
                           Container(
                             padding: const EdgeInsets.symmetric(
                               vertical: 8,
-                              horizontal: 12,
+                              horizontal: 30,
                             ),
                             decoration: BoxDecoration(
                               color:
@@ -322,8 +329,6 @@ class DoctorDetailScreen extends GetView<DoctorDetailController> {
     required String subtitle,
   }) {
     return Container(
-      width: 128,
-      height: 52,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.9),
@@ -397,10 +402,12 @@ class DoctorDetailScreen extends GetView<DoctorDetailController> {
                   border: Border.all(color: Colors.grey[200]!),
                 ),
                 padding: const EdgeInsets.all(16),
-                child: _buildStatItem(
-                  icon: Icons.video_call,
-                  title: "number_of_sessions".tr,
-                  value: "2000_sessions",
+                child: Obx(
+                  () => _buildStatItem(
+                    icon: Icons.video_call,
+                    title: "number_of_sessions".tr,
+                    value: '${detailController.completedSessions.value}',
+                  ),
                 ),
               ),
             ),
@@ -412,10 +419,12 @@ class DoctorDetailScreen extends GetView<DoctorDetailController> {
                   border: Border.all(color: Colors.grey[200]!),
                 ),
                 padding: const EdgeInsets.all(16),
-                child: _buildStatItem(
-                  icon: Icons.attach_money,
-                  title: "session_price".tr,
-                  value: "price_value",
+                child: Obx(
+                  () => _buildStatItem(
+                    icon: Icons.star,
+                    title: "reviews".tr,
+                    value: '${detailController.totalReviews.value}',
+                  ),
                 ),
               ),
             ),
@@ -432,10 +441,12 @@ class DoctorDetailScreen extends GetView<DoctorDetailController> {
                   border: Border.all(color: Colors.grey[200]!),
                 ),
                 padding: const EdgeInsets.all(16),
-                child: _buildStatItem(
-                  icon: Icons.star,
-                  title: "reviews".tr,
-                  value: "700_reviews",
+                child: Obx(
+                  () => _buildStatItem(
+                    icon: Icons.group,
+                    title: "patients".tr,
+                    value: '${detailController.uniquePatients.value}',
+                  ),
                 ),
               ),
             ),
@@ -450,7 +461,8 @@ class DoctorDetailScreen extends GetView<DoctorDetailController> {
                 child: _buildStatItem(
                   icon: Icons.access_time,
                   title: "avg_session_time".tr,
-                  value: "50_min",
+                  value:
+                      '${detailController.doctorDetailsClass?.data?.avgSessionTime ?? 30} ${"min".tr}',
                 ),
               ),
             ),
@@ -913,96 +925,228 @@ class DoctorDetailScreen extends GetView<DoctorDetailController> {
   }
 
   Widget _buildReviewsTab(BuildContext context) {
-    const rating = 5;
+    return Obx(() {
+      if (detailController.isLoadingReviews.value) {
+        return const Center(
+          child: Padding(
+            padding: EdgeInsets.all(32),
+            child: CircularProgressIndicator(),
+          ),
+        );
+      }
 
-    return ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
-        // Rating section
-        Row(
-          children: [
-            for (int i = 1; i <= 5; i++)
-              Icon(
-                i <= rating ? Icons.star : Icons.star_border,
-                color: Colors.amber,
-                size: 24,
+      final avgRating = detailController.averageRating.value;
+      final totalReviews = detailController.totalReviews.value;
+      final reviews = detailController.reviews;
+
+      return ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          // Overall rating section
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.grey[50],
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              children: [
+                Column(
+                  children: [
+                    Text(
+                      avgRating.toStringAsFixed(1),
+                      style: const TextStyle(
+                        fontSize: 36,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF3366FF),
+                      ),
+                    ),
+                    Row(
+                      children: List.generate(5, (index) {
+                        return Icon(
+                          index < avgRating.round()
+                              ? Icons.star
+                              : Icons.star_border,
+                          color: Colors.amber,
+                          size: 16,
+                        );
+                      }),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '$totalReviews ${'reviews'.tr}',
+                      style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                    ),
+                  ],
+                ),
+                const SizedBox(width: 24),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildRatingBar(5, _getRatingPercentage(5)),
+                      _buildRatingBar(4, _getRatingPercentage(4)),
+                      _buildRatingBar(3, _getRatingPercentage(3)),
+                      _buildRatingBar(2, _getRatingPercentage(2)),
+                      _buildRatingBar(1, _getRatingPercentage(1)),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 24),
+
+          // Reviews list
+          if (reviews.isEmpty)
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.all(32),
+                child: Column(
+                  children: [
+                    Icon(
+                      Icons.rate_review_outlined,
+                      size: 48,
+                      color: Colors.grey[400],
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'no_reviews_yet'.tr,
+                      style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+                    ),
+                  ],
+                ),
               ),
-            const SizedBox(width: 16),
-            Text(
-              "write_comment".tr,
-              style: const TextStyle(
-                color: Colors.grey,
-                fontSize: 14,
-                height: 1.2,
+            )
+          else
+            ...reviews.map((review) => _buildReviewItem(review)).toList(),
+        ],
+      );
+    });
+  }
+
+  double _getRatingPercentage(int stars) {
+    final reviews = detailController.reviews;
+    if (reviews.isEmpty) return 0;
+    final count = reviews.where((r) => r.rating == stars).length;
+    return count / reviews.length;
+  }
+
+  Widget _buildRatingBar(int stars, double percentage) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Row(
+        children: [
+          Text(
+            '$stars',
+            style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+          ),
+          const SizedBox(width: 4),
+          const Icon(Icons.star, size: 12, color: Colors.amber),
+          const SizedBox(width: 8),
+          Expanded(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(4),
+              child: LinearProgressIndicator(
+                value: percentage,
+                backgroundColor: Colors.grey[200],
+                valueColor: const AlwaysStoppedAnimation<Color>(Colors.amber),
+                minHeight: 6,
               ),
             ),
-          ],
-        ),
-        const SizedBox(height: 16),
-
-        // Overall rating
-        Row(
-          children: [
-            const Icon(Icons.star, color: Colors.blue, size: 24),
-            const SizedBox(width: 8),
-            const Text(
-              "4.8",
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                height: 1.2,
-              ),
-            ),
-            const SizedBox(width: 8),
-            Text(
-              "from_patients".tr.replaceAll('{count}', '700'),
-              style: const TextStyle(
-                color: Colors.grey,
-                fontSize: 14,
-                height: 1.2,
-              ),
-            ),
-          ],
-        ),
-
-        const Divider(height: 32),
-
-        // Reviews
-        _buildReviewItem("M********", "review_example_text".tr),
-
-        const Divider(height: 16),
-
-        _buildReviewItem("M********", "review_example_text".tr),
-      ],
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _buildReviewItem(String name, String comment) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        CircleAvatar(backgroundColor: Colors.grey[300], radius: 20),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _buildReviewItem(dynamic review) {
+    final patientName = review.patientName;
+    String maskedName;
+
+    if (patientName == null || patientName.isEmpty) {
+      maskedName = 'anonymous'.tr;
+    } else {
+      // Show first 2 characters + max 4 asterisks
+      final asteriskCount = (patientName.length - 2).clamp(1, 4);
+      maskedName =
+          '${patientName.substring(0, 2).toUpperCase()}${'*' * asteriskCount}';
+    }
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey[200]!),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
             children: [
-              Text(
-                name,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14,
-                ),
+              CircleAvatar(
+                backgroundColor: Colors.grey[300],
+                radius: 20,
+                backgroundImage: review.patientImage != null
+                    ? NetworkImage(review.patientImage!)
+                    : null,
+                child: review.patientImage == null
+                    ? Icon(Icons.person, color: Colors.grey[600])
+                    : null,
               ),
-              const SizedBox(height: 4),
-              Text(
-                comment,
-                style: const TextStyle(fontSize: 14, color: Colors.black87),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      maskedName,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                    ),
+                    Row(
+                      children: [
+                        ...List.generate(5, (index) {
+                          return Icon(
+                            index < review.rating
+                                ? Icons.star
+                                : Icons.star_border,
+                            color: Colors.amber,
+                            size: 14,
+                          );
+                        }),
+                        const SizedBox(width: 8),
+                        Text(
+                          review.timeAgo,
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: Colors.grey[500],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
-        ),
-      ],
+          if (review.comment != null && review.comment!.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            Text(
+              review.comment!,
+              style: const TextStyle(
+                fontSize: 14,
+                color: Colors.black87,
+                height: 1.4,
+              ),
+            ),
+          ],
+        ],
+      ),
     );
   }
 }

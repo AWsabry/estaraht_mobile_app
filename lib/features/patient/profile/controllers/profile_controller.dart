@@ -1,7 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:videocalling/core/config/app_imports.dart';
 
-import 'package:dio/dio.dart' as dio;
 
 class UserEditController extends GetxController {
   RxString name = "".obs;

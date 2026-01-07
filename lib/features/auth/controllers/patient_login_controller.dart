@@ -1,6 +1,5 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:videocalling/core/config/app_imports.dart';
-import 'package:videocalling/core/utils/logger.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class UserLoginController extends GetxController {

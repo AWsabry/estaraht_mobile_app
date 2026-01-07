@@ -38,7 +38,9 @@ class FirebaseHelper {
         password: password,
       );
       if (userCredential.user != null) {
-        loggerNoStack.i('✅ User signed in successfully: ${userCredential.user!.uid}');
+        loggerNoStack.i(
+          '✅ User signed in successfully: ${userCredential.user!.uid}',
+        );
       } else {
         loggerNoStack.w('⚠️ Sign-in response received but no user found');
       }
@@ -62,7 +64,9 @@ class FirebaseHelper {
         password: password,
       );
       if (userCredential.user != null) {
-        loggerNoStack.i('✅ User signed up successfully: ${userCredential.user!.uid}');
+        loggerNoStack.i(
+          '✅ User signed up successfully: ${userCredential.user!.uid}',
+        );
       } else {
         loggerNoStack.w('⚠️ Sign-up response received but no user found');
       }

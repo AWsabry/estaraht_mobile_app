@@ -289,10 +289,10 @@ class UAllAppointments extends GetView<UAllAppointmentsController> {
   Widget _buildAppointmentList() {
     return GridView.builder(
       controller: appointmentsController.scrollController,
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2, // Two items per row
-        childAspectRatio: 0.78, // Controls card height
+        childAspectRatio: 0.85, // Controls card height
         crossAxisSpacing: 12, // Horizontal spacing between cards
         mainAxisSpacing: 12, // Vertical spacing between cards
       ),
@@ -479,9 +479,7 @@ class UAllAppointments extends GetView<UAllAppointmentsController> {
             const SizedBox(height: 10),
 
             // Action buttons based on session type
-            isPastSession
-                ? _buildReviewButton(appointment)
-                : _buildSessionActionButtons(appointment),
+            _buildSessionActionButtons(appointment),
           ],
         ),
       ),
@@ -552,18 +550,21 @@ class UAllAppointments extends GetView<UAllAppointmentsController> {
   }
 
   Widget _buildSessionActionButtons(UAppointmentData appointment) {
-    // Status '5' = Rejected, check both numeric and string values
     final isRejected =
         appointment.status == '5' ||
         appointment.status?.toLowerCase() == 'rejected' ||
         appointment.status?.toLowerCase() == 'cancelled';
 
+    final isCompleted =
+        appointment.status == '4' ||
+        appointment.status?.toLowerCase() == 'completed';
+
+    final buttonText = isCompleted ? 'view_details'.tr : 'attend_session'.tr;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         const SizedBox(height: 16),
-
-        // Attend session button
         SizedBox(
           height: 32,
           width: 120,
@@ -587,10 +588,10 @@ class UAllAppointments extends GetView<UAllAppointmentsController> {
               disabledBackgroundColor: Colors.grey[400],
             ),
             child: Text(
-              'attend_session'.tr,
+              buttonText,
               style: TextStyle(
                 color: Colors.white,
-                fontSize: 12,
+                fontSize: 11,
                 fontFamily: Get.locale?.languageCode == 'ar'
                     ? 'NotoKufiArabic'
                     : 'Roboto',
@@ -599,44 +600,6 @@ class UAllAppointments extends GetView<UAllAppointmentsController> {
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildReviewButton(UAppointmentData appointment) {
-    return SizedBox(
-      height: 32, // Reduced height
-      width: double.infinity,
-      child: ElevatedButton(
-        onPressed: () {
-          // Navigate to the review screen with the correct arguments
-          Get.toNamed(
-            Routes.doctorReviewScreen,
-            arguments: {
-              'id': appointment.id.toString(), // Use appointment ID directly
-              'appointmentId': appointment.id.toString(),
-              'doctorName': appointment.name.toString(),
-              'doctorImage': appointment.image.toString(),
-            },
-          );
-        },
-        style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF34C759),
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(40),
-          ),
-        ),
-        child: Text(
-          'review'.tr,
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 12,
-            fontFamily: Get.locale?.languageCode == 'ar'
-                ? 'NotoKufiArabic'
-                : 'Roboto',
-          ),
-        ),
-      ),
     );
   }
 

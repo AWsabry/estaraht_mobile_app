@@ -40,17 +40,53 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>To scan cards</string>
+	<string>Estaraht Pro needs access to your camera to take profile pictures, capture documents, and enable video consultations with healthcare providers.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>We required your location to server you nearby doctors</string>
+	<string>Estaraht Pro uses your location to help you find nearby healthcare providers and show relevant local services.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Need your permission to access the current location of yours to get latitude and longitude</string>
+	<string>Estaraht Pro needs your location to help you find nearby healthcare providers and show relevant local services.</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>We require microphone usage to convert speech to text</string>
+	<string>Estaraht Pro needs microphone access to enable voice communication during video and audio consultations with healthcare providers.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>This app requires to access your photo library to show image</string>
+	<string>Estaraht Pro needs permission to save photos and documents to your photo library.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>We require gallery access so you can choose your profile picture</string>
+	<string>Estaraht Pro needs access to your photo library so you can select profile pictures, upload medical documents, and share relevant files with healthcare providers.</string>
+	<key>NSCalendarsUsageDescription</key>
+	<string>Estaraht Pro needs calendar access to help you schedule and manage your medical appointments.</string>
+	<key>NSContactsUsageDescription</key>
+	<string>Estaraht Pro needs contacts access to help you share healthcare provider information with your contacts.</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>Estaraht Pro uses Face ID to provide secure and convenient access to your account.</string>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>Estaraht Pro needs local network access to provide video consultation services.</string>
+	<key>NSRemindersUsageDescription</key>
+	<string>Estaraht Pro needs reminders access to help you remember upcoming appointments and medication schedules.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Estaraht Pro uses speech recognition to help you search and navigate the app using voice commands.</string>
+	<key>NSUserTrackingUsageDescription</key>
+	<string>This allows us to provide you with personalized healthcare recommendations and improve your experience. Your privacy is important to us.</string>
+	<key>NSAppleMusicUsageDescription</key>
+	<string>Estaraht Pro needs access to your media library to allow you to select media files for sharing.</string>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>Estaraht Pro may use Bluetooth to connect with health monitoring devices.</string>
+	<key>NSBluetoothPeripheralUsageDescription</key>
+	<string>Estaraht Pro may use Bluetooth to connect with health monitoring devices.</string>
+	<key>NSMotionUsageDescription</key>
+	<string>Estaraht Pro uses motion data to track your activity and provide health insights.</string>
+	<key>NSHealthShareUsageDescription</key>
+	<string>Estaraht Pro would like to read your health data to provide better healthcare recommendations.</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>Estaraht Pro would like to update your health data to keep your records synchronized.</string>
+	<key>NSSiriUsageDescription</key>
+	<string>Estaraht Pro integrates with Siri to allow you to manage appointments using voice commands.</string>
+	<key>NSHomeKitUsageDescription</key>
+	<string>Estaraht Pro may integrate with HomeKit-enabled health devices.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Estaraht Pro uses your location to help you find nearby healthcare providers and show relevant local services.</string>
+	<key>NSFileProviderDomainUsageDescription</key>
+	<string>Estaraht Pro needs access to files to allow you to upload and view medical documents.</string>
+	<key>NSVideoSubscriberAccountUsageDescription</key>
+	<string>Estaraht Pro needs access to your TV provider account for video consultation features.</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UIBackgroundModes</key>

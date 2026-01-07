@@ -7,12 +7,13 @@ class ChatListDetails {
   String userUid;
   String userName;
 
-  ChatListDetails(
-      {required this.message,
-        required this.time,
-        required this.type,
-        required this.channelId,
-        required this.messageCount,
-        required this.userUid,
-        required this.userName});
+  ChatListDetails({
+    required this.message,
+    required this.time,
+    required this.type,
+    required this.channelId,
+    required this.messageCount,
+    required this.userUid,
+    required this.userName,
+  });
 }

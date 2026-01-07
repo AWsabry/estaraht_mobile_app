@@ -136,4 +136,7 @@ abstract class _Paths {
 
   // New: in-demand
   static const indemandDoctorScreen = '/indemand-doctor-screen';
+  
+  // Session files PDF viewer
+  static const sessionPdfViewerScreen = '/session-pdf-viewer';
 }

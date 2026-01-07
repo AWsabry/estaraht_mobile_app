@@ -2,7 +2,9 @@ import 'dart:developer' as developer;
 
 import 'package:http/http.dart' as http;
 import 'package:videocalling/core/config/app_imports.dart';
+import 'package:videocalling/shared/services/review_service.dart';
 import 'package:videocalling/shared/services/session_management_service.dart';
+import 'package:videocalling/shared/widgets/rating_dialog.dart';
 
 class UserAppointmentDetailsController extends GetxController {
   String id = Get.arguments['id'];
@@ -257,6 +259,9 @@ class UserAppointmentDetailsController extends GetxController {
 
           // Refresh appointment details
           await fetchAppointmentDetails();
+
+          // Show rating dialog if not already reviewed
+          _showRatingDialogIfNeeded();
         } else {
           // Waiting for doctor confirmation
         }
@@ -269,9 +274,38 @@ class UserAppointmentDetailsController extends GetxController {
     }
   }
 
+  Future<void> _showRatingDialogIfNeeded() async {
+    try {
+      // Check if already reviewed
+      final hasReviewed = await reviewService.hasReviewedBooking(id);
+      if (hasReviewed) {
+        loggerNoStack.i('Booking already reviewed, skipping rating dialog');
+        return;
+      }
+
+      // Get doctor name from appointment details
+      final doctorName =
+          doctorAppointmentDetailsClass?.data?.doctorName ?? 'the doctor';
+
+      // Show rating dialog with slight delay
+      await Future.delayed(const Duration(milliseconds: 500));
+
+      showRatingDialog(
+        bookingId: id,
+        doctorId: doctorId.value,
+        patientId: userId.value,
+        doctorName: doctorName,
+        onSubmitted: () {
+          loggerNoStack.i('Review submitted for booking: $id');
+        },
+      );
+    } catch (e) {
+      loggerNoStack.e('Error showing rating dialog: $e');
+    }
+  }
+
   @override
   void onInit() {
-    // TODO: implement onInit
     super.onInit();
     loggerNoStack.i('Appointment ID: $id');
     getAppointmentDetails = fetchAppointmentDetails();

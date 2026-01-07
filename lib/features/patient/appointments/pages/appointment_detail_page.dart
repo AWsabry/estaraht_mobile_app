@@ -1,4 +1,9 @@
 import 'package:videocalling/core/config/app_imports.dart';
+import 'package:videocalling/shared/models/session_file_model.dart';
+import 'package:videocalling/shared/services/file_upload_service.dart';
+import 'package:videocalling/shared/services/review_service.dart';
+import 'package:videocalling/shared/widgets/file_picker_widget.dart';
+import 'package:videocalling/shared/widgets/rating_dialog.dart';
 
 class UserAppointmentDetailsScreen
     extends GetView<UserAppointmentDetailsController> {
@@ -119,10 +124,10 @@ class UserAppointmentDetailsScreen
           const SizedBox(height: 16),
           _buildSessionCompletionCard(context),
           const SizedBox(height: 16),
-          _buildPrescriptionCard(context, isArabic),
+          _buildRateSessionCard(context),
           const SizedBox(height: 16),
-          _buildReportsCard(context, isArabic),
-          const SizedBox(height: 20),
+          _buildFilesOrPrescriptionCard(context, isArabic),
+          const SizedBox(height: 16),
         ],
       ),
     );
@@ -279,6 +284,216 @@ class UserAppointmentDetailsScreen
         ),
       ],
     );
+  }
+
+  Widget _buildRateSessionCard(BuildContext context) {
+    return Obx(() {
+      final status = detailsController.bookingStatus.value;
+      final isCompleted = status == 'completed';
+
+      if (!isCompleted) {
+        return const SizedBox.shrink();
+      }
+
+      return FutureBuilder<bool>(
+        future: reviewService.hasReviewedBooking(detailsController.id),
+        builder: (context, snapshot) {
+          final hasReviewed = snapshot.data ?? false;
+
+          return Card(
+            margin: const EdgeInsets.symmetric(horizontal: 16),
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+              side: BorderSide(
+                color: hasReviewed
+                    ? Colors.green.shade100
+                    : Colors.amber.shade100,
+                width: 2,
+              ),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        hasReviewed ? Icons.star : Icons.star_outline,
+                        color: hasReviewed
+                            ? Colors.green.shade700
+                            : Colors.amber.shade700,
+                        size: 24,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          hasReviewed
+                              ? 'session_rated'.tr
+                              : 'rate_this_session'.tr,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: hasReviewed
+                                ? Colors.green.shade700
+                                : Colors.amber.shade700,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    hasReviewed
+                        ? 'thank_you_for_rating'.tr
+                        : 'your_feedback_helps_us'.tr,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey[600],
+                      height: 1.4,
+                    ),
+                  ),
+                  if (!hasReviewed) ...[
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          final doctorName =
+                              detailsController
+                                  .doctorAppointmentDetailsClass
+                                  ?.data
+                                  ?.doctorName ??
+                              'Doctor';
+                          showRatingDialog(
+                            bookingId: detailsController.id,
+                            doctorId: detailsController.doctorId.value,
+                            patientId: detailsController.userId.value,
+                            doctorName: doctorName,
+                            onSubmitted: () {
+                              detailsController.fetchAppointmentDetails();
+                            },
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.amber.shade600,
+                          elevation: 0,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: Text(
+                          'rate_session'.tr,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          );
+        },
+      );
+    });
+  }
+
+  Widget _buildSessionFilesCard(BuildContext context) {
+    return Obx(() {
+      final status = detailsController.bookingStatus.value;
+      final isCompleted = status == 'completed';
+      final isAccepted = status == 'accepted' || status == 'confirmed';
+
+      // Show files section for both accepted and completed sessions
+      if (!isAccepted && !isCompleted) {
+        return const SizedBox.shrink();
+      }
+
+      return Card(
+        margin: const EdgeInsets.symmetric(horizontal: 16),
+        elevation: 0,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: SessionFilesWidget(
+          bookingId: detailsController.id,
+          currentUserId: detailsController.userId.value,
+          currentUserType: 'patient',
+          canUpload: true,
+        ),
+      );
+    });
+  }
+
+  Widget _buildFilesOrPrescriptionCard(BuildContext context, bool isArabic) {
+    return Obx(() {
+      final status = detailsController.bookingStatus.value;
+      final isCompleted = status == 'completed';
+      final isAccepted = status == 'accepted' || status == 'confirmed';
+
+      // Only show for accepted or completed sessions
+      if (!isAccepted && !isCompleted) {
+        return const SizedBox.shrink();
+      }
+
+      // Use FutureBuilder to check if doctor has uploaded any files
+      return FutureBuilder<List<SessionFileModel>>(
+        future: fileUploadService.getFilesForBooking(detailsController.id),
+        builder: (context, snapshot) {
+          final hasFiles = snapshot.hasData && snapshot.data!.isNotEmpty;
+
+          // Check if any file is uploaded by doctor
+          final hasDoctorFiles =
+              hasFiles &&
+              snapshot.data!.any((file) => file.uploaderType == 'doctor');
+
+          if (hasDoctorFiles) {
+            // Show session files card if doctor has uploaded files
+            return Card(
+              margin: const EdgeInsets.symmetric(horizontal: 16),
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: SessionFilesWidget(
+                bookingId: detailsController.id,
+                currentUserId: detailsController.userId.value,
+                currentUserType: 'patient',
+                canUpload: true,
+              ),
+            );
+          } else {
+            // Show prescription card if no doctor files
+            return Column(
+              children: [
+                Card(
+                  margin: const EdgeInsets.symmetric(horizontal: 16),
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: SessionFilesWidget(
+                    bookingId: detailsController.id,
+                    currentUserId: detailsController.userId.value,
+                    currentUserType: 'patient',
+                    canUpload: true,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                _buildPrescriptionCard(context, isArabic),
+                const SizedBox(height: 16),
+                _buildReportsCard(context, isArabic),
+                const SizedBox(height: 16),
+              ],
+            );
+          }
+        },
+      );
+    });
   }
 
   Widget _buildDoctorInfoCard(BuildContext context, bool isArabic) {

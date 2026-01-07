@@ -88,22 +88,67 @@ class RegisterAsDoctor extends GetView<DoctorRegisterController> {
                   ),
                   const SizedBox(height: 16),
 
-                  // Phone number field with +222 prefix
-                  Obx(
-                    () => _buildTextField(
-                      labelText: "mobile_number".tr,
-                      isArabic: isArabic,
-                      keyboardType: TextInputType.phone,
-                      prefixText: "+222 ",
-                      onChanged: (val) {
-                        registerController.phoneNumber.value = val;
-                        registerController.isPhoneNumberError.value = false;
-                      },
-                      errorText: registerController.isPhoneNumberError.value
-                          ? registerController.phnNumberError.value
-                          : null,
-                      hasError: registerController.isPhoneNumberError.value,
-                    ),
+                  // Country code dropdown + Phone number field
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Country code dropdown
+                      Obx(
+                        () => Container(
+                          width: 100,
+                          height: 56,
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey[300]!),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: DropdownButtonHideUnderline(
+                            child: DropdownButton<String>(
+                              value: registerController.selectedCountryCode.value,
+                              isExpanded: true,
+                              padding: const EdgeInsets.symmetric(horizontal: 8),
+                              items: registerController.supportedCountries.map((country) {
+                                return DropdownMenuItem<String>(
+                                  value: country['code'],
+                                  child: Text(
+                                    '${country['flag']} ${country['code']}',
+                                    style: const TextStyle(fontSize: 12),
+                                  ),
+                                );
+                              }).toList(),
+                              onChanged: (value) {
+                                if (value != null) {
+                                  final country = registerController.supportedCountries
+                                      .firstWhere((c) => c['code'] == value);
+                                  registerController.setCountryCode(
+                                    value,
+                                    country['name'] ?? '',
+                                  );
+                                }
+                              },
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      // Phone number field
+                      Expanded(
+                        child: Obx(
+                          () => _buildTextField(
+                            labelText: "mobile_number".tr,
+                            isArabic: isArabic,
+                            keyboardType: TextInputType.phone,
+                            onChanged: (val) {
+                              registerController.phoneNumber.value = val;
+                              registerController.isPhoneNumberError.value = false;
+                            },
+                            errorText: registerController.isPhoneNumberError.value
+                                ? registerController.phnNumberError.value
+                                : null,
+                            hasError: registerController.isPhoneNumberError.value,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 16),
 

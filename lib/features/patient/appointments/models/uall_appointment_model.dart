@@ -104,6 +104,7 @@ class AData {
 
 class UAppointmentData {
   String? id;
+  String? doctorId;
   String? date;
   String? slot;
   String? phone;
@@ -116,6 +117,7 @@ class UAppointmentData {
 
   UAppointmentData({
     this.id,
+    this.doctorId,
     this.date,
     this.slot,
     this.phone,
@@ -129,6 +131,7 @@ class UAppointmentData {
 
   UAppointmentData.fromJson(Map<String, dynamic> json) {
     id = json['id'];
+    doctorId = json['doctor_id']?.toString();
     date = json['date'];
     slot = json['slot'];
     phone = json['phone'].toString();
@@ -143,6 +146,7 @@ class UAppointmentData {
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['id'] = id;
+    data['doctor_id'] = doctorId;
     data['date'] = date;
     data['slot'] = slot;
     data['phone'] = phone;

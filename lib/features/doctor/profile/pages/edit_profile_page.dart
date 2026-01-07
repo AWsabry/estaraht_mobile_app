@@ -1,5 +1,4 @@
 import 'package:videocalling/core/config/app_imports.dart';
-import 'package:videocalling/core/utils/logger.dart';
 
 class DoctorProfile extends GetView<DoctorProfileController> {
   final DoctorProfileController profileController = Get.put(

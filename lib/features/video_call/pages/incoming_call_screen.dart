@@ -1,5 +1,4 @@
 import 'package:videocalling/core/config/app_imports.dart';
-import 'package:videocalling/features/video_call/video_call_imports.dart';
 
 class IncomingCallScreen extends GetView<IncomingCallController> {
   final IncomingCallController callController = Get.put(

@@ -3,6 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:videocalling/core/utils/logger.dart';
 import 'package:videocalling/features/patient/payment_plans/models/payment_plan_model.dart';
 import 'package:videocalling/shared/services/auth/firebase_helper.dart';
+import 'package:videocalling/shared/services/invoice_service.dart';
 
 class PaymentPlansController extends GetxController {
   final supabase = Supabase.instance.client;
@@ -10,7 +11,8 @@ class PaymentPlansController extends GetxController {
   // Observable lists
   final RxList<PaymentPlan> allPlans = <PaymentPlan>[].obs;
   final RxList<PaymentPlan> availablePlans = <PaymentPlan>[].obs;
-  final RxList<PatientPlanSubscription> subscriptionHistory = <PatientPlanSubscription>[].obs;
+  final RxList<PatientPlanSubscription> subscriptionHistory =
+      <PatientPlanSubscription>[].obs;
 
   // Loading states
   final RxBool isLoadingPlans = false.obs;
@@ -45,7 +47,9 @@ class PaymentPlansController extends GetxController {
 
       final patientData = await supabase
           .from('patients')
-          .select('subscribed, subscribed_before, sessions_available, sessions_pending')
+          .select(
+            'subscribed, subscribed_before, sessions_available, sessions_pending',
+          )
           .eq('id', user.uid)
           .single();
 
@@ -94,11 +98,15 @@ class PaymentPlansController extends GetxController {
   }
 
   /// Filter plans based on whether patient has subscribed before
-  void _filterAvailablePlans() {
+  Future<void> _filterAvailablePlans() async {
     if (subscribedBefore.value) {
       // Hide first-time-only plans (40$ plan)
-      availablePlans.value = allPlans.where((plan) => !plan.isFirstTimeOnly).toList();
-      loggerNoStack.i('Filtered plans: Hiding first-time-only plan (subscribed before)');
+      availablePlans.value = allPlans
+          .where((plan) => !plan.isFirstTimeOnly)
+          .toList();
+      loggerNoStack.i(
+        'Filtered plans: Hiding first-time-only plan (subscribed before)',
+      );
     } else {
       // Show all plans
       availablePlans.value = allPlans.toList();
@@ -127,7 +135,9 @@ class PaymentPlansController extends GetxController {
           .map((json) => PatientPlanSubscription.fromJson(json))
           .toList();
 
-      loggerNoStack.i('Loaded ${subscriptionHistory.length} subscription records');
+      loggerNoStack.i(
+        'Loaded ${subscriptionHistory.length} subscription records',
+      );
     } catch (e, stackTrace) {
       loggerNoStack.e('Error loading subscription history: $e');
       loggerNoStack.e('Stack trace: $stackTrace');
@@ -139,7 +149,9 @@ class PaymentPlansController extends GetxController {
   /// Select a plan for purchase
   void selectPlan(PaymentPlan plan) {
     selectedPlan.value = plan;
-    loggerNoStack.i('Selected plan: ${plan.planName} (${plan.sessions} sessions, \$${plan.price})');
+    loggerNoStack.i(
+      'Selected plan: ${plan.planName} (${plan.sessions} sessions, \$${plan.price})',
+    );
   }
 
   /// Process subscription payment and add sessions to patient account
@@ -200,7 +212,51 @@ class PaymentPlansController extends GetxController {
       await loadSubscriptionHistory();
 
       // 4. Refresh available plans (to hide 40$ plan if applicable)
-      _filterAvailablePlans();
+      await _filterAvailablePlans();
+
+      // 5. Send subscription invoice email
+      try {
+        loggerNoStack.i('📧 Attempting to send subscription invoice email...');
+
+        final patientData = await supabase
+            .from('patients')
+            .select('email, name')
+            .eq('id', user.uid)
+            .maybeSingle();
+
+        loggerNoStack.i('📧 Patient data for email: $patientData');
+
+        if (patientData != null && patientData['email'] != null) {
+          loggerNoStack.i('📧 Sending invoice to: ${patientData['email']}');
+
+          final emailSent = await invoiceService.sendSubscriptionInvoice(
+            patientEmail: patientData['email'],
+            patientName: patientData['name'] ?? 'Patient',
+            planName: plan.planName,
+            sessionsCount: plan.sessions,
+            amount: plan.price.toString(),
+            currency: paymentCurrency ?? 'USD',
+            paymentMethod: paymentGateway,
+          );
+
+          if (emailSent) {
+            loggerNoStack.i(
+              '✅ Subscription invoice sent successfully to ${patientData['email']}',
+            );
+          } else {
+            loggerNoStack.w(
+              '⚠️ Failed to send subscription invoice - emailSent returned false',
+            );
+          }
+        } else {
+          loggerNoStack.w(
+            '⚠️ Patient email not found in database, skipping invoice. Data: $patientData',
+          );
+        }
+      } catch (emailError, emailStackTrace) {
+        loggerNoStack.e('❌ Error sending invoice email: $emailError');
+        loggerNoStack.e('❌ Stack trace: $emailStackTrace');
+      }
 
       loggerNoStack.i('Subscription completed successfully');
     } catch (e, stackTrace) {

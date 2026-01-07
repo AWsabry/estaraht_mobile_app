@@ -6,14 +6,20 @@ class DoctorAppointmentDetailsClass {
   Data? data;
   List<PrescriptionImage>? image;
 
-  DoctorAppointmentDetailsClass({this.success, this.prescription, this.register, this.data, this.image});
+  DoctorAppointmentDetailsClass({
+    this.success,
+    this.prescription,
+    this.register,
+    this.data,
+    this.image,
+  });
 
   DoctorAppointmentDetailsClass.fromJson(Map<String, dynamic> json) {
     success = json['success'];
     register = json['register'];
-    if(json['prescription'].runtimeType == String){
+    if (json['prescription'].runtimeType == String) {
       prescription1 = json['prescription'];
-    }else{
+    } else {
       prescription = Prescription.fromJson(json['prescription']);
     }
     data = json['data'] != null ? Data.fromJson(json['data']) : null;
@@ -54,14 +60,20 @@ class DoctorAppointmentDetailsClass1 {
   List<PrescriptionImage>? image;
   Doctor? doctor;
 
-  DoctorAppointmentDetailsClass1({this.success, this.prescription, this.register, this.data, this.image});
+  DoctorAppointmentDetailsClass1({
+    this.success,
+    this.prescription,
+    this.register,
+    this.data,
+    this.image,
+  });
 
   DoctorAppointmentDetailsClass1.fromJson(Map<String, dynamic> json) {
     success = json['success'];
     register = json['register'];
-    if(json['prescription'].runtimeType == String){
+    if (json['prescription'].runtimeType == String) {
       prescription1 = json['prescription'];
-    }else{
+    } else {
       prescription = Prescription.fromJson(json['prescription']);
     }
     data = json['data'] != null ? Data.fromJson(json['data']) : null;
@@ -124,8 +136,14 @@ class Medicine {
   dynamic type;
   String? medicine_name;
 
-  Medicine(
-      {this.medicineId, this.repeatDays, this.time, this.dosage, this.type,this.medicine_name});
+  Medicine({
+    this.medicineId,
+    this.repeatDays,
+    this.time,
+    this.dosage,
+    this.type,
+    this.medicine_name,
+  });
 
   Medicine.fromJson(Map<String, dynamic> json) {
     medicineId = json['medicine_id'];
@@ -192,26 +210,27 @@ class Data {
   String? remainTime;
   int? isAppointmentTime;
 
-  Data(
-      {this.doctorImage,
-        this.doctorName,
-        this.doctorGender,
-        this.userImage,
-        this.userName,
-        this.status,
-        this.doctorId,
-        this.userId,
-        this.date,
-        this.slot,
-        this.phone,
-        this.email,
-        this.description,
-        this.connectycubeUserId,
-        this.id,
-        this.prescription,
-        this.deviceToken,
-        this.remainTime,
-        this.isAppointmentTime});
+  Data({
+    this.doctorImage,
+    this.doctorName,
+    this.doctorGender,
+    this.userImage,
+    this.userName,
+    this.status,
+    this.doctorId,
+    this.userId,
+    this.date,
+    this.slot,
+    this.phone,
+    this.email,
+    this.description,
+    this.connectycubeUserId,
+    this.id,
+    this.prescription,
+    this.deviceToken,
+    this.remainTime,
+    this.isAppointmentTime,
+  });
 
   Data.fromJson(Map<String, dynamic> json) {
     doctorImage = json['doctor_image'];
@@ -304,13 +323,14 @@ class PrescriptionImage {
   String? createdAt;
   String? updatedAt;
 
-  PrescriptionImage(
-      {this.id,
-        this.appointmentId,
-        this.name,
-        this.image,
-        this.createdAt,
-        this.updatedAt});
+  PrescriptionImage({
+    this.id,
+    this.appointmentId,
+    this.name,
+    this.image,
+    this.createdAt,
+    this.updatedAt,
+  });
 
   PrescriptionImage.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -360,32 +380,33 @@ class Doctor {
   int? avgratting;
   Departmentls? departmentls;
 
-  Doctor(
-      {this.id,
-        this.name,
-        this.email,
-        this.aboutus,
-        this.workingTime,
-        this.address,
-        this.lat,
-        this.lon,
-        this.phoneno,
-        this.services,
-        this.healthcare,
-        this.image,
-        this.departmentId,
-        this.password,
-        this.facebookUrl,
-        this.twitterUrl,
-        this.createdAt,
-        this.updatedAt,
-        this.isApprove,
-        this.consultationFees,
-        this.loginId,
-        this.connectycubeUserId,
-        this.connectycubePassword,
-        this.avgratting,
-        this.departmentls});
+  Doctor({
+    this.id,
+    this.name,
+    this.email,
+    this.aboutus,
+    this.workingTime,
+    this.address,
+    this.lat,
+    this.lon,
+    this.phoneno,
+    this.services,
+    this.healthcare,
+    this.image,
+    this.departmentId,
+    this.password,
+    this.facebookUrl,
+    this.twitterUrl,
+    this.createdAt,
+    this.updatedAt,
+    this.isApprove,
+    this.consultationFees,
+    this.loginId,
+    this.connectycubeUserId,
+    this.connectycubePassword,
+    this.avgratting,
+    this.departmentls,
+  });
 
   Doctor.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -458,13 +479,14 @@ class Departmentls {
   String? updatedAt;
   int? isActive;
 
-  Departmentls(
-      {this.id,
-        this.icon,
-        this.name,
-        this.createdAt,
-        this.updatedAt,
-        this.isActive});
+  Departmentls({
+    this.id,
+    this.icon,
+    this.name,
+    this.createdAt,
+    this.updatedAt,
+    this.isActive,
+  });
 
   Departmentls.fromJson(Map<String, dynamic> json) {
     id = json['id'];

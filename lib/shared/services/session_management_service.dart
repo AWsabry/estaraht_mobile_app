@@ -1,5 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:videocalling/core/utils/logger.dart';
+import 'package:videocalling/shared/services/invoice_service.dart';
 
 /// Service for managing patient sessions (available and pending)
 class SessionManagementService {
@@ -187,6 +188,13 @@ class SessionManagementService {
           patientId: patientId,
         );
 
+        // Send session summary emails to both parties
+        await _sendSessionCompletionEmails(
+          bookingId: bookingId,
+          doctorId: doctorId,
+          patientId: patientId,
+        );
+
         loggerNoStack.i('✅ Both parties confirmed - session completed');
 
         return SessionConfirmationResult(
@@ -271,6 +279,13 @@ class SessionManagementService {
           patientId: patientId,
         );
 
+        // Send session summary emails to both parties
+        await _sendSessionCompletionEmails(
+          bookingId: bookingId,
+          doctorId: doctorId,
+          patientId: patientId,
+        );
+
         loggerNoStack.i('✅ Both parties confirmed - session completed');
 
         return SessionConfirmationResult(
@@ -347,6 +362,72 @@ class SessionManagementService {
       loggerNoStack.e('❌ Error transferring payment to doctor: $e');
       loggerNoStack.e('Stack trace: $stackTrace');
       // Don't throw - session completion should succeed even if payment record fails
+    }
+  }
+
+  /// Send session completion emails to both doctor and patient
+  Future<void> _sendSessionCompletionEmails({
+    required String bookingId,
+    required String doctorId,
+    required String patientId,
+  }) async {
+    try {
+      loggerNoStack.i('📧 Sending session completion emails for: $bookingId');
+
+      // Get booking details
+      final bookingData = await supabase
+          .from('bookings')
+          .select('booking_date, booking_time, completed_at')
+          .eq('id', bookingId)
+          .single();
+
+      // Get doctor details
+      final doctorData = await supabase
+          .from('doctors')
+          .select('email, full_name, doctor_fee_per_session')
+          .eq('doctor_id', doctorId)
+          .single();
+
+      // Get patient details
+      final patientData = await supabase
+          .from('patients')
+          .select('email, name, sessions_available')
+          .eq('id', patientId)
+          .single();
+
+      final doctorEmail = doctorData['email']?.toString();
+      final doctorName = doctorData['full_name']?.toString() ?? 'Doctor';
+      final patientEmail = patientData['email']?.toString();
+      final patientName = patientData['name']?.toString() ?? 'Patient';
+      final sessionsRemaining = patientData['sessions_available']?.toString() ?? '0';
+      final sessionEarnings = '\$${(doctorData['doctor_fee_per_session'] ?? 30.0).toStringAsFixed(2)}';
+
+      final sessionDate = bookingData['booking_date']?.toString() ?? '';
+      final sessionTime = bookingData['booking_time']?.toString() ?? '';
+
+      if (doctorEmail != null && patientEmail != null) {
+        await invoiceService.sendSessionSummaryToBothParties(
+          sessionId: bookingId,
+          sessionDate: sessionDate,
+          sessionTime: sessionTime,
+          duration: '30 minutes',
+          doctorId: doctorId,
+          doctorName: doctorName,
+          doctorEmail: doctorEmail,
+          patientId: patientId,
+          patientName: patientName,
+          patientEmail: patientEmail,
+          sessionsRemaining: sessionsRemaining,
+          sessionEarnings: sessionEarnings,
+        );
+        loggerNoStack.i('✅ Session summary emails sent to both parties');
+      } else {
+        loggerNoStack.w('⚠️ Missing email addresses - Doctor: $doctorEmail, Patient: $patientEmail');
+      }
+    } catch (e, stackTrace) {
+      loggerNoStack.e('❌ Error sending session completion emails: $e');
+      loggerNoStack.e('Stack trace: $stackTrace');
+      // Don't throw - session completion should succeed even if email fails
     }
   }
 

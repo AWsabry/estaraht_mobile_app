@@ -3,12 +3,18 @@ import 'package:videocalling/core/config/app_imports.dart';
 import 'package:videocalling/features/patient/appointments/models/make_appointment_class.dart';
 import 'package:videocalling/features/video_call/call_manager.dart';
 import 'package:videocalling/shared/models/availability_model.dart';
+import 'package:videocalling/shared/models/country_pricing_model.dart';
+import 'package:videocalling/shared/services/pricing_service.dart';
 
 class MakeAppointmentController extends GetxController {
   String id = Get.arguments['id'];
   String name = Get.arguments['name'];
   String image = Get.arguments['image'];
-  String consultationFee = Get.arguments['consultationFee'];
+  String consultationFee = Get.arguments['consultationFee'] ?? '0';
+  
+  RxString dynamicPrice = "0".obs;
+  RxString dynamicCurrency = "USD".obs;
+  Rx<CountryPricing?> doctorPricing = Rx<CountryPricing?>(null);
 
   DateTime dateTime = DateTime.now();
 
@@ -1255,10 +1261,24 @@ class MakeAppointmentController extends GetxController {
 
   @override
   void onInit() {
-    // TODO: implement onInit
     super.onInit();
     initialize();
     date = dateTime.toString().substring(0, 10);
+    loadDoctorPricing();
+  }
+
+  Future<void> loadDoctorPricing() async {
+    try {
+      final pricing = await pricingService.getPricingForDoctor(id);
+      if (pricing != null) {
+        doctorPricing.value = pricing;
+        dynamicPrice.value = pricing.sessionPrice.toStringAsFixed(0);
+        dynamicCurrency.value = pricing.currency;
+        consultationFee = dynamicPrice.value;
+      }
+    } catch (e) {
+      print('Error loading doctor pricing: $e');
+    }
   }
 
   updateSelectedDuration(String duration) {

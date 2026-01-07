@@ -23,7 +23,7 @@ class NotificationController extends GetxController {
       if (currentUser == null) {
         print('⚠️ No user logged in');
         // Add some sample notifications for demo
-       
+
         return;
       }
 
@@ -32,7 +32,7 @@ class NotificationController extends GetxController {
         final response = await supabase
             .from('notifications')
             .select()
-            .eq('user_id', currentUser.uid)
+            .eq('recipient_id', currentUser.uid)
             .order('created_at', ascending: false)
             .limit(50);
 
@@ -41,27 +41,25 @@ class NotificationController extends GetxController {
           _updateUnreadCount();
           print('✅ Loaded ${notifications.length} notifications');
         } else {
+          print('❌ No notifications in database');
           // No notifications in database, load samples
-         
         }
       } catch (e) {
         print('⚠️ Error loading notifications from database: $e');
         // Fallback to sample notifications
-       
       }
     } catch (e) {
       print('❌ Error loading notifications: $e');
-     
     } finally {
       isLoading.value = false;
     }
   }
 
-
-
   /// Update unread count
   void _updateUnreadCount() {
-    unreadCount.value = notifications.where((n) => n['is_read'] == false).length;
+    unreadCount.value = notifications
+        .where((n) => n['is_read'] == false)
+        .length;
   }
 
   /// Mark notification as read
@@ -110,7 +108,7 @@ class NotificationController extends GetxController {
           await supabase
               .from('notifications')
               .update({'is_read': true})
-              .eq('user_id', currentUser.uid);
+              .eq('recipient_id', currentUser.uid);
           print('✅ All notifications marked as read');
         } catch (e) {
           print('⚠️ Could not update notifications in database: $e');
@@ -159,7 +157,7 @@ class NotificationController extends GetxController {
           await supabase
               .from('notifications')
               .delete()
-              .eq('user_id', currentUser.uid);
+              .eq('recipient_id', currentUser.uid);
           print('✅ All notifications cleared');
         } catch (e) {
           print('⚠️ Could not clear notifications from database: $e');

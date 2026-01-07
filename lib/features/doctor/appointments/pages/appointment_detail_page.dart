@@ -1,8 +1,8 @@
-import 'package:logger/logger.dart';
 import 'package:videocalling/core/config/app_imports.dart';
 import 'package:videocalling/features/doctor/appointments/pages/add_medicine_page.dart';
 import 'package:videocalling/features/doctor/more/search_medicine_controller.dart';
 import 'package:videocalling/features/doctor/more/search_medicine_model.dart';
+import 'package:videocalling/shared/widgets/file_picker_widget.dart';
 
 class DoctorAppointmentDetails extends GetView<DAppointmentDetailsController> {
   final DAppointmentDetailsController detailsController = Get.put(
@@ -100,6 +100,8 @@ class DoctorAppointmentDetails extends GetView<DAppointmentDetailsController> {
           const SizedBox(height: 16),
           _buildSessionCompletionCard(context),
           const SizedBox(height: 16),
+          _buildSessionFilesCard(context),
+          const SizedBox(height: 16),
           /* if (detailsController.apStatus.value == 4) ...[
             _buildPrescriptionCard(context, isArabic),
             const SizedBox(height: 16),
@@ -116,6 +118,33 @@ class DoctorAppointmentDetails extends GetView<DAppointmentDetailsController> {
         ],
       ),
     );
+  }
+
+  Widget _buildSessionFilesCard(BuildContext context) {
+    return Obx(() {
+      final status = detailsController.bookingStatus.value;
+      final isCompleted = status == 'completed';
+      final isAccepted = status == 'accepted' || status == 'confirmed';
+
+      // Show files section for both accepted and completed sessions
+      if (!isAccepted && !isCompleted) {
+        return const SizedBox.shrink();
+      }
+
+      return Card(
+        margin: const EdgeInsets.symmetric(horizontal: 16),
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: SessionFilesWidget(
+          bookingId: detailsController.id,
+          currentUserId: detailsController.doctorId.value,
+          currentUserType: 'doctor',
+          canUpload: true,
+        ),
+      );
+    });
   }
 
   Widget _buildPatientInfoCard(BuildContext context, bool isArabic) {
@@ -249,7 +278,6 @@ class DoctorAppointmentDetails extends GetView<DAppointmentDetailsController> {
   Widget _buildStatusChip(BuildContext context, bool isArabic) {
     String statusText = '';
     Color statusColor;
-    Logger().e(detailsController.apStatus.value);
     switch (detailsController.apStatus.value) {
       case 0:
         statusText = 'appointment_status_1'.tr; // pending
@@ -1140,7 +1168,11 @@ class DoctorAppointmentDetails extends GetView<DAppointmentDetailsController> {
               // Title
               Row(
                 children: [
-                  Icon(Icons.check_circle_outline, color: Colors.blue.shade700, size: 24),
+                  Icon(
+                    Icons.check_circle_outline,
+                    color: Colors.blue.shade700,
+                    size: 24,
+                  ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
@@ -1159,10 +1191,7 @@ class DoctorAppointmentDetails extends GetView<DAppointmentDetailsController> {
               // Description
               Text(
                 'both_parties_must_confirm'.tr,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey[700],
-                ),
+                style: TextStyle(fontSize: 14, color: Colors.grey[700]),
               ),
               const SizedBox(height: 16),
 
@@ -1192,7 +1221,9 @@ class DoctorAppointmentDetails extends GetView<DAppointmentDetailsController> {
                       ? null
                       : () => detailsController.confirmSessionCompletion(),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: doctorConfirmed ? Colors.grey : Colors.blue.shade700,
+                    backgroundColor: doctorConfirmed
+                        ? Colors.grey
+                        : Colors.blue.shade700,
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -1205,7 +1236,9 @@ class DoctorAppointmentDetails extends GetView<DAppointmentDetailsController> {
                           width: 20,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.white,
+                            ),
                           ),
                         )
                       : Text(
@@ -1262,16 +1295,22 @@ class DoctorAppointmentDetails extends GetView<DAppointmentDetailsController> {
             Row(
               children: [
                 Icon(
-                  isConfirmed ? Icons.check_circle : Icons.radio_button_unchecked,
+                  isConfirmed
+                      ? Icons.check_circle
+                      : Icons.radio_button_unchecked,
                   size: 14,
-                  color: isConfirmed ? Colors.green.shade700 : Colors.grey.shade400,
+                  color: isConfirmed
+                      ? Colors.green.shade700
+                      : Colors.grey.shade400,
                 ),
                 const SizedBox(width: 4),
                 Text(
                   isConfirmed ? 'confirmed'.tr : 'pending',
                   style: TextStyle(
                     fontSize: 12,
-                    color: isConfirmed ? Colors.green.shade700 : Colors.grey.shade500,
+                    color: isConfirmed
+                        ? Colors.green.shade700
+                        : Colors.grey.shade500,
                   ),
                 ),
               ],

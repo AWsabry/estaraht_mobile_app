@@ -4,7 +4,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:supabase_flutter/supabase_flutter.dart'
     show OtpType, PostgrestException, AuthException;
 import 'package:videocalling/core/config/app_imports.dart';
-import 'package:videocalling/features/auth/controllers/doctor_register_controller.dart';
 
 class OtpController extends GetxController {
   final supabase = SupabaseHelper().client;

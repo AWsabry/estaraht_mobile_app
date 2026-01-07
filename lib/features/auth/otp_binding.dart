@@ -1,7 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart' show OtpType;
 
 import 'package:videocalling/core/config/app_imports.dart';
-import 'package:videocalling/features/auth/controllers/otp_controller.dart';
 
 class OtpBinding extends Bindings {
   @override

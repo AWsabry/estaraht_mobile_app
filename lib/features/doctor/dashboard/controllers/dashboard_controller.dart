@@ -1,9 +1,7 @@
 import 'package:videocalling/core/config/app_imports.dart';
-import 'package:videocalling/core/utils/logger.dart';
 import 'package:videocalling/features/doctor/appointments/models/dappointment_list_model.dart';
 import 'package:videocalling/features/doctor/profile/models/doctor_profile_data.dart';
 import 'package:videocalling/features/doctor/profile/pages/edit_profile_page.dart';
-import 'package:videocalling/features/video_call/video_call_imports.dart';
 
 class DoctorDashboardController extends GetxController {
   DoctorPastAppointmentsClass? doctorAppointmentsClass;

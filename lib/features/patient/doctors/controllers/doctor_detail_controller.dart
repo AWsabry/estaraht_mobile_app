@@ -1,7 +1,8 @@
 import 'package:videocalling/core/config/app_imports.dart';
-import 'package:videocalling/core/utils/logger.dart';
 import 'package:videocalling/features/patient/doctors/models/doctor_detail_model.dart';
 import 'package:videocalling/shared/models/availability_model.dart';
+import 'package:videocalling/shared/models/review_model.dart';
+import 'package:videocalling/shared/services/review_service.dart';
 
 class DoctorDetailController extends GetxController {
   DoctorDetailsClass? doctorDetailsClass;
@@ -20,6 +21,16 @@ class DoctorDetailController extends GetxController {
   RxInt selectedDateIndex = 0.obs;
   RxList<String> currentTimeSlots = <String>[].obs;
   RxBool isLoadingTimeSlots = false.obs;
+
+  // Reviews data
+  RxList<ReviewModel> reviews = <ReviewModel>[].obs;
+  RxBool isLoadingReviews = false.obs;
+  RxDouble averageRating = 0.0.obs;
+  RxInt totalReviews = 0.obs;
+
+  // Stats from bookings
+  RxInt completedSessions = 0.obs;
+  RxInt uniquePatients = 0.obs;
 
   fetchDoctorDetails() async {
     try {
@@ -45,7 +56,7 @@ class DoctorDetailController extends GetxController {
             avg_rating,
             number_review,
             numb_session,
-           
+            avg_session_time,
             fcm_token,
             updated_at
           ''')
@@ -72,7 +83,7 @@ class DoctorDetailController extends GetxController {
           'avgratting': response['avg_rating'],
           'number_review': response['number_review'],
           'numb_session': response['numb_session'],
-
+          'avg_session_time': response['avg_session_time'],
           'fcm_token': response['fcm_token'],
           'updated_at': response['updated_at'],
         }
@@ -164,13 +175,69 @@ class DoctorDetailController extends GetxController {
 
   @override
   void onInit() {
-    // TODO: implement onInit
     super.onInit();
     isLoggedIn.value =
         StorageService.readData(key: LocalStorageKeys.isLoggedIn) ?? false;
     fetchDoctorDetails();
-    // Load availability data
     _loadAvailabilityData();
+    fetchReviews();
+    fetchDoctorStats();
+  }
+
+  Future<void> fetchDoctorStats() async {
+    try {
+      loggerNoStack.i('📊 Fetching doctor stats from bookings...');
+      
+      // Get completed sessions count
+      final sessionsResponse = await supabaseHelper.client
+          .from('bookings')
+          .select('id')
+          .eq('doctor_id', id)
+          .eq('status', 'completed');
+      
+      completedSessions.value = (sessionsResponse as List).length;
+      loggerNoStack.i('✅ Completed sessions: ${completedSessions.value}');
+      
+      // Get unique patients count (distinct patient_id from completed bookings)
+      final patientsResponse = await supabaseHelper.client
+          .from('bookings')
+          .select('patient_id')
+          .eq('doctor_id', id)
+          .eq('status', 'completed');
+      
+      // Get unique patient IDs
+      final Set<String> uniquePatientIds = {};
+      for (var booking in patientsResponse as List) {
+        if (booking['patient_id'] != null) {
+          uniquePatientIds.add(booking['patient_id'].toString());
+        }
+      }
+      uniquePatients.value = uniquePatientIds.length;
+      loggerNoStack.i('✅ Unique patients: ${uniquePatients.value}');
+      
+    } catch (e) {
+      loggerNoStack.e('❌ Error fetching doctor stats: $e');
+    }
+  }
+
+  Future<void> fetchReviews() async {
+    try {
+      isLoadingReviews.value = true;
+      loggerNoStack.i('🔍 Fetching reviews for doctor ID: $id');
+      
+      reviews.value = await reviewService.getReviewsForDoctor(id);
+      loggerNoStack.i('📝 Fetched ${reviews.length} reviews');
+      
+      final ratingData = await reviewService.getDoctorRating(id);
+      averageRating.value = ratingData['average_rating'] ?? 0.0;
+      totalReviews.value = ratingData['total_reviews'] ?? 0;
+      
+      loggerNoStack.i('⭐ Average rating: ${averageRating.value}, Total reviews: ${totalReviews.value}');
+    } catch (e) {
+      loggerNoStack.e('❌ Error fetching reviews: $e');
+    } finally {
+      isLoadingReviews.value = false;
+    }
   }
 
   Future<void> _loadAvailabilityData() async {

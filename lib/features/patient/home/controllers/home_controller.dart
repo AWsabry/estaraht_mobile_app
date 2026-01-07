@@ -1,5 +1,4 @@
 import 'package:videocalling/core/config/app_imports.dart';
-import 'package:videocalling/core/utils/logger.dart';
 // import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:carousel_slider/carousel_slider.dart' as cs;
 import 'package:videocalling/features/patient/doctors/models/sdoctor_model.dart';

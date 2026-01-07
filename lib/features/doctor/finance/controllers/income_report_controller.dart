@@ -1,5 +1,4 @@
 import 'package:videocalling/core/config/app_imports.dart';
-import 'package:videocalling/core/utils/logger.dart';
 import 'package:videocalling/features/doctor/finance/models/income_report_model.dart';
 
 class IncomeReportController extends GetxController {
@@ -157,7 +156,7 @@ class IncomeReportController extends GetxController {
       // Available balance = Income - Withdrawals
       availableBalance.value = totalIncome - totalWithdrawals;
       
-      loggerNoStack.i('Available Balance: \$${availableBalance.value} (Income: \$${totalIncome} - Withdrawals: \$${totalWithdrawals})');
+      loggerNoStack.i('Available Balance: \$${availableBalance.value} (Income: \$$totalIncome - Withdrawals: \$$totalWithdrawals)');
     } catch (e) {
       loggerNoStack.e('Error calculating available balance: $e');
       availableBalance.value = 0;
