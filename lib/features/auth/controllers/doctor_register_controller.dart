@@ -162,7 +162,7 @@ class DoctorRegisterController extends GetxController {
       if (authResponse.user != null) {
         print('✅ User registered successfully: ${authResponse.user!.uid}');
 
-        // Insert into doctors table with country code
+        // Insert into doctors table (country code is included in phone_number)
         await supabase.from('doctors').insert({
           'doctor_id': authResponse.user!.uid,
           'full_name': name.value,
@@ -179,7 +179,6 @@ class DoctorRegisterController extends GetxController {
           'profile_img_url': "",
           'booking_price': 50,
           'avg_session_time': 30,
-          'country_code': selectedCountryCode.value,
         });
         print(
           '✅ Doctor profile created in Supabase for user ID: ${authResponse.user!.uid}',
@@ -267,7 +266,10 @@ class DoctorRegisterController extends GetxController {
     } on FirebaseAuthException catch (e) {
       Get.back();
       print("Firebase Auth Error: ${e.message}");
-      customDialog(s1: 'error'.tr, s2: e.message ?? 'an_unexpected_error_occurred'.tr);
+      customDialog(
+        s1: 'error'.tr,
+        s2: e.message ?? 'an_unexpected_error_occurred'.tr,
+      );
     } catch (e) {
       Get.back();
       print("An unexpected error occurred: $e");
@@ -318,7 +320,9 @@ class DoctorRegisterController extends GetxController {
       );
       StorageService.writeStringData(
         key: LocalStorageKeys.phone,
-        value: phoneNumber.value.isNotEmpty ? "${selectedCountryCode.value}${phoneNumber.value}" : "",
+        value: phoneNumber.value.isNotEmpty
+            ? "${selectedCountryCode.value}${phoneNumber.value}"
+            : "",
       );
       StorageService.writeStringData(
         key: 'country_code',
@@ -342,7 +346,9 @@ class DoctorRegisterController extends GetxController {
         await FirebaseDatabase.instance.ref('100$userId').update({
           'name': name.value,
           'image': '',
-          'phone': phoneNumber.value.isNotEmpty ? "${selectedCountryCode.value}${phoneNumber.value}" : "",
+          'phone': phoneNumber.value.isNotEmpty
+              ? "${selectedCountryCode.value}${phoneNumber.value}"
+              : "",
           'email': email.value,
           'country_code': selectedCountryCode.value,
         });
