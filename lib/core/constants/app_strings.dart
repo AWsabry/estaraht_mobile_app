@@ -202,7 +202,7 @@ class Words extends Translations {
       'journey_begins_here': 'Your journey to balance begins here',
       'connect_with_your_patient': 'Connect with your patients flexibly',
       'full_name': 'Full name',
-      'email': 'Email Adress',
+      'email': 'Email Address',
       'mobile_number': 'Mobile number',
       'password': 'Password',
       'at_least_characters': 'At least 8 characters',
@@ -325,7 +325,8 @@ class Words extends Translations {
       'session_rated': 'Session Rated',
       'rate_this_session': 'Rate This Session',
       'thank_you_for_rating': 'Thank you for your feedback!',
-      'your_feedback_helps_us': 'Your feedback helps us improve our services and helps other patients.',
+      'your_feedback_helps_us':
+          'Your feedback helps us improve our services and helps other patients.',
       'how_was_your_experience_with': 'How was your experience with',
       'write_your_review_optional': 'Write your review (optional)',
       'please_select_rating': 'Please select a rating',
@@ -514,8 +515,8 @@ class Words extends Translations {
       'password_not_match': 'Password doesn\'t match',
       'confirm_password': 'Confirm Password',
       'password': 'Password',
-      'email_or_phone': 'Your Email or Phone',
-      'email_or_phone_required': 'Email or Phone is required',
+      'email_or_phone': 'Your Email',
+      'email_or_phone_required': 'Email is required',
       'update': 'Update',
       'next': 'Next',
       'speciality': 'Speciality',
@@ -1067,7 +1068,7 @@ class Words extends Translations {
       'logout_confirmation': 'هل أنت متأكد \n أنك تريد تسجيل الخروج؟',
       'yes': 'نعم',
       'no': 'لا',
-      'email_or_phone': 'بريدك الإلكتروني أو هاتفك',
+      'email_or_phone': 'بريدك الإلكتروني',
 
       ///home
       'welcome_back': 'مرحبًا بعودتك!',
@@ -1141,7 +1142,8 @@ class Words extends Translations {
       'session_rated': 'تم تقييم الجلسة',
       'rate_this_session': 'قيّم هذه الجلسة',
       'thank_you_for_rating': 'شكراً على ملاحظاتك!',
-      'your_feedback_helps_us': 'ملاحظاتك تساعدنا على تحسين خدماتنا ومساعدة المرضى الآخرين.',
+      'your_feedback_helps_us':
+          'ملاحظاتك تساعدنا على تحسين خدماتنا ومساعدة المرضى الآخرين.',
       'how_was_your_experience_with': 'كيف كانت تجربتك مع',
       'write_your_review_optional': 'اكتب مراجعتك (اختياري)',
       'please_select_rating': 'الرجاء اختيار تقييم',
@@ -2007,7 +2009,7 @@ class Words extends Translations {
       'start_your_journey': 'Commencez votre voyage maintenant!',
       'healing_starts_here':
           'Votre guérison commence ici. Séances privées et dossiers médicaux sécurisés, partout et à tout moment.',
-      'email_or_phone': 'Votre e-mail ou numéro de mobile',
+      'email_or_phone': 'Votre e-mail',
 
       /// Patient Signup screen
       ///
@@ -2148,7 +2150,8 @@ class Words extends Translations {
       'session_rated': 'Session évaluée',
       'rate_this_session': 'Évaluez cette session',
       'thank_you_for_rating': 'Merci pour vos commentaires!',
-      'your_feedback_helps_us': 'Vos commentaires nous aident à améliorer nos services et à aider les autres patients.',
+      'your_feedback_helps_us':
+          'Vos commentaires nous aident à améliorer nos services et à aider les autres patients.',
       'how_was_your_experience_with': 'Comment était votre expérience avec',
       'write_your_review_optional': 'Écrivez votre avis (optionnel)',
       'please_select_rating': 'Veuillez sélectionner une note',

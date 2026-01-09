@@ -103,10 +103,15 @@ class RegisterAsDoctor extends GetView<DoctorRegisterController> {
                           ),
                           child: DropdownButtonHideUnderline(
                             child: DropdownButton<String>(
-                              value: registerController.selectedCountryCode.value,
+                              value:
+                                  registerController.selectedCountryCode.value,
                               isExpanded: true,
-                              padding: const EdgeInsets.symmetric(horizontal: 8),
-                              items: registerController.supportedCountries.map((country) {
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                              ),
+                              items: registerController.supportedCountries.map((
+                                country,
+                              ) {
                                 return DropdownMenuItem<String>(
                                   value: country['code'],
                                   child: Text(
@@ -117,7 +122,8 @@ class RegisterAsDoctor extends GetView<DoctorRegisterController> {
                               }).toList(),
                               onChanged: (value) {
                                 if (value != null) {
-                                  final country = registerController.supportedCountries
+                                  final country = registerController
+                                      .supportedCountries
                                       .firstWhere((c) => c['code'] == value);
                                   registerController.setCountryCode(
                                     value,
@@ -139,12 +145,15 @@ class RegisterAsDoctor extends GetView<DoctorRegisterController> {
                             keyboardType: TextInputType.phone,
                             onChanged: (val) {
                               registerController.phoneNumber.value = val;
-                              registerController.isPhoneNumberError.value = false;
+                              registerController.isPhoneNumberError.value =
+                                  false;
                             },
-                            errorText: registerController.isPhoneNumberError.value
+                            errorText:
+                                registerController.isPhoneNumberError.value
                                 ? registerController.phnNumberError.value
                                 : null,
-                            hasError: registerController.isPhoneNumberError.value,
+                            hasError:
+                                registerController.isPhoneNumberError.value,
                           ),
                         ),
                       ),

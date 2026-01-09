@@ -73,15 +73,52 @@ class PricingService {
     try {
       final doctorResponse = await _supabaseHelper.client
           .from('doctors')
-          .select('country_code')
+          .select('phone_number')
           .eq('doctor_id', doctorId)
           .maybeSingle();
 
-      if (doctorResponse == null || doctorResponse['country_code'] == null) {
+      if (doctorResponse == null || doctorResponse['phone_number'] == null) {
         return CountryPricing.defaultPricing();
       }
 
-      return await getPricingByCountryCode(doctorResponse['country_code']);
+      // Extract country code from phone_number (format: "+22212345678")
+      final phoneNumber = doctorResponse['phone_number'] as String;
+      String? countryCode;
+
+      // List of supported country codes (from longest to shortest to avoid partial matches)
+      final supportedCodes = [
+        '+222',
+        '+966',
+        '+971',
+        '+965',
+        '+974',
+        '+973',
+        '+968',
+        '+962',
+        '+964',
+        '+963',
+        '+961',
+        '+249',
+        '+218',
+        '+216',
+        '+213',
+        '+212',
+        '+20',
+      ];
+
+      // Try to match from longest to shortest codes
+      for (final code in supportedCodes) {
+        if (phoneNumber.startsWith(code)) {
+          countryCode = code;
+          break;
+        }
+      }
+
+      if (countryCode == null) {
+        return CountryPricing.defaultPricing();
+      }
+
+      return await getPricingByCountryCode(countryCode);
     } catch (e) {
       loggerNoStack.e('Error getting pricing for doctor: $e');
       return CountryPricing.defaultPricing();
