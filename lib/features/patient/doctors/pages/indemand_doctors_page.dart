@@ -12,18 +12,29 @@ class IndemandDoctorScreen extends StatefulWidget {
 class _IndemandDoctorScreenState extends State<IndemandDoctorScreen> {
   late final IndemandDoctorController controller;
   late final TextEditingController _textController;
+  late final FocusNode _searchFocusNode;
 
   @override
   void initState() {
     super.initState();
     controller = Get.find<IndemandDoctorController>();
     _textController = TextEditingController(text: controller.keyword);
+    _searchFocusNode = FocusNode();
+
+    // Check if we should open keyboard automatically
+    final args = Get.arguments;
+    if (args != null && args is Map && args['openKeyboard'] == true) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _searchFocusNode.requestFocus();
+      });
+    }
   }
 
   @override
   void dispose() {
     FocusManager.instance.primaryFocus?.unfocus();
     _textController.dispose();
+    _searchFocusNode.dispose();
     super.dispose();
   }
 
@@ -96,6 +107,7 @@ class _IndemandDoctorScreenState extends State<IndemandDoctorScreen> {
               ),
               child: TextField(
                 controller: _textController,
+                focusNode: _searchFocusNode,
                 textInputAction: TextInputAction.search,
                 onTapOutside: (_) => FocusScope.of(context).unfocus(),
                 decoration: InputDecoration(
@@ -110,7 +122,19 @@ class _IndemandDoctorScreenState extends State<IndemandDoctorScreen> {
                     fontWeight: FontWeight.w400,
                   ),
                   prefixIcon: isArabic
-                      ? null
+                      ? (_textController.text.isNotEmpty
+                          ? GestureDetector(
+                              onTap: () {
+                                _textController.clear();
+                                setState(() {});
+                                controller.search('');
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Icon(Icons.close, color: Colors.grey[700]),
+                              ),
+                            )
+                          : null)
                       : Padding(
                           padding: const EdgeInsets.all(16.0),
                           child: Icon(Icons.search, color: Colors.grey[700]),
@@ -120,7 +144,19 @@ class _IndemandDoctorScreenState extends State<IndemandDoctorScreen> {
                           padding: const EdgeInsets.all(16.0),
                           child: Icon(Icons.search, color: Colors.grey[700]),
                         )
-                      : null,
+                      : (_textController.text.isNotEmpty
+                          ? GestureDetector(
+                              onTap: () {
+                                _textController.clear();
+                                setState(() {});
+                                controller.search('');
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Icon(Icons.close, color: Colors.grey[700]),
+                              ),
+                            )
+                          : null),
                   suffixIconConstraints: const BoxConstraints(
                     minHeight: 48,
                     minWidth: 48,
@@ -131,6 +167,9 @@ class _IndemandDoctorScreenState extends State<IndemandDoctorScreen> {
                   ),
                   border: InputBorder.none,
                 ),
+                onChanged: (_) {
+                  setState(() {});
+                },
                 onSubmitted: (val) {
                   controller.search(val);
                 },

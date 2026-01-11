@@ -2,6 +2,7 @@ import 'package:clarity_flutter/clarity_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:videocalling/core/config/app_imports.dart';
+import 'package:videocalling/shared/services/subscription_expiry_service.dart';
 
 import 'firebase_options.dart';
 
@@ -44,6 +45,9 @@ void main() async {
           "🔤 Language controller initialized with: ${languageController.currentLanguage.value}",
         );
       }
+
+      // Initialize SubscriptionExpiryService for checking subscription expiry
+      Get.put(SubscriptionExpiryService(), permanent: true);
 
       // Initialize Firebase
       try {

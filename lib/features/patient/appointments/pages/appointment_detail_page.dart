@@ -1,9 +1,9 @@
 import 'package:videocalling/core/config/app_imports.dart';
+import 'package:videocalling/shared/widgets/rating_dialog.dart';
+import 'package:videocalling/shared/widgets/file_picker_widget.dart';
+import 'package:videocalling/shared/services/review_service.dart';
 import 'package:videocalling/shared/models/session_file_model.dart';
 import 'package:videocalling/shared/services/file_upload_service.dart';
-import 'package:videocalling/shared/services/review_service.dart';
-import 'package:videocalling/shared/widgets/file_picker_widget.dart';
-import 'package:videocalling/shared/widgets/rating_dialog.dart';
 
 class UserAppointmentDetailsScreen
     extends GetView<UserAppointmentDetailsController> {
@@ -128,6 +128,8 @@ class UserAppointmentDetailsScreen
           const SizedBox(height: 16),
           _buildFilesOrPrescriptionCard(context, isArabic),
           const SizedBox(height: 16),
+          _buildReportsCard(context, isArabic),
+          const SizedBox(height: 20),
         ],
       ),
     );
@@ -306,9 +308,7 @@ class UserAppointmentDetailsScreen
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
               side: BorderSide(
-                color: hasReviewed
-                    ? Colors.green.shade100
-                    : Colors.amber.shade100,
+                color: hasReviewed ? Colors.green.shade100 : Colors.amber.shade100,
                 width: 2,
               ),
             ),
@@ -321,23 +321,17 @@ class UserAppointmentDetailsScreen
                     children: [
                       Icon(
                         hasReviewed ? Icons.star : Icons.star_outline,
-                        color: hasReviewed
-                            ? Colors.green.shade700
-                            : Colors.amber.shade700,
+                        color: hasReviewed ? Colors.green.shade700 : Colors.amber.shade700,
                         size: 24,
                       ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
-                          hasReviewed
-                              ? 'session_rated'.tr
-                              : 'rate_this_session'.tr,
+                          hasReviewed ? 'session_rated'.tr : 'rate_this_session'.tr,
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
-                            color: hasReviewed
-                                ? Colors.green.shade700
-                                : Colors.amber.shade700,
+                            color: hasReviewed ? Colors.green.shade700 : Colors.amber.shade700,
                           ),
                         ),
                       ),
@@ -360,8 +354,7 @@ class UserAppointmentDetailsScreen
                       width: double.infinity,
                       child: ElevatedButton(
                         onPressed: () {
-                          final doctorName =
-                              detailsController
+                          final doctorName = detailsController
                                   .doctorAppointmentDetailsClass
                                   ?.data
                                   ?.doctorName ??
@@ -418,7 +411,9 @@ class UserAppointmentDetailsScreen
       return Card(
         margin: const EdgeInsets.symmetric(horizontal: 16),
         elevation: 0,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
         child: SessionFilesWidget(
           bookingId: detailsController.id,
           currentUserId: detailsController.userId.value,
@@ -445,10 +440,9 @@ class UserAppointmentDetailsScreen
         future: fileUploadService.getFilesForBooking(detailsController.id),
         builder: (context, snapshot) {
           final hasFiles = snapshot.hasData && snapshot.data!.isNotEmpty;
-
+          
           // Check if any file is uploaded by doctor
-          final hasDoctorFiles =
-              hasFiles &&
+          final hasDoctorFiles = hasFiles && 
               snapshot.data!.any((file) => file.uploaderType == 'doctor');
 
           if (hasDoctorFiles) {
@@ -468,28 +462,7 @@ class UserAppointmentDetailsScreen
             );
           } else {
             // Show prescription card if no doctor files
-            return Column(
-              children: [
-                Card(
-                  margin: const EdgeInsets.symmetric(horizontal: 16),
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: SessionFilesWidget(
-                    bookingId: detailsController.id,
-                    currentUserId: detailsController.userId.value,
-                    currentUserType: 'patient',
-                    canUpload: true,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                _buildPrescriptionCard(context, isArabic),
-                const SizedBox(height: 16),
-                _buildReportsCard(context, isArabic),
-                const SizedBox(height: 16),
-              ],
-            );
+            return _buildPrescriptionCard(context, isArabic);
           }
         },
       );
