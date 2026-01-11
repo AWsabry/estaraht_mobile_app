@@ -1,3 +1,4 @@
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:videocalling/core/config/app_imports.dart';
 import 'package:videocalling/features/patient/doctors/models/sdoctor_model.dart';
 
@@ -420,7 +421,7 @@ class _IndemandDoctorScreenState extends State<IndemandDoctorScreen> {
             Text(
               isArabic ? 'التخصصات' : 'Specializations',
               style: TextStyle(
-                fontSize: 14,
+                fontSize: 14.sp,
                 fontWeight: FontWeight.w500,
                 color: Colors.grey[800],
               ),
@@ -442,6 +443,7 @@ class _IndemandDoctorScreenState extends State<IndemandDoctorScreen> {
                 ),
               ],
             ),
+            const SizedBox(height: 8),
 
             // Buttons
             Row(

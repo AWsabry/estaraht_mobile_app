@@ -278,6 +278,14 @@ class CustomHomeScreenAppBar extends StatelessWidget {
   Function(String) onChanged;
   VoidCallback onPressed;
 
+  // Arabic configuration
+  final double? arabicFontSize;
+  final double? englishFontSize;
+  final double? arabicButtonWidth;
+  final double? englishButtonWidth;
+  final EdgeInsets? arabicButtonPadding;
+  final EdgeInsets? englishButtonPadding;
+
   CustomHomeScreenAppBar({
     super.key,
     required this.title,
@@ -287,6 +295,13 @@ class CustomHomeScreenAppBar extends StatelessWidget {
     required this.onSubmitted,
     required this.onChanged,
     required this.onPressed,
+    // Arabic configuration defaults
+    this.arabicFontSize,
+    this.englishFontSize,
+    this.arabicButtonWidth,
+    this.englishButtonWidth,
+    this.arabicButtonPadding,
+    this.englishButtonPadding,
   });
 
   @override
@@ -450,65 +465,75 @@ class CustomHomeScreenAppBar extends StatelessWidget {
                   const SizedBox(height: 10),
 
                   // Action buttons
-                  Row(
-                    children: [
-                      SizedBox(
-                        width: 150,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            Get.toNamed(Routes.indemandDoctorScreen);
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF3961F1),
-                            padding: Get.locale?.languageCode == 'en'
-                                ? const EdgeInsets.symmetric(vertical: 8)
-                                : const EdgeInsets.symmetric(vertical: 6),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                          ),
-                          child: Text(
-                            'book_new_appointment'.tr,
-                            textAlign: TextAlign.center,
+                  Builder(
+                    builder: (context) {
+                      final isArabic = Get.locale?.languageCode == 'ar';
+                      final buttonWidth = isArabic
+                          ? (arabicButtonWidth ?? 150.w)
+                          : (englishButtonWidth ?? 150.w);
+                      final buttonPadding = isArabic
+                          ? (arabicButtonPadding ??
+                                const EdgeInsets.symmetric(vertical: 6))
+                          : (englishButtonPadding ??
+                                const EdgeInsets.symmetric(vertical: 8));
+                      final fontSize = isArabic
+                          ? (arabicFontSize ?? 10.sp)
+                          : (englishFontSize ?? 13.sp);
 
-                            style: const TextStyle(
-                              fontSize: 13,
-                              color: Colors.white,
+                      return Row(
+                        children: [
+                          SizedBox(
+                            width: buttonWidth.w,
+                            child: ElevatedButton(
+                              onPressed: () {
+                                Get.toNamed(Routes.indemandDoctorScreen);
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF3961F1),
+                                padding: buttonPadding,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                              ),
+                              child: Text(
+                                'book_new_appointment'.tr,
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: fontSize,
+                                  color: Colors.white,
+                                ),
+                              ),
                             ),
                           ),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        flex: Get.locale?.languageCode == 'en'
-                            ? 1
-                            : 1, // 1/3 width if English
-                        child: OutlinedButton(
-                          onPressed: () {
-                            // Find therapist logic (same as search)
-                            onPressed();
-                          },
-                          style: OutlinedButton.styleFrom(
-                            padding: Get.locale?.languageCode == 'en'
-                                ? const EdgeInsets.symmetric(vertical: 8)
-                                : const EdgeInsets.symmetric(vertical: 6),
-                            side: BorderSide(color: Colors.grey[500]!),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(4),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            flex: 1,
+                            child: OutlinedButton(
+                              onPressed: () {
+                                // Find therapist logic (same as search)
+                                onPressed();
+                              },
+                              style: OutlinedButton.styleFrom(
+                                padding: buttonPadding,
+                                side: BorderSide(color: Colors.grey[500]!),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                              ),
+                              child: Text(
+                                'find_therapist'.tr,
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: fontSize,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.grey[900],
+                                ),
+                              ),
                             ),
                           ),
-                          child: Text(
-                            'find_therapist'.tr,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w700,
-                              color: Colors.grey[900],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
+                        ],
+                      );
+                    },
                   ),
                 ],
               ),
