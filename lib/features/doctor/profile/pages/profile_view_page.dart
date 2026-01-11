@@ -398,27 +398,27 @@ class DoctorProfileView extends GetView<DoctorProfileViewController> {
               ),
             ),
             const SizedBox(width: 8),
-            Expanded(
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.grey[200]!),
-                ),
-                padding: const EdgeInsets.all(16),
-                child: _buildStatItem(
-                  icon: Icons.attach_money,
-                  title: "session_price".tr,
-                  value:
-                      detailController
-                              .doctorDetailsClass
-                              ?.data
-                              ?.consultationFee !=
-                          null
-                      ? '\$${detailController.doctorDetailsClass!.data!.consultationFee}'
-                      : '\$10',
-                ),
-              ),
-            ),
+            // Expanded(
+            //   child: Container(
+            //     decoration: BoxDecoration(
+            //       borderRadius: BorderRadius.circular(8),
+            //       border: Border.all(color: Colors.grey[200]!),
+            //     ),
+            //     padding: const EdgeInsets.all(16),
+            //     child: _buildStatItem(
+            //       icon: Icons.attach_money,
+            //       title: "session_price".tr,
+            //       value:
+            //           detailController
+            //                   .doctorDetailsClass
+            //                   ?.data
+            //                   ?.consultationFee !=
+            //               null
+            //           ? '\$${detailController.doctorDetailsClass!.data!.consultationFee}'
+            //           : '\$10',
+            //     ),
+            //   ),
+            // ),
           ],
         ),
         // Second row of stats
