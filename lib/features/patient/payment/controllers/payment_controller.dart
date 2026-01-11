@@ -1095,11 +1095,6 @@ class PaymentController extends GetxController {
         '💳 Processing subscription for plan: ${selectedPlan!.planName}',
       );
 
-      final user = firebaseHelper.currentUser;
-      if (user == null) {
-        throw Exception('User not authenticated');
-      }
-
       // Get or create PaymentPlansController
       PaymentPlansController plansController;
       if (Get.isRegistered<PaymentPlansController>()) {

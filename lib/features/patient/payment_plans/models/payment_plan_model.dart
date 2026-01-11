@@ -105,6 +105,8 @@ class PatientPlanSubscription {
   final String paymentStatus;
   final DateTime subscribedAt;
   final DateTime createdAt;
+  final DateTime? expiresAt;
+  final String status; // 'active', 'expired'
 
   PatientPlanSubscription({
     required this.id,
@@ -119,6 +121,8 @@ class PatientPlanSubscription {
     required this.paymentStatus,
     required this.subscribedAt,
     required this.createdAt,
+    this.expiresAt,
+    this.status = 'active',
   });
 
   factory PatientPlanSubscription.fromJson(Map<String, dynamic> json) {
@@ -135,6 +139,10 @@ class PatientPlanSubscription {
       paymentStatus: json['payment_status'] as String? ?? 'completed',
       subscribedAt: DateTime.parse(json['subscribed_at'] as String),
       createdAt: DateTime.parse(json['created_at'] as String),
+      expiresAt: json['expires_at'] != null
+          ? DateTime.parse(json['expires_at'] as String)
+          : null,
+      status: json['status'] as String? ?? 'active',
     );
   }
 
@@ -152,6 +160,8 @@ class PatientPlanSubscription {
       'payment_status': paymentStatus,
       'subscribed_at': subscribedAt.toIso8601String(),
       'created_at': createdAt.toIso8601String(),
+      'expires_at': expiresAt?.toIso8601String(),
+      'status': status,
     };
   }
 }

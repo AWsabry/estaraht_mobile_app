@@ -34,7 +34,10 @@ class UserHomeScreen extends GetView<UserHomeController> {
           },
           onPressed: () async {
             Get.focusScope?.unfocus();
-            await Get.toNamed(Routes.indemandDoctorScreen);
+            await Get.toNamed(
+              Routes.indemandDoctorScreen,
+              arguments: {'openKeyboard': true},
+            );
             homeController.newData.clear();
             homeController.textController.clear();
             homeController.searchKeyword.value = "";

@@ -4,6 +4,8 @@ import 'package:videocalling/core/utils/logger.dart';
 import 'package:videocalling/features/patient/payment_plans/models/payment_plan_model.dart';
 import 'package:videocalling/shared/services/auth/firebase_helper.dart';
 import 'package:videocalling/shared/services/invoice_service.dart';
+import 'package:videocalling/shared/services/storage/storage_service.dart';
+import 'package:videocalling/shared/services/subscription_expiry_service.dart';
 
 class PaymentPlansController extends GetxController {
   final supabase = Supabase.instance.client;
@@ -15,8 +17,8 @@ class PaymentPlansController extends GetxController {
       <PatientPlanSubscription>[].obs;
 
   // Loading states
-  final RxBool isLoadingPlans = false.obs;
-  final RxBool isLoadingHistory = false.obs;
+  final RxBool isLoadingPlans = true.obs;
+  final RxBool isLoadingHistory = true.obs;
   final RxBool isProcessingPayment = false.obs;
 
   // Patient subscription status
@@ -31,9 +33,23 @@ class PaymentPlansController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    loadPatientStatus();
-    loadPaymentPlans();
-    loadSubscriptionHistory();
+    _initializeData();
+  }
+
+  /// Initialize data sequentially to ensure patient status is loaded before filtering plans
+  Future<void> _initializeData() async {
+    final user = firebaseHelper.currentUser;
+    if (user != null) {
+      // Check if subscription has expired first
+      if (Get.isRegistered<SubscriptionExpiryService>()) {
+        await Get.find<SubscriptionExpiryService>().checkSubscriptionExpiry(
+          user.uid,
+        );
+      }
+    }
+    await loadPatientStatus(); // Wait for status first
+    await loadPaymentPlans(); // Then load and filter plans
+    loadSubscriptionHistory(); // Can run independently
   }
 
   /// Load patient subscription status
@@ -98,7 +114,7 @@ class PaymentPlansController extends GetxController {
   }
 
   /// Filter plans based on whether patient has subscribed before
-  Future<void> _filterAvailablePlans() async {
+  void _filterAvailablePlans() {
     if (subscribedBefore.value) {
       // Hide first-time-only plans (40$ plan)
       availablePlans.value = allPlans
@@ -165,46 +181,58 @@ class PaymentPlansController extends GetxController {
       isProcessingPayment.value = true;
       loggerNoStack.i('Processing subscription to plan: ${plan.planName}');
 
-      final user = firebaseHelper.currentUser;
-      if (user == null) {
+      // Get userId from SharedPreferences (StorageService)
+      final patientId = StorageService.readData(key: LocalStorageKeys.userId);
+      if (patientId == null || patientId.toString().isEmpty) {
         throw Exception('User not authenticated');
       }
+      final String oddddddd = patientId.toString();
+      loggerNoStack.i('Patient ID from storage: $oddddddd');
+
+      // Calculate expiry date (30 days from now)
+      // For first-time-only plan, no expiry (one-time use)
+      final expiresAt = DateTime.now().add(const Duration(days: 30));
+      final subscriptionExpiresAt = plan.isFirstTimeOnly
+          ? null
+          : expiresAt.toIso8601String();
 
       // 1. Create subscription record
-      final subscriptionData = {
-        'patient_id': user.uid,
-        'plan_id': plan.id,
-        'payment_id': paymentId,
-        'sessions_purchased': plan.sessions,
-        'sessions_used': 0,
-        'price_paid': plan.price,
-        'payment_gateway': paymentGateway,
-        'payment_currency': paymentCurrency ?? 'USD',
-        'payment_status': 'completed',
-        'subscribed_at': DateTime.now().toIso8601String(),
-      };
-
-      await supabase
+      final subscriptionResponse = await supabase
           .from('patient_plan_subscriptions')
-          .insert(subscriptionData);
+          .insert({
+            'patient_id': oddddddd,
+            'plan_id': plan.id,
+            'payment_id': paymentId,
+            'sessions_purchased': plan.sessions,
+            'sessions_used': 0,
+            'price_paid': plan.price,
+            'payment_gateway': paymentGateway,
+            'payment_currency': paymentCurrency ?? 'USD',
+            'payment_status': 'completed',
+            'subscribed_at': DateTime.now().toIso8601String(),
+            'expires_at': subscriptionExpiresAt,
+            'status': 'active',
+          })
+          .select('id')
+          .single();
 
-      loggerNoStack.i('Subscription record created');
+      final subscriptionId = subscriptionResponse['id'];
+      loggerNoStack.i('Subscription record created with ID: $subscriptionId');
 
-      // 2. Update patient's session count and subscription status
-      final currentSessions = sessionsAvailable.value;
-      final newSessionCount = currentSessions + plan.sessions;
-
+      // 2. Update patient - RESET sessions to plan amount (not accumulate)
       await supabase
           .from('patients')
           .update({
-            'sessions_available': newSessionCount,
+            'sessions_available': plan.sessions, // RESET, not add
             'subscribed': true,
             'subscribed_before': true,
+            'subscription_expires_at': subscriptionExpiresAt,
+            'current_subscription_id': subscriptionId,
           })
-          .eq('id', user.uid);
+          .eq('id', oddddddd);
 
       loggerNoStack.i(
-        'Patient sessions updated: $currentSessions -> $newSessionCount',
+        'Patient sessions reset to: ${plan.sessions} (expires: $subscriptionExpiresAt)',
       );
 
       // 3. Refresh patient status
@@ -212,7 +240,7 @@ class PaymentPlansController extends GetxController {
       await loadSubscriptionHistory();
 
       // 4. Refresh available plans (to hide 40$ plan if applicable)
-      await _filterAvailablePlans();
+      _filterAvailablePlans();
 
       // 5. Send subscription invoice email
       try {
@@ -221,7 +249,142 @@ class PaymentPlansController extends GetxController {
         final patientData = await supabase
             .from('patients')
             .select('email, name')
-            .eq('id', user.uid)
+            .eq('id', oddddddd)
+            .maybeSingle();
+
+        loggerNoStack.i('📧 Patient data for email: $patientData');
+
+        if (patientData != null && patientData['email'] != null) {
+          loggerNoStack.i('📧 Sending invoice to: ${patientData['email']}');
+
+          final emailSent = await invoiceService.sendSubscriptionInvoice(
+            patientEmail: patientData['email'],
+            patientName: patientData['name'] ?? 'Patient',
+            planName: plan.planName,
+            sessionsCount: plan.sessions,
+            amount: plan.price.toString(),
+            currency: paymentCurrency ?? 'USD',
+            paymentMethod: paymentGateway,
+          );
+
+          if (emailSent) {
+            loggerNoStack.i(
+              '✅ Subscription invoice sent successfully to ${patientData['email']}',
+            );
+          } else {
+            loggerNoStack.w(
+              '⚠️ Failed to send subscription invoice - emailSent returned false',
+            );
+          }
+        } else {
+          loggerNoStack.w(
+            '⚠️ Patient email not found in database, skipping invoice. Data: $patientData',
+          );
+        }
+      } catch (emailError, emailStackTrace) {
+        loggerNoStack.e('❌ Error sending invoice email: $emailError');
+        loggerNoStack.e('❌ Stack trace: $emailStackTrace');
+      }
+
+      loggerNoStack.i('Subscription completed successfully');
+    } catch (e, stackTrace) {
+      loggerNoStack.e('Error processing subscription: $e');
+      loggerNoStack.e('Stack trace: $stackTrace');
+      rethrow;
+    } finally {
+      isProcessingPayment.value = false;
+    }
+  }
+
+  /// Process subscription payment with explicit patientId (for when Firebase auth may not be available)
+  Future<void> subscribeToPlanWithUserId({
+    required PaymentPlan plan,
+    required String patientId,
+    required String paymentGateway,
+    required String paymentId,
+    String? paymentCurrency,
+  }) async {
+    try {
+      isProcessingPayment.value = true;
+      loggerNoStack.i(
+        'Processing subscription to plan: ${plan.planName} for patient: $patientId',
+      );
+
+      // Verify patient exists in database before proceeding
+      final existingPatient = await supabase
+          .from('patients')
+          .select('id')
+          .eq('id', patientId)
+          .maybeSingle();
+
+      if (existingPatient == null) {
+        loggerNoStack.e('❌ Patient not found in database: $patientId');
+        throw Exception(
+          'Patient record not found. Please contact support or try logging out and back in.',
+        );
+      }
+
+      // Calculate expiry date (30 days from now)
+      // For first-time-only plan, no expiry (one-time use)
+      final expiresAt = DateTime.now().add(const Duration(days: 30));
+      final subscriptionExpiresAt = plan.isFirstTimeOnly
+          ? null
+          : expiresAt.toIso8601String();
+
+      // 1. Create subscription record
+      final subscriptionResponse = await supabase
+          .from('patient_plan_subscriptions')
+          .insert({
+            'patient_id': patientId,
+            'plan_id': plan.id,
+            'payment_id': paymentId,
+            'sessions_purchased': plan.sessions,
+            'sessions_used': 0,
+            'price_paid': plan.price,
+            'payment_gateway': paymentGateway,
+            'payment_currency': paymentCurrency ?? 'USD',
+            'payment_status': 'completed',
+            'subscribed_at': DateTime.now().toIso8601String(),
+            'expires_at': subscriptionExpiresAt,
+            'status': 'active',
+          })
+          .select('id')
+          .single();
+
+      final subscriptionId = subscriptionResponse['id'];
+      loggerNoStack.i('Subscription record created with ID: $subscriptionId');
+
+      // 2. Update patient - RESET sessions to plan amount (not accumulate)
+      await supabase
+          .from('patients')
+          .update({
+            'sessions_available': plan.sessions, // RESET, not add
+            'subscribed': true,
+            'subscribed_before': true,
+            'subscription_expires_at': subscriptionExpiresAt,
+            'current_subscription_id': subscriptionId,
+          })
+          .eq('id', patientId);
+
+      loggerNoStack.i(
+        'Patient sessions reset to: ${plan.sessions} (expires: $subscriptionExpiresAt)',
+      );
+
+      // 3. Refresh patient status
+      await loadPatientStatus();
+      await loadSubscriptionHistory();
+
+      // 4. Refresh available plans (to hide 40$ plan if applicable)
+      _filterAvailablePlans();
+
+      // 5. Send subscription invoice email
+      try {
+        loggerNoStack.i('📧 Attempting to send subscription invoice email...');
+
+        final patientData = await supabase
+            .from('patients')
+            .select('email, name')
+            .eq('id', patientId)
             .maybeSingle();
 
         loggerNoStack.i('📧 Patient data for email: $patientData');

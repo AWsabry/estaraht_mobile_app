@@ -2,6 +2,8 @@ import 'package:flutter/material.dart' as material;
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:videocalling/core/config/app_imports.dart';
 import 'package:videocalling/features/patient/appointments/models/uall_appointment_model.dart';
+import 'package:videocalling/shared/services/review_service.dart';
+import 'package:videocalling/shared/widgets/rating_dialog.dart';
 
 class UAllAppointments extends GetView<UAllAppointmentsController> {
   final UAllAppointmentsController appointmentsController = Get.put(
@@ -289,10 +291,10 @@ class UAllAppointments extends GetView<UAllAppointmentsController> {
   Widget _buildAppointmentList() {
     return GridView.builder(
       controller: appointmentsController.scrollController,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+      padding: const EdgeInsets.all(16),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2, // Two items per row
-        childAspectRatio: 0.85, // Controls card height
+        childAspectRatio: 0.78, // Controls card height
         crossAxisSpacing: 12, // Horizontal spacing between cards
         mainAxisSpacing: 12, // Vertical spacing between cards
       ),
@@ -479,7 +481,9 @@ class UAllAppointments extends GetView<UAllAppointmentsController> {
             const SizedBox(height: 10),
 
             // Action buttons based on session type
-            _buildSessionActionButtons(appointment),
+            isPastSession
+                ? _buildReviewButton(appointment)
+                : _buildSessionActionButtons(appointment),
           ],
         ),
       ),
@@ -599,6 +603,112 @@ class UAllAppointments extends GetView<UAllAppointmentsController> {
             ),
           ),
         ),
+      ],
+    );
+  }
+
+  Widget _buildReviewButton(UAppointmentData appointment) {
+    final isCompleted =
+        appointment.status == '4' || appointment.status == 'completed';
+    final userId = StorageService.readData(key: LocalStorageKeys.userId) ?? "";
+
+    return Column(
+      children: [
+        SizedBox(
+          height: 32,
+          width: double.infinity,
+          child: ElevatedButton(
+            onPressed: () {
+              Get.toNamed(
+                Routes.uAppointmentDetailScreen,
+                arguments: {'id': appointment.id.toString()},
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF3366FF),
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(40),
+              ),
+            ),
+            child: Text(
+              'view_details'.tr,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 11,
+                fontFamily: Get.locale?.languageCode == 'ar'
+                    ? 'NotoKufiArabic'
+                    : 'Roboto',
+              ),
+            ),
+          ),
+        ),
+          if (isCompleted) ...[
+            const SizedBox(height: 6),
+            SizedBox(
+              height: 32,
+              width: double.infinity,
+              child: FutureBuilder<bool>(
+                future: reviewService.hasReviewedBooking(appointment.id ?? ''),
+                builder: (context, snapshot) {
+                  final hasReviewed = snapshot.data ?? false;
+                  if (hasReviewed) {
+                    return ElevatedButton(
+                      onPressed: null,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.grey[300],
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(40),
+                        ),
+                      ),
+                      child: Text(
+                        'rated'.tr,
+                        style: TextStyle(
+                          color: Colors.grey[600],
+                          fontSize: 11,
+                          fontFamily: Get.locale?.languageCode == 'ar'
+                              ? 'NotoKufiArabic'
+                              : 'Roboto',
+                        ),
+                      ),
+                    );
+                  }
+                  return ElevatedButton(
+                    onPressed: () {
+                      showRatingDialog(
+                        bookingId: appointment.id ?? '',
+                        doctorId: appointment.doctorId ?? '',
+                        patientId: userId,
+                        doctorName: appointment.name ?? 'Doctor',
+                        onSubmitted: () {
+                          appointmentsController.refreshAppointments();
+                        },
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF34C759),
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(40),
+                      ),
+                    ),
+                    child: Text(
+                      'rate'.tr,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 11,
+                        fontFamily: Get.locale?.languageCode == 'ar'
+                            ? 'NotoKufiArabic'
+                            : 'Roboto',
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        
       ],
     );
   }
