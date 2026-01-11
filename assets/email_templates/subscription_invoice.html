@@ -4,6 +4,39 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Subscription Invoice</title>
+  <style>
+    [dir="rtl"] {
+      direction: rtl;
+      text-align: right;
+    }
+    [dir="rtl"] body,
+    [dir="rtl"] .rtl {
+      direction: rtl;
+      text-align: right;
+    }
+    [dir="rtl"] table {
+      direction: rtl;
+    }
+    [dir="rtl"] td:first-child {
+      text-align: right;
+    }
+    [dir="rtl"] td:last-child {
+      text-align: left;
+    }
+    [dir="rtl"] p {
+      text-align: right;
+    }
+    [dir="rtl"] h1,
+    [dir="rtl"] h3 {
+      text-align: right;
+    }
+    [dir="rtl"] .text-left {
+      text-align: right !important;
+    }
+    [dir="rtl"] .text-right {
+      text-align: left !important;
+    }
+  </style>
 </head>
 <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
   <div style="background: linear-gradient(135deg, #3366FF 0%, #5B8DEE 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
@@ -20,27 +53,27 @@
       <h3 style="margin-top: 0; color: #3366FF;">Invoice Details</h3>
       <table style="width: 100%; border-collapse: collapse;">
         <tr>
-          <td style="padding: 8px 0; border-bottom: 1px solid #e0e0e0;">Invoice Number:</td>
+          <td style="padding: 8px 0; border-bottom: 1px solid #e0e0e0; text-align: left;">Invoice Number:</td>
           <td style="padding: 8px 0; border-bottom: 1px solid #e0e0e0; text-align: right; font-weight: bold;">{{INVOICE_NUMBER}}</td>
         </tr>
         <tr>
-          <td style="padding: 8px 0; border-bottom: 1px solid #e0e0e0;">Date:</td>
+          <td style="padding: 8px 0; border-bottom: 1px solid #e0e0e0; text-align: left;">Date:</td>
           <td style="padding: 8px 0; border-bottom: 1px solid #e0e0e0; text-align: right;">{{DATE}}</td>
         </tr>
         <tr>
-          <td style="padding: 8px 0; border-bottom: 1px solid #e0e0e0;">Plan Name:</td>
+          <td style="padding: 8px 0; border-bottom: 1px solid #e0e0e0; text-align: left;">Plan Name:</td>
           <td style="padding: 8px 0; border-bottom: 1px solid #e0e0e0; text-align: right;">{{PLAN_NAME}}</td>
         </tr>
         <tr>
-          <td style="padding: 8px 0; border-bottom: 1px solid #e0e0e0;">Sessions Included:</td>
+          <td style="padding: 8px 0; border-bottom: 1px solid #e0e0e0; text-align: left;">Sessions Included:</td>
           <td style="padding: 8px 0; border-bottom: 1px solid #e0e0e0; text-align: right;">{{SESSIONS_COUNT}}</td>
         </tr>
         <tr>
-          <td style="padding: 8px 0; border-bottom: 1px solid #e0e0e0;">Payment Method:</td>
+          <td style="padding: 8px 0; border-bottom: 1px solid #e0e0e0; text-align: left;">Payment Method:</td>
           <td style="padding: 8px 0; border-bottom: 1px solid #e0e0e0; text-align: right;">{{PAYMENT_METHOD}}</td>
         </tr>
         <tr>
-          <td style="padding: 12px 0; font-weight: bold; font-size: 18px;">Total Amount:</td>
+          <td style="padding: 12px 0; font-weight: bold; font-size: 18px; text-align: left;">Total Amount:</td>
           <td style="padding: 12px 0; text-align: right; font-weight: bold; font-size: 18px; color: #3366FF;">{{AMOUNT}}</td>
         </tr>
       </table>

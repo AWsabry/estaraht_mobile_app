@@ -264,6 +264,7 @@ class Words extends Translations {
       // Doctor Detail Screen
       'bio': 'Bio',
       'specialization': 'Specialization',
+      'specializations': 'Specializations',
       'select_specialization': 'Select Specialization',
       'select_specialization_error': 'Please select a specialization',
       'add_new_specialization': 'Add New Specialization',
@@ -1079,6 +1080,7 @@ class Words extends Translations {
       // Doctor Detail Screen
       'bio': 'السيرة الذاتية',
       'specialization': 'التخصص',
+      'specializations': 'التخصصات',
       'select_specialization': 'اختر التخصص',
       'select_specialization_error': 'يرجى اختيار التخصص',
       'add_new_specialization': 'إضافة تخصص جديد',
@@ -2086,6 +2088,7 @@ class Words extends Translations {
       // Doctor Detail Screen
       'bio': 'Biographie',
       'specialization': 'Spécialisation',
+      'specializations': 'Spécialisations',
       'select_specialization': 'Sélectionner la spécialisation',
       'select_specialization_error': 'Veuillez sélectionner une spécialisation',
       'add_new_specialization': 'Ajouter une nouvelle spécialisation',

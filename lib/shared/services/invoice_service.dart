@@ -2,6 +2,7 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:videocalling/core/utils/logger.dart';
 import 'package:videocalling/shared/services/others/email_service.dart';
+import 'package:videocalling/core/config/app_imports.dart';
 
 class InvoiceService {
   static final InvoiceService _instance = InvoiceService._internal();
@@ -37,6 +38,53 @@ class InvoiceService {
       result = result.replaceAll('{{$key}}', value);
     });
     return result;
+  }
+
+  bool _containsArabic(String text) {
+    // Check if text contains Arabic characters (Unicode range: \u0600-\u06FF)
+    return RegExp(r'[\u0600-\u06FF]').hasMatch(text);
+  }
+
+  String _applyRtlSupport(String htmlContent, Map<String, String> variables) {
+    // Check if any variable contains Arabic text
+    bool hasArabic = false;
+    variables.forEach((key, value) {
+      if (_containsArabic(value)) {
+        hasArabic = true;
+      }
+    });
+
+    // Also check current language
+    try {
+      final languageController = Get.find<LanguageController>();
+      if (languageController.currentLanguage.value == 'ar') {
+        hasArabic = true;
+      }
+    } catch (e) {
+      // LanguageController not available, continue with text detection
+    }
+
+    if (hasArabic) {
+      // Add dir="rtl" to html tag
+      htmlContent = htmlContent.replaceAll(
+        '<html>',
+        '<html dir="rtl">',
+      );
+      
+      // Add rtl class to body
+      htmlContent = htmlContent.replaceAll(
+        '<body style="',
+        '<body class="rtl" style="',
+      );
+      
+      // Add RTL styles to main content divs
+      htmlContent = htmlContent.replaceAll(
+        '<div style="background: #fff;',
+        '<div class="rtl" style="background: #fff;',
+      );
+    }
+
+    return htmlContent;
   }
 
   String _generateInvoiceNumber() {
@@ -80,10 +128,13 @@ class InvoiceService {
         'APP_LINK': 'https://estaraht.com/app',
       };
 
-      final htmlContent = _replaceTemplateVariables(
+      String htmlContent = _replaceTemplateVariables(
         _subscriptionTemplate!,
         variables,
       );
+
+      // Apply RTL support for Arabic
+      htmlContent = _applyRtlSupport(htmlContent, variables);
 
       loggerNoStack.i('📧 InvoiceService: Calling EmailService.sendEmail...');
 
@@ -133,10 +184,13 @@ class InvoiceService {
         'REMAINING_BALANCE': '$currency $remainingBalance',
       };
 
-      final htmlContent = _replaceTemplateVariables(
+      String htmlContent = _replaceTemplateVariables(
         _withdrawalTemplate!,
         variables,
       );
+
+      // Apply RTL support for Arabic
+      htmlContent = _applyRtlSupport(htmlContent, variables);
 
       final success = await EmailService.sendEmail(
         to: doctorEmail,
@@ -208,6 +262,9 @@ class InvoiceService {
             .replaceAll('{{#IF_PATIENT}}', '')
             .replaceAll('{{/IF_PATIENT}}', '');
       }
+
+      // Apply RTL support for Arabic
+      htmlContent = _applyRtlSupport(htmlContent, variables);
 
       final success = await EmailService.sendEmail(
         to: recipientEmail,

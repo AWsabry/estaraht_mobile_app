@@ -4,6 +4,39 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Session Summary</title>
+  <style>
+    [dir="rtl"] {
+      direction: rtl;
+      text-align: right;
+    }
+    [dir="rtl"] body,
+    [dir="rtl"] .rtl {
+      direction: rtl;
+      text-align: right;
+    }
+    [dir="rtl"] table {
+      direction: rtl;
+    }
+    [dir="rtl"] td:first-child {
+      text-align: right;
+    }
+    [dir="rtl"] td:last-child {
+      text-align: left;
+    }
+    [dir="rtl"] p {
+      text-align: right;
+    }
+    [dir="rtl"] h1,
+    [dir="rtl"] h3 {
+      text-align: right;
+    }
+    [dir="rtl"] .text-left {
+      text-align: right !important;
+    }
+    [dir="rtl"] .text-right {
+      text-align: left !important;
+    }
+  </style>
 </head>
 <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
   <div style="background: linear-gradient(135deg, #3366FF 0%, #5B8DEE 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
@@ -20,31 +53,31 @@
       <h3 style="margin-top: 0; color: #3366FF;">Session Details</h3>
       <table style="width: 100%; border-collapse: collapse;">
         <tr>
-          <td style="padding: 8px 0; border-bottom: 1px solid #e0e0e0;">Session ID:</td>
+          <td style="padding: 8px 0; border-bottom: 1px solid #e0e0e0; text-align: left;">Session ID:</td>
           <td style="padding: 8px 0; border-bottom: 1px solid #e0e0e0; text-align: right; font-weight: bold;">{{SESSION_ID}}</td>
         </tr>
         <tr>
-          <td style="padding: 8px 0; border-bottom: 1px solid #e0e0e0;">Date:</td>
+          <td style="padding: 8px 0; border-bottom: 1px solid #e0e0e0; text-align: left;">Date:</td>
           <td style="padding: 8px 0; border-bottom: 1px solid #e0e0e0; text-align: right;">{{SESSION_DATE}}</td>
         </tr>
         <tr>
-          <td style="padding: 8px 0; border-bottom: 1px solid #e0e0e0;">Time:</td>
+          <td style="padding: 8px 0; border-bottom: 1px solid #e0e0e0; text-align: left;">Time:</td>
           <td style="padding: 8px 0; border-bottom: 1px solid #e0e0e0; text-align: right;">{{SESSION_TIME}}</td>
         </tr>
         <tr>
-          <td style="padding: 8px 0; border-bottom: 1px solid #e0e0e0;">Duration:</td>
+          <td style="padding: 8px 0; border-bottom: 1px solid #e0e0e0; text-align: left;">Duration:</td>
           <td style="padding: 8px 0; border-bottom: 1px solid #e0e0e0; text-align: right;">{{DURATION}}</td>
         </tr>
         <tr>
-          <td style="padding: 8px 0; border-bottom: 1px solid #e0e0e0;">Therapist:</td>
+          <td style="padding: 8px 0; border-bottom: 1px solid #e0e0e0; text-align: left;">Therapist:</td>
           <td style="padding: 8px 0; border-bottom: 1px solid #e0e0e0; text-align: right;">{{DOCTOR_NAME}}</td>
         </tr>
         <tr>
-          <td style="padding: 8px 0; border-bottom: 1px solid #e0e0e0;">Patient:</td>
+          <td style="padding: 8px 0; border-bottom: 1px solid #e0e0e0; text-align: left;">Patient:</td>
           <td style="padding: 8px 0; border-bottom: 1px solid #e0e0e0; text-align: right;">{{PATIENT_NAME}}</td>
         </tr>
         <tr>
-          <td style="padding: 8px 0;">Status:</td>
+          <td style="padding: 8px 0; text-align: left;">Status:</td>
           <td style="padding: 8px 0; text-align: right;">
             <span style="background: #d4edda; color: #155724; padding: 4px 12px; border-radius: 4px; font-size: 12px;">Completed</span>
           </td>
