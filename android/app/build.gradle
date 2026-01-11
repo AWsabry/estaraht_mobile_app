@@ -57,14 +57,12 @@ android {
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
         
-        // APK size optimization
-        ndk {
-            abiFilters 'arm64-v8a', 'armeabi-v7a'
-        }
-        
         // Additional optimizations
         renderscriptTargetApi 19
         renderscriptSupportModeEnabled false
+        
+        // Enable vector drawable support to reduce image assets
+        vectorDrawables.useSupportLibrary = true
     }
 
     signingConfigs {
@@ -85,11 +83,41 @@ android {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig signingConfigs.release
-            
+
             minifyEnabled true
             shrinkResources true
+            zipAlignEnabled true
+            debuggable false
 
+            // Optimize ProGuard
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+
+            // Additional optimizations
+            multiDexEnabled true
+        }
+    }
+
+    // ABI splits for smaller APKs - delivers device-specific builds
+    // Only enable for release builds to avoid conflict with ndk.abiFilters
+    splits {
+        abi {
+            enable gradle.startParameter.taskNames.any { it.toLowerCase().contains("release") }
+            reset()
+            include 'arm64-v8a', 'armeabi-v7a'
+            universalApk false
+        }
+    }
+
+    // App Bundle configuration for Play Store
+    bundle {
+        language {
+            enableSplit = false
+        }
+        density {
+            enableSplit = true
+        }
+        abi {
+            enableSplit = true
         }
     }
 }
