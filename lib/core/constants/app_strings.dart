@@ -478,7 +478,7 @@ class Words extends Translations {
       'package_badge': 'Package',
       'save_25_first_session': 'Save \$25 on first session',
       'sessions_count': 'Sessions: {count} per month',
-      'session_duration': 'Duration: 30 minutes per session',
+      'session_duration': 'Duration: 45 minutes per session',
       'session_type': 'Session type: Audio and video as you prefer',
       'edit_profile': 'Edit profile',
       'most_in_demand_doctors': 'Most in demand doctors',
@@ -1293,9 +1293,9 @@ class Words extends Translations {
       'packages': 'الباقات',
       'package_badge': 'باقة',
       'save_25_first_session': 'وفر 25\$ لأول جلسة',
-      'sessions_count': 'عدد الجلسات: {count} شهريا',
-      'session_duration': 'المدة: 30 دقيقة للجلسة',
-      'session_type': 'نوع الجلسة: صوت وفيديو حسب رغبتك',
+      'sessions_count': 'عدد الجلسات: {count} شهريًا',
+      'session_duration': 'المدة: 45 دقيقة للجلسة',
+      'session_type': 'نوع الجلسة: صوت وفيديو حسب راحتك',
 
       // Session Completion (Arabic)
       'confirm_session_completion': 'تأكيد إنهاء الجلسة',
@@ -2322,7 +2322,7 @@ class Words extends Translations {
       'package_badge': 'Forfait',
       'save_25_first_session': 'Économisez 25\$ sur la première séance',
       'sessions_count': 'Nombre de séances: {count} par mois',
-      'session_duration': 'Durée: 30 minutes par séance',
+      'session_duration': 'Durée: 45 minutes par séance',
       'session_type': 'Type de séance: Audio et vidéo selon votre préférence',
 
       // Session Completion (French)
