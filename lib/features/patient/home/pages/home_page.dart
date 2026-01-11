@@ -1,3 +1,4 @@
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:videocalling/core/config/app_imports.dart';
 
 class UserHomeScreen extends GetView<UserHomeController> {
@@ -248,40 +249,47 @@ class UserHomeScreen extends GetView<UserHomeController> {
                                           0,
                                           16,
                                         ),
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              'specialization'.tr,
-                                              style: const TextStyle(
-                                                fontSize: 12,
-                                                height: 1.2,
-                                                fontWeight: FontWeight.w500,
-                                              ),
-                                            ),
-                                            const SizedBox(height: 6),
-                                            Wrap(
-                                              spacing: 4,
-                                              runSpacing: 4,
-                                              children: [
-                                                _buildSpecialtyChip(
-                                                  data.specialization ?? "",
+                                        child: Padding(
+                                          padding: EdgeInsets.only(
+                                            right: 16.w,
+                                            top: 8.0.h,
+                                          ),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                'specialization'.tr,
+                                                style: const TextStyle(
+                                                  fontSize: 12,
+                                                  height: 1.2,
+                                                  fontWeight: FontWeight.w500,
                                                 ),
-                                              ],
-                                            ),
-                                            const SizedBox(height: 8),
-                                            Text(
-                                              "Bio: ${data.bio ?? ""}",
-                                              maxLines: 1,
-                                              style: const TextStyle(
-                                                fontSize: 11,
-                                                height: 1.2,
-                                                overflow: TextOverflow.ellipsis,
-                                                fontWeight: FontWeight.w300,
                                               ),
-                                            ),
-                                          ],
+                                              SizedBox(height: 9.h),
+                                              Wrap(
+                                                spacing: 4,
+                                                runSpacing: 4,
+                                                children: [
+                                                  _buildSpecialtyChip(
+                                                    data.specialization ?? "",
+                                                  ),
+                                                ],
+                                              ),
+                                              SizedBox(height: 8.h),
+                                              Text(
+                                                "${'bio'.tr}: ${data.bio ?? ""}",
+                                                maxLines: 1,
+                                                style: const TextStyle(
+                                                  fontSize: 11,
+                                                  height: 1.2,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  fontWeight: FontWeight.w300,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
                                         ),
                                       ),
 
