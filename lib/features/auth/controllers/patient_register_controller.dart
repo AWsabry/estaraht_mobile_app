@@ -120,6 +120,16 @@ class RegisterPatientController extends GetxController {
     return isValid;
   }
 
+  // التحقق من عدم وجود البريد في Supabase
+  Future<bool> _isEmailAlreadyUsed(String email) async {
+    final result = await supabaseHelper.client
+        .from('patients')
+        .select('email')
+        .eq('email', email)
+        .maybeSingle();
+    return result != null;
+  }
+
   // STEP 1: Register user with Supabase and send OTP
   Future<void> registerUser() async {
     if (!validateForm()) {
@@ -131,6 +141,16 @@ class RegisterPatientController extends GetxController {
     try {
       if (token.value.isEmpty) {
         await getToken();
+      }
+
+      // التحقق من عدم وجود البريد في Supabase قبل إنشاء حساب Firebase
+      if (email.value.isNotEmpty) {
+        final emailExists = await _isEmailAlreadyUsed(email.value);
+        if (emailExists) {
+          Get.back();
+          customDialog(s1: 'error'.tr, s2: 'email_already_exists'.tr);
+          return;
+        }
       }
 
       // Generate a 6-digit OTP code
@@ -150,26 +170,40 @@ class RegisterPatientController extends GetxController {
         print('✅ User registered successfully: ${authResponse.user!.uid}');
 
         // insert into patients table
-        await supabaseHelper.client.from('patients').insert({
-          'id': authResponse.user!.uid,
-          'name': name.value,
-          'email': email.value,
-          'phone': phoneNumber.value.isNotEmpty
-              ? "+20${phoneNumber.value}"
-              : null,
-          'age': int.tryParse(age.value),
-          'gender': gender.value,
-          'fcm_token': token.value,
-          'login_id':
-              '${email.value.split('@')[0]}_${DateTime.now().millisecondsSinceEpoch}',
-          'sessions_available': 0,
-          'sessions_pending': 0,
-          'subscribed': false,
-          'subscribed_before': false,
-        });
-        print(
-          '✅ Patient profile created in Supabase for user ID: ${authResponse.user!.uid}',
-        );
+        try {
+          await supabaseHelper.client.from('patients').insert({
+            'id': authResponse.user!.uid,
+            'name': name.value,
+            'email': email.value,
+            'phone': phoneNumber.value.isNotEmpty
+                ? "+20${phoneNumber.value}"
+                : null,
+            'age': int.tryParse(age.value),
+            'gender': gender.value,
+            'fcm_token': token.value,
+            'login_id':
+                '${email.value.split('@')[0]}_${DateTime.now().millisecondsSinceEpoch}',
+            'sessions_available': 0,
+            'sessions_pending': 0,
+            'subscribed': false,
+            'subscribed_before': false,
+          });
+          print(
+            '✅ Patient profile created in Supabase for user ID: ${authResponse.user!.uid}',
+          );
+        } catch (supabaseError) {
+          // فشل إدراج البيانات في Supabase - حذف حساب Firebase
+          print('❌ Failed to insert patient in Supabase: $supabaseError');
+          try {
+            await authResponse.user!.delete();
+            print('🗑️ Firebase account deleted due to Supabase failure');
+          } catch (deleteError) {
+            print('❌ Failed to delete Firebase account: $deleteError');
+          }
+          Get.back();
+          customDialog(s1: 'error'.tr, s2: 'registration_failed'.tr);
+          return;
+        }
 
         // Save OTP to Supabase table with expiration (5 minutes from now)
         try {

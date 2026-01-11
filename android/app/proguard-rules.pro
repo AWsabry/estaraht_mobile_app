@@ -1,7 +1,9 @@
-# R8 Optimization
+# R8 Optimization - Aggressive for size reduction
 -optimizations !code/simplification/arithmetic,!code/simplification/cast,!field/*,!class/merging/*
--optimizationpasses 5
+-optimizationpasses 7
 -allowaccessmodification
+-repackageclasses ''
+-dontpreverify
 
 # Remove debugging information
 -assumenosideeffects class android.util.Log {
@@ -42,3 +44,16 @@
 -keep public class * extends android.app.Service
 -keep public class * extends android.content.BroadcastReceiver
 -keep public class * extends android.content.ContentProvider
+
+# Agora RTC Engine optimizations
+-keep class io.agora.**{*;}
+-dontwarn io.agora.**
+
+# Syncfusion optimizations
+-keep class com.syncfusion.** { *; }
+-dontwarn com.syncfusion.**
+
+# Remove reflection warnings for size reduction
+-dontwarn javax.annotation.**
+-dontwarn org.checkerframework.**
+-dontwarn com.google.errorprone.**

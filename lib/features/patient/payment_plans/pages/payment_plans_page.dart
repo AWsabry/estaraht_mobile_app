@@ -375,11 +375,13 @@ class PaymentPlansPage extends StatelessWidget {
               // Special offer tag for first-time plans
               const SizedBox(height: 20),
 
-              // Features list
-              _buildFeatureItem(
-                'sessions_count'.tr.replaceAll('{count}', '${plan.sessions}'),
-              ),
-              const SizedBox(height: 12),
+              // Features list - only show sessions count for non-first-time packages
+              if (!plan.isFirstTimeOnly) ...[
+                _buildFeatureItem(
+                  'sessions_count'.tr.replaceAll('{count}', '${plan.sessions}'),
+                ),
+                const SizedBox(height: 12),
+              ],
               _buildFeatureItem('session_duration'.tr),
               const SizedBox(height: 12),
               _buildFeatureItem('session_type'.tr),
@@ -404,7 +406,7 @@ class PaymentPlansPage extends StatelessWidget {
                     elevation: 0,
                   ),
                   child: Text(
-                    'book_now'.tr,
+                    plan.isFirstTimeOnly ? 'book_session_now'.tr : 'book_now'.tr,
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
