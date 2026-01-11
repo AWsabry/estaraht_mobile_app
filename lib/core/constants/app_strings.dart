@@ -170,7 +170,7 @@ class Words extends Translations {
       'totalBalance': 'Total Balance',
       'communicate_with_patients_flexibly':
           'Communicate with your patients flexibly',
-      'manage_appointments_easily': 'Manage your appointments easily',
+      'manage_appointments_easily': 'Manage your\nappointments easily',
       'years_of_exp': ' years of experience',
       'loading_profile': 'Loading profile...',
 
@@ -585,6 +585,7 @@ class Words extends Translations {
       'name_hint': 'Name',
       'start_session': 'Start session',
       'profile_photo': 'Profile Photo',
+      'no_profile_image': 'No Profile Image',
       'complete_therapist_info': 'Complete your profile info',
       'complete_profile': 'Complete your profile',
       'enter_description': 'Enter la description',
@@ -1413,6 +1414,7 @@ class Words extends Translations {
       'name_hint': 'الاسم',
       'start_session': 'ابدأ الجلسة',
       'profile_photo': 'صورة الملف الشخصي',
+      'no_profile_image': 'لا توجد صورة للملف الشخصي',
       'complete_therapist_info': 'أكمل معلومات ملفك الشخصي',
       'complete_profile': 'أكمل ملفك الشخصي',
       'enter_description': 'أدخل الوصف',
@@ -1991,6 +1993,7 @@ class Words extends Translations {
       'enter_name': 'Entrez le nom',
       'name_hint': 'Nom',
       'profile_photo': 'Photo de profil',
+      'no_profile_image': 'Aucune photo de profil',
       'please_select_image': 'Veuillez sélectionner une image',
       'update': 'Mettre à jour',
       'loading_profile': 'Chargement du profil...',

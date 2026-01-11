@@ -1,3 +1,4 @@
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:videocalling/core/config/app_imports.dart';
 
 class DoctorDashboard extends GetView<DoctorDashboardController> {
@@ -41,7 +42,7 @@ class DoctorDashboard extends GetView<DoctorDashboardController> {
                     Text(
                       'manage_appointments_easily'.tr,
                       style: TextStyle(
-                        fontSize: 24,
+                        fontSize: 22,
                         fontWeight: FontWeight.w700,
                         color: Colors.black87,
                         fontFamily: AppFontStyleTextStrings.medium,
@@ -62,7 +63,7 @@ class DoctorDashboard extends GetView<DoctorDashboardController> {
                   ],
                 ),
               ),
-              const SizedBox(height: 42),
+              SizedBox(height: 47.h),
               // Upcoming Sessions Header
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 48),
@@ -90,7 +91,7 @@ class DoctorDashboard extends GetView<DoctorDashboardController> {
                 ),
               ),
 
-              const SizedBox(height: 20),
+              const SizedBox(height: 30),
 
               // Appointments Section
               Obx(
@@ -403,13 +404,15 @@ class DoctorDashboard extends GetView<DoctorDashboardController> {
           //   height: 100,
           // ),
           // SizedBox(height: 12),
-          Text(
-            'doctor_not_appointment_text'.tr,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey[700],
-              fontFamily: AppFontStyleTextStrings.regular,
+          Center(
+            child: Text(
+              'doctor_not_appointment_text'.tr,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 14.sp,
+                color: Colors.grey[700],
+                fontFamily: AppFontStyleTextStrings.regular,
+              ),
             ),
           ),
         ],
