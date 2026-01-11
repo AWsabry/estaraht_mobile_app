@@ -43,7 +43,7 @@ class ProfileParametersScreen extends GetView<ProfileParametersController> {
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
-                                  'No Profile Image',
+                                  'no_profile_image'.tr,
                                   style: TextStyle(
                                     color: Colors.grey.shade600,
                                     fontSize: 14,
@@ -82,7 +82,7 @@ class ProfileParametersScreen extends GetView<ProfileParametersController> {
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
-                                  'No Profile Image',
+                                  'no_profile_image'.tr,
                                   style: TextStyle(
                                     color: Colors.grey.shade600,
                                     fontSize: 14,
@@ -123,7 +123,7 @@ class ProfileParametersScreen extends GetView<ProfileParametersController> {
                               onPressed: () => Get.back(),
                             ),
                             Text(
-                              'Profile',
+                              'profile_str'.tr,
                               style: theme.textTheme.headlineSmall?.copyWith(
                                 fontWeight: FontWeight.w400,
                                 color: Colors.black,
@@ -284,6 +284,74 @@ class ProfileParametersScreen extends GetView<ProfileParametersController> {
                             theme: theme,
                           ),
 
+                        if (controller.userGender.value.isNotEmpty)
+                          const SizedBox(height: 16),
+
+                        // Years of Experience (Doctor only)
+                        Obx(
+                          () =>
+                              controller.isDoctor.value &&
+                                  controller
+                                      .yearsOfExperience
+                                      .value
+                                      .isNotEmpty &&
+                                  controller.yearsOfExperience.value != '0'
+                              ? Column(
+                                  children: [
+                                    _buildInfoRow(
+                                      icon: Icons.work,
+                                      label: 'years_of_exp'.tr,
+                                      value:
+                                          '${controller.yearsOfExperience.value} ${'of_experience'.tr}',
+                                      isArabic: isArabic,
+                                      theme: theme,
+                                    ),
+                                    const SizedBox(height: 16),
+                                  ],
+                                )
+                              : const SizedBox.shrink(),
+                        ),
+
+                        // Specialization (Doctor only)
+                        Obx(
+                          () =>
+                              controller.isDoctor.value &&
+                                  controller.specialization.value.isNotEmpty
+                              ? Column(
+                                  children: [
+                                    _buildInfoRow(
+                                      icon: Icons.medical_services,
+                                      label: 'specialization'.tr,
+                                      value: controller.specialization.value,
+                                      isArabic: isArabic,
+                                      theme: theme,
+                                    ),
+                                    const SizedBox(height: 16),
+                                  ],
+                                )
+                              : const SizedBox.shrink(),
+                        ),
+
+                        // Number of Patients (Doctor only)
+                        Obx(
+                          () =>
+                              controller.isDoctor.value &&
+                                  controller.numbPatients.value > 0
+                              ? Column(
+                                  children: [
+                                    _buildInfoRow(
+                                      icon: Icons.people,
+                                      label: 'patients'.tr,
+                                      value: '${controller.numbPatients.value}',
+                                      isArabic: isArabic,
+                                      theme: theme,
+                                    ),
+                                    const SizedBox(height: 16),
+                                  ],
+                                )
+                              : const SizedBox.shrink(),
+                        ),
+
                         const SizedBox(height: 24),
 
                         // 🧾 Sessions card
@@ -338,7 +406,7 @@ class ProfileParametersScreen extends GetView<ProfileParametersController> {
                                     const SizedBox(height: 4),
                                     Obx(
                                       () => Text(
-                                        '${controller.sessionCount} Sessions',
+                                        '${controller.sessionCount} ${'sessions'.tr}',
                                         style: theme.textTheme.bodyMedium
                                             ?.copyWith(
                                               color: Colors.black87,

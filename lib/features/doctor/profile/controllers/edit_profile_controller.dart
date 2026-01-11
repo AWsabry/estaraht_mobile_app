@@ -302,7 +302,9 @@ class DoctorProfileController extends GetxController {
               : int.tryParse(jsonResponse['number_review']?.toString() ?? '0'),
           avgSessionTime: jsonResponse['avg_session_time'] is int
               ? jsonResponse['avg_session_time']
-              : int.tryParse(jsonResponse['avg_session_time']?.toString() ?? '30'),
+              : int.tryParse(
+                  jsonResponse['avg_session_time']?.toString() ?? '30',
+                ),
           specializations:
               (jsonResponse['specialization'] != null &&
                   jsonResponse['specialization'].toString().isNotEmpty)
@@ -733,28 +735,7 @@ class DoctorProfileController extends GetxController {
                     // Specialty dropdown
                     _buildSpecializationDropdown(context),
 
-                    const SizedBox(height: 20),
-
-                    _buildModernTextField(
-                      context: context,
-                      labelText: 'consultation_fee'.tr,
-                      controller: feeController,
-                      errorText: isFeeError.value
-                          ? 'common_textfield_error'.tr
-                          : null,
-                      hasError: isFeeError.value,
-                      keyboardType: TextInputType.number,
-                      prefixText: "$CURRENCY ",
-                      onChanged: (val) {
-                        if (val.isNotEmpty) {
-                          isFeeError.value = false;
-                        }
-                        update();
-                      },
-                    ),
-
                     const SizedBox(height: 24),
-
                     // Text Areas with better styling
                     _buildModernTextArea(
                       context: context,
