@@ -13,7 +13,7 @@ class UserHomeScreen extends GetView<UserHomeController> {
       appBar: AppBar(
         leading: Container(),
         backgroundColor: AppColors.transparentColor,
-        toolbarHeight: kToolbarHeight + 285,
+        toolbarHeight: kToolbarHeight + 290,
         flexibleSpace: CustomHomeScreenAppBar(
           title: 'welcome_str'.tr,
           title1:
