@@ -389,29 +389,6 @@ class MakeAppointment extends GetView<MakeAppointmentController> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           SvgPicture.asset(
-                            AppImages.payment,
-                            width: 16.w,
-                            height: 16.h,
-                          ),
-                          SizedBox(width: 6.w),
-                          Flexible(
-                            child: Text(
-                              '${makeAppointmentController.consultationFee} ${CURRENCY.trim()}',
-                              style: TextStyle(
-                                fontSize: 10.sp,
-                                fontWeight: FontWeight.w400,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 8.h),
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          SvgPicture.asset(
                             AppImages.videoCallIcon,
                             width: 16.w,
                             height: 16.h,

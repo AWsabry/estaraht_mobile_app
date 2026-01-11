@@ -278,13 +278,16 @@ class CustomHomeScreenAppBar extends StatelessWidget {
   Function(String) onChanged;
   VoidCallback onPressed;
 
-  // Arabic configuration
+  // Language-specific configuration
   final double? arabicFontSize;
   final double? englishFontSize;
+  final double? frenchFontSize;
   final double? arabicButtonWidth;
   final double? englishButtonWidth;
+  final double? frenchButtonWidth;
   final EdgeInsets? arabicButtonPadding;
   final EdgeInsets? englishButtonPadding;
+  final EdgeInsets? frenchButtonPadding;
 
   CustomHomeScreenAppBar({
     super.key,
@@ -295,13 +298,16 @@ class CustomHomeScreenAppBar extends StatelessWidget {
     required this.onSubmitted,
     required this.onChanged,
     required this.onPressed,
-    // Arabic configuration defaults
+    // Language configuration defaults
     this.arabicFontSize,
     this.englishFontSize,
+    this.frenchFontSize,
     this.arabicButtonWidth,
     this.englishButtonWidth,
+    this.frenchButtonWidth,
     this.arabicButtonPadding,
     this.englishButtonPadding,
+    this.frenchButtonPadding,
   });
 
   @override
@@ -327,8 +333,8 @@ class CustomHomeScreenAppBar extends StatelessWidget {
                       child: Center(
                         child: SvgPicture.asset(
                           AppImages.appAccountCircle,
-                          width: 26,
-                          height: 26,
+                          width: 26.w,
+                          height: 26.h,
                         ),
                       ),
                     ),
@@ -343,8 +349,8 @@ class CustomHomeScreenAppBar extends StatelessWidget {
                           padding: const EdgeInsets.all(6.0),
                           child: SvgPicture.asset(
                             AppImages.appBadging,
-                            width: 24,
-                            height: 24,
+                            width: 24.w,
+                            height: 24.h,
                           ),
                         ),
                       ),
@@ -467,17 +473,33 @@ class CustomHomeScreenAppBar extends StatelessWidget {
                   // Action buttons
                   Builder(
                     builder: (context) {
-                      final isArabic = Get.locale?.languageCode == 'ar';
+                      final locale = Get.locale?.languageCode;
+                      final isArabic = locale == 'ar';
+                      final isFrench = locale == 'fr';
+
+                      // Button width - French uses English defaults
                       final buttonWidth = isArabic
-                          ? (arabicButtonWidth ?? 150.w)
-                          : (englishButtonWidth ?? 150.w);
+                          ? (arabicButtonWidth ?? 150)
+                          : isFrench
+                          ? (frenchButtonWidth ?? englishButtonWidth ?? 150)
+                          : (englishButtonWidth ?? 150);
+
+                      // Button padding - French uses English defaults
                       final buttonPadding = isArabic
                           ? (arabicButtonPadding ??
                                 const EdgeInsets.symmetric(vertical: 6))
+                          : isFrench
+                          ? (frenchButtonPadding ??
+                                englishButtonPadding ??
+                                const EdgeInsets.symmetric(vertical: 6))
                           : (englishButtonPadding ??
                                 const EdgeInsets.symmetric(vertical: 8));
+
+                      // Font size - French uses English defaults
                       final fontSize = isArabic
-                          ? (arabicFontSize ?? 10.sp)
+                          ? (arabicFontSize ?? 11.sp)
+                          : isFrench
+                          ? (frenchFontSize ?? englishFontSize ?? 10.5.sp)
                           : (englishFontSize ?? 13.sp);
 
                       return Row(
