@@ -315,56 +315,6 @@ class _IndemandDoctorScreenState extends State<IndemandDoctorScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Top pills (sessions/fee)
-            Row(
-              mainAxisAlignment: isArabic
-                  ? MainAxisAlignment.end
-                  : MainAxisAlignment.start,
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 6,
-                    vertical: 3,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[100],
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Row(
-                    children: [
-                      Text(
-                        '+500 ${isArabic ? 'جلسة' : 'Sessions'}',
-                        style: TextStyle(fontSize: 12, color: Colors.grey[800]),
-                      ),
-                      const SizedBox(width: 4),
-                      const Icon(
-                        Icons.video_call,
-                        size: 14,
-                        color: Color(0xFF3961F1),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 6,
-                    vertical: 3,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[100],
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Row(
-                    children: [
-                      Text(
-                        '${doctor.bookingPrice?.toInt().toString() ?? '0'} ${isArabic ? 'أوقية' : 'MRU'}',
-                        style: TextStyle(fontSize: 12, color: Colors.grey[800]),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
             const SizedBox(height: 12),
 
             // Info row
@@ -419,14 +369,14 @@ class _IndemandDoctorScreenState extends State<IndemandDoctorScreen> {
 
             // Specializations header (reused)
             Text(
-              isArabic ? 'التخصصات' : 'Specializations',
+              'specialization'.tr,
               style: TextStyle(
                 fontSize: 14.sp,
                 fontWeight: FontWeight.w500,
                 color: Colors.grey[800],
               ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 10.h),
             Wrap(
               spacing: 8,
               runSpacing: 8,
@@ -436,14 +386,9 @@ class _IndemandDoctorScreenState extends State<IndemandDoctorScreen> {
                       ? "N/A"
                       : doctor.specialization ?? "N/A",
                 ),
-                _SpecChip(
-                  label: doctor.specialization!.isEmpty
-                      ? "N/A"
-                      : doctor.specialization ?? "N/A",
-                ),
               ],
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 10.h),
 
             // Buttons
             Row(
