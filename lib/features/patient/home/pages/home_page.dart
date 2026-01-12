@@ -76,7 +76,7 @@ class UserHomeScreen extends GetView<UserHomeController> {
 
                       // HORIZONTAL DOCTOR CARDS
                       SizedBox(
-                        height: 270,
+                        height: MediaQuery.sizeOf(context).height * 0.34,
                         child: Obx(() {
                           // Show a loader when data is loading
                           if (homeController.list2.isEmpty &&

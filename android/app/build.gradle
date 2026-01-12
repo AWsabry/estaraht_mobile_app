@@ -97,14 +97,11 @@ android {
         }
     }
 
-    // ABI splits for smaller APKs - delivers device-specific builds
-    // Only enable for release builds to avoid conflict with ndk.abiFilters
+    // ABI splits for smaller APKs - disabled to avoid conflict with Flutter's ndk configuration
+    // Use App Bundle (flutter build appbundle) for device-specific builds instead
     splits {
         abi {
-            enable gradle.startParameter.taskNames.any { it.toLowerCase().contains("release") }
-            reset()
-            include 'arm64-v8a', 'armeabi-v7a'
-            universalApk false
+            enable false
         }
     }
 

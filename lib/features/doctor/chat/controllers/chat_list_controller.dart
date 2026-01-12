@@ -61,32 +61,75 @@ class DoctorChatListController extends GetxController {
   }
 
   typeToWidget(int type, String msg, int count) {
-    if (type == 1) {
-      return Row(
-        children: [
-          Icon(Icons.photo, size: 15, color: AppColors.themeColor3),
-          const SizedBox(width: 5),
-          Text(
-            'photo_str'.tr,
-            style: const TextStyle(fontSize: 13),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ],
-      );
-    } else if (type == 2) {
-      return Row(
-        children: [
-          Icon(Icons.videocam, size: 15, color: AppColors.themeColor3),
-          const SizedBox(width: 5),
-          Text(
-            'video_str'.tr,
-            style: const TextStyle(fontSize: 13),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ],
-      );
+    // For file types (1 = image/file, 2 = video/file), check the extension
+    if (type == 1 || type == 2) {
+      // Parse URL to get the path without query parameters
+      String pathWithoutQuery = msg;
+      if (msg.contains('?')) {
+        pathWithoutQuery = msg.split('?').first;
+      }
+      String ext = pathWithoutQuery.split('.').last.toLowerCase();
+
+      // Handle PDF files
+      if (ext == 'pdf') {
+        return const Row(
+          children: [
+            Icon(Icons.picture_as_pdf, size: 15, color: Colors.red),
+            SizedBox(width: 5),
+            Text(
+              'PDF',
+              style: TextStyle(fontSize: 13),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        );
+      }
+      // Handle Word documents
+      else if (ext == 'doc' || ext == 'docx') {
+        return Row(
+          children: [
+            const Icon(Icons.description, size: 15, color: Colors.blue),
+            const SizedBox(width: 5),
+            Text(
+              'document_str'.tr,
+              style: const TextStyle(fontSize: 13),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        );
+      }
+      // Handle videos
+      else if (ext == 'mp4' || ext == 'mov' || ext == 'avi') {
+        return Row(
+          children: [
+            Icon(Icons.videocam, size: 15, color: AppColors.themeColor3),
+            const SizedBox(width: 5),
+            Text(
+              'video_str'.tr,
+              style: const TextStyle(fontSize: 13),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        );
+      }
+      // Handle images (default for type 1)
+      else {
+        return Row(
+          children: [
+            Icon(Icons.photo, size: 15, color: AppColors.themeColor3),
+            const SizedBox(width: 5),
+            Text(
+              'photo_str'.tr,
+              style: const TextStyle(fontSize: 13),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        );
+      }
     } else {
       return Text(
         msg,

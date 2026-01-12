@@ -12,7 +12,7 @@ class ProfileParametersController extends GetxController {
   RxString userGender = ''.obs;
   RxInt sessionCount = 0.obs;
   RxBool isLoading = false.obs;
-  
+
   // Doctor-specific fields
   RxBool isDoctor = false.obs;
   RxString yearsOfExperience = ''.obs;
@@ -24,7 +24,9 @@ class ProfileParametersController extends GetxController {
   void onInit() {
     super.onInit();
     // Check if user is doctor
-    isDoctor.value = StorageService.readData(key: LocalStorageKeys.isLoggedInAsDoctor) ?? false;
+    isDoctor.value =
+        StorageService.readData(key: LocalStorageKeys.isLoggedInAsDoctor) ??
+        false;
     loadUserProfile();
     loadSessionCounts();
   }
@@ -99,7 +101,7 @@ class ProfileParametersController extends GetxController {
               .eq('id', user.uid)
               .single();
 
-          profileImageUrl.value = response['profile_pic']?.toString() ?? '';
+          profileImageUrl.value = response['profile_img_url']?.toString() ?? '';
           userName.value = response['name']?.toString() ?? '';
           userEmail.value = response['email']?.toString() ?? '';
           userPhone.value = response['phone']?.toString() ?? '';
