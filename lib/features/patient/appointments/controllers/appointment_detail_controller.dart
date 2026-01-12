@@ -178,16 +178,13 @@ class UserAppointmentDetailsController extends GetxController {
   Future<String?> fetchAgoraToken(String channelName) async {
     try {
       // Generate token dynamically using Agora Token Generator
-      final agoraTokenService = AgoraTokenService(
-        appId: '15f7b6b0ab4842d086941d04f7eda2f1', // Your Agora App ID
-        appCertificate:
-            'ccb178addaed4bf890efb6a6266bf027', // Your Agora App Certificate
-      );
+      // App ID and Certificate are loaded from .env file
+      final agoraTokenService = AgoraTokenService();
 
       final token = await agoraTokenService.generateToken(
         channelName: channelName,
         uid: 0,
-        expirationSeconds: 86400, // 24 hours
+        tokenExpireSeconds: 86400, // 24 hours
       );
 
       if (token != null) {

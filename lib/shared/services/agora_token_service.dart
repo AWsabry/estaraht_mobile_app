@@ -1,29 +1,45 @@
 import 'package:agora_token_generator/agora_token_generator.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class AgoraTokenService {
-  final String appId;
-  final String appCertificate;
+  static final AgoraTokenService _instance = AgoraTokenService._internal();
 
-  AgoraTokenService({required this.appId, required this.appCertificate});
+  late String _appId;
+  late String _appCertificate;
+
+  AgoraTokenService._internal() {
+    // Load from environment variables
+    _appId = dotenv.get('AGORA_APP_ID', fallback: '');
+    _appCertificate = dotenv.get('AGORA_APP_CERTIFICATE', fallback: '');
+
+    if (_appId.isEmpty || _appCertificate.isEmpty) {
+      throw Exception(
+        'Missing Agora credentials in .env file. '
+        'Please ensure AGORA_APP_ID and AGORA_APP_CERTIFICATE are set.',
+      );
+    }
+  }
+
+  factory AgoraTokenService() {
+    return _instance;
+  }
 
   /// Generate RTC token for video/audio calls
   /// [channelName]: The channel name
   /// [uid]: User ID (0 for any user)
-  /// [role]: 1 for publisher (can publish), 0 for subscriber (receive only)
-  /// [expirationSeconds]: Token expiration time (default 24 hours)
+  /// [tokenExpireSeconds]: Token expiration time (default 24 hours)
   Future<String?> generateToken({
     required String channelName,
     int uid = 0,
-    int role = 1, // 1 = RTC_USER (publisher), 0 = subscriber
-    int expirationSeconds = 86400, // 24 hours default
+    int tokenExpireSeconds = 86400, // 24 hours default
   }) async {
     try {
       final token = RtcTokenBuilder.buildTokenWithUid(
-        appId: appId,
-        appCertificate: appCertificate,
+        appId: _appId,
+        appCertificate: _appCertificate,
         channelName: channelName,
         uid: uid,
-        tokenExpireSeconds: expirationSeconds,
+        tokenExpireSeconds: tokenExpireSeconds,
       );
 
       print('✅ Token generated for channel: $channelName');
@@ -38,23 +54,23 @@ class AgoraTokenService {
   Future<String?> generateUserToken({
     required String channelName,
     required int uid,
-    int expirationSeconds = 86400,
+    int tokenExpireSeconds = 86400,
   }) async {
     return generateToken(
       channelName: channelName,
       uid: uid,
-      role: 1,
-      expirationSeconds: expirationSeconds,
+      tokenExpireSeconds: tokenExpireSeconds,
     );
   }
 
   /// Generate token for wildcard channel (works for any channel)
-  Future<String?> generateWildcardToken({int expirationSeconds = 86400}) async {
+  Future<String?> generateWildcardToken({
+    int tokenExpireSeconds = 86400,
+  }) async {
     return generateToken(
       channelName: '*',
       uid: 0,
-      role: 1,
-      expirationSeconds: expirationSeconds,
+      tokenExpireSeconds: tokenExpireSeconds,
     );
   }
 }
