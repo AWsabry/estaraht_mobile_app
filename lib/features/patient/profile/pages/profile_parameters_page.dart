@@ -12,7 +12,7 @@ class ProfileParametersScreen extends GetView<ProfileParametersController> {
       backgroundColor: Colors.white,
 
       body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 20),
+        padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
         child: Column(
           mainAxisSize: MainAxisSize.max,
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -30,6 +30,9 @@ class ProfileParametersScreen extends GetView<ProfileParametersController> {
                       child: Obx(() {
                         final imageUrl = controller.profileImageUrl.value;
                         if (imageUrl.isEmpty) {
+                          print(
+                            "No profile image URL provided. ${controller.profileImageUrl.value}",
+                          );
                           return Container(
                             width: double.infinity,
                             color: Colors.grey.shade200,
