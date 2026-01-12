@@ -59,18 +59,36 @@ class DAppointmentDetailsController extends GetxController {
   }
 
   Future<String?> fetchAgoraToken(String channelName) async {
-    final response1 = await supabaseHelper.client.from('agora_tokens').select();
-
-    loggerNoStack.i('Fetched all tokens: $response1');
+    // First try to get a channel-specific token
     final response = await supabaseHelper.client
         .from('agora_tokens')
         .select('token')
+        .eq('channel_name', channelName)
         .order('created_at', ascending: false)
         .limit(1)
         .maybeSingle();
 
-    loggerNoStack.i('Fetched Agora token response: $response');
-    return response?['token'] as String?;
+    if (response?['token'] != null) {
+      loggerNoStack.i('Found channel-specific token for: $channelName');
+      return response?['token'] as String;
+    }
+
+    // Fallback to wildcard token (channel_name = '*')
+    final wildcardResponse = await supabaseHelper.client
+        .from('agora_tokens')
+        .select('token')
+        .eq('channel_name', '*')
+        .order('created_at', ascending: false)
+        .limit(1)
+        .maybeSingle();
+
+    if (wildcardResponse?['token'] != null) {
+      loggerNoStack.i('Using wildcard token for: $channelName');
+      return wildcardResponse?['token'] as String;
+    }
+
+    loggerNoStack.e('No token found for channel: $channelName');
+    return null;
   }
 
   void initiateVideoCall() async {
@@ -78,11 +96,11 @@ class DAppointmentDetailsController extends GetxController {
       "============== START VIDEO MEETING (DOCTOR SIDE) ==============",
     );
     try {
-      // Force channel name to "Estarht" for meeting room
-      const String channelName = "Estarht";
+      // Use unique channel name per booking for privacy
+      final String channelName = "booking_$id";
       final String patientName =
           doctorAppointmentDetailsClass.data?.userName ?? "Patient";
-      developer.log("Joining meeting room: '$channelName'");
+      developer.log("Joining meeting room: '$channelName' (Booking ID: $id)");
 
       Get.dialog(
         const Center(child: CircularProgressIndicator()),
