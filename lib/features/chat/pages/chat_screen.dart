@@ -619,16 +619,29 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                               padding: const EdgeInsets.all(8.0),
                               child: Row(
                                 children: [
-                                  ClipRRect(
-                                    // ignore: sort_child_properties_last
-                                    child: Image.memory(
-                                      chatController.fileThumbnail!,
-                                      height: 30,
-                                      width: 30,
-                                      fit: BoxFit.cover,
-                                    ),
-                                    borderRadius: BorderRadius.circular(5),
-                                  ),
+                                  chatController.fileThumbnail != null
+                                      ? ClipRRect(
+                                          borderRadius: BorderRadius.circular(5),
+                                          child: Image.memory(
+                                            chatController.fileThumbnail!,
+                                            height: 30,
+                                            width: 30,
+                                            fit: BoxFit.cover,
+                                          ),
+                                        )
+                                      : Container(
+                                          height: 30,
+                                          width: 30,
+                                          decoration: BoxDecoration(
+                                            color: AppColors.themeColor3.withOpacity(0.2),
+                                            borderRadius: BorderRadius.circular(5),
+                                          ),
+                                          child: Icon(
+                                            Icons.insert_drive_file,
+                                            size: 20,
+                                            color: AppColors.themeColor3,
+                                          ),
+                                        ),
                                   const SizedBox(width: 10),
                                   Expanded(
                                     child: Column(
@@ -640,11 +653,8 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                                           color: AppColors.themeColor3,
                                         ),
                                         const SizedBox(height: 5),
-                                        LinearProgressIndicator(
+                                        const LinearProgressIndicator(
                                           minHeight: 2,
-                                          value: chatController
-                                              .uploadingProgress
-                                              .value,
                                         ),
                                       ],
                                     ),

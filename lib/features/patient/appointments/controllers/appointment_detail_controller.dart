@@ -175,10 +175,14 @@ class UserAppointmentDetailsController extends GetxController {
   }
 
   Future<String?> fetchAgoraToken(String channelName) async {
-    // On garde le token pour "Estarht"
-    const tempTokenForEstarhtChannel =
-        "007eJxTYJBg+bXy+vM/D+qNdO8dzatft/NEQivDru/bg+rNFNsePv2qwGBommaeZJZkkJhkYmFilGJgYWZpYphiYJJmnpqSaJRm+NL7U0ZDICOD+OubLIwMEAjiszO4FpckFmWUMDAAAMqIJJ4=";
-    return tempTokenForEstarhtChannel;
+    final response = await supabaseHelper.client
+        .from('agora_tokens')
+        .select('token')
+        .order('created_at', ascending: false)
+        .limit(1)
+        .maybeSingle();
+
+    return response?['token'] as String?;
   }
 
   void initiateVideoCall() async {
