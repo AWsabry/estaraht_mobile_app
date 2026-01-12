@@ -198,6 +198,38 @@ class _CallScreenState extends State<CallScreen> {
                   });
                 }
               },
+          onFirstRemoteVideoFrame:
+              (
+                RtcConnection connection,
+                int remoteUid,
+                int width,
+                int height,
+                int elapsed,
+              ) {
+                print(
+                  '🎬 First remote video frame from user $remoteUid: ${width}x$height',
+                );
+                if (mounted) {
+                  setState(() {
+                    if (!_remoteUids.contains(remoteUid)) {
+                      _remoteUids.add(remoteUid);
+                      print(
+                        '✅ Added remote user $remoteUid via first video frame. Total: ${_remoteUids.length}',
+                      );
+                    }
+                  });
+                }
+              },
+          onConnectionStateChanged:
+              (
+                RtcConnection connection,
+                ConnectionStateType state,
+                ConnectionChangedReasonType reason,
+              ) {
+                print(
+                  '🔌 Connection state changed: state=$state, reason=$reason',
+                );
+              },
           onError: (ErrorCodeType err, String msg) {
             print('❌ Agora Error: $err - $msg');
           },
@@ -218,13 +250,13 @@ class _CallScreenState extends State<CallScreen> {
         token: widget.token,
         channelId: widget.channelName,
         uid: 0,
-        options: const ChannelMediaOptions(
+        options: ChannelMediaOptions(
           channelProfile: ChannelProfileType.channelProfileCommunication,
           clientRoleType: ClientRoleType.clientRoleBroadcaster,
           autoSubscribeAudio: true,
           autoSubscribeVideo: true,
           publishMicrophoneTrack: true,
-          publishCameraTrack: true,
+          publishCameraTrack: widget.isVideoCall,
         ),
       );
       print('✅ Join channel request sent');
