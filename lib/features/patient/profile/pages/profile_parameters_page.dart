@@ -190,22 +190,36 @@ class ProfileParametersScreen extends GetView<ProfileParametersController> {
                                   ),
                                 ),
                                 const SizedBox(height: 4),
-                                Obx(
-                                  () => Text(
-                                    controller.userEmail.value.isEmpty
-                                        ? 'email'.tr
-                                        : controller.userEmail.value,
-                                    style: theme.textTheme.bodyMedium?.copyWith(
-                                      color: Colors.white70,
-                                      fontFamily: isArabic
-                                          ? 'NotoKufiArabic'
-                                          : 'Roboto',
+                                Obx(() {
+                                  final emailText =
+                                      controller.userEmail.value.isEmpty
+                                      ? 'email'.tr
+                                      : controller.userEmail.value;
+                                  final isEmail =
+                                      controller.userEmail.value.isNotEmpty &&
+                                      controller.userEmail.value.contains('@');
+
+                                  return Directionality(
+                                    textDirection: isArabic && isEmail
+                                        ? TextDirection.ltr
+                                        : (isArabic
+                                              ? TextDirection.rtl
+                                              : TextDirection.ltr),
+                                    child: Text(
+                                      emailText,
+                                      style: theme.textTheme.bodyMedium
+                                          ?.copyWith(
+                                            color: Colors.white70,
+                                            fontFamily: isArabic && !isEmail
+                                                ? 'NotoKufiArabic'
+                                                : 'Roboto',
+                                          ),
+                                      textAlign: isArabic && !isEmail
+                                          ? TextAlign.right
+                                          : TextAlign.left,
                                     ),
-                                    textAlign: isArabic
-                                        ? TextAlign.right
-                                        : TextAlign.left,
-                                  ),
-                                ),
+                                  );
+                                }),
                               ],
                             ),
                           ),
@@ -438,6 +452,21 @@ class ProfileParametersScreen extends GetView<ProfileParametersController> {
     );
   }
 
+  // Helper function to detect if value is email or contains special characters that need LTR
+  bool _isEmailOrSpecialChars(String value) {
+    // Check if it's an email address (most common case)
+    if (value.contains('@') && value.contains('.')) {
+      return true;
+    }
+    // Check for URLs
+    if (value.startsWith('http://') ||
+        value.startsWith('https://') ||
+        value.startsWith('www.')) {
+      return true;
+    }
+    return false;
+  }
+
   Widget _buildInfoRow({
     required IconData icon,
     required String label,
@@ -476,15 +505,24 @@ class ProfileParametersScreen extends GetView<ProfileParametersController> {
                     textAlign: isArabic ? TextAlign.right : TextAlign.left,
                   ),
                   const SizedBox(height: 4),
-                  Text(
-                    value,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: Colors.black87,
-                      fontWeight: FontWeight.w500,
-                      fontSize: 14,
-                      fontFamily: isArabic ? 'NotoKufiArabic' : 'Roboto',
+                  Directionality(
+                    textDirection: isArabic && _isEmailOrSpecialChars(value)
+                        ? TextDirection.ltr
+                        : (isArabic ? TextDirection.rtl : TextDirection.ltr),
+                    child: Text(
+                      value,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: Colors.black87,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 14,
+                        fontFamily: isArabic && !_isEmailOrSpecialChars(value)
+                            ? 'NotoKufiArabic'
+                            : 'Roboto',
+                      ),
+                      textAlign: isArabic && !_isEmailOrSpecialChars(value)
+                          ? TextAlign.right
+                          : TextAlign.left,
                     ),
-                    textAlign: isArabic ? TextAlign.right : TextAlign.left,
                   ),
                 ],
               ),
