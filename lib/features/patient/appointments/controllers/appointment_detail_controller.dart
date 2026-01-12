@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:videocalling/core/config/app_imports.dart';
 import 'package:videocalling/shared/services/review_service.dart';
 import 'package:videocalling/shared/services/session_management_service.dart';
+import 'package:videocalling/shared/services/agora_token_service.dart';
 import 'package:videocalling/shared/widgets/rating_dialog.dart';
 
 class UserAppointmentDetailsController extends GetxController {
@@ -175,36 +176,31 @@ class UserAppointmentDetailsController extends GetxController {
   }
 
   Future<String?> fetchAgoraToken(String channelName) async {
-    // First try to get a channel-specific token
-    final response = await supabaseHelper.client
-        .from('agora_tokens')
-        .select('token')
-        .eq('channel_name', channelName)
-        .order('created_at', ascending: false)
-        .limit(1)
-        .maybeSingle();
+    try {
+      // Generate token dynamically using Agora Token Generator
+      final agoraTokenService = AgoraTokenService(
+        appId: '15f7b6b0ab4842d086941d04f7eda2f1', // Your Agora App ID
+        appCertificate:
+            'ccb178addaed4bf890efb6a6266bf027', // Your Agora App Certificate
+      );
 
-    if (response?['token'] != null) {
-      developer.log('Found channel-specific token for: $channelName');
-      return response?['token'] as String;
+      final token = await agoraTokenService.generateToken(
+        channelName: channelName,
+        uid: 0,
+        expirationSeconds: 86400, // 24 hours
+      );
+
+      if (token != null) {
+        developer.log('✅ Token generated for channel: $channelName');
+        return token;
+      } else {
+        developer.log('❌ Failed to generate token for channel: $channelName');
+        return null;
+      }
+    } catch (e) {
+      developer.log('❌ Error generating token: $e');
+      return null;
     }
-
-    // Fallback to wildcard token (channel_name = '*')
-    final wildcardResponse = await supabaseHelper.client
-        .from('agora_tokens')
-        .select('token')
-        .eq('channel_name', '*')
-        .order('created_at', ascending: false)
-        .limit(1)
-        .maybeSingle();
-
-    if (wildcardResponse?['token'] != null) {
-      developer.log('Using wildcard token for: $channelName');
-      return wildcardResponse?['token'] as String;
-    }
-
-    developer.log('No token found for channel: $channelName');
-    return null;
   }
 
   void initiateVideoCall() async {
