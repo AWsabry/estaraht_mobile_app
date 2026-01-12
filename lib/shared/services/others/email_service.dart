@@ -336,6 +336,58 @@ class EmailService {
         ? 'Connect with patients, manage appointments, and make a difference in people\'s lives.'
         : 'Connect with experienced therapists, book appointments, and start your journey to wellness.';
 
+    final String featuresHtml = userType == 'doctor'
+        ? '''
+                        <div class="feature-item">
+                            <div class="feature-icon">📋</div>
+                            <div class="feature-content">
+                                <h3>Manage Your Practice</h3>
+                                <p>Access your patient list, manage schedules, and session records in one place</p>
+                            </div>
+                        </div>
+                        
+                        <div class="feature-item">
+                            <div class="feature-icon">💬</div>
+                            <div class="feature-content">
+                                <h3>Secure Communication with Patients</h3>
+                                <p>Stay connected with your patients via our privacy-compliant messaging system</p>
+                            </div>
+                        </div>
+                        
+                        <div class="feature-item">
+                            <div class="feature-icon">💰</div>
+                            <div class="feature-content">
+                                <h3>Financial Management</h3>
+                                <p>Track your revenue, manage invoices, and process patient payments easily</p>
+                            </div>
+                        </div>
+        '''
+        : '''
+                        <div class="feature-item">
+                            <div class="feature-icon">📅</div>
+                            <div class="feature-content">
+                                <h3>Book Appointments</h3>
+                                <p>Schedule sessions with experienced therapists at your convenience</p>
+                            </div>
+                        </div>
+                        
+                        <div class="feature-item">
+                            <div class="feature-icon">💬</div>
+                            <div class="feature-content">
+                                <h3>Secure Messaging</h3>
+                                <p>Communicate with your therapist in a safe and private way</p>
+                            </div>
+                        </div>
+                        
+                        <div class="feature-item">
+                            <div class="feature-icon">📋</div>
+                            <div class="feature-content">
+                                <h3>Track Progress</h3>
+                                <p>Monitor your wellness journey and access your medical records</p>
+                            </div>
+                        </div>
+        ''';
+
     return '''
     <!DOCTYPE html>
     <html>
@@ -559,29 +611,7 @@ class EmailService {
                     <div class="features-section">
                         <div class="features-title">What You Can Do</div>
                         
-                        <div class="feature-item">
-                            <div class="feature-icon">📅</div>
-                            <div class="feature-content">
-                                <h3>Book Appointments</h3>
-                                <p>Schedule sessions with experienced therapists at your convenience</p>
-                            </div>
-                        </div>
-                        
-                        <div class="feature-item">
-                            <div class="feature-icon">💬</div>
-                            <div class="feature-content">
-                                <h3>Secure Messaging</h3>
-                                <p>Communicate with your therapist safely and privately</p>
-                            </div>
-                        </div>
-                        
-                        <div class="feature-item">
-                            <div class="feature-icon">📋</div>
-                            <div class="feature-content">
-                                <h3>Track Progress</h3>
-                                <p>Monitor your wellness journey and access your medical records</p>
-                            </div>
-                        </div>
+                        $featuresHtml
                     </div>
 
                     <div class="cta-section">
@@ -1272,8 +1302,61 @@ class EmailService {
     final sanitizedUserType = userType == 'doctor' ? 'Thérapeute' : 'Patient';
     final userTypeEmoji = userType == 'doctor' ? '👨‍⚕️' : '💙';
     final userTypeDescription = userType == 'doctor'
-        ? 'Connectez-vous avec vos patients, gérez les rendez-vous et faites une différence dans la vie des gens.'
+        ? 'Bienvenue sur votre plateforme professionnelle où vous pouvez fournir des soins de santé mentale de qualité, gérer votre pratique et avoir un impact positif sur la vie des patients.'
         : 'Connectez-vous avec des thérapeutes expérimentés, réservez des rendez-vous et commencez votre parcours vers le bien-être.';
+
+    // Different features for doctors vs patients in French
+    final String featuresHtml = userType == 'doctor'
+        ? '''
+                        <div class="feature-item">
+                            <div class="feature-icon">📋</div>
+                            <div class="feature-content">
+                                <h3>Gérer Votre Pratique</h3>
+                                <p>Accédez à votre liste de patients, gestion des horaires et dossiers de séances en un seul endroit</p>
+                            </div>
+                        </div>
+                        
+                        <div class="feature-item">
+                            <div class="feature-icon">💬</div>
+                            <div class="feature-content">
+                                <h3>Communication Sécurisée avec Patients</h3>
+                                <p>Restez connecté avec vos patients via notre système de messagerie conforme aux normes de confidentialité</p>
+                            </div>
+                        </div>
+                        
+                        <div class="feature-item">
+                            <div class="feature-icon">💰</div>
+                            <div class="feature-content">
+                                <h3>Gestion Financière</h3>
+                                <p>Suivez vos revenus, gérez les factures et traitez les paiements des patients en toute simplicité</p>
+                            </div>
+                        </div>
+        '''
+        : '''
+                        <div class="feature-item">
+                            <div class="feature-icon">📅</div>
+                            <div class="feature-content">
+                                <h3>Réserver des Rendez-vous</h3>
+                                <p>Planifiez des séances avec des thérapeutes expérimentés à votre convenance</p>
+                            </div>
+                        </div>
+                        
+                        <div class="feature-item">
+                            <div class="feature-icon">💬</div>
+                            <div class="feature-content">
+                                <h3>Messagerie Sécurisée</h3>
+                                <p>Communiquez avec votre thérapeute de manière sûre et privée</p>
+                            </div>
+                        </div>
+                        
+                        <div class="feature-item">
+                            <div class="feature-icon">📋</div>
+                            <div class="feature-content">
+                                <h3>Suivre les Progrès</h3>
+                                <p>Surveillez votre parcours de bien-être et accédez à vos dossiers médicaux</p>
+                            </div>
+                        </div>
+        ''';
 
     return '''
     <!DOCTYPE html>
@@ -1498,29 +1581,7 @@ class EmailService {
                     <div class="features-section">
                         <div class="features-title">Ce Que Vous Pouvez Faire</div>
                         
-                        <div class="feature-item">
-                            <div class="feature-icon">📅</div>
-                            <div class="feature-content">
-                                <h3>Réserver des Rendez-vous</h3>
-                                <p>Planifiez des séances avec des thérapeutes expérimentés à votre convenance</p>
-                            </div>
-                        </div>
-                        
-                        <div class="feature-item">
-                            <div class="feature-icon">💬</div>
-                            <div class="feature-content">
-                                <h3>Messagerie Sécurisée</h3>
-                                <p>Communiquez avec votre thérapeute de manière sûre et privée</p>
-                            </div>
-                        </div>
-                        
-                        <div class="feature-item">
-                            <div class="feature-icon">📋</div>
-                            <div class="feature-content">
-                                <h3>Suivre les Progrès</h3>
-                                <p>Surveillez votre parcours de bien-être et accédez à vos dossiers médicaux</p>
-                            </div>
-                        </div>
+                        $featuresHtml
                     </div>
 
                     <div class="cta-section">
@@ -2214,6 +2275,58 @@ class EmailService {
         ? 'تواصل مع مرضاك، أدر المواعيد، واصنع فرقاً في حياة الناس.'
         : 'تواصل مع أطباء نفسيين ذوي خبرة، احجز المواعيد، وابدأ رحلتك نحو العافية.';
 
+    final String featuresHtml = userType == 'doctor'
+        ? '''
+                        <div class="feature-item">
+                            <div class="feature-icon">📋</div>
+                            <div class="feature-content">
+                                <h3>إدارة عيادتك</h3>
+                                <p>الوصول إلى قائمة مرضاك وإدارة الجدول الزمني وملفات الجلسات في مكان واحد</p>
+                            </div>
+                        </div>
+                        
+                        <div class="feature-item">
+                            <div class="feature-icon">💬</div>
+                            <div class="feature-content">
+                                <h3>التواصل الآمن مع المرضى</h3>
+                                <p>ابق على اتصال مع مرضاك من خلال نظام المراسلة الخاص بنا الذي يتوافق مع معايير الخصوصية</p>
+                            </div>
+                        </div>
+                        
+                        <div class="feature-item">
+                            <div class="feature-icon">💰</div>
+                            <div class="feature-content">
+                                <h3>الإدارة المالية</h3>
+                                <p>تتبع إيراداتك وإدارة الفواتير ومعالجة مدفوعات المرضى بسهولة</p>
+                            </div>
+                        </div>
+        '''
+        : '''
+                        <div class="feature-item">
+                            <div class="feature-icon">📅</div>
+                            <div class="feature-content">
+                                <h3>حجز المواعيد</h3>
+                                <p>حدد موعداً مع أطباء نفسيين ذوي خبرة في الوقت المناسب لك</p>
+                            </div>
+                        </div>
+                        
+                        <div class="feature-item">
+                            <div class="feature-icon">💬</div>
+                            <div class="feature-content">
+                                <h3>المراسلة الآمنة</h3>
+                                <p>تواصل مع طبيبك النفسي بطريقة آمنة وخاصة</p>
+                            </div>
+                        </div>
+                        
+                        <div class="feature-item">
+                            <div class="feature-icon">📋</div>
+                            <div class="feature-content">
+                                <h3>تتبع التقدم</h3>
+                                <p>راقب رحلة عافيتك والوصول إلى ملفاتك الطبية</p>
+                            </div>
+                        </div>
+        ''';
+
     return '''
     <!DOCTYPE html>
     <html dir="rtl" lang="ar">
@@ -2420,12 +2533,12 @@ class EmailService {
             <div class="container">
                 <div class="header">
                     <div class="welcome-icon">🎉</div>
-                    <h1>مرحباً بك في استرحت!</h1>
+                    <h1>!مرحباً بك في استرحت</h1>
                 </div>
                 <div class="content">
-                    <div class="greeting">مرحباً $sanitizedUserName!</div>
+                    <div class="greeting">!مرحباً $sanitizedUserName</div>
                     <p class="welcome-message">
-                        يسعدنا انضمامك إلى مجتمعنا! تم إنشاء حسابك بنجاح.
+                        .يسعدنا انضمامك إلى مجتمعنا! تم إنشاء حسابك بنجاح
                     </p>
                     
                     <div style="text-align: center;">
@@ -2441,29 +2554,7 @@ class EmailService {
                     <div class="features-section">
                         <div class="features-title">ما يمكنك فعله</div>
                         
-                        <div class="feature-item">
-                            <div class="feature-icon">📅</div>
-                            <div class="feature-content">
-                                <h3>حجز المواعيد</h3>
-                                <p>حدد الجلسات مع أطباء نفسيين ذوي خبرة في الوقت المناسب لك</p>
-                            </div>
-                        </div>
-                        
-                        <div class="feature-item">
-                            <div class="feature-icon">💬</div>
-                            <div class="feature-content">
-                                <h3>المراسلة الآمنة</h3>
-                                <p>تواصل مع طبيبك النفسي بأمان وخصوصية</p>
-                            </div>
-                        </div>
-                        
-                        <div class="feature-item">
-                            <div class="feature-icon">📋</div>
-                            <div class="feature-content">
-                                <h3>تتبع التقدم</h3>
-                                <p>راقب رحلتك نحو العافية واطلع على سجلاتك الطبية</p>
-                            </div>
-                        </div>
+                        $featuresHtml
                     </div>
 
                     <div class="cta-section">
@@ -2471,9 +2562,9 @@ class EmailService {
                     </div>
 
                     <div class="closing">
-                        <p>نحن هنا لدعمك في كل خطوة.</p>
-                        <p>إذا كان لديك أي أسئلة، فريق الدعم لدينا جاهز لمساعدتك.</p>
-                        <div class="signature">فريق استرحت 💙</div>
+                        <p>.نحن هنا لدعمك في كل خطوة</p>
+                        <p>.إذا كان لديك أي أسئلة، فريق الدعم لدينا جاهز لمساعدتك</p>
+                        <div class="signature">💙 فريق استرحت</div>
                     </div>
                 </div>
                 <div class="footer">
