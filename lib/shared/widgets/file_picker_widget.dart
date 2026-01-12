@@ -100,6 +100,18 @@ class _SessionFilesWidgetState extends State<SessionFilesWidget> {
       );
     } else if (file.isImage) {
       Get.dialog(Dialog(child: Image.network(url)));
+    } else if (file.isWordDocument) {
+      // Open Word documents in external viewer/browser
+      final uri = Uri.parse(url);
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        Get.snackbar(
+          'error'.tr,
+          'cannot_open_file'.tr,
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      }
     } else {
       Get.snackbar(
         'info'.tr,

@@ -93,6 +93,12 @@ class SessionFileModel {
         'webp',
       ].contains(fileExtension.toLowerCase());
 
+  bool get isWordDocument =>
+      mimeType == 'application/msword' ||
+      mimeType ==
+          'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
+      ['doc', 'docx'].contains(fileExtension.toLowerCase());
+
   String get uploaderLabel =>
       uploaderType == 'doctor' ? 'Therapist' : 'Patient';
 }

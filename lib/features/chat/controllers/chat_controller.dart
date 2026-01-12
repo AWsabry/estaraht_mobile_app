@@ -1,7 +1,11 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:logger/logger.dart';
 import 'package:videocalling/core/config/app_imports.dart';
+import 'package:videocalling/shared/services/file_upload_service.dart';
 
 class ChatController extends GetxController {
+  static const int _maxFileSizeBytes = 10 * 1024 * 1024; // 10 MB
+
   String userName = Get.arguments['userName'];
   String uid = Get.arguments['uid'];
   bool isUser = Get.arguments['isUser'];
@@ -169,18 +173,48 @@ class ChatController extends GetxController {
   }
 
   uploadDataWithBackgroundService(String taskId, result) async {
+    // Add response validation
+    if (result.response == null || result.response.isEmpty) {
+      loggerNoStack.e('Upload failed: Empty response');
+      deleteTask(taskId);
+      customDialog(s1: 'error'.tr, s2: 'upload_failed'.tr);
+      return;
+    }
+
+    Map<String, dynamic> responseData;
+    try {
+      responseData = jsonDecode(result.response);
+    } catch (e) {
+      loggerNoStack.e('Upload failed: Invalid JSON response - $e');
+      deleteTask(taskId);
+      customDialog(s1: 'error'.tr, s2: 'upload_failed'.tr);
+      return;
+    }
+
+    if (responseData['data'] == null) {
+      loggerNoStack.e('Upload failed: No data in response');
+      deleteTask(taskId);
+      customDialog(s1: 'error'.tr, s2: 'upload_failed'.tr);
+      return;
+    }
+
+    final uploadedPath = responseData['data'].toString();
+    final pathLower = uploadedPath.toLowerCase();
+    final isImage =
+        pathLower.contains('.jpg') ||
+        pathLower.contains('.jpeg') ||
+        pathLower.contains('.png');
+
     CollectionReference collectionReference = FirebaseFirestore.instance
         .collection("Chats")
         .doc(channelId.value)
         .collection("All Chat");
 
     await collectionReference.doc(taskId.toString()).update({
-      "msg": jsonDecode(result.response)['data'],
+      "msg": uploadedPath,
       "time": DateTime.now().toString(),
       "uid": myUid.value,
-      "type": jsonDecode(result.response)['data'].toString().contains(".jpg")
-          ? 1
-          : 2,
+      "type": isImage ? 1 : 2,
     });
 
     if (isFirstMessage.value) {
@@ -191,10 +225,8 @@ class ChatController extends GetxController {
 
       await dbRef.set({
         "time": DateTime.now().toString(),
-        "last_msg": jsonDecode(result.response)['data'],
-        "type": jsonDecode(result.response)['data'].toString().contains(".jpg")
-            ? 1
-            : 2,
+        "last_msg": uploadedPath,
+        "type": isImage ? 1 : 2,
         "messageCount": 0,
         "status": 1,
         "channelId": channelId.value,
@@ -211,11 +243,8 @@ class ChatController extends GetxController {
 
         dbRef2.set({
           "time": DateTime.now().toString(),
-          "last_msg": jsonDecode(result.response)['data'],
-          "type":
-              jsonDecode(result.response)['data'].toString().contains(".jpg")
-              ? 1
-              : 2,
+          "last_msg": uploadedPath,
+          "type": isImage ? 1 : 2,
           "messageCount": event.snapshot.value == null
               ? 1
               : snapshot['messageCount'] + 1,
@@ -232,10 +261,8 @@ class ChatController extends GetxController {
           .child(uid);
       await dbRef.update({
         "time": DateTime.now().toString(),
-        "last_msg": jsonDecode(result.response)['data'],
-        "type": jsonDecode(result.response)['data'].toString().contains(".jpg")
-            ? 1
-            : 2,
+        "last_msg": uploadedPath,
+        "type": isImage ? 1 : 2,
         "messageCount": 0,
         "channelId": channelId.value,
       });
@@ -250,11 +277,8 @@ class ChatController extends GetxController {
 
         dbRef2.update({
           "time": DateTime.now().toString(),
-          "last_msg": jsonDecode(result.response)['data'],
-          "type":
-              jsonDecode(result.response)['data'].toString().contains(".jpg")
-              ? 1
-              : 2,
+          "last_msg": uploadedPath,
+          "type": isImage ? 1 : 2,
           "messageCount": snapshot.isEmpty ? 1 : snapshot['messageCount'] + 1,
           "channelId": channelId.value,
         });
@@ -564,40 +588,147 @@ class ChatController extends GetxController {
   }
 
   void pickFile() async {
-    final file = await picker.pickMedia();
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png'],
+      allowMultiple: false,
+    );
 
-    if (file == null) return;
-    if (file.path.contains(".jpg") ||
-        file.path.contains(".png") ||
-        file.path.contains(".jpeg")) {
-      uploadFileToServer(
-        File(file.path).readAsBytesSync(),
-        "jpg",
-        "file",
-        file.path,
+    if (result == null || result.files.isEmpty) return;
+
+    final file = result.files.first;
+    if (file.path == null) {
+      customDialog(s1: 'error'.tr, s2: 'no_file_selected'.tr);
+      return;
+    }
+
+    // Add file size validation
+    if (file.size > _maxFileSizeBytes) {
+      customDialog(s1: 'error'.tr, s2: 'file_too_large'.tr);
+      return;
+    }
+
+    // Upload to Supabase
+    await _uploadFileToSupabase(file);
+  }
+
+  /// Upload file to Supabase storage and send as chat message
+  Future<void> _uploadFileToSupabase(PlatformFile file) async {
+    isFileUploading.value = true;
+
+    try {
+      final fileUrl = await fileUploadService.uploadChatFile(
+        file: file,
+        channelId: channelId.value,
       );
-    } else if (file.path.contains(".MP4") || file.path.contains(".mp4")) {
-      if (Platform.isIOS) {
-        if (file.path.contains(".MP4")) {
-          uploadFileToServer(
-            File(file.path).readAsBytesSync(),
-            "mp4",
-            "file",
-            file.path,
-          );
-        }
-      } else {
-        if (file.path.contains(".mp4")) {
-          uploadFileToServer1(
-            File(file.path).readAsBytesSync(),
-            "mp4",
-            "file",
-            file.path,
-          );
-        }
+
+      if (fileUrl == null) {
+        customDialog(s1: 'error'.tr, s2: 'upload_failed'.tr);
+        return;
       }
+
+      // Determine message type based on extension
+      final extension = file.extension?.toLowerCase() ?? '';
+      final isImage = ['jpg', 'jpeg', 'png'].contains(extension);
+      final messageType = isImage ? 1 : 2; // 1 = image, 2 = file/document
+
+      // Send file message to Firestore
+      await _sendFileMessage(fileUrl, messageType);
+    } catch (e) {
+      loggerNoStack.e('Error uploading file to Supabase: $e');
+      customDialog(s1: 'error'.tr, s2: 'upload_failed'.tr);
+    } finally {
+      isFileUploading.value = false;
+    }
+  }
+
+  /// Send file message to Firestore chat
+  Future<void> _sendFileMessage(String fileUrl, int messageType) async {
+    await FirebaseFirestore.instance
+        .collection("Chats")
+        .doc(channelId.value)
+        .collection("All Chat")
+        .add({
+          "msg": fileUrl,
+          "time": DateTime.now().toString(),
+          "uid": myUid.value,
+          "type": messageType,
+        });
+
+    // Update chat list for both users
+    if (isFirstMessage.value) {
+      DatabaseReference dbRef = FirebaseDatabase.instance
+          .ref(myUid.value)
+          .child("chatlist")
+          .child(uid);
+
+      await dbRef.set({
+        "time": DateTime.now().toString(),
+        "last_msg": fileUrl,
+        "type": messageType,
+        "messageCount": 0,
+        "status": 1,
+        "channelId": channelId.value,
+        "userName": userName,
+      });
+
+      DatabaseReference dbRef2 = FirebaseDatabase.instance
+          .ref(uid)
+          .child("chatlist")
+          .child(myUid.value);
+
+      await dbRef2.once().then((DatabaseEvent event) {
+        final snapshot = event.snapshot.value as Map?;
+
+        dbRef2.set({
+          "time": DateTime.now().toString(),
+          "last_msg": fileUrl,
+          "type": messageType,
+          "messageCount": snapshot == null
+              ? 1
+              : (snapshot['messageCount'] ?? 0) + 1,
+          "status": 0,
+          "channelId": channelId.value,
+          "userName": senderName.value,
+        });
+      });
+      isFirstMessage.value = false;
     } else {
-      customDialog(s1: 'error'.tr, s2: 'file_type_not_supported'.tr);
+      DatabaseReference dbRef = FirebaseDatabase.instance
+          .ref(myUid.value)
+          .child("chatlist")
+          .child(uid);
+      await dbRef.update({
+        "time": DateTime.now().toString(),
+        "last_msg": fileUrl,
+        "type": messageType,
+        "messageCount": 0,
+        "channelId": channelId.value,
+      });
+
+      DatabaseReference dbRef2 = FirebaseDatabase.instance
+          .ref(uid)
+          .child("chatlist")
+          .child(myUid.value);
+
+      await dbRef2.once().then((DatabaseEvent event) {
+        final snapshot = event.snapshot.value as Map?;
+
+        dbRef2.update({
+          "time": DateTime.now().toString(),
+          "last_msg": fileUrl,
+          "type": messageType,
+          "messageCount": snapshot == null || snapshot.isEmpty
+              ? 1
+              : (snapshot['messageCount'] ?? 0) + 1,
+          "channelId": channelId.value,
+        });
+      });
+    }
+
+    // Send notification
+    for (int i = 0; i < tokensList.length; i++) {
+      sendNotification(senderName.value, "Shared a file", tokensList[i]);
     }
   }
 
@@ -648,9 +779,9 @@ class ChatController extends GetxController {
             if (task == null) return;
           },
           onError: (ex, stacktrace) {
-            final exp = ex;
-            final task = _tasks[exp.tag];
-            if (task == null) return;
+            loggerNoStack.e('Upload error: $ex');
+            deleteTask(taskId);
+            customDialog(s1: 'error'.tr, s2: 'upload_failed'.tr);
           },
         );
       });
@@ -711,9 +842,9 @@ class ChatController extends GetxController {
           if (task == null) return;
         },
         onError: (ex, stacktrace) {
-          final exp = ex;
-          final task = _tasks[exp.tag];
-          if (task == null) return;
+          loggerNoStack.e('Upload error: $ex');
+          deleteTask(taskId);
+          customDialog(s1: 'error'.tr, s2: 'upload_failed'.tr);
         },
       );
     });
@@ -729,65 +860,181 @@ class ChatController extends GetxController {
     );
   }
 
-  Widget typeToWidget({String? message, int? type, String? uid}) {
-    if (type == 2 || type == 1) {
-      String ext = message!.split('.').last;
-      return (ext == 'mp4' || ext == 'MP4')
-          ? InkWell(
-              onTap: () async {
-                await Get.toNamed(
-                  Routes.videoPlayerScreen,
-                  arguments: {'type': 2, 'url': Apis.chatMediaPath + message},
-                );
-                Get.delete<MyVideoPlayerController>();
-              },
-              child: Stack(
-                alignment: Alignment.center,
+  /// Build a widget for PDF/Word document display in chat
+  Widget _buildDocumentWidget(String fileUrl, String ext) {
+    // Get file name from URL
+    final fileName = Uri.parse(fileUrl).pathSegments.last;
+    final displayName = fileName.length > 25
+        ? '${fileName.substring(0, 22)}...'
+        : fileName;
+
+    // Choose icon based on file type
+    IconData fileIcon;
+    Color iconColor;
+    if (ext == 'pdf') {
+      fileIcon = Icons.picture_as_pdf;
+      iconColor = Colors.red;
+    } else {
+      fileIcon = Icons.description;
+      iconColor = Colors.blue;
+    }
+
+    return InkWell(
+      onTap: () async {
+        if (ext == 'pdf') {
+          // Open PDF in the PDF viewer
+          await Get.toNamed(
+            '/session-pdf-viewer',
+            arguments: {'url': fileUrl, 'title': displayName},
+          );
+        } else {
+          // Open Word docs in external viewer/browser
+          final uri = Uri.parse(fileUrl);
+          if (await canLaunchUrl(uri)) {
+            await launchUrl(uri, mode: LaunchMode.externalApplication);
+          } else {
+            Get.snackbar(
+              'error'.tr,
+              'cannot_open_file'.tr,
+              snackPosition: SnackPosition.BOTTOM,
+            );
+          }
+        }
+      },
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: AppColors.LIGHT_GREY_SCREEN_BACKGROUND,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: AppColors.GREY.withOpacity(0.3)),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: iconColor.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(fileIcon, color: iconColor, size: 30),
+            ),
+            const SizedBox(width: 10),
+            Flexible(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(10),
-                    child: MyVideoThumbNail(url: Apis.chatMediaPath + message),
-                  ),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: AppColors.BLACK.withOpacity(0.7),
-                      borderRadius: BorderRadius.circular(5),
+                  Text(
+                    displayName,
+                    style: TextStyle(
+                      fontFamily: AppFontStyleTextStrings.semiBold,
+                      fontSize: 14,
+                      color: AppColors.BLACK,
                     ),
-                    child: const Icon(Icons.play_arrow, color: AppColors.WHITE),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    ext.toUpperCase(),
+                    style: TextStyle(
+                      fontFamily: AppFontStyleTextStrings.regular,
+                      fontSize: 12,
+                      color: AppColors.GREY,
+                    ),
                   ),
                 ],
               ),
-            )
-          : InkWell(
-              onTap: () async {
-                await Get.toNamed(
-                  Routes.photoViewerScreen,
-                  arguments: {
-                    'url': Apis.chatMediaPath + message,
-                    'id': "0",
-                    'isDeleteShown': false,
-                    'reportName': userName,
-                  },
-                );
-                Get.delete<MyPhotoViewerController>();
-              },
-              child: Hero(
-                tag: Apis.chatMediaPath + message,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
-                  child: CachedNetworkImage(
-                    imageUrl: Apis.chatMediaPath + message,
-                    placeholder: (context, url) =>
-                        const Center(child: CircularProgressIndicator()),
-                    errorWidget: (context, url, error) =>
-                        const Icon(Icons.error),
-                    height: 200,
-                    width: 200,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              ),
+            ),
+            const SizedBox(width: 8),
+            Icon(
+              Icons.download_rounded,
+              color: AppColors.themeColor3,
+              size: 24,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget typeToWidget({String? message, int? type, String? uid}) {
+    if (type == 2 || type == 1) {
+      // Parse URL to get the path without query parameters
+      String pathWithoutQuery = message!;
+      if (message.contains('?')) {
+        pathWithoutQuery = message.split('?').first;
+      }
+      String ext = pathWithoutQuery.split('.').last.toLowerCase();
+      // Check if message is a full URL (Supabase) or relative path (old system)
+      final bool isFullUrl = message.startsWith('http');
+      final String fileUrl = isFullUrl ? message : Apis.chatMediaPath + message;
+
+      // Handle PDF and Word documents
+      if (ext == 'pdf' || ext == 'doc' || ext == 'docx') {
+        return _buildDocumentWidget(fileUrl, ext);
+      }
+      // Handle videos
+      else if (ext == 'mp4') {
+        return InkWell(
+          onTap: () async {
+            await Get.toNamed(
+              Routes.videoPlayerScreen,
+              arguments: {'type': 2, 'url': fileUrl},
             );
+            Get.delete<MyVideoPlayerController>();
+          },
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: MyVideoThumbNail(url: fileUrl),
+              ),
+              Container(
+                decoration: BoxDecoration(
+                  color: AppColors.BLACK.withOpacity(0.7),
+                  borderRadius: BorderRadius.circular(5),
+                ),
+                child: const Icon(Icons.play_arrow, color: AppColors.WHITE),
+              ),
+            ],
+          ),
+        );
+      }
+      // Handle images
+      else {
+        return InkWell(
+          onTap: () async {
+            await Get.toNamed(
+              Routes.photoViewerScreen,
+              arguments: {
+                'url': fileUrl,
+                'id': "0",
+                'isDeleteShown': false,
+                'reportName': userName,
+              },
+            );
+            Get.delete<MyPhotoViewerController>();
+          },
+          child: Hero(
+            tag: fileUrl,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: CachedNetworkImage(
+                imageUrl: fileUrl,
+                placeholder: (context, url) =>
+                    const Center(child: CircularProgressIndicator()),
+                errorWidget: (context, url, error) => const Icon(Icons.error),
+                height: 200,
+                width: 200,
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+        );
+      }
     } else if (type == 3 && uid == myUid.value) {
       return InkWell(
         onLongPress: () {},
