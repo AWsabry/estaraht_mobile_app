@@ -1252,7 +1252,7 @@ class ChatController extends GetxController {
                     },
                     elevation: 0.0,
                     child: Transform.rotate(
-                      angle: 5.5,
+                      angle: 0,
                       child: const Icon(Icons.send),
                     ),
                   )
