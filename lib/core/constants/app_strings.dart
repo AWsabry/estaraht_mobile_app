@@ -1505,7 +1505,7 @@ class Words extends Translations {
       'doc_on_leave_description':
           'لا يمكن حجز موعد في @date حيث أن الطبيب في إجازة',
       'make_an_appointment': 'حدد موعدًا',
-      'process_payment': 'ادفع الأن',
+      'process_payment': 'ادفع الآن',
       'consultation_fee': 'رسوم الاستشارة',
       'select_a_payment_method': 'اختر وسيلة الدفع',
       'method1_title': 'الدفع عند الوصول',

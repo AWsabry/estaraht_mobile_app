@@ -643,60 +643,29 @@ class UAllAppointments extends GetView<UAllAppointmentsController> {
             ),
           ),
         ),
-          if (isCompleted) ...[
-            const SizedBox(height: 6),
-            SizedBox(
-              height: 32,
-              width: double.infinity,
-              child: FutureBuilder<bool>(
-                future: reviewService.hasReviewedBooking(appointment.id ?? ''),
-                builder: (context, snapshot) {
-                  final hasReviewed = snapshot.data ?? false;
-                  if (hasReviewed) {
-                    return ElevatedButton(
-                      onPressed: null,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.grey[300],
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(40),
-                        ),
-                      ),
-                      child: Text(
-                        'rated'.tr,
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                          fontSize: 11,
-                          fontFamily: Get.locale?.languageCode == 'ar'
-                              ? 'NotoKufiArabic'
-                              : 'Roboto',
-                        ),
-                      ),
-                    );
-                  }
+        if (isCompleted) ...[
+          const SizedBox(height: 6),
+          SizedBox(
+            height: 32,
+            width: double.infinity,
+            child: FutureBuilder<bool>(
+              future: reviewService.hasReviewedBooking(appointment.id ?? ''),
+              builder: (context, snapshot) {
+                final hasReviewed = snapshot.data ?? false;
+                if (hasReviewed) {
                   return ElevatedButton(
-                    onPressed: () {
-                      showRatingDialog(
-                        bookingId: appointment.id ?? '',
-                        doctorId: appointment.doctorId ?? '',
-                        patientId: userId,
-                        doctorName: appointment.name ?? 'Doctor',
-                        onSubmitted: () {
-                          appointmentsController.refreshAppointments();
-                        },
-                      );
-                    },
+                    onPressed: null,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF34C759),
+                      backgroundColor: Colors.grey[300],
                       elevation: 0,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(40),
                       ),
                     ),
                     child: Text(
-                      'rate'.tr,
+                      'rated'.tr,
                       style: TextStyle(
-                        color: Colors.white,
+                        color: Colors.grey[600],
                         fontSize: 11,
                         fontFamily: Get.locale?.languageCode == 'ar'
                             ? 'NotoKufiArabic'
@@ -704,11 +673,41 @@ class UAllAppointments extends GetView<UAllAppointmentsController> {
                       ),
                     ),
                   );
-                },
-              ),
+                }
+                return ElevatedButton(
+                  onPressed: () {
+                    showRatingDialog(
+                      bookingId: appointment.id ?? '',
+                      doctorId: appointment.doctorId ?? '',
+                      patientId: userId,
+                      doctorName: appointment.name ?? 'Doctor',
+                      onSubmitted: () {
+                        appointmentsController.refreshAppointments();
+                      },
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF34C759),
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(40),
+                    ),
+                  ),
+                  child: Text(
+                    'rate'.tr,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 11,
+                      fontFamily: Get.locale?.languageCode == 'ar'
+                          ? 'NotoKufiArabic'
+                          : 'Roboto',
+                    ),
+                  ),
+                );
+              },
             ),
-          ],
-        
+          ),
+        ],
       ],
     );
   }
@@ -842,7 +841,11 @@ class UAllAppointments extends GetView<UAllAppointmentsController> {
           style: ElevatedButton.styleFrom(
             padding: const EdgeInsets.symmetric(vertical: 10),
             textStyle: TextStyle(
-              fontSize: Get.locale?.languageCode == 'fr' ? 12 : 14,
+              fontSize: Get.locale?.languageCode == 'ar'
+                  ? 10.sp
+                  : Get.locale?.languageCode == 'fr'
+                  ? 12.sp
+                  : 14.sp,
               fontFamily: Get.locale?.languageCode == 'ar'
                   ? 'NotoKufiArabic'
                   : 'Roboto',
