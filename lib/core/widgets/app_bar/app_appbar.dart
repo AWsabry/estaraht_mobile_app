@@ -521,8 +521,9 @@ class CustomHomeScreenAppBar extends StatelessWidget {
                                 'book_new_appointment'.tr,
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
-                                  fontSize: fontSize,
+                                  fontSize: 8.sp,
                                   color: Colors.white,
+                                  fontWeight: FontWeight.w700,
                                 ),
                               ),
                             ),
@@ -546,8 +547,9 @@ class CustomHomeScreenAppBar extends StatelessWidget {
                                 'find_therapist'.tr,
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
-                                  fontSize: fontSize,
+                                  fontSize: 8.sp,
                                   fontWeight: FontWeight.w700,
+
                                   color: Colors.grey[900],
                                 ),
                               ),
