@@ -13,6 +13,7 @@ class CallManager {
   // Initialize Agora engine
   Future<void> init() async {
     try {
+      final appId = dotenv.get('AGORA_APP_ID', fallback: '');
       _engine = createAgoraRtcEngine();
       await _engine!.initialize(
         const RtcEngineContext(
