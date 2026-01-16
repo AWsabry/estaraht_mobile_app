@@ -51,7 +51,8 @@ class Words extends Translations {
       'please_complete_your_profile_to_continue':
           'Please complete your profile to continue',
       'appointment_status_7': 'Cancelled',
-      'password_reset_email_sent': "An email has beed sent to you",
+      'password_reset_email_sent':
+          "An email has been sent to you, please check your inbox. If you don't see it, please check your spam folder.",
       'saving': 'Saving...',
       'please_wait': 'Please wait...',
       'availabilities_saved_successfully': 'Availabilities saved successfully',
@@ -888,7 +889,7 @@ class Words extends Translations {
           'يرجى إكمال ملفك الشخصي للمتابعة',
       'appointment_status_7': 'إلغاء',
       'password_reset_email_sent':
-          'تم إرسال رسالة إلكترونية لإعادة تعيين كلمة المرور إليك',
+          'تم إرسال رسالة إلكترونية لإعادة تعيين كلمة المرور إليك، يرجى التحقق من صندوق الوارد. إذا لم تجدها في الوارد، يرجى التحقق من مجلد الرسائل المزعجة.',
       'saving': 'جارٍ الحفظ...',
       'please_wait': 'يرجى الانتظار...',
       'availabilities_saved_successfully': 'تم حفظ التوافر بنجاح',
@@ -1863,7 +1864,7 @@ class Words extends Translations {
       'enter_email_error': 'Veuillez entrer une adresse e-mail valide.',
       'enter_email_hint': 'Entrez votre adresse e-mail',
       'password_reset_email_sent':
-          'Email de réinitialisation de mot de passe envoyé',
+          'Un email de réinitialisation de mot de passe vous a été envoyé, veuillez vérifier votre boîte de réception. Si vous ne le trouvez pas, veuillez vérifier votre dossier spam.',
       'change_password_str': 'Changer le mot de passe',
       'old_pwd': 'Ancien mot de passe',
       'new_pwd': 'Nouveau mot de passe',

@@ -21,9 +21,9 @@ class UAllAppointments extends GetView<UAllAppointmentsController> {
             () => Visibility(
               visible: appointmentsController.selectedTab.value == 0,
               child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16.0,
-                  vertical: 10.0,
+                padding: EdgeInsets.symmetric(
+                  horizontal: 16.0.w,
+                  vertical: 10.0.h,
                 ),
                 child: _buildFilterChips(),
               ),
@@ -32,8 +32,8 @@ class UAllAppointments extends GetView<UAllAppointmentsController> {
           Obx(
             () => Visibility(
               visible: appointmentsController.selectedTab.value == 1,
-              child: const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 46.0, vertical: 10.0),
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 46.0.w, vertical: 10.0.h),
               ),
             ),
           ),
@@ -91,38 +91,38 @@ class UAllAppointments extends GetView<UAllAppointmentsController> {
   Widget _buildErrorState() {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(24.0),
+        padding: EdgeInsets.all(24.0.w),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.error_outline, color: Colors.red[400], size: 60),
-            const SizedBox(height: 16),
+            Icon(Icons.error_outline, color: Colors.red[400], size: 60.sp),
+            SizedBox(height: 16.h),
             Text(
               'error_loading_appointments'.tr,
 
-              style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 18),
+              style: TextStyle(fontWeight: FontWeight.w500, fontSize: 18.sp),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8.h),
             Text(
               'please_check_connection'.tr,
-              style: TextStyle(color: Colors.grey[600], fontSize: 14),
+              style: TextStyle(color: Colors.grey[600], fontSize: 14.sp),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24.h),
             ElevatedButton.icon(
               onPressed: () => appointmentsController.refreshAppointments(),
-              icon: const Icon(Icons.refresh),
+              icon: Icon(Icons.refresh, size: 20.sp),
               label: Text('try_again'.tr),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF3366FF),
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 12,
+                padding: EdgeInsets.symmetric(
+                  horizontal: 24.w,
+                  vertical: 12.h,
                 ),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(8.r),
                 ),
               ),
             ),
@@ -149,17 +149,17 @@ class UAllAppointments extends GetView<UAllAppointmentsController> {
     return Obx(
       () => Row(
         children: [
-          const SizedBox(width: 12),
+          SizedBox(width: 12.w),
           Expanded(
             child: GestureDetector(
               onTap: () => appointmentsController.selectedTab.value = 0,
               child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 12),
+                padding: EdgeInsets.symmetric(vertical: 12.h),
                 decoration: BoxDecoration(
                   color: appointmentsController.selectedTab.value == 0
                       ? const Color(0xFF3366FF)
                       : Colors.transparent,
-                  borderRadius: BorderRadius.circular(30),
+                  borderRadius: BorderRadius.circular(30.r),
                   border: Border.all(
                     color: appointmentsController.selectedTab.value == 0
                         ? const Color(0xFF3366FF)
@@ -174,24 +174,24 @@ class UAllAppointments extends GetView<UAllAppointmentsController> {
                           ? Colors.white
                           : Colors.black,
                       fontWeight: FontWeight.w500,
-                      fontSize: 12,
+                      fontSize: 12.sp,
                     ),
                   ),
                 ),
               ),
             ),
           ),
-          const SizedBox(width: 8),
+          SizedBox(width: 8.w),
           Expanded(
             child: GestureDetector(
               onTap: () => appointmentsController.selectedTab.value = 1,
               child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 12),
+                padding: EdgeInsets.symmetric(vertical: 12.h),
                 decoration: BoxDecoration(
                   color: appointmentsController.selectedTab.value == 1
                       ? const Color(0xFF3366FF)
                       : Colors.transparent,
-                  borderRadius: BorderRadius.circular(30),
+                  borderRadius: BorderRadius.circular(30.r),
                   border: Border.all(
                     color: appointmentsController.selectedTab.value == 0
                         ? Colors.grey.shade500
@@ -206,14 +206,14 @@ class UAllAppointments extends GetView<UAllAppointmentsController> {
                           ? Colors.white
                           : Colors.black,
                       fontWeight: FontWeight.w500,
-                      fontSize: 12,
+                      fontSize: 12.sp,
                     ),
                   ),
                 ),
               ),
             ),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: 12.w),
         ],
       ),
     );
@@ -267,10 +267,10 @@ class UAllAppointments extends GetView<UAllAppointmentsController> {
     return GestureDetector(
       onTap: () => appointmentsController.selectedFilter.value = index,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
         decoration: BoxDecoration(
           color: backgroundColor,
-          borderRadius: BorderRadius.circular(30),
+          borderRadius: BorderRadius.circular(30.r),
           border: Border.all(
             color: isSelected ? backgroundColor : Colors.grey.shade500,
           ),
@@ -280,7 +280,7 @@ class UAllAppointments extends GetView<UAllAppointmentsController> {
           style: TextStyle(
             color: textColor,
             fontWeight: FontWeight.w500,
-            fontSize: 11,
+            fontSize: 11.sp,
           ),
         ),
       ),
@@ -291,12 +291,12 @@ class UAllAppointments extends GetView<UAllAppointmentsController> {
   Widget _buildAppointmentList() {
     return GridView.builder(
       controller: appointmentsController.scrollController,
-      padding: const EdgeInsets.all(16),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+      padding: EdgeInsets.all(16.w),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2, // Two items per row
         childAspectRatio: 0.78, // Controls card height
-        crossAxisSpacing: 12, // Horizontal spacing between cards
-        mainAxisSpacing: 12, // Vertical spacing between cards
+        crossAxisSpacing: 12.w, // Horizontal spacing between cards
+        mainAxisSpacing: 12.h, // Vertical spacing between cards
       ),
       itemCount: appointmentsController.nextUrl.value == "null"
           ? appointmentsController.filteredList.length
@@ -304,12 +304,12 @@ class UAllAppointments extends GetView<UAllAppointmentsController> {
       itemBuilder: (context, index) {
         if (index == appointmentsController.filteredList.length &&
             appointmentsController.isLoadingMore.value) {
-          return const Padding(
-            padding: EdgeInsets.all(20.0),
+          return Padding(
+            padding: EdgeInsets.all(20.0.w),
             child: Center(
               child: CircularProgressIndicator(
                 valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF3366FF)),
-                strokeWidth: 2,
+                strokeWidth: 2.w,
               ),
             ),
           );
@@ -333,19 +333,19 @@ class UAllAppointments extends GetView<UAllAppointmentsController> {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(10.r),
         border: Border.all(color: Colors.grey.shade200),
         boxShadow: [
           BoxShadow(
             color: Colors.grey.withOpacity(0.05),
             spreadRadius: 0,
-            blurRadius: 4,
-            offset: const Offset(0, 1),
+            blurRadius: 4.r,
+            offset: Offset(0, 1.h),
           ),
         ],
       ),
       child: Padding(
-        padding: const EdgeInsets.all(12),
+        padding: EdgeInsets.all(12.w),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -359,7 +359,7 @@ class UAllAppointments extends GetView<UAllAppointmentsController> {
               children: [
                 // Doctor image
                 ClipRRect(
-                  borderRadius: BorderRadius.circular(25),
+                  borderRadius: BorderRadius.circular(25.r),
                   child: CachedNetworkImage(
                     imageUrl: appointment.image ?? '',
                     height: 50.h,
@@ -374,13 +374,13 @@ class UAllAppointments extends GetView<UAllAppointmentsController> {
                     errorWidget: (context, url, err) => Image.asset(
                       AppImages.getDoctorPlaceholder(appointment.gender),
                       height: 50.h,
-                      width: 50,
+                      width: 50.w,
                       fit: BoxFit.cover,
                     ),
                   ),
                 ),
-                SizedBox(width: isArabic ? 0 : 12),
-                SizedBox(width: isArabic ? 12 : 0),
+                SizedBox(width: isArabic ? 0 : 12.w),
+                SizedBox(width: isArabic ? 12.w : 0),
 
                 // Doctor name and specialty
                 Expanded(
@@ -398,14 +398,14 @@ class UAllAppointments extends GetView<UAllAppointmentsController> {
                                   (appointment.name ?? 'Unknown').substring(1),
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
-                          fontSize: 15,
+                          fontSize: 15.sp,
                           height: isArabic ? 1.2 : 1.0,
                         ),
                         textAlign: isArabic ? TextAlign.right : TextAlign.left,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(height: 4),
+                      SizedBox(height: 4.h),
                       Text(
                         appointment.departmentName ?? 'Specialist',
                         style: TextStyle(
@@ -417,13 +417,13 @@ class UAllAppointments extends GetView<UAllAppointmentsController> {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(height: 2),
+                      SizedBox(height: 2.h),
                       Text(
                         appointmentsController.statusMap[appointment.status] ??
                             appointment.status ??
                             'Unknown',
                         style: TextStyle(
-                          fontSize: 11,
+                          fontSize: 11.sp,
                           height: 1.2,
                           color: Colors.grey[500],
                         ),
@@ -463,22 +463,22 @@ class UAllAppointments extends GetView<UAllAppointmentsController> {
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  SizedBox(width: isArabic ? 0 : 6),
-                  SizedBox(width: isArabic ? 6 : 0),
+                  SizedBox(width: isArabic ? 0 : 6.w),
+                  SizedBox(width: isArabic ? 6.w : 0),
                   // Time icon
                   SvgPicture.asset(
                     AppImages.appointmentTime,
                     color: AppColors.color1,
                     fit: BoxFit.cover,
-                    height: 20,
-                    width: 20,
+                    height: 20.h,
+                    width: 20.w,
                   ),
                 ],
               ),
             ),
 
             // Spacer to push buttons to bottom
-            const SizedBox(height: 10),
+            SizedBox(height: 10.h),
 
             // Action buttons based on session type
             isPastSession
@@ -568,10 +568,10 @@ class UAllAppointments extends GetView<UAllAppointmentsController> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        const SizedBox(height: 16),
+        SizedBox(height: 16.h),
         SizedBox(
-          height: 32,
-          width: 120,
+          height: 32.h,
+          width: 120.w,
           child: ElevatedButton(
             onPressed: isRejected
                 ? null
@@ -587,7 +587,7 @@ class UAllAppointments extends GetView<UAllAppointmentsController> {
                   : const Color(0xFF3366FF),
               elevation: 0,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(60),
+                borderRadius: BorderRadius.circular(60.r),
               ),
               disabledBackgroundColor: Colors.grey[400],
             ),
@@ -595,7 +595,7 @@ class UAllAppointments extends GetView<UAllAppointmentsController> {
               buttonText,
               style: TextStyle(
                 color: Colors.white,
-                fontSize: 11,
+                fontSize: 11.sp,
                 fontFamily: Get.locale?.languageCode == 'ar'
                     ? 'NotoKufiArabic'
                     : 'Roboto',
@@ -615,7 +615,7 @@ class UAllAppointments extends GetView<UAllAppointmentsController> {
     return Column(
       children: [
         SizedBox(
-          height: 32,
+          height: 32.h,
           width: double.infinity,
           child: ElevatedButton(
             onPressed: () {
@@ -628,14 +628,14 @@ class UAllAppointments extends GetView<UAllAppointmentsController> {
               backgroundColor: const Color(0xFF3366FF),
               elevation: 0,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(40),
+                borderRadius: BorderRadius.circular(40.r),
               ),
             ),
             child: Text(
               'view_details'.tr,
               style: TextStyle(
                 color: Colors.white,
-                fontSize: 11,
+                fontSize: 11.sp,
                 fontFamily: Get.locale?.languageCode == 'ar'
                     ? 'NotoKufiArabic'
                     : 'Roboto',
@@ -644,9 +644,9 @@ class UAllAppointments extends GetView<UAllAppointmentsController> {
           ),
         ),
         if (isCompleted) ...[
-          const SizedBox(height: 6),
+          SizedBox(height: 6.h),
           SizedBox(
-            height: 32,
+            height: 32.h,
             width: double.infinity,
             child: FutureBuilder<bool>(
               future: reviewService.hasReviewedBooking(appointment.id ?? ''),
@@ -659,14 +659,14 @@ class UAllAppointments extends GetView<UAllAppointmentsController> {
                       backgroundColor: Colors.grey[300],
                       elevation: 0,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(40),
+                        borderRadius: BorderRadius.circular(40.r),
                       ),
                     ),
                     child: Text(
                       'rated'.tr,
                       style: TextStyle(
                         color: Colors.grey[600],
-                        fontSize: 11,
+                        fontSize: 11.sp,
                         fontFamily: Get.locale?.languageCode == 'ar'
                             ? 'NotoKufiArabic'
                             : 'Roboto',
@@ -690,14 +690,14 @@ class UAllAppointments extends GetView<UAllAppointmentsController> {
                     backgroundColor: const Color(0xFF34C759),
                     elevation: 0,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(40),
+                      borderRadius: BorderRadius.circular(40.r),
                     ),
                   ),
                   child: Text(
                     'rate'.tr,
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: 11,
+                      fontSize: 11.sp,
                       fontFamily: Get.locale?.languageCode == 'ar'
                           ? 'NotoKufiArabic'
                           : 'Roboto',
@@ -784,35 +784,35 @@ class UAllAppointments extends GetView<UAllAppointmentsController> {
 
   Widget _buildEmptyState(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: EdgeInsets.symmetric(horizontal: 20.w),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const SizedBox(height: 50),
+          SizedBox(height: 50.h),
           Text(
             appointmentsController.selectedTab.value == 0
                 ? 'no_sessions_yet'.tr
                 : 'no_upcoming_sessions'.tr,
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.bold),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8.h),
           Text(
             'ready_to_start'.tr,
-            style: TextStyle(fontSize: 16, color: Colors.grey[700]),
+            style: TextStyle(fontSize: 16.sp, color: Colors.grey[700]),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 50),
-          SvgPicture.asset(AppImages.appointmentEmpty, height: 150),
-          const SizedBox(height: 80),
+          SizedBox(height: 50.h),
+          SvgPicture.asset(AppImages.appointmentEmpty, height: 150.h),
+          SizedBox(height: 80.h),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const SizedBox(width: 28),
+              SizedBox(width: 28.w),
               _buildActionButton('book_a_new_appointment'.tr, true, () {
                 Get.toNamed(Routes.indemandDoctorScreen);
               }),
-              const SizedBox(width: 8),
+              SizedBox(width: 8.w),
               _buildActionButton('find_a_therapist'.tr, false, () async {
                 await Get.toNamed(
                   Routes.dSearchScreen,
@@ -824,7 +824,7 @@ class UAllAppointments extends GetView<UAllAppointmentsController> {
                 );
                 Get.delete<DoctorSearchController>();
               }),
-              const SizedBox(width: 28),
+              SizedBox(width: 28.w),
             ],
           ),
         ],
@@ -835,11 +835,11 @@ class UAllAppointments extends GetView<UAllAppointmentsController> {
   Widget _buildActionButton(String text, bool isPrimary, VoidCallback onTap) {
     return Expanded(
       child: SizedBox(
-        height: 40,
+        height: 40.h,
         child: ElevatedButton(
           onPressed: onTap,
           style: ElevatedButton.styleFrom(
-            padding: const EdgeInsets.symmetric(vertical: 10),
+            padding: EdgeInsets.symmetric(vertical: 10.h),
             textStyle: TextStyle(
               fontSize: Get.locale?.languageCode == 'ar'
                   ? 10.sp
@@ -855,7 +855,7 @@ class UAllAppointments extends GetView<UAllAppointmentsController> {
             side: isPrimary ? null : BorderSide(color: Colors.grey.shade600),
             elevation: 0,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(8.r),
             ),
           ),
           child: Text(text),

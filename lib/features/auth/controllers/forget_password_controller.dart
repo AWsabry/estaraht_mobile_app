@@ -19,17 +19,9 @@ class ForgetPasswordController extends GetxController {
     customDialog1(s1: 'loading'.tr, s2: 'please_wait_while_processing'.tr);
 
     try {
-      // Use Firebase password reset functionality
-      if (kDebugMode) {
-        await EmailService.sendWelcomeEmail(
-          to: emailTextField.text,
-          userName: 'Abbassi',
-          userType: '2',
-        );
-      }
-      final success = await firebaseHelper.sendPasswordResetEmail(
-        emailTextField.text,
-      );
+      // Use custom password reset email template
+      final success = await firebaseHelper
+          .sendPasswordResetEmailWithCustomTemplate(emailTextField.text);
 
       Get.back(); // Close loading dialog
 

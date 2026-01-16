@@ -1,6 +1,6 @@
-import 'package:videocalling/core/config/app_imports.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:videocalling/core/config/app_imports.dart';
 
 class MyApp extends GetView<SplashController> {
   const MyApp({super.key});
@@ -23,12 +23,13 @@ class MyApp extends GetView<SplashController> {
           splitScreenMode: true,
           builder: (context, child) {
             return GetMaterialApp(
+              useInheritedMediaQuery: true,
+              locale: Locale(languageController.currentLanguage.value),
               initialRoute: AppPages.initialRoute,
               getPages: AppPages.routes,
               defaultTransition: Transition.cupertino,
               transitionDuration: const Duration(milliseconds: 500),
               translations: Words(),
-              locale: Locale(languageController.currentLanguage.value),
               fallbackLocale: const Locale('en', 'US'),
               debugShowCheckedModeBanner: false,
               theme: ThemeData(
