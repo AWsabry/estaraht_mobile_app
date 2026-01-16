@@ -1,3 +1,4 @@
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:videocalling/core/config/app_imports.dart';
 
 class DoctorAllAppointments extends GetView<DAllAppointmentsController> {
@@ -31,11 +32,15 @@ class DoctorAllAppointments extends GetView<DAllAppointmentsController> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.search_off_rounded, size: 100, color: Colors.grey[400]),
-            const SizedBox(height: 20),
+            Icon(
+              Icons.search_off_rounded,
+              size: 100.sp,
+              color: Colors.grey[400],
+            ),
+            SizedBox(height: 20.h),
             Text(
               'unable_to_load_data'.tr,
-              style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+              style: TextStyle(fontSize: 16.sp, color: Colors.grey[600]),
             ),
           ],
         ),
@@ -46,15 +51,17 @@ class DoctorAllAppointments extends GetView<DAllAppointmentsController> {
   Widget _buildLoadingState() {
     return Container(
       color: Colors.white,
-      child: const Center(
+      child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF3366FF)),
-              strokeWidth: 3,
+              valueColor: const AlwaysStoppedAnimation<Color>(
+                Color(0xFF3366FF),
+              ),
+              strokeWidth: 3.w,
             ),
-            SizedBox(height: 20),
+            SizedBox(height: 20.h),
           ],
         ),
       ),
@@ -72,7 +79,7 @@ class DoctorAllAppointments extends GetView<DAllAppointmentsController> {
           controller: appointmentsController.scrollController,
           physics: const BouncingScrollPhysics(),
           child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            padding: EdgeInsets.symmetric(vertical: 8.0.h),
             child: Column(
               children: [
                 ListView.builder(
@@ -91,7 +98,7 @@ class DoctorAllAppointments extends GetView<DAllAppointmentsController> {
                     }
                   },
                 ),
-                const SizedBox(height: 24),
+                SizedBox(height: 24.h),
               ],
             ),
           ),
@@ -102,12 +109,14 @@ class DoctorAllAppointments extends GetView<DAllAppointmentsController> {
             left: 0,
             right: 0,
             child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 16),
+              padding: EdgeInsets.symmetric(vertical: 16.h),
               color: Colors.white,
-              child: const Center(
+              child: Center(
                 child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF3366FF)),
-                  strokeWidth: 3,
+                  valueColor: const AlwaysStoppedAnimation<Color>(
+                    Color(0xFF3366FF),
+                  ),
+                  strokeWidth: 3.w,
                 ),
               ),
             ),
@@ -120,15 +129,15 @@ class DoctorAllAppointments extends GetView<DAllAppointmentsController> {
     final appointment = appointmentsController.list[index];
 
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      margin: EdgeInsets.symmetric(horizontal: 10.w, vertical: 8.h),
 
       elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: Colors.grey[200]!, width: 1),
+        borderRadius: BorderRadius.circular(16.r),
+        side: BorderSide(color: Colors.grey[200]!, width: 1.w),
       ),
       child: InkWell(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(16.r),
         onTap: () async {
           final result = await Get.toNamed(
             Routes.dAppointmentDetailScreen,
@@ -142,11 +151,11 @@ class DoctorAllAppointments extends GetView<DAllAppointmentsController> {
           }
         },
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.all(16.w),
           child: Row(
             children: [
               _buildPatientAvatar(appointment),
-              const SizedBox(width: 16),
+              SizedBox(width: 16.w),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -158,7 +167,7 @@ class DoctorAllAppointments extends GetView<DAllAppointmentsController> {
                           child: Text(
                             appointment.name ?? "",
                             style: TextStyle(
-                              fontSize: 16,
+                              fontSize: 16.sp,
                               fontWeight: FontWeight.w600,
                               fontFamily: AppFontStyleTextStrings.medium,
                             ),
@@ -169,31 +178,31 @@ class DoctorAllAppointments extends GetView<DAllAppointmentsController> {
                         _buildStatusBadge(appointment, context),
                       ],
                     ),
-                    const SizedBox(height: 4),
+                    SizedBox(height: 4.h),
 
-                    const SizedBox(height: 16),
+                    SizedBox(height: 16.h),
                     Row(
                       children: [
                         Flexible(
                           child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 6,
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 12.w,
+                              vertical: 6.h,
                             ),
                             decoration: BoxDecoration(
                               color: const Color(0xFF3366FF).withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(8),
+                              borderRadius: BorderRadius.circular(8.r),
                             ),
                             child: IntrinsicHeight(
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  const Icon(
+                                  Icon(
                                     Icons.calendar_today_outlined,
-                                    size: 14,
-                                    color: Color(0xFF3366FF),
+                                    size: 14.sp,
+                                    color: const Color(0xFF3366FF),
                                   ),
-                                  const SizedBox(width: 6),
+                                  SizedBox(width: 6.w),
                                   Flexible(
                                     child: Text(
                                       appointment.bookingDate != null
@@ -205,10 +214,10 @@ class DoctorAllAppointments extends GetView<DAllAppointmentsController> {
                                                   DateTime.now(),
                                             )
                                           : '',
-                                      style: const TextStyle(
-                                        fontSize: 12,
+                                      style: TextStyle(
+                                        fontSize: 12.sp,
                                         fontWeight: FontWeight.w500,
-                                        color: Color(0xFF3366FF),
+                                        color: const Color(0xFF3366FF),
                                       ),
                                       maxLines: null,
                                     ),
@@ -218,34 +227,34 @@ class DoctorAllAppointments extends GetView<DAllAppointmentsController> {
                             ),
                           ),
                         ),
-                        const SizedBox(width: 8),
+                        SizedBox(width: 8.w),
                         Flexible(
                           child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 6,
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 12.w,
+                              vertical: 6.h,
                             ),
                             decoration: BoxDecoration(
                               color: const Color(0xFF3366FF).withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(8),
+                              borderRadius: BorderRadius.circular(8.r),
                             ),
                             child: IntrinsicHeight(
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  const Icon(
+                                  Icon(
                                     Icons.access_time,
-                                    size: 14,
-                                    color: Color(0xFF3366FF),
+                                    size: 14.sp,
+                                    color: const Color(0xFF3366FF),
                                   ),
-                                  const SizedBox(width: 6),
+                                  SizedBox(width: 6.w),
                                   Flexible(
                                     child: Text(
                                       appointment.bookingTime ?? "",
-                                      style: const TextStyle(
-                                        fontSize: 12,
+                                      style: TextStyle(
+                                        fontSize: 12.sp,
                                         fontWeight: FontWeight.w500,
-                                        color: Color(0xFF3366FF),
+                                        color: const Color(0xFF3366FF),
                                       ),
                                       maxLines: null,
                                     ),
@@ -269,24 +278,24 @@ class DoctorAllAppointments extends GetView<DAllAppointmentsController> {
 
   Widget _buildPatientAvatar(dynamic appointment) {
     return ClipRRect(
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(16.r),
       child: CachedNetworkImage(
         imageUrl: appointment.image ?? "",
-        height: 80,
-        width: 80,
+        height: 80.h,
+        width: 80.w,
         fit: BoxFit.cover,
         placeholder: (context, url) => Container(
           color: Colors.grey[200],
-          child: const Center(
+          child: Center(
             child: CircularProgressIndicator(
-              strokeWidth: 2,
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
+              strokeWidth: 2.w,
+              valueColor: const AlwaysStoppedAnimation<Color>(Colors.grey),
             ),
           ),
         ),
         errorWidget: (context, url, err) => Container(
           color: Colors.grey[200],
-          child: Icon(Icons.person, size: 40, color: Colors.grey[400]),
+          child: Icon(Icons.person, size: 40.sp, color: Colors.grey[400]),
         ),
       ),
     );
@@ -331,20 +340,20 @@ class DoctorAllAppointments extends GetView<DAllAppointmentsController> {
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
       decoration: BoxDecoration(
         color: statusColor.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(16.r),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.circle, size: 8, color: statusColor),
-          const SizedBox(width: 6),
+          Icon(Icons.circle, size: 8.sp, color: statusColor),
+          SizedBox(width: 6.w),
           Text(
             statusText,
             style: TextStyle(
-              fontSize: 12,
+              fontSize: 12.sp,
               fontWeight: FontWeight.w500,
               color: statusColor,
             ),
@@ -359,25 +368,29 @@ class DoctorAllAppointments extends GetView<DAllAppointmentsController> {
       // margin: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(16.r),
       ),
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.event_busy_outlined, size: 120, color: Colors.grey[400]),
-            const SizedBox(height: 24),
+            Icon(
+              Icons.event_busy_outlined,
+              size: 120.sp,
+              color: Colors.grey[400],
+            ),
+            SizedBox(height: 24.h),
             Text(
               'doctor_not_appointment_text'.tr,
               style: TextStyle(
-                fontSize: 14,
+                fontSize: 14.sp,
                 color: Colors.grey[700],
                 fontFamily: AppFontStyleTextStrings.regular,
               ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16.h),
           ],
         ),
       ),
@@ -386,14 +399,14 @@ class DoctorAllAppointments extends GetView<DAllAppointmentsController> {
 
   Widget _buildLoadMoreIndicator() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16.w),
       alignment: Alignment.center,
-      child: const SizedBox(
-        height: 30,
-        width: 30,
+      child: SizedBox(
+        height: 30.h,
+        width: 30.w,
         child: CircularProgressIndicator(
-          strokeWidth: 3,
-          valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF3366FF)),
+          strokeWidth: 3.w,
+          valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF3366FF)),
         ),
       ),
     );

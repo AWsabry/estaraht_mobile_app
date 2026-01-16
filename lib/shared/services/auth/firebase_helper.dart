@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:videocalling/core/config/app_imports.dart';
 import 'package:videocalling/core/utils/logger.dart';
 
 /// Global Firebase helper class to access Firebase Auth throughout the app
@@ -267,6 +268,24 @@ class FirebaseHelper {
       loggerNoStack.i('Sending password reset email to: $email');
       await auth.sendPasswordResetEmail(email: email);
       loggerNoStack.i('✅ Password reset email sent successfully');
+      return true;
+    } catch (e, stackTrace) {
+      loggerNoStack.e('❌ Error sending password reset email: $e');
+      loggerNoStack.e('Stack trace: $stackTrace');
+      return false;
+    }
+  }
+
+  /// Send password reset email with custom template
+  /// Uses Firebase default template only
+  Future<bool> sendPasswordResetEmailWithCustomTemplate(String email) async {
+    try {
+      loggerNoStack.i('Sending password reset email using Firebase template to: $email');
+      
+      // Use Firebase default password reset email template
+      await auth.sendPasswordResetEmail(email: email);
+      
+      loggerNoStack.i('✅ Firebase password reset email sent successfully');
       return true;
     } catch (e, stackTrace) {
       loggerNoStack.e('❌ Error sending password reset email: $e');

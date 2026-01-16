@@ -1,4 +1,5 @@
 import 'package:clarity_flutter/clarity_flutter.dart';
+import 'package:device_preview/device_preview.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:videocalling/core/config/app_imports.dart';
@@ -86,7 +87,14 @@ void main() async {
       ]);
 
       // Run your app
-      runApp(ClarityWidget(app: const MyApp(), clarityConfig: config));
+      runApp(
+        kDebugMode
+            ? ClarityWidget(
+              app: const MyApp(),
+              clarityConfig: config,
+            )
+            : ClarityWidget(app: const MyApp(), clarityConfig: config),
+      );
     },
     (error, stackTrace) {
       // Catch any errors not caught by Flutter framework
