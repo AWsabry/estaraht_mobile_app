@@ -44,6 +44,9 @@ dependencies:
   cached_network_image: 3.3.0
   photo_view:
 
+  # for emoji picker in chat
+  emoji_picker_flutter: ^3.1.0
+
   # for google map
   geocode: ^1.0.1
   google_maps_flutter: ^2.4.0

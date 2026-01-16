@@ -1,5 +1,6 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:logger/logger.dart';
+import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:videocalling/core/config/app_imports.dart';
 import 'package:videocalling/shared/services/file_upload_service.dart';
 
@@ -1080,6 +1081,11 @@ class ChatController extends GetxController {
               fontFamily: GetUtils.isURL(message)
                   ? AppFontStyleTextStrings.light
                   : AppFontStyleTextStrings.regular,
+              fontFamilyFallback: const [
+                'NotoColorEmoji',
+                'Apple Color Emoji',
+                'Segoe UI Emoji',
+              ],
               decoration: GetUtils.isURL(message)
                   ? TextDecoration.underline
                   : TextDecoration.none,
@@ -1103,6 +1109,11 @@ class ChatController extends GetxController {
             fontFamily: GetUtils.isURL(message)
                 ? AppFontStyleTextStrings.light
                 : AppFontStyleTextStrings.regular,
+            fontFamilyFallback: const [
+              'NotoColorEmoji',
+              'Apple Color Emoji',
+              'Segoe UI Emoji',
+            ],
             decoration: GetUtils.isURL(message)
                 ? TextDecoration.underline
                 : TextDecoration.none,
@@ -1163,105 +1174,196 @@ class ChatController extends GetxController {
     } else if (data == 1) {
       return Padding(
         padding: const EdgeInsets.all(8.0),
-        child: Row(
+        child: Column(
           children: [
-            Expanded(
-              child: textField = TextField(
-                minLines: 1,
-                maxLines: 6,
-                focusNode: myFocusNode,
-                controller: textEditingController,
-                decoration: InputDecoration(
-                  contentPadding: const EdgeInsets.fromLTRB(15, 10, 15, 10),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30),
-                    borderSide: BorderSide(color: AppColors.transparentColor),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30),
-                    borderSide: BorderSide(color: AppColors.transparentColor),
-                  ),
-                  disabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30),
-                    borderSide: BorderSide(color: AppColors.transparentColor),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30),
-                    borderSide: BorderSide(color: AppColors.transparentColor),
-                  ),
-                  hintText: "send_text_field_hint".tr,
-                  filled: true,
-                  hintStyle: TextStyle(
-                    fontFamily: AppFontStyleTextStrings.regular,
-                    fontSize: 15,
-                  ),
-                  prefixIcon: IconButton(
-                    icon: isEmojiKeyboard.value
-                        ? const Icon(Icons.keyboard)
-                        : const Icon(Icons.emoji_emotions_outlined),
-                    onPressed: () async {
-                      if (isEmojiKeyboard.value) {
-                        myFocusNode.requestFocus();
-                        isEmojiKeyboard.value = !isEmojiKeyboard.value;
-                      } else {
-                        myFocusNode.unfocus();
-                        await SystemChannels.textInput.invokeMethod(
-                          'TextInput.hide',
-                        );
-                        await Future.delayed(const Duration(milliseconds: 100));
+            Row(
+              children: [
+                Expanded(
+                  child: textField = TextField(
+                    minLines: 1,
+                    maxLines: 6,
+                    focusNode: myFocusNode,
+                    controller: textEditingController,
+                    decoration: InputDecoration(
+                      contentPadding: const EdgeInsets.fromLTRB(15, 10, 15, 10),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30),
+                        borderSide: BorderSide(
+                          color: AppColors.transparentColor,
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30),
+                        borderSide: BorderSide(
+                          color: AppColors.transparentColor,
+                        ),
+                      ),
+                      disabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30),
+                        borderSide: BorderSide(
+                          color: AppColors.transparentColor,
+                        ),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30),
+                        borderSide: BorderSide(
+                          color: AppColors.transparentColor,
+                        ),
+                      ),
+                      hintText: "send_text_field_hint".tr,
+                      filled: true,
+                      hintStyle: TextStyle(
+                        fontFamily: AppFontStyleTextStrings.regular,
+                        fontSize: 15,
+                      ),
+                      prefixIcon: IconButton(
+                        icon: isEmojiKeyboard.value
+                            ? const Icon(Icons.keyboard)
+                            : const Icon(Icons.emoji_emotions_outlined),
+                        onPressed: () async {
+                          if (isEmojiKeyboard.value) {
+                            myFocusNode.requestFocus();
+                            isEmojiKeyboard.value = !isEmojiKeyboard.value;
+                          } else {
+                            myFocusNode.unfocus();
+                            await SystemChannels.textInput.invokeMethod(
+                              'TextInput.hide',
+                            );
+                            await Future.delayed(
+                              const Duration(milliseconds: 100),
+                            );
 
-                        isEmojiKeyboard.value = !isEmojiKeyboard.value;
+                            isEmojiKeyboard.value = !isEmojiKeyboard.value;
+                          }
+                        },
+                      ),
+                      suffixIcon: IconButton(
+                        icon: const Icon(Icons.file_present),
+                        onPressed: () {
+                          uploadMediaOptionDialog(
+                            onTap: () {
+                              getImage();
+                              Get.back();
+                            },
+                            onTap1: () {
+                              pickFile();
+                              Get.back();
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                    onChanged: (val) {
+                      markAsTyping();
+                      message.value = val;
+                      if (val.isEmpty) {
+                        showButton.value = false;
+                      } else {
+                        showButton.value = true;
                       }
                     },
                   ),
-                  suffixIcon: IconButton(
-                    icon: const Icon(Icons.file_present),
-                    onPressed: () {
-                      uploadMediaOptionDialog(
-                        onTap: () {
-                          getImage();
-                          Get.back();
+                ),
+                const SizedBox(width: 8),
+                showButton.value
+                    ? FloatingActionButton(
+                        shape: const CircleBorder(
+                          side: BorderSide(width: 5, color: AppColors.WHITE),
+                        ),
+                        onPressed: () {
+                          sendMessage(0);
                         },
-                        onTap1: () {
-                          pickFile();
-                          Get.back();
-                        },
-                      );
-                    },
+                        elevation: 0.0,
+                        child: Transform.rotate(
+                          angle: 0,
+                          child: const Icon(Icons.send),
+                        ),
+                      )
+                    : Container(),
+              ],
+            ),
+            Offstage(
+              offstage: !isEmojiKeyboard.value,
+              child: SizedBox(
+                height: 280,
+                child: EmojiPicker(
+                  onEmojiSelected: (category, emoji) {
+                    _onEmojiSelected(emoji);
+                  },
+                  onBackspacePressed: _onBackspacePressed,
+                  config: Config(
+                    height: 280,
+                    emojiViewConfig: EmojiViewConfig(
+                      backgroundColor: AppColors.WHITE,
+                      columns: 7,
+                      emojiSizeMax: 28,
+                      verticalSpacing: 0,
+                      horizontalSpacing: 0,
+                      gridPadding: EdgeInsets.zero,
+                      recentsLimit: 28,
+                      replaceEmojiOnLimitExceed: false,
+                      noRecents: Text(
+                        'No recent emojis',
+                        style: TextStyle(fontSize: 16, color: AppColors.grey),
+                        textAlign: TextAlign.center,
+                      ),
+                      loadingIndicator: const Center(
+                        child: CircularProgressIndicator(),
+                      ),
+                    ),
+                    skinToneConfig: const SkinToneConfig(),
+                    categoryViewConfig: CategoryViewConfig(
+                      backgroundColor: AppColors.WHITE,
+                      indicatorColor: AppColors.themeColor3,
+                      iconColorSelected: AppColors.themeColor3,
+                      iconColor: AppColors.grey,
+                    ),
+                    bottomActionBarConfig: const BottomActionBarConfig(
+                      enabled: false,
+                    ),
                   ),
                 ),
-                onChanged: (val) {
-                  markAsTyping();
-                  message.value = val;
-                  if (val.isEmpty) {
-                    showButton.value = false;
-                  } else {
-                    showButton.value = true;
-                  }
-                },
               ),
             ),
-            const SizedBox(width: 8),
-            showButton.value
-                ? FloatingActionButton(
-                    shape: const CircleBorder(
-                      side: BorderSide(width: 5, color: AppColors.WHITE),
-                    ),
-                    onPressed: () {
-                      sendMessage(0);
-                    },
-                    elevation: 0.0,
-                    child: Transform.rotate(
-                      angle: 0,
-                      child: const Icon(Icons.send),
-                    ),
-                  )
-                : Container(),
           ],
         ),
       );
     } else {
       return Container();
+    }
+  }
+
+  // Handle emoji selection
+  void _onEmojiSelected(Emoji emoji) {
+    final text = textEditingController.text;
+    final selection = textEditingController.selection;
+    final newText = text.replaceRange(
+      selection.start,
+      selection.end,
+      emoji.emoji,
+    );
+    textEditingController.value = TextEditingValue(
+      text: newText,
+      selection: TextSelection.collapsed(
+        offset: selection.start + emoji.emoji.length,
+      ),
+    );
+    message.value = newText;
+    showButton.value = newText.isNotEmpty;
+  }
+
+  // Handle backspace in emoji picker
+  void _onBackspacePressed() {
+    final text = textEditingController.text;
+    final selection = textEditingController.selection;
+    if (selection.start > 0) {
+      final newText = text.replaceRange(selection.start - 1, selection.end, '');
+      textEditingController.value = TextEditingValue(
+        text: newText,
+        selection: TextSelection.collapsed(offset: selection.start - 1),
+      );
+      message.value = newText;
+      showButton.value = newText.isNotEmpty;
     }
   }
 
