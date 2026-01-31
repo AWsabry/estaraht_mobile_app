@@ -33,10 +33,7 @@ class CustomButton extends StatelessWidget {
               gradient: LinearGradient(
                 colors: backgroundColor != null
                     ? [backgroundColor!, backgroundColor!]
-                    : [
-                        AppColors.color1,
-                        AppColors.color1.withOpacity(0.9),
-                      ],
+                    : [AppColors.color1, AppColors.color1.withOpacity(0.9)],
                 begin: Alignment.centerLeft,
                 end: Alignment.centerRight,
               ),
@@ -53,22 +50,20 @@ class CustomButton extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 if (icon != null) ...[
-                  Icon(
-                    icon,
-                    color: Colors.white,
-                    size: 20,
-                  ),
+                  Icon(icon, color: Colors.white, size: 20),
                   const SizedBox(width: 10),
                 ],
                 Text(
                   btnText,
-                  style: textStyle ??
-                      TextStyle(
+                  style:
+                      textStyle ??
+                      CustomTextStyle(
                         fontFamily: AppFontStyleTextStrings.medium,
                         color: AppColors.WHITE,
                         fontSize: 16,
                         letterSpacing: 0.5,
                         fontWeight: FontWeight.w600,
+                        height: 1.3,
                       ),
                 ),
               ],
@@ -110,10 +105,7 @@ class CustomButtonExpanded extends StatelessWidget {
             gradient: LinearGradient(
               colors: backgroundColor != null
                   ? [backgroundColor!, backgroundColor!]
-                  : [
-                      AppColors.color1,
-                      AppColors.color1,
-                    ],
+                  : [AppColors.color1, AppColors.color1],
               begin: Alignment.centerLeft,
               end: Alignment.centerRight,
             ),
@@ -130,16 +122,12 @@ class CustomButtonExpanded extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               if (icon != null) ...[
-                Icon(
-                  icon,
-                  color: Colors.white,
-                  size: 18,
-                ),
+                Icon(icon, color: Colors.white, size: 18),
                 const SizedBox(width: 8),
               ],
               Text(
                 btnText,
-                style: TextStyle(
+                style: CustomTextStyle(
                   color: AppColors.WHITE,
                   fontSize: 15,
                   fontFamily: AppFontStyleTextStrings.medium,

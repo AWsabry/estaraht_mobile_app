@@ -1,4 +1,5 @@
 import 'package:videocalling/core/config/app_imports.dart';
+import 'package:videocalling/shared/services/others/timezone_service.dart';
 import 'package:videocalling/features/doctor/availability/models/holiday_model.dart';
 
 class HolidayManageController extends GetxController {
@@ -20,7 +21,7 @@ class HolidayManageController extends GetxController {
     kLastDay = DateTime(kToday.year, kToday.month + 3, kToday.day);
   }
 
-  final kToday = DateTime.now();
+  final kToday = TimezoneService.getCurrentMauritaniaTime();
   var kFirstDay;
   var kLastDay;
   List<dynamic> Function(DateTime)? events;

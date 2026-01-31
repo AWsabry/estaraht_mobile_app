@@ -31,19 +31,19 @@ class _ConsultationsPageState extends State<ConsultationsPage>
       appBar: AppBar(
         elevation: 0,
         automaticallyImplyLeading: false,
-        flexibleSpace: CustomAppBar(
-          title: 'consultations'.tr,
-        ),
+        flexibleSpace: CustomAppBar(title: 'consultations'.tr),
         bottom: TabBar(
           controller: _tabController,
           indicatorColor: AppColors.color1,
           labelColor: AppColors.color1,
           unselectedLabelColor: AppColors.greyShade6,
-          labelStyle: TextStyle(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+
+          labelStyle: CustomTextStyle(
             fontFamily: AppFontStyleTextStrings.bold,
             fontSize: 16,
           ),
-          unselectedLabelStyle: TextStyle(
+          unselectedLabelStyle: CustomTextStyle(
             fontFamily: AppFontStyleTextStrings.regular,
             fontSize: 16,
           ),
@@ -55,10 +55,7 @@ class _ConsultationsPageState extends State<ConsultationsPage>
       ),
       body: TabBarView(
         controller: _tabController,
-        children: [
-          UAllAppointments(),
-          PChatListScreen(),
-        ],
+        children: [UAllAppointments(), PChatListScreen()],
       ),
     );
   }

@@ -41,11 +41,12 @@ class _DoctorConsultationsPageState extends State<DoctorConsultationsPage>
           indicatorColor: AppColors.color1,
           labelColor: AppColors.color1,
           unselectedLabelColor: AppColors.greyShade6,
-          labelStyle: TextStyle(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          labelStyle: CustomTextStyle(
             fontFamily: AppFontStyleTextStrings.bold,
             fontSize: 16,
           ),
-          unselectedLabelStyle: TextStyle(
+          unselectedLabelStyle: CustomTextStyle(
             fontFamily: AppFontStyleTextStrings.regular,
             fontSize: 16,
           ),

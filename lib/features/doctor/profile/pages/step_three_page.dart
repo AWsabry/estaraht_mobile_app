@@ -17,7 +17,7 @@ class StepThreeDetailsScreen extends GetView<StepThreeDetailsController> {
           elevation: 0,
           title: Text(
             'profile_str'.tr,
-            style: const TextStyle(
+            style: const CustomTextStyle(
               color: Colors.black,
               fontSize: 16,
               fontWeight: FontWeight.w600,
@@ -56,7 +56,7 @@ class StepThreeDetailsScreen extends GetView<StepThreeDetailsController> {
           const SizedBox(height: 20),
           Text(
             'unable_to_load_data'.tr,
-            style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+            style: CustomTextStyle(fontSize: 16, color: Colors.grey[600]),
           ),
           const SizedBox(height: 16),
           ElevatedButton(
@@ -73,7 +73,7 @@ class StepThreeDetailsScreen extends GetView<StepThreeDetailsController> {
             ),
             child: Text(
               'retry'.tr,
-              style: const TextStyle(color: Colors.white),
+              style: const CustomTextStyle(color: Colors.white),
             ),
           ),
         ],
@@ -95,7 +95,7 @@ class StepThreeDetailsScreen extends GetView<StepThreeDetailsController> {
             const SizedBox(height: 16),
             Text(
               'loading_schedule'.tr,
-              style: TextStyle(color: Colors.grey[700], fontSize: 14),
+              style: CustomTextStyle(color: Colors.grey[700], fontSize: 14),
             ),
           ],
         ),
@@ -118,7 +118,7 @@ class StepThreeDetailsScreen extends GetView<StepThreeDetailsController> {
                     children: [
                       Text(
                         'add_time_slot'.tr,
-                        style: TextStyle(
+                        style: CustomTextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
                           color: Colors.grey[800],
@@ -199,7 +199,7 @@ class StepThreeDetailsScreen extends GetView<StepThreeDetailsController> {
                   ),
                   child: Text(
                     'save'.tr,
-                    style: const TextStyle(
+                    style: const CustomTextStyle(
                       color: Colors.white,
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
@@ -326,7 +326,7 @@ class StepThreeDetailsScreen extends GetView<StepThreeDetailsController> {
                         Expanded(
                           child: Text(
                             threeDetailsController.errorMessage[i],
-                            style: const TextStyle(
+                            style: const CustomTextStyle(
                               fontSize: 12,
                               color: Colors.red,
                             ),
@@ -364,7 +364,7 @@ class StepThreeDetailsScreen extends GetView<StepThreeDetailsController> {
       children: [
         Text(
           label,
-          style: TextStyle(
+          style: CustomTextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w500,
             color: Colors.grey[700],
@@ -494,18 +494,21 @@ class StepThreeDetailsScreen extends GetView<StepThreeDetailsController> {
           child: DropdownButton(
             hint: Text(
               "select_interval".tr,
-              style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+              style: CustomTextStyle(fontSize: 14, color: Colors.grey[600]),
             ),
             items: threeDetailsController.slotsInterval.map((x) {
               return DropdownMenuItem(
                 value: x,
                 child: Text(
                   x,
-                  style: const TextStyle(fontSize: 14, color: Colors.black87),
+                  style: const CustomTextStyle(
+                    fontSize: 14,
+                    color: Colors.black87,
+                  ),
                 ),
               );
             }).toList(),
-            style: const TextStyle(fontSize: 14, color: Colors.black87),
+            style: const CustomTextStyle(fontSize: 14, color: Colors.black87),
             onChanged: (val) {
               threeDetailsController.selectedvValue[index] = val.toString();
               threeDetailsController.slotsDistribution(
@@ -533,7 +536,7 @@ class StepThreeDetailsScreen extends GetView<StepThreeDetailsController> {
               alignment: Alignment.center,
               child: Text(
                 'no_slots_generated'.tr,
-                style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                style: CustomTextStyle(color: Colors.grey[600], fontSize: 14),
               ),
             )
           : GridView.count(
@@ -560,7 +563,7 @@ class StepThreeDetailsScreen extends GetView<StepThreeDetailsController> {
                                 .slotsList[index][slotIndex]
                                 .slot ??
                             "",
-                        style: TextStyle(
+                        style: CustomTextStyle(
                           fontSize: 13,
                           color: Colors.grey[800],
                           fontWeight: FontWeight.w500,

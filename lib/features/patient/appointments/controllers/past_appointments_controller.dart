@@ -1,4 +1,5 @@
 import 'package:videocalling/core/config/app_imports.dart';
+import 'package:videocalling/shared/services/others/timezone_service.dart';
 
 class UserPastAppointmentsController extends GetxController {
   RxList<AppointmentData> list = <AppointmentData>[].obs;
@@ -37,7 +38,7 @@ class UserPastAppointmentsController extends GetxController {
 
       // Fetch past appointments from Supabase bookings table
       // Past appointments are those with booking_date before today
-      final now = DateTime.now();
+      final now = TimezoneService.getCurrentMauritaniaTime();
       final today = DateTime(now.year, now.month, now.day);
       final todayString = today.toIso8601String().split('T')[0]; // YYYY-MM-DD
 

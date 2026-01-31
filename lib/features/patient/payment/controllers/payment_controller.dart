@@ -9,15 +9,18 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:videocalling/core/config/app_variables.dart';
 import 'package:videocalling/core/config/routes.dart';
 import 'package:videocalling/core/utils/logger.dart';
+import 'package:videocalling/core/widgets/text_style/custom_text_style.dart';
 import 'package:videocalling/features/patient/appointments/controllers/make_appointment_controller.dart';
 import 'package:videocalling/features/patient/payment_plans/controllers/payment_plans_controller.dart';
 import 'package:videocalling/features/patient/payment_plans/models/payment_plan_model.dart';
 import 'package:videocalling/shared/services/auth/firebase_helper.dart';
+import 'package:videocalling/shared/services/others/timezone_service.dart';
 import 'package:videocalling/shared/services/payment/bankily_service.dart';
+import 'package:videocalling/shared/services/payment/digital_wallet_service.dart';
 
 class PaymentController extends GetxController {
   // Payment method selection
-  final selectedPaymentMethod = 1.obs; // Default to Visa/MasterCard
+  final selectedPaymentMethod = 1.obs; // Default to Card (Stripe)
 
   // Coupon controller
   final couponController = TextEditingController();
@@ -57,6 +60,10 @@ class PaymentController extends GetxController {
 
   // Loading state
   final isProcessingPayment = false.obs;
+
+  // Tab management
+  final selectedTab = 0.obs; // 0 = Payment Details, 1 = Payment Methods
+  final showPaymentBreakdown = false.obs;
 
   // Stripe payment intent (for card payments)
   Map<String, dynamic>? stripePaymentIntent;
@@ -305,7 +312,7 @@ class PaymentController extends GetxController {
   void _generateOperationId() {
     try {
       // Generate unique operation ID with current date prefix for Bankily
-      final now = DateTime.now();
+      final now = TimezoneService.getCurrentMauritaniaTime();
       final datePrefix =
           '${now.year}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}';
 
@@ -322,12 +329,12 @@ class PaymentController extends GetxController {
       loggerNoStack.e('Error generating operation ID: $e');
       loggerNoStack.e('Stack trace: $stackTrace');
       // Fallback to basic operation ID with date
-      final datePrefix = DateTime.now()
+      final datePrefix = TimezoneService.getCurrentMauritaniaTime()
           .toIso8601String()
           .substring(0, 10)
           .replaceAll('-', '');
       operationId.value =
-          '${datePrefix}_OPR_${DateTime.now().millisecondsSinceEpoch}_FALLBACK';
+          '${datePrefix}_OPR_${TimezoneService.getCurrentMauritaniaTime().millisecondsSinceEpoch}_FALLBACK';
       loggerNoStack.w('Using fallback operation ID: ${operationId.value}');
     }
   }
@@ -354,6 +361,18 @@ class PaymentController extends GetxController {
       loggerNoStack.e('Error selecting payment method: $e');
       loggerNoStack.e('Stack trace: $stackTrace');
     }
+  }
+
+  void switchTab(int index) {
+    selectedTab.value = index;
+    loggerNoStack.i('Switched to tab: $index');
+  }
+
+  void togglePaymentBreakdown() {
+    showPaymentBreakdown.value = !showPaymentBreakdown.value;
+    loggerNoStack.i(
+      'Payment breakdown visibility: ${showPaymentBreakdown.value}',
+    );
   }
 
   void applyCoupon() async {
@@ -472,7 +491,7 @@ class PaymentController extends GetxController {
       final isUsed = couponResponse['is_used'] ?? false;
 
       // Step 2: Check if coupon has expired
-      final now = DateTime.now();
+      final now = TimezoneService.getCurrentMauritaniaTime();
       if (now.isAfter(validUntil)) {
         loggerNoStack.w(
           '❌ Coupon expired: $couponCode (expired on $validUntil)',
@@ -596,7 +615,8 @@ class PaymentController extends GetxController {
         await supabase.from('coupon_usage').insert({
           'coupon_id': couponId,
           'user_id': userId,
-          'used_at': DateTime.now().toIso8601String(),
+          'used_at': TimezoneService.getCurrentMauritaniaTime()
+              .toIso8601String(),
         });
 
         loggerNoStack.i('✅ Multi-use coupon usage recorded');
@@ -1002,7 +1022,8 @@ class PaymentController extends GetxController {
         'withrowl_history': 0,
         'action_type': 'income', // This is income for the doctor
         'operation_status': status,
-        'payment_date': DateTime.now().toIso8601String(),
+        'payment_date': TimezoneService.getCurrentMauritaniaTime()
+            .toIso8601String(),
         'booking_id': null, // Will be updated when booking is created
         'payment_gateway': gateway,
         'payment_currency': currency,
@@ -1058,7 +1079,7 @@ class PaymentController extends GetxController {
   /// Generate a unique booking ID with current date prefix
   String _generateBookingId() {
     try {
-      final now = DateTime.now();
+      final now = TimezoneService.getCurrentMauritaniaTime();
       final datePrefix =
           '${now.year}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}';
 
@@ -1076,11 +1097,11 @@ class PaymentController extends GetxController {
       loggerNoStack.e('Error generating booking ID: $e');
       loggerNoStack.e('Stack trace: $stackTrace');
       // Fallback to basic booking ID with date
-      final datePrefix = DateTime.now()
+      final datePrefix = TimezoneService.getCurrentMauritaniaTime()
           .toIso8601String()
           .substring(0, 10)
           .replaceAll('-', '');
-      return '${datePrefix}_BKG_${DateTime.now().millisecondsSinceEpoch}_FALLBACK';
+      return '${datePrefix}_BKG_${TimezoneService.getCurrentMauritaniaTime().millisecondsSinceEpoch}_FALLBACK';
     }
   }
 
@@ -1212,7 +1233,8 @@ class PaymentController extends GetxController {
         'price': total.value.toStringAsFixed(2),
         'payment_intent_id': transactionId.value,
         'video_session_id': null, // Will be set when video call starts
-        'created_at': DateTime.now().toIso8601String(),
+        'created_at': TimezoneService.getCurrentMauritaniaTime()
+            .toIso8601String(),
         'booking_date': bookingDate.toIso8601String().split(
           'T',
         )[0], // YYYY-MM-DD
@@ -1385,14 +1407,14 @@ class PaymentController extends GetxController {
         GetSnackBar(
           titleText: Text(
             title,
-            style: const TextStyle(
+            style: const CustomTextStyle(
               color: Colors.white,
               fontWeight: FontWeight.w600,
             ),
           ),
           messageText: Text(
             message,
-            style: const TextStyle(color: Colors.white),
+            style: const CustomTextStyle(color: Colors.white),
           ),
           snackPosition: position,
           backgroundColor: backgroundColor,
@@ -1547,6 +1569,227 @@ class PaymentController extends GetxController {
     }
   }
 
+  /// Process Digital Wallet Payment (Apple Pay / Google Pay)
+  Future<void> _processDigitalWalletPayment() async {
+    loggerNoStack.i('=== Starting Digital Wallet Payment Process ===');
+
+    try {
+      // Prevent double submission
+      if (isProcessingPayment.value) {
+        loggerNoStack.w(
+          'Digital wallet payment already in progress, ignoring duplicate request',
+        );
+        return;
+      }
+
+      isProcessingPayment.value = true;
+
+      final platformName = DigitalWalletService.getPlatformPaymentName();
+      loggerNoStack.i('💳 Processing $platformName payment...');
+
+      // Save initial transaction record as 'waiting'
+      await _savePaymentHistory(
+        status: 'waiting',
+        gateway: platformName.toLowerCase().replaceAll(' ', '_'),
+        currency: stripeCurrencyCode,
+      );
+
+      // 1) Create PaymentIntent on Stripe for the digital wallet
+      loggerNoStack.i('🔧 Step 1: Creating Stripe PaymentIntent...');
+      stripePaymentIntent = await _createStripePaymentIntent();
+
+      final clientSecret = stripePaymentIntent!['client_secret'] as String;
+      loggerNoStack.i('✅ PaymentIntent created: ${stripePaymentIntent!['id']}');
+
+      // 2) Create payment items for digital wallet
+      loggerNoStack.i('📋 Step 2: Creating payment items...');
+      final paymentItems = DigitalWalletService.createDetailedPaymentItems(
+        subtotal: subtotal.value,
+        serviceFees: serviceFees.value,
+        tax: tax.value,
+        discount: discount.value,
+        total: total.value,
+      );
+
+      // 3) Process payment based on platform
+      loggerNoStack.i('💰 Step 3: Processing $platformName payment...');
+
+      // This will be handled by the Pay button widget in the UI
+      // The token will be returned from onPaymentResult callback
+      loggerNoStack.i(
+        '⏳ Waiting for user to complete $platformName payment...',
+      );
+
+      // Note: The actual payment processing happens in the Pay widget callback
+      // See _buildDigitalWalletBlackButton in payment_page.dart
+    } catch (e, stackTrace) {
+      loggerNoStack.e('❌ CRITICAL ERROR in _processDigitalWalletPayment: $e');
+      loggerNoStack.e('Stack trace: $stackTrace');
+
+      try {
+        await _updatePaymentHistory(
+          status: 'failed',
+          gateway: DigitalWalletService.getPlatformPaymentName()
+              .toLowerCase()
+              .replaceAll(' ', '_'),
+          currency: stripeCurrencyCode,
+        );
+      } catch (updateError) {
+        loggerNoStack.e(
+          '❌ Error updating payment records after digital wallet failure: $updateError',
+        );
+      }
+
+      _showSafeSnackbar(
+        title: 'error'.tr,
+        message: 'payment_failed'.tr,
+        position: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+      );
+    } finally {
+      isProcessingPayment.value = false;
+      loggerNoStack.i('=== Digital Wallet Payment Process Complete ===');
+    }
+  }
+
+  /// Handle successful digital wallet payment result
+  Future<void> onDigitalWalletPaymentSuccess(
+    Map<String, dynamic> paymentResult,
+  ) async {
+    try {
+      loggerNoStack.i('✅ Digital Wallet payment successful!');
+      loggerNoStack.d('Payment result: $paymentResult');
+
+      // Extract payment token from result
+      final token =
+          paymentResult['paymentMethodData']?['tokenizationData']?['token'];
+
+      if (token == null) {
+        throw Exception('No payment token received from digital wallet');
+      }
+
+      loggerNoStack.i('🔑 Payment token received, confirming payment...');
+
+      // Confirm the payment with Stripe using the token
+      final confirmed = await _confirmDigitalWalletPayment(token);
+
+      if (!confirmed) {
+        throw Exception('Failed to confirm digital wallet payment');
+      }
+
+      // Set transaction ID from payment intent
+      transactionId.value =
+          stripePaymentIntent?['id']?.toString() ?? 'DIGITAL_WALLET_UNKNOWN';
+
+      loggerNoStack.i(
+        '✅ Payment confirmed, transaction ID: ${transactionId.value}',
+      );
+
+      // Update records to success
+      await _updatePaymentHistory(
+        status: 'success',
+        gateway: DigitalWalletService.getPlatformPaymentName()
+            .toLowerCase()
+            .replaceAll(' ', '_'),
+        currency: stripeCurrencyCode,
+      );
+
+      // Mark coupon as used if applicable
+      if (couponController.text.trim().isNotEmpty && discount.value > 0) {
+        await _markCouponAsUsed(couponController.text.trim());
+      }
+
+      // Process based on payment type
+      if (isPlanPayment && selectedPlan != null) {
+        // Handle plan subscription
+        await _processPlansSubscription();
+
+        loggerNoStack.i('✅ Digital wallet plan subscription completed!');
+        _showSafeSnackbar(
+          title: 'Success',
+          message:
+              'Subscription successful! ${selectedPlan!.sessions} sessions added.',
+          position: SnackPosition.TOP,
+          backgroundColor: Colors.green,
+        );
+
+        await Future.delayed(const Duration(seconds: 1));
+        Get.offAllNamed(Routes.userTabScreen, arguments: {'initialTab': 3});
+      } else {
+        // Create booking
+        await _createBookingInSupabase();
+
+        loggerNoStack.i('✅ Digital wallet payment and booking completed!');
+        _showSafeSnackbar(
+          title: 'Success',
+          message: 'Payment successful! Your appointment has been booked.',
+          position: SnackPosition.TOP,
+          backgroundColor: Colors.green,
+        );
+
+        await Future.delayed(const Duration(seconds: 1));
+        Get.offAllNamed(Routes.userTabScreen, arguments: {'initialTab': 2});
+      }
+    } catch (e, stackTrace) {
+      loggerNoStack.e('❌ Error handling digital wallet success: $e');
+      loggerNoStack.e('Stack trace: $stackTrace');
+
+      await _updatePaymentHistory(
+        status: 'failed',
+        gateway: DigitalWalletService.getPlatformPaymentName()
+            .toLowerCase()
+            .replaceAll(' ', '_'),
+        currency: stripeCurrencyCode,
+      );
+
+      _showSafeSnackbar(
+        title: 'error'.tr,
+        message: 'Failed to process payment. Please try again.',
+        position: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+      );
+    }
+  }
+
+  /// Confirm digital wallet payment with Stripe
+  Future<bool> _confirmDigitalWalletPayment(String token) async {
+    try {
+      loggerNoStack.i('🔒 Confirming digital wallet payment with Stripe...');
+
+      // Decode the token (it's usually a JSON string)
+      final tokenData = jsonDecode(token);
+
+      // Confirm the payment intent with the token
+      final response = await http.post(
+        Uri.parse(
+          'https://api.stripe.com/v1/payment_intents/${stripePaymentIntent!['id']}/confirm',
+        ),
+        headers: {
+          'Authorization': 'Bearer $stripeSecretKey',
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: {
+          'payment_method_data[type]': 'card',
+          'payment_method_data[card][token]': tokenData['id'] ?? token,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        loggerNoStack.i('✅ Payment confirmed successfully');
+        loggerNoStack.d('Confirmation data: $data');
+        return data['status'] == 'succeeded';
+      } else {
+        loggerNoStack.e('❌ Payment confirmation failed: ${response.body}');
+        return false;
+      }
+    } catch (e, stackTrace) {
+      loggerNoStack.e('❌ Error confirming digital wallet payment: $e');
+      loggerNoStack.e('Stack trace: $stackTrace');
+      return false;
+    }
+  }
+
   void processPayment() async {
     loggerNoStack.i('=== Processing Payment ===');
     loggerNoStack.i('Selected payment method: ${selectedPaymentMethod.value}');
@@ -1559,16 +1802,21 @@ class PaymentController extends GetxController {
     }
 
     try {
-      if (selectedPaymentMethod.value == 1) {
-        // Visa/MasterCard payment through Bankily
-        loggerNoStack.i('Processing Visa/MasterCard payment via Bankily...');
-        await processBankilyPayment();
-        return; // Don't set isProcessingPayment to false here, it's handled in processBankilyPayment
-      } else if (selectedPaymentMethod.value == 2) {
+      if (selectedPaymentMethod.value == 0) {
+        // Digital Wallet (Apple Pay/Google Pay)
+        loggerNoStack.i('Digital Wallet selected - initiating payment...');
+        await _processDigitalWalletPayment();
+        return;
+      } else if (selectedPaymentMethod.value == 1) {
         // Stripe card payment
         loggerNoStack.i('Processing card payment via Stripe...');
         await _processStripePayment();
         return;
+      } else if (selectedPaymentMethod.value == 2) {
+        // Visa/MasterCard payment through Bankily
+        loggerNoStack.i('Processing Visa/MasterCard payment via Bankily...');
+        await processBankilyPayment();
+        return; // Don't set isProcessingPayment to false here, it's handled in processBankilyPayment
       } else {
         // For other payment methods, save payment history first
         isProcessingPayment.value = true;

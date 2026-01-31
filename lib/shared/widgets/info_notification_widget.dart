@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:videocalling/core/widgets/text_style/custom_text_style.dart';
 
 class InfoNotificationWidget extends StatelessWidget {
   final List<String> messages;
@@ -34,7 +35,7 @@ class InfoNotificationWidget extends StatelessWidget {
                     ),
                   if (hasDot) const SizedBox(width: 8),
                   Expanded(
-                    child: Text(message, style: const TextStyle(fontSize: 16)),
+                    child: Text(message, style: const CustomTextStyle(fontSize: 16)),
                   ),
                 ],
               ),

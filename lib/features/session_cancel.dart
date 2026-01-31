@@ -12,7 +12,10 @@ class SessionCancelDoctor extends StatelessWidget {
           Center(
             child: Text(
               'session_cancelled_by_doctor'.tr,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+              style: const CustomTextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ),
         ],

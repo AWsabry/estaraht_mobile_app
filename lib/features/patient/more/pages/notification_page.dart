@@ -1,5 +1,6 @@
-import 'package:videocalling/core/config/app_imports.dart';
 import 'package:flutter/material.dart' as material show RefreshIndicator;
+import 'package:videocalling/core/config/app_imports.dart';
+import 'package:videocalling/shared/services/others/timezone_service.dart';
 
 class NotificationScreen extends GetView<NotificationController> {
   const NotificationScreen({super.key});
@@ -41,7 +42,7 @@ class NotificationScreen extends GetView<NotificationController> {
                 const SizedBox(height: 16),
                 Text(
                   'no_notifications'.tr,
-                  style: TextStyle(
+                  style: CustomTextStyle(
                     fontSize: 18,
                     color: Colors.grey[600],
                     fontFamily: isArabic ? 'NotoKufiArabic' : 'Roboto',
@@ -50,7 +51,7 @@ class NotificationScreen extends GetView<NotificationController> {
                 const SizedBox(height: 8),
                 Text(
                   'no_notifications_desc'.tr,
-                  style: TextStyle(
+                  style: CustomTextStyle(
                     fontSize: 14,
                     color: Colors.grey[500],
                     fontFamily: isArabic ? 'NotoKufiArabic' : 'Roboto',
@@ -79,7 +80,7 @@ class NotificationScreen extends GetView<NotificationController> {
                 final isRead = notification['is_read'] as bool? ?? false;
                 final createdAt = notification['created_at'] != null
                     ? DateTime.parse(notification['created_at'])
-                    : DateTime.now();
+                    : TimezoneService.getCurrentMauritaniaTime();
                 final timeAgo = _getTimeAgo(createdAt);
 
                 return Dismissible(
@@ -137,7 +138,7 @@ class NotificationScreen extends GetView<NotificationController> {
                                 if (notification['title'] != null)
                                   Text(
                                     notification['title'],
-                                    style: TextStyle(
+                                    style: CustomTextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold,
                                       color: Colors.black,
@@ -149,7 +150,7 @@ class NotificationScreen extends GetView<NotificationController> {
                                 const SizedBox(height: 4),
                                 Text(
                                   notification['message'],
-                                  style: TextStyle(
+                                  style: CustomTextStyle(
                                     fontSize: 14,
                                     color: Colors.grey[800],
                                     fontFamily: isArabic
@@ -160,7 +161,7 @@ class NotificationScreen extends GetView<NotificationController> {
                                 const SizedBox(height: 4),
                                 Text(
                                   timeAgo,
-                                  style: TextStyle(
+                                  style: CustomTextStyle(
                                     fontSize: 12,
                                     color: Colors.grey[500],
                                     fontFamily: isArabic
@@ -198,7 +199,7 @@ class NotificationScreen extends GetView<NotificationController> {
                     },
                     child: Text(
                       'clear_all_notifications'.tr,
-                      style: TextStyle(
+                      style: CustomTextStyle(
                         color: Colors.red,
                         fontSize: 14,
                         fontFamily: isArabic ? 'NotoKufiArabic' : 'Roboto',
@@ -215,7 +216,7 @@ class NotificationScreen extends GetView<NotificationController> {
   }
 
   String _getTimeAgo(DateTime dateTime) {
-    final now = DateTime.now();
+    final now = TimezoneService.getCurrentMauritaniaTime();
     final difference = now.difference(dateTime);
 
     if (difference.inDays > 7) {

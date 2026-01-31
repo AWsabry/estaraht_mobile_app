@@ -35,7 +35,7 @@ class WithdrawalScreen extends GetView<WithdrawalController> {
                   ),
                   Text(
                     'financial_reports'.tr,
-                    style: const TextStyle(
+                    style: const CustomTextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w400,
                     ),
@@ -68,7 +68,7 @@ class WithdrawalScreen extends GetView<WithdrawalController> {
             // Withdrawal Amount Input
             Text(
               'withdrawal_amount'.tr,
-              style: const TextStyle(
+              style: const CustomTextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
                 color: Colors.black87,
@@ -83,7 +83,7 @@ class WithdrawalScreen extends GetView<WithdrawalController> {
               decoration: InputDecoration(
                 hintText: 'enter_amount'.tr,
                 prefixText: '\$ ',
-                prefixStyle: const TextStyle(
+                prefixStyle: const CustomTextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
                   color: Colors.black87,
@@ -110,7 +110,7 @@ class WithdrawalScreen extends GetView<WithdrawalController> {
                   vertical: 16,
                 ),
               ),
-              style: const TextStyle(
+              style: const CustomTextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
                 color: Colors.black87,
@@ -148,7 +148,7 @@ class WithdrawalScreen extends GetView<WithdrawalController> {
                   Expanded(
                     child: Text(
                       'withdrawal_info'.tr,
-                      style: TextStyle(fontSize: 14, color: Colors.blue[900]),
+                      style: CustomTextStyle(fontSize: 14, color: Colors.blue[900]),
                     ),
                   ),
                 ],
@@ -184,7 +184,7 @@ class WithdrawalScreen extends GetView<WithdrawalController> {
                       )
                     : Text(
                         'confirm_withdrawal'.tr,
-                        style: const TextStyle(
+                        style: const CustomTextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
                           color: Colors.white,
@@ -234,7 +234,7 @@ class WithdrawalScreen extends GetView<WithdrawalController> {
               const SizedBox(width: 12),
               Text(
                 title,
-                style: TextStyle(
+                style: CustomTextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w500,
                   color: Colors.grey[600],
@@ -245,7 +245,7 @@ class WithdrawalScreen extends GetView<WithdrawalController> {
           const SizedBox(height: 16),
           Text(
             '\$${amount.toStringAsFixed(2)}',
-            style: TextStyle(
+            style: CustomTextStyle(
               fontSize: 36,
               fontWeight: FontWeight.w700,
               color: color,

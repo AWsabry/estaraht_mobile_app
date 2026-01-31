@@ -1,4 +1,5 @@
 import 'package:videocalling/core/config/app_imports.dart';
+import 'package:videocalling/shared/services/others/timezone_service.dart';
 import 'package:videocalling/features/patient/appointments/models/uall_appointment_model.dart';
 
 class UAllAppointmentsController extends GetxController {
@@ -158,7 +159,7 @@ class UAllAppointmentsController extends GetxController {
       "🔍 Applying filters - Tab: ${selectedTab.value}, Filter: ${selectedFilter.value}",
     );
 
-    final today = DateTime.now();
+    final today = TimezoneService.getCurrentMauritaniaTime();
     final todayStr =
         "${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}";
 

@@ -136,7 +136,7 @@ class _SessionFilesWidgetState extends State<SessionFilesWidget> {
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             child: Text(
               'delete'.tr,
-              style: const TextStyle(color: Colors.white),
+              style: const CustomTextStyle(color: Colors.white),
             ),
           ),
         ],
@@ -173,7 +173,7 @@ class _SessionFilesWidgetState extends State<SessionFilesWidget> {
             children: [
               Text(
                 'session_files'.tr,
-                style: const TextStyle(
+                style: const CustomTextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                 ),
@@ -216,7 +216,7 @@ class _SessionFilesWidgetState extends State<SessionFilesWidget> {
                   const SizedBox(height: 12),
                   Text(
                     'no_files_uploaded'.tr,
-                    style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                    style: CustomTextStyle(color: Colors.grey[600], fontSize: 14),
                   ),
                 ],
               ),
@@ -254,13 +254,13 @@ class _SessionFilesWidgetState extends State<SessionFilesWidget> {
       ),
       title: Text(
         file.fileName,
-        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+        style: const CustomTextStyle(fontSize: 14, fontWeight: FontWeight.w500),
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
       ),
       subtitle: Text(
         '${file.uploaderLabel} • ${file.formattedSize}',
-        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+        style: CustomTextStyle(fontSize: 12, color: Colors.grey[600]),
       ),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,

@@ -1,4 +1,5 @@
 import 'package:videocalling/core/config/app_imports.dart';
+import 'package:videocalling/shared/services/others/timezone_service.dart';
 
 class DoctorDetailScreen extends GetView<DoctorDetailController> {
   final DoctorDetailController detailController = Get.put(
@@ -36,7 +37,7 @@ class DoctorDetailScreen extends GetView<DoctorDetailController> {
           20.hs,
           Text(
             'unable_to_load_data'.tr,
-            style: TextStyle(fontFamily: AppFontStyleTextStrings.regular),
+            style: CustomTextStyle(fontFamily: AppFontStyleTextStrings.regular),
           ),
         ],
       ),
@@ -80,7 +81,7 @@ class DoctorDetailScreen extends GetView<DoctorDetailController> {
                         labelColor: AppColors.color1,
                         unselectedLabelColor: Colors.black,
                         indicatorColor: AppColors.color1,
-                        labelStyle: TextStyle(
+                        labelStyle: CustomTextStyle(
                           fontSize: 12,
                           fontFamily: AppFontStyleTextStrings.regular,
                           fontWeight: FontWeight.w500,
@@ -183,46 +184,47 @@ class DoctorDetailScreen extends GetView<DoctorDetailController> {
             // Stats cards on left side
             Positioned(
               left: 24,
-              right: 24,
               top: 126,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildStatCard(
-                    svgIcon: AppImages.workIcon,
-                    iconColor: AppColors.color1,
-                    title:
-                        "${detailController.doctorDetailsClass?.data?.yearsOfExp} ${"years".tr}",
-                    subtitle: "of_experience".tr,
-                  ),
-                  const SizedBox(height: 8),
-                  Obx(
-                    () => _buildStatCard(
-                      svgIcon: AppImages.reviewsIcon,
+              child: IntrinsicWidth(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _buildStatCard(
+                      svgIcon: AppImages.workIcon,
                       iconColor: AppColors.color1,
-                      title: detailController.averageRating.value > 0
-                          ? detailController.averageRating.value
-                                .toStringAsFixed(1)
-                          : (detailController
-                                    .doctorDetailsClass
-                                    ?.data
-                                    ?.avgratting
-                                    ?.toStringAsFixed(1) ??
-                                '0.0'),
-                      subtitle:
-                          '${detailController.totalReviews.value} ${"reviews".tr}',
+                      title:
+                          "${detailController.doctorDetailsClass?.data?.yearsOfExp} ${"years".tr}",
+                      subtitle: "of_experience".tr,
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  Obx(
-                    () => _buildStatCard(
-                      svgIcon: AppImages.groupOfPeaple,
-                      iconColor: AppColors.color1,
-                      title: detailController.uniquePatients.value.toString(),
-                      subtitle: "patients".tr,
+                    const SizedBox(height: 8),
+                    Obx(
+                      () => _buildStatCard(
+                        svgIcon: AppImages.reviewsIcon,
+                        iconColor: AppColors.color1,
+                        title: detailController.averageRating.value > 0
+                            ? detailController.averageRating.value
+                                  .toStringAsFixed(1)
+                            : (detailController
+                                      .doctorDetailsClass
+                                      ?.data
+                                      ?.avgratting
+                                      ?.toStringAsFixed(1) ??
+                                  '0.0'),
+                        subtitle:
+                            '${detailController.totalReviews.value} ${"reviews".tr}',
+                      ),
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 8),
+                    Obx(
+                      () => _buildStatCard(
+                        svgIcon: AppImages.groupOfPeaple,
+                        iconColor: AppColors.color1,
+                        title: detailController.uniquePatients.value.toString(),
+                        subtitle: "patients".tr,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
 
@@ -255,12 +257,23 @@ class DoctorDetailScreen extends GetView<DoctorDetailController> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  detailController
-                                          .doctorDetailsClass
-                                          ?.data
-                                          ?.departmentName ??
-                                      "Psychologist",
-                                  style: TextStyle(
+                                  (detailController
+                                                  .doctorDetailsClass
+                                                  ?.data
+                                                  ?.departmentName ==
+                                              null ||
+                                          detailController
+                                                  .doctorDetailsClass
+                                                  ?.data
+                                                  ?.departmentName ==
+                                              '')
+                                      ? "Psychologist"
+                                      : detailController
+                                                .doctorDetailsClass
+                                                ?.data
+                                                ?.departmentName ??
+                                            '',
+                                  style: CustomTextStyle(
                                     height: 1.2,
                                     color: Colors.grey[600],
                                     fontSize: 12,
@@ -273,7 +286,7 @@ class DoctorDetailScreen extends GetView<DoctorDetailController> {
                                           ?.data
                                           ?.name ??
                                       "Name",
-                                  style: const TextStyle(
+                                  style: const CustomTextStyle(
                                     height: 1.2,
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
@@ -304,7 +317,7 @@ class DoctorDetailScreen extends GetView<DoctorDetailController> {
                           ),
                           child: Text(
                             'book'.tr,
-                            style: const TextStyle(
+                            style: const CustomTextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
                             ),
@@ -342,7 +355,7 @@ class DoctorDetailScreen extends GetView<DoctorDetailController> {
         ],
       ),
       child: Row(
-        mainAxisSize: MainAxisSize.min,
+        mainAxisSize: MainAxisSize.max,
         children: [
           SvgPicture.asset(svgIcon, color: iconColor, height: 20, width: 20),
           const SizedBox(width: 8),
@@ -352,7 +365,7 @@ class DoctorDetailScreen extends GetView<DoctorDetailController> {
             children: [
               Text(
                 title,
-                style: const TextStyle(
+                style: const CustomTextStyle(
                   height: 1.2,
                   fontWeight: FontWeight.bold,
                   fontSize: 12,
@@ -360,7 +373,7 @@ class DoctorDetailScreen extends GetView<DoctorDetailController> {
               ),
               Text(
                 subtitle,
-                style: TextStyle(
+                style: CustomTextStyle(
                   height: 1.2,
                   color: Colors.grey.shade900,
                   fontSize: 12,
@@ -383,7 +396,7 @@ class DoctorDetailScreen extends GetView<DoctorDetailController> {
       children: [
         Text(
           aboutText,
-          style: const TextStyle(
+          style: const CustomTextStyle(
             fontSize: 14,
             height: 1.2, // Specific line height for Arabic
             color: Colors.black87,
@@ -393,80 +406,86 @@ class DoctorDetailScreen extends GetView<DoctorDetailController> {
         const SizedBox(height: 32),
 
         // Stats grid rows
-        Row(
-          children: [
-            Expanded(
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.grey[200]!),
-                ),
-                padding: const EdgeInsets.all(16),
-                child: Obx(
-                  () => _buildStatItem(
-                    icon: Icons.video_call,
-                    title: "number_of_sessions".tr,
-                    value: '${detailController.completedSessions.value}',
+        IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.grey[200]!),
+                  ),
+                  padding: const EdgeInsets.all(16),
+                  child: Obx(
+                    () => _buildStatItem(
+                      icon: Icons.video_call,
+                      title: "number_of_sessions".tr,
+                      value: '${detailController.completedSessions.value}',
+                    ),
                   ),
                 ),
               ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.grey[200]!),
-                ),
-                padding: const EdgeInsets.all(16),
-                child: Obx(
-                  () => _buildStatItem(
-                    icon: Icons.star,
-                    title: "reviews".tr,
-                    value: '${detailController.totalReviews.value}',
+              const SizedBox(width: 8),
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.grey[200]!),
+                  ),
+                  padding: const EdgeInsets.all(16),
+                  child: Obx(
+                    () => _buildStatItem(
+                      icon: Icons.star,
+                      title: "reviews".tr,
+                      value: '${detailController.totalReviews.value}',
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
         // Second row of stats
         const SizedBox(height: 8),
-        Row(
-          children: [
-            Expanded(
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.grey[200]!),
-                ),
-                padding: const EdgeInsets.all(16),
-                child: Obx(
-                  () => _buildStatItem(
-                    icon: Icons.group,
-                    title: "patients".tr,
-                    value: '${detailController.uniquePatients.value}',
+        IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.grey[200]!),
+                  ),
+                  padding: const EdgeInsets.all(16),
+                  child: Obx(
+                    () => _buildStatItem(
+                      icon: Icons.group,
+                      title: "patients".tr,
+                      value: '${detailController.uniquePatients.value}',
+                    ),
                   ),
                 ),
               ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.grey[200]!),
-                ),
-                padding: const EdgeInsets.all(16),
-                child: _buildStatItem(
-                  icon: Icons.access_time,
-                  title: "avg_session_time".tr,
-                  value:
-                      '${detailController.doctorDetailsClass?.data?.avgSessionTime ?? 30} ${"min".tr}',
+              const SizedBox(width: 8),
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.grey[200]!),
+                  ),
+                  padding: const EdgeInsets.all(16),
+                  child: _buildStatItem(
+                    icon: Icons.access_time,
+                    title: "avg_session_time".tr,
+                    value:
+                        '${detailController.doctorDetailsClass?.data?.avgSessionTime ?? 30} ${"min".tr}',
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ],
     );
@@ -485,7 +504,7 @@ class DoctorDetailScreen extends GetView<DoctorDetailController> {
         const SizedBox(height: 8),
         Text(
           title.tr,
-          style: const TextStyle(
+          style: const CustomTextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w500,
             color: Colors.black,
@@ -495,7 +514,7 @@ class DoctorDetailScreen extends GetView<DoctorDetailController> {
         const SizedBox(height: 4),
         Text(
           value.tr,
-          style: const TextStyle(
+          style: const CustomTextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w400,
             height: 1.2, // Specified line height for Arabic
@@ -552,7 +571,7 @@ class DoctorDetailScreen extends GetView<DoctorDetailController> {
       ),
       child: Text(
         title,
-        style: const TextStyle(fontSize: 14, color: Colors.black87),
+        style: const CustomTextStyle(fontSize: 14, color: Colors.black87),
       ),
     );
   }
@@ -569,7 +588,7 @@ class DoctorDetailScreen extends GetView<DoctorDetailController> {
             // Available dates section
             Text(
               'available_dates'.tr,
-              style: const TextStyle(
+              style: const CustomTextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
                 color: Colors.black87,
@@ -589,7 +608,8 @@ class DoctorDetailScreen extends GetView<DoctorDetailController> {
                               int index = entry.key;
                               DateTime date = entry.value;
 
-                              DateTime today = DateTime.now();
+                              DateTime today =
+                                  TimezoneService.getCurrentMauritaniaTime();
                               bool isToday =
                                   date.year == today.year &&
                                   date.month == today.month &&
@@ -641,7 +661,7 @@ class DoctorDetailScreen extends GetView<DoctorDetailController> {
                                       children: [
                                         Text(
                                           dayName.tr,
-                                          style: TextStyle(
+                                          style: CustomTextStyle(
                                             color: isSelected
                                                 ? Colors.white
                                                 : Colors.grey[600],
@@ -652,7 +672,7 @@ class DoctorDetailScreen extends GetView<DoctorDetailController> {
                                         const SizedBox(height: 4),
                                         Text(
                                           dayNumber,
-                                          style: TextStyle(
+                                          style: CustomTextStyle(
                                             color: isSelected
                                                 ? Colors.white
                                                 : Colors.black,
@@ -662,7 +682,7 @@ class DoctorDetailScreen extends GetView<DoctorDetailController> {
                                         ),
                                         Text(
                                           monthName,
-                                          style: TextStyle(
+                                          style: CustomTextStyle(
                                             color: isSelected
                                                 ? Colors.white.withOpacity(0.8)
                                                 : Colors.grey[500],
@@ -692,7 +712,7 @@ class DoctorDetailScreen extends GetView<DoctorDetailController> {
                                             ),
                                             child: Text(
                                               'today'.tr,
-                                              style: TextStyle(
+                                              style: CustomTextStyle(
                                                 color: isSelected
                                                     ? Colors.white
                                                     : const Color(0xFF3961F1),
@@ -722,7 +742,7 @@ class DoctorDetailScreen extends GetView<DoctorDetailController> {
                         padding: const EdgeInsets.all(20),
                         child: Text(
                           'no_available_dates'.tr,
-                          style: const TextStyle(
+                          style: const CustomTextStyle(
                             color: Colors.grey,
                             fontSize: 14,
                           ),
@@ -743,7 +763,7 @@ class DoctorDetailScreen extends GetView<DoctorDetailController> {
                           children: [
                             Text(
                               'available_time_slots'.tr,
-                              style: const TextStyle(
+                              style: const CustomTextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
                                 color: Colors.black87,
@@ -770,7 +790,7 @@ class DoctorDetailScreen extends GetView<DoctorDetailController> {
                                         .selectedDateIndex
                                         .value],
                                   ),
-                                  style: const TextStyle(
+                                  style: const CustomTextStyle(
                                     color: Color(0xFF3961F1),
                                     fontSize: 12,
                                     fontWeight: FontWeight.w500,
@@ -805,7 +825,7 @@ class DoctorDetailScreen extends GetView<DoctorDetailController> {
                                       const SizedBox(height: 8),
                                       Text(
                                         'no_time_slots_available'.tr,
-                                        style: TextStyle(
+                                        style: CustomTextStyle(
                                           color: Colors.grey[600],
                                           fontSize: 14,
                                         ),
@@ -837,7 +857,7 @@ class DoctorDetailScreen extends GetView<DoctorDetailController> {
                               ),
                               child: Text(
                                 'make_an_appointment'.tr,
-                                style: const TextStyle(
+                                style: const CustomTextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -910,7 +930,7 @@ class DoctorDetailScreen extends GetView<DoctorDetailController> {
               child: Center(
                 child: Text(
                   displayTime,
-                  style: const TextStyle(
+                  style: const CustomTextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
                     color: Colors.black87,
@@ -955,7 +975,7 @@ class DoctorDetailScreen extends GetView<DoctorDetailController> {
                   children: [
                     Text(
                       avgRating.toStringAsFixed(1),
-                      style: const TextStyle(
+                      style: const CustomTextStyle(
                         fontSize: 36,
                         fontWeight: FontWeight.bold,
                         color: Color(0xFF3366FF),
@@ -975,7 +995,10 @@ class DoctorDetailScreen extends GetView<DoctorDetailController> {
                     const SizedBox(height: 4),
                     Text(
                       '$totalReviews ${'reviews'.tr}',
-                      style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                      style: CustomTextStyle(
+                        fontSize: 12,
+                        color: Colors.grey[600],
+                      ),
                     ),
                   ],
                 ),
@@ -1013,7 +1036,10 @@ class DoctorDetailScreen extends GetView<DoctorDetailController> {
                     const SizedBox(height: 12),
                     Text(
                       'no_reviews_yet'.tr,
-                      style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+                      style: CustomTextStyle(
+                        fontSize: 16,
+                        color: Colors.grey[600],
+                      ),
                     ),
                   ],
                 ),
@@ -1040,7 +1066,7 @@ class DoctorDetailScreen extends GetView<DoctorDetailController> {
         children: [
           Text(
             '$stars',
-            style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+            style: CustomTextStyle(fontSize: 12, color: Colors.grey[600]),
           ),
           const SizedBox(width: 4),
           const Icon(Icons.star, size: 12, color: Colors.amber),
@@ -1103,7 +1129,7 @@ class DoctorDetailScreen extends GetView<DoctorDetailController> {
                   children: [
                     Text(
                       maskedName,
-                      style: const TextStyle(
+                      style: const CustomTextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 14,
                       ),
@@ -1122,7 +1148,7 @@ class DoctorDetailScreen extends GetView<DoctorDetailController> {
                         const SizedBox(width: 8),
                         Text(
                           review.timeAgo,
-                          style: TextStyle(
+                          style: CustomTextStyle(
                             fontSize: 11,
                             color: Colors.grey[500],
                           ),
@@ -1138,7 +1164,7 @@ class DoctorDetailScreen extends GetView<DoctorDetailController> {
             const SizedBox(height: 12),
             Text(
               review.comment!,
-              style: const TextStyle(
+              style: const CustomTextStyle(
                 fontSize: 14,
                 color: Colors.black87,
                 height: 1.4,

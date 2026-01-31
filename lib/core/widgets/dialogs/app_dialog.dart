@@ -1,7 +1,7 @@
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:videocalling/core/config/app_imports.dart';
 import 'package:videocalling/features/video_call/call_manager.dart';
 import 'package:videocalling/features/video_call/video_call_imports.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 customDialog({
   required String s1,
@@ -34,7 +34,7 @@ customDialog({
               s1,
               style:
                   s1style ??
-                  TextStyle(
+                  CustomTextStyle(
                     fontFamily: fontFamily,
                     fontSize: 18.sp,
                     fontWeight: FontWeight.w600,
@@ -49,7 +49,7 @@ customDialog({
               overflow: TextOverflow.ellipsis,
               style:
                   s2style ??
-                  TextStyle(
+                  CustomTextStyle(
                     fontFamily: fontFamily,
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w400,
@@ -80,7 +80,7 @@ customDialog({
                   'ok_btn'.tr,
                   style:
                       s3style ??
-                      TextStyle(
+                      CustomTextStyle(
                         fontFamily: fontFamily,
                         fontSize: 16.sp,
                         fontWeight: FontWeight.w600,
@@ -123,7 +123,7 @@ customDialog1({
               s1,
               style:
                   s1style ??
-                  TextStyle(
+                  CustomTextStyle(
                     fontFamily: fontFamily,
                     fontSize: 18.sp,
                     fontWeight: FontWeight.w600,
@@ -135,7 +135,7 @@ customDialog1({
               s2,
               style:
                   s2style ??
-                  TextStyle(
+                  CustomTextStyle(
                     fontFamily: fontFamily,
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w400,
@@ -170,7 +170,7 @@ customDialog2({
     AlertDialog(
       title: Text(
         s1,
-        style: s1style ?? TextStyle(fontFamily: AppFontStyleTextStrings.black),
+        style: s1style ?? CustomTextStyle(fontFamily: AppFontStyleTextStrings.black, height: 1.3),
       ),
       content: Column(
         mainAxisSize: MainAxisSize.min,
@@ -181,9 +181,10 @@ customDialog2({
             maxLines: 3,
             style:
                 s2style ??
-                TextStyle(
+                CustomTextStyle(
                   fontSize: 14,
                   fontFamily: AppFontStyleTextStrings.regular,
+                  height: 1.3,
                 ),
           ),
         ],
@@ -205,7 +206,7 @@ logoutDialog({
     AlertDialog(
       title: Text(
         s1,
-        style: TextStyle(fontFamily: AppFontStyleTextStrings.black),
+        style: CustomTextStyle(fontFamily: AppFontStyleTextStrings.black, height: 1.3),
       ),
       content: Column(
         mainAxisSize: MainAxisSize.min,
@@ -213,7 +214,7 @@ logoutDialog({
         children: [
           Text(
             s2,
-            style: TextStyle(
+            style: CustomTextStyle(
               fontSize: 14,
               fontFamily: AppFontStyleTextStrings.regular,
             ),
@@ -274,7 +275,7 @@ callOptionDialog({required int callId}) {
               padding: const EdgeInsets.symmetric(vertical: 12),
               child: Text(
                 'call_dialog_title'.tr,
-                style: TextStyle(
+                style: CustomTextStyle(
                   fontSize: 14,
                   color: Colors.grey[600],
                   fontFamily: AppFontStyleTextStrings.regular,
@@ -345,7 +346,7 @@ callOptionDialog({required int callId}) {
                 onPressed: () => Get.back(),
                 child: Text(
                   'cancel'.tr,
-                  style: TextStyle(
+                  style: CustomTextStyle(
                     fontSize: 14,
                     color: Colors.grey[800],
                     fontFamily: AppFontStyleTextStrings.medium,
@@ -393,7 +394,7 @@ Widget _buildCallButton({
           const SizedBox(width: 8),
           Text(
             label,
-            style: TextStyle(
+            style: CustomTextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w500,
               color: Colors.white,
@@ -499,7 +500,7 @@ unSendMessageDialog({required VoidCallback onTap}) {
       elevation: 0,
       title: Text(
         'remove_msg_title'.tr,
-        style: TextStyle(
+        style: CustomTextStyle(
           fontFamily: AppFontStyleTextStrings.regular,
           color: AppColors.BLACK,
         ),
@@ -510,7 +511,7 @@ unSendMessageDialog({required VoidCallback onTap}) {
         children: [
           Text(
             'remove_msg_subtitle'.tr,
-            style: TextStyle(
+            style: CustomTextStyle(
               fontFamily: AppFontStyleTextStrings.regular,
               fontSize: 13,
               color: AppColors.RED800,

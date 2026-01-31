@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:videocalling/shared/services/others/timezone_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:videocalling/core/utils/logger.dart';
 import 'package:videocalling/features/patient/payment_plans/models/payment_plan_model.dart';
@@ -191,7 +192,7 @@ class PaymentPlansController extends GetxController {
 
       // Calculate expiry date (30 days from now)
       // For first-time-only plan, no expiry (one-time use)
-      final expiresAt = DateTime.now().add(const Duration(days: 30));
+      final expiresAt = TimezoneService.getCurrentMauritaniaTime().add(const Duration(days: 30));
       final subscriptionExpiresAt = plan.isFirstTimeOnly
           ? null
           : expiresAt.toIso8601String();
@@ -209,7 +210,7 @@ class PaymentPlansController extends GetxController {
             'payment_gateway': paymentGateway,
             'payment_currency': paymentCurrency ?? 'USD',
             'payment_status': 'completed',
-            'subscribed_at': DateTime.now().toIso8601String(),
+            'subscribed_at': TimezoneService.getCurrentMauritaniaTime().toIso8601String(),
             'expires_at': subscriptionExpiresAt,
             'status': 'active',
           })
@@ -326,7 +327,7 @@ class PaymentPlansController extends GetxController {
 
       // Calculate expiry date (30 days from now)
       // For first-time-only plan, no expiry (one-time use)
-      final expiresAt = DateTime.now().add(const Duration(days: 30));
+      final expiresAt = TimezoneService.getCurrentMauritaniaTime().add(const Duration(days: 30));
       final subscriptionExpiresAt = plan.isFirstTimeOnly
           ? null
           : expiresAt.toIso8601String();
@@ -344,7 +345,7 @@ class PaymentPlansController extends GetxController {
             'payment_gateway': paymentGateway,
             'payment_currency': paymentCurrency ?? 'USD',
             'payment_status': 'completed',
-            'subscribed_at': DateTime.now().toIso8601String(),
+            'subscribed_at': TimezoneService.getCurrentMauritaniaTime().toIso8601String(),
             'expires_at': subscriptionExpiresAt,
             'status': 'active',
           })

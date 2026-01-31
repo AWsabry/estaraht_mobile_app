@@ -42,7 +42,7 @@ class ReviewsList extends StatelessWidget {
                   const SizedBox(height: 12),
                   Text(
                     'no_reviews_yet'.tr,
-                    style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                    style: CustomTextStyle(color: Colors.grey[600], fontSize: 14),
                   ),
                 ],
               ),
@@ -67,7 +67,7 @@ class ReviewsList extends StatelessWidget {
                   children: [
                     Text(
                       'reviews'.tr,
-                      style: const TextStyle(
+                      style: const CustomTextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
@@ -79,7 +79,7 @@ class ReviewsList extends StatelessWidget {
                         },
                         child: Text(
                           '${'see_all'.tr} (${reviews.length})',
-                          style: const TextStyle(color: AppColors.color1),
+                          style: const CustomTextStyle(color: AppColors.color1),
                         ),
                       ),
                   ],
@@ -137,7 +137,7 @@ class ReviewCard extends StatelessWidget {
                   children: [
                     Text(
                       review.patientName ?? 'anonymous'.tr,
-                      style: const TextStyle(
+                      style: const CustomTextStyle(
                         fontWeight: FontWeight.w600,
                         fontSize: 14,
                       ),
@@ -156,7 +156,7 @@ class ReviewCard extends StatelessWidget {
                         const SizedBox(width: 8),
                         Text(
                           review.timeAgo,
-                          style: TextStyle(
+                          style: CustomTextStyle(
                             color: Colors.grey[500],
                             fontSize: 12,
                           ),
@@ -172,7 +172,7 @@ class ReviewCard extends StatelessWidget {
             const SizedBox(height: 12),
             Text(
               review.comment!,
-              style: TextStyle(
+              style: CustomTextStyle(
                 color: Colors.grey[700],
                 fontSize: 14,
                 height: 1.4,
@@ -208,13 +208,13 @@ class DoctorRatingDisplay extends StatelessWidget {
         const SizedBox(width: 4),
         Text(
           averageRating.toStringAsFixed(1),
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: starSize - 2),
+          style: CustomTextStyle(fontWeight: FontWeight.bold, fontSize: starSize - 2),
         ),
         if (showLabel) ...[
           const SizedBox(width: 4),
           Text(
             '($totalReviews ${totalReviews == 1 ? 'review'.tr : 'reviews'.tr})',
-            style: TextStyle(color: Colors.grey[600], fontSize: starSize - 4),
+            style: CustomTextStyle(color: Colors.grey[600], fontSize: starSize - 4),
           ),
         ],
       ],

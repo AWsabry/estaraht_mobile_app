@@ -1,6 +1,6 @@
-import 'package:videocalling/core/config/app_imports.dart';
 import 'package:dio/dio.dart';
 import 'package:http/http.dart' as http;
+import 'package:videocalling/core/config/app_imports.dart';
 import 'package:videocalling/features/doctor/finance/models/doctor_choose_plan_model.dart';
 import 'package:videocalling/features/doctor/more/dmy_photo_viewer_controller.dart';
 
@@ -463,7 +463,7 @@ class DoctorChooseYourPlanController extends GetxController {
                         padding: const EdgeInsets.only(top: 0, bottom: 5),
                         child: Text(
                           'upload_receipt_des1'.tr,
-                          style: TextStyle(
+                          style: CustomTextStyle(
                             color: AppColors.LIGHT_GREY_TEXT,
                             fontSize: 12,
                           ),
@@ -526,7 +526,7 @@ class DoctorChooseYourPlanController extends GetxController {
                                                 ),
                                                 Text(
                                                   'choose_gallery'.tr,
-                                                  style: const TextStyle(
+                                                  style: const CustomTextStyle(
                                                     fontSize: 12,
                                                   ),
                                                 ),

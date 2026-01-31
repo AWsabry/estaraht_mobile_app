@@ -77,7 +77,12 @@
 
         <meta-data android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyDjgUxgzitqoYObIabR-kHs17NiBPObKMc"/>
-            
+
+        <!-- Google Pay Configuration -->
+        <meta-data
+            android:name="com.google.android.gms.wallet.api.enabled"
+            android:value="true" />
+
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />

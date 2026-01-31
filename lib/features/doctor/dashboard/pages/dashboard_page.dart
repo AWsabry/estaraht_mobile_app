@@ -33,15 +33,12 @@ class DoctorDashboard extends GetView<DoctorDashboardController> {
               // Header section
               Container(
                 width: double.infinity,
-                padding: EdgeInsets.symmetric(
-                  horizontal: 36.w,
-                  vertical: 36.h,
-                ),
+                padding: EdgeInsets.symmetric(horizontal: 36.w, vertical: 36.h),
                 child: Column(
                   children: [
                     Text(
                       'manage_appointments_easily'.tr,
-                      style: TextStyle(
+                      style: CustomTextStyle(
                         fontSize: 22.sp,
                         fontWeight: FontWeight.w700,
                         color: Colors.black87,
@@ -52,7 +49,7 @@ class DoctorDashboard extends GetView<DoctorDashboardController> {
                     SizedBox(height: 6.h),
                     Text(
                       'communicate_with_patients_flexibly'.tr,
-                      style: TextStyle(
+                      style: CustomTextStyle(
                         fontSize: 24.sp,
                         fontWeight: FontWeight.w400,
                         color: Colors.black87,
@@ -81,7 +78,7 @@ class DoctorDashboard extends GetView<DoctorDashboardController> {
                   child: Center(
                     child: Text(
                       'upcoming_sessions'.tr,
-                      style: TextStyle(
+                      style: CustomTextStyle(
                         fontSize: 12.sp,
                         fontWeight: FontWeight.w400,
                         fontFamily: AppFontStyleTextStrings.medium,
@@ -122,7 +119,7 @@ class DoctorDashboard extends GetView<DoctorDashboardController> {
                   child: Center(
                     child: Text(
                       'previous_sessions'.tr,
-                      style: TextStyle(
+                      style: CustomTextStyle(
                         fontSize: 12.sp,
                         fontWeight: FontWeight.w400,
                         fontFamily: AppFontStyleTextStrings.medium,
@@ -264,7 +261,7 @@ class DoctorDashboard extends GetView<DoctorDashboardController> {
                                 appointment.name ?? "",
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
+                                style: CustomTextStyle(
                                   fontSize: 14.sp,
                                   height: 1.4,
                                   fontWeight: FontWeight.w600,
@@ -282,7 +279,7 @@ class DoctorDashboard extends GetView<DoctorDashboardController> {
                                       : Text(
                                           dateText,
                                           maxLines: 2,
-                                          style: TextStyle(
+                                          style: CustomTextStyle(
                                             fontSize: 11.sp,
                                             height: 1.3,
                                             color: Colors.grey[700],
@@ -318,7 +315,7 @@ class DoctorDashboard extends GetView<DoctorDashboardController> {
                       child: Text(
                         _getStatusText(appointment.status),
                         textAlign: TextAlign.center,
-                        style: TextStyle(
+                        style: CustomTextStyle(
                           fontSize: 11.sp,
                           height: 1.3,
                           fontWeight: FontWeight.w500,
@@ -379,7 +376,7 @@ class DoctorDashboard extends GetView<DoctorDashboardController> {
                                         'cancelled')
                                 ? 'start_session'.tr
                                 : 'view_details'.tr,
-                            style: TextStyle(
+                            style: CustomTextStyle(
                               color: Colors.white,
                               fontSize: 12.sp,
                               fontFamily: AppFontStyleTextStrings.regular,
@@ -415,7 +412,7 @@ class DoctorDashboard extends GetView<DoctorDashboardController> {
                           fit: BoxFit.scaleDown,
                           child: Text(
                             'profile'.tr,
-                            style: TextStyle(
+                            style: CustomTextStyle(
                               fontSize: 12.sp,
                               color: Colors.black87,
                               fontFamily: AppFontStyleTextStrings.regular,
@@ -445,7 +442,7 @@ class DoctorDashboard extends GetView<DoctorDashboardController> {
         child: Text(
           label,
 
-          style: TextStyle(
+          style: CustomTextStyle(
             fontSize: 10.sp,
             color: Colors.black87,
             fontFamily: AppFontStyleTextStrings.regular,
@@ -475,7 +472,7 @@ class DoctorDashboard extends GetView<DoctorDashboardController> {
             child: Text(
               'doctor_not_appointment_text'.tr,
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: CustomTextStyle(
                 fontSize: 14.sp,
                 color: Colors.grey[700],
                 fontFamily: AppFontStyleTextStrings.regular,
@@ -505,7 +502,7 @@ class DoctorDashboard extends GetView<DoctorDashboardController> {
             SizedBox(height: 12.h),
             Text(
               'unable_to_load_data'.tr,
-              style: TextStyle(
+              style: CustomTextStyle(
                 fontSize: 14.sp,
                 color: Colors.grey[600],
                 fontFamily: AppFontStyleTextStrings.regular,

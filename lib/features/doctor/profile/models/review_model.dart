@@ -1,3 +1,5 @@
+import 'package:videocalling/shared/services/others/timezone_service.dart';
+
 class ReviewModel {
   final String? id;
   final String? bookingId;
@@ -66,7 +68,7 @@ class ReviewModel {
     final date = createdAtDate;
     if (date == null) return '';
 
-    final now = DateTime.now();
+    final now = TimezoneService.getCurrentMauritaniaTime();
     final difference = now.difference(date);
 
     if (difference.inDays == 0) {
@@ -85,4 +87,3 @@ class ReviewModel {
     }
   }
 }
-

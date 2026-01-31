@@ -41,7 +41,7 @@ class IncomeReportScreen extends GetView<IncomeReportController> {
                   ),
                   Text(
                     'financial_reports'.tr,
-                    style: const TextStyle(
+                    style: const CustomTextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w400,
                     ),
@@ -69,7 +69,7 @@ class IncomeReportScreen extends GetView<IncomeReportController> {
               padding: const EdgeInsets.fromLTRB(24, 24, 24, 12),
               child: Text(
                 'detailed_report'.tr,
-                style: const TextStyle(
+                style: const CustomTextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
                   color: Colors.black87,
@@ -117,7 +117,7 @@ class IncomeReportScreen extends GetView<IncomeReportController> {
                 ),
                 child: Text(
                   'withdraw_funds'.tr,
-                  style: const TextStyle(
+                  style: const CustomTextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
                     color: Colors.white,
@@ -150,7 +150,7 @@ class IncomeReportScreen extends GetView<IncomeReportController> {
                   reportController.st.value
                       ? Text(
                           "\$${reportController.availableBalance.value.toStringAsFixed(0)}",
-                          style: const TextStyle(
+                          style: const CustomTextStyle(
                             fontSize: 32,
                             fontWeight: FontWeight.w600,
                             color: AppColors.color1,
@@ -168,7 +168,7 @@ class IncomeReportScreen extends GetView<IncomeReportController> {
                   const SizedBox(height: 4),
                   Text(
                     'available_balance'.tr,
-                    style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                    style: CustomTextStyle(fontSize: 14, color: Colors.grey[600]),
                   ),
                 ],
               ),
@@ -253,7 +253,7 @@ class IncomeReportScreen extends GetView<IncomeReportController> {
           alignment: Alignment.center,
           child: Text(
             label,
-            style: TextStyle(
+            style: CustomTextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w500,
               color: isSelected ? Colors.white : Colors.grey[700],
@@ -315,7 +315,7 @@ class IncomeReportScreen extends GetView<IncomeReportController> {
               children: [
                 Text(
                   isIncome ? 'consultation_payment'.tr : 'withdrawal'.tr,
-                  style: const TextStyle(
+                  style: const CustomTextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w500,
                   ),
@@ -323,7 +323,7 @@ class IncomeReportScreen extends GetView<IncomeReportController> {
                 const SizedBox(height: 4),
                 Text(
                   formattedDate,
-                  style: TextStyle(fontSize: 13, color: Colors.grey[600]),
+                  style: CustomTextStyle(fontSize: 13, color: Colors.grey[600]),
                 ),
               ],
             ),
@@ -332,7 +332,7 @@ class IncomeReportScreen extends GetView<IncomeReportController> {
           // Amount
           Text(
             "${isIncome ? '+' : '-'} \$${absoluteAmount.toStringAsFixed(0)}",
-            style: TextStyle(
+            style: CustomTextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
               color: isIncome ? Colors.green : Colors.red,
@@ -358,7 +358,7 @@ class IncomeReportScreen extends GetView<IncomeReportController> {
             'not_any_income_str'.trParams({
               'option': reportController.showOption.value,
             }),
-            style: TextStyle(
+            style: CustomTextStyle(
               fontSize: 16,
               color: Colors.grey[600],
               fontWeight: FontWeight.w500,
@@ -386,7 +386,7 @@ class IncomeReportScreen extends GetView<IncomeReportController> {
           const SizedBox(height: 16),
           Text(
             'loading_transactions'.tr,
-            style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+            style: CustomTextStyle(fontSize: 16, color: Colors.grey[600]),
           ),
         ],
       ),

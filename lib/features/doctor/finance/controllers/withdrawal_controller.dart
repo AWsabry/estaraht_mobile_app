@@ -1,4 +1,5 @@
 import 'package:videocalling/core/config/app_imports.dart';
+import 'package:videocalling/shared/services/others/timezone_service.dart';
 
 class WithdrawalController extends GetxController {
   final supabaseHelper = SupabaseHelper();
@@ -75,7 +76,10 @@ class WithdrawalController extends GetxController {
         actions: [
           TextButton(
             onPressed: () => Get.back(),
-            child: Text('cancel'.tr, style: TextStyle(color: Colors.grey[700])),
+            child: Text(
+              'cancel'.tr,
+              style: CustomTextStyle(color: Colors.grey[700]),
+            ),
           ),
           ElevatedButton(
             onPressed: () {
@@ -90,7 +94,7 @@ class WithdrawalController extends GetxController {
             ),
             child: Text(
               'confirm'.tr,
-              style: const TextStyle(color: Colors.white),
+              style: const CustomTextStyle(color: Colors.white),
             ),
           ),
         ],
@@ -111,7 +115,8 @@ class WithdrawalController extends GetxController {
         'income_history': 0,
         'action_type': 'withrowl',
         'operation_status': 'waiting',
-        'payment_date': DateTime.now().toIso8601String(),
+        'payment_date': TimezoneService.getCurrentMauritaniaTime()
+            .toIso8601String(),
       });
 
       isProcessing.value = false;

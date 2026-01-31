@@ -15,7 +15,7 @@ class DAvailabilityManagementScreen
         elevation: 0,
         title: Text(
           'available_management'.tr,
-          style: TextStyle(
+          style: CustomTextStyle(
             color: Colors.black,
             fontSize: 18,
             fontWeight: FontWeight.w500,
@@ -58,7 +58,7 @@ class DAvailabilityManagementScreen
                   Expanded(
                     child: Text(
                       'select_available_time_slots'.tr,
-                      style: const TextStyle(
+                      style: const CustomTextStyle(
                         fontSize: 14,
                         color: Colors.black87,
                       ),
@@ -111,7 +111,7 @@ class DAvailabilityManagementScreen
                     ),
                     child: Text(
                       'save_availabilities'.tr,
-                      style: const TextStyle(
+                      style: const CustomTextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                         color: Colors.white,
@@ -162,7 +162,7 @@ class DAvailabilityManagementScreen
                   child: Center(
                     child: Text(
                       dayNumber.toString(),
-                      style: TextStyle(
+                      style: CustomTextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                         color: totalSlots > 0
@@ -179,7 +179,7 @@ class DAvailabilityManagementScreen
                     children: [
                       Text(
                         dayName.tr,
-                        style: const TextStyle(
+                        style: const CustomTextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                           color: Colors.black87,
@@ -188,7 +188,7 @@ class DAvailabilityManagementScreen
                       if (totalSlots > 0)
                         Text(
                           '$totalSlots ${'time_slots_selected'.tr}',
-                          style: TextStyle(
+                          style: CustomTextStyle(
                             fontSize: 12,
                             color: Colors.grey[600],
                           ),
@@ -210,7 +210,7 @@ class DAvailabilityManagementScreen
                     ),
                     child: Text(
                       totalSlots.toString(),
-                      style: const TextStyle(
+                      style: const CustomTextStyle(
                         color: Colors.white,
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
@@ -240,7 +240,7 @@ class DAvailabilityManagementScreen
                             ),
                             child: Text(
                               'select_all'.tr,
-                              style: const TextStyle(
+                              style: const CustomTextStyle(
                                 fontSize: 12,
                                 color: Color(0xFF3366FF),
                               ),
@@ -261,7 +261,7 @@ class DAvailabilityManagementScreen
                             ),
                             child: Text(
                               'clear_all'.tr,
-                              style: TextStyle(
+                              style: CustomTextStyle(
                                 fontSize: 12,
                                 color: Colors.grey[700],
                               ),
@@ -302,7 +302,7 @@ class DAvailabilityManagementScreen
                               ),
                               child: Text(
                                 timeSlot,
-                                style: TextStyle(
+                                style: CustomTextStyle(
                                   fontSize: 14,
                                   fontWeight: isSelected
                                       ? FontWeight.w600
@@ -337,7 +337,7 @@ class DAvailabilityManagementScreen
           Text(
             'unable_to_load_data'.tr,
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+            style: CustomTextStyle(fontSize: 16, color: Colors.grey[600]),
           ),
           const SizedBox(height: 16),
           ElevatedButton(
@@ -350,7 +350,7 @@ class DAvailabilityManagementScreen
             ),
             child: Text(
               'retry'.tr,
-              style: const TextStyle(color: Colors.white),
+              style: const CustomTextStyle(color: Colors.white),
             ),
           ),
         ],

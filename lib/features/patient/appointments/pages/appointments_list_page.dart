@@ -33,7 +33,10 @@ class UAllAppointments extends GetView<UAllAppointmentsController> {
             () => Visibility(
               visible: appointmentsController.selectedTab.value == 1,
               child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 46.0.w, vertical: 10.0.h),
+                padding: EdgeInsets.symmetric(
+                  horizontal: 46.0.w,
+                  vertical: 10.0.h,
+                ),
               ),
             ),
           ),
@@ -76,7 +79,7 @@ class UAllAppointments extends GetView<UAllAppointmentsController> {
           SizedBox(height: 16),
           // Text(
           //   'loading_appointments'.tr,
-          //   style: const TextStyle(
+          //   style: const CustomTextStyle(
           //     fontSize: 16,
           //     fontWeight: FontWeight.w500,
           //     color: Color(0xFF3366FF),
@@ -100,13 +103,16 @@ class UAllAppointments extends GetView<UAllAppointmentsController> {
             Text(
               'error_loading_appointments'.tr,
 
-              style: TextStyle(fontWeight: FontWeight.w500, fontSize: 18.sp),
+              style: CustomTextStyle(
+                fontWeight: FontWeight.w500,
+                fontSize: 18.sp,
+              ),
               textAlign: TextAlign.center,
             ),
             SizedBox(height: 8.h),
             Text(
               'please_check_connection'.tr,
-              style: TextStyle(color: Colors.grey[600], fontSize: 14.sp),
+              style: CustomTextStyle(color: Colors.grey[600], fontSize: 14.sp),
               textAlign: TextAlign.center,
             ),
             SizedBox(height: 24.h),
@@ -117,10 +123,7 @@ class UAllAppointments extends GetView<UAllAppointmentsController> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF3366FF),
                 foregroundColor: Colors.white,
-                padding: EdgeInsets.symmetric(
-                  horizontal: 24.w,
-                  vertical: 12.h,
-                ),
+                padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8.r),
                 ),
@@ -169,7 +172,7 @@ class UAllAppointments extends GetView<UAllAppointmentsController> {
                 child: Center(
                   child: Text(
                     'previous_sessions'.tr,
-                    style: TextStyle(
+                    style: CustomTextStyle(
                       color: appointmentsController.selectedTab.value == 0
                           ? Colors.white
                           : Colors.black,
@@ -201,7 +204,7 @@ class UAllAppointments extends GetView<UAllAppointmentsController> {
                 child: Center(
                   child: Text(
                     'upcoming_sessions'.tr,
-                    style: TextStyle(
+                    style: CustomTextStyle(
                       color: appointmentsController.selectedTab.value == 1
                           ? Colors.white
                           : Colors.black,
@@ -277,7 +280,7 @@ class UAllAppointments extends GetView<UAllAppointmentsController> {
         ),
         child: Text(
           label,
-          style: TextStyle(
+          style: CustomTextStyle(
             color: textColor,
             fontWeight: FontWeight.w500,
             fontSize: 11.sp,
@@ -396,7 +399,7 @@ class UAllAppointments extends GetView<UAllAppointmentsController> {
                             ? (appointment.name ?? 'Unknown')
                             : (appointment.name ?? 'Unknown')[0].toUpperCase() +
                                   (appointment.name ?? 'Unknown').substring(1),
-                        style: TextStyle(
+                        style: CustomTextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 15.sp,
                           height: isArabic ? 1.2 : 1.0,
@@ -408,7 +411,7 @@ class UAllAppointments extends GetView<UAllAppointmentsController> {
                       SizedBox(height: 4.h),
                       Text(
                         appointment.departmentName ?? 'Specialist',
-                        style: TextStyle(
+                        style: CustomTextStyle(
                           fontSize: 12.sp,
                           fontWeight: FontWeight.w500,
                           color: Colors.grey[600],
@@ -422,7 +425,7 @@ class UAllAppointments extends GetView<UAllAppointmentsController> {
                         appointmentsController.statusMap[appointment.status] ??
                             appointment.status ??
                             'Unknown',
-                        style: TextStyle(
+                        style: CustomTextStyle(
                           fontSize: 11.sp,
                           height: 1.2,
                           color: Colors.grey[500],
@@ -452,7 +455,7 @@ class UAllAppointments extends GetView<UAllAppointmentsController> {
                       isArabic
                           ? "${_formatDateArabic(appointment.date ?? '')} \n ${_formatTimeArabic(appointment.slot ?? '')} "
                           : "${_formatDate(appointment.date ?? '')} at ${_formatTime(appointment.slot ?? '')}",
-                      style: TextStyle(
+                      style: CustomTextStyle(
                         fontSize: 14.sp,
                         fontWeight: FontWeight.w700,
                         color: Colors.grey[800],
@@ -593,7 +596,7 @@ class UAllAppointments extends GetView<UAllAppointmentsController> {
             ),
             child: Text(
               buttonText,
-              style: TextStyle(
+              style: CustomTextStyle(
                 color: Colors.white,
                 fontSize: 11.sp,
                 fontFamily: Get.locale?.languageCode == 'ar'
@@ -633,7 +636,7 @@ class UAllAppointments extends GetView<UAllAppointmentsController> {
             ),
             child: Text(
               'view_details'.tr,
-              style: TextStyle(
+              style: CustomTextStyle(
                 color: Colors.white,
                 fontSize: 11.sp,
                 fontFamily: Get.locale?.languageCode == 'ar'
@@ -664,7 +667,7 @@ class UAllAppointments extends GetView<UAllAppointmentsController> {
                     ),
                     child: Text(
                       'rated'.tr,
-                      style: TextStyle(
+                      style: CustomTextStyle(
                         color: Colors.grey[600],
                         fontSize: 11.sp,
                         fontFamily: Get.locale?.languageCode == 'ar'
@@ -695,7 +698,7 @@ class UAllAppointments extends GetView<UAllAppointmentsController> {
                   ),
                   child: Text(
                     'rate'.tr,
-                    style: TextStyle(
+                    style: CustomTextStyle(
                       color: Colors.white,
                       fontSize: 11.sp,
                       fontFamily: Get.locale?.languageCode == 'ar'
@@ -793,13 +796,16 @@ class UAllAppointments extends GetView<UAllAppointmentsController> {
             appointmentsController.selectedTab.value == 0
                 ? 'no_sessions_yet'.tr
                 : 'no_upcoming_sessions'.tr,
-            style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.bold),
+            style: CustomTextStyle(
+              fontSize: 20.sp,
+              fontWeight: FontWeight.bold,
+            ),
             textAlign: TextAlign.center,
           ),
           SizedBox(height: 8.h),
           Text(
             'ready_to_start'.tr,
-            style: TextStyle(fontSize: 16.sp, color: Colors.grey[700]),
+            style: CustomTextStyle(fontSize: 16.sp, color: Colors.grey[700]),
             textAlign: TextAlign.center,
           ),
           SizedBox(height: 50.h),
@@ -840,7 +846,7 @@ class UAllAppointments extends GetView<UAllAppointmentsController> {
           onPressed: onTap,
           style: ElevatedButton.styleFrom(
             padding: EdgeInsets.symmetric(vertical: 10.h),
-            textStyle: TextStyle(
+            textStyle: CustomTextStyle(
               fontSize: Get.locale?.languageCode == 'ar'
                   ? 10.sp
                   : Get.locale?.languageCode == 'fr'

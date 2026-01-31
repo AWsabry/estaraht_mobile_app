@@ -1,6 +1,7 @@
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:videocalling/core/config/app_imports.dart';
 import 'package:videocalling/features/patient/appointments/models/make_appointment_class.dart';
+import 'package:videocalling/shared/services/others/timezone_service.dart';
 
 class MakeAppointment extends GetView<MakeAppointmentController> {
   final MakeAppointmentController makeAppointmentController = Get.put(
@@ -44,7 +45,7 @@ class MakeAppointment extends GetView<MakeAppointmentController> {
                   ),
                   Text(
                     'book_a_session'.tr,
-                    style: const TextStyle(
+                    style: const CustomTextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w400,
                     ),
@@ -80,7 +81,7 @@ class MakeAppointment extends GetView<MakeAppointmentController> {
                     ),
                     child: Text(
                       'select_date'.tr,
-                      style: const TextStyle(
+                      style: const CustomTextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w400,
                       ),
@@ -104,7 +105,7 @@ class MakeAppointment extends GetView<MakeAppointmentController> {
                             makeAppointmentController.availableDates.isNotEmpty
                                 ? '${DateFormat('dd MMM').format(makeAppointmentController.availableDates.first)} - ${DateFormat('dd MMM').format(makeAppointmentController.availableDates.last)}'
                                 : 'no_available_dates'.tr,
-                            style: const TextStyle(
+                            style: const CustomTextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w400,
                               color: Colors.black87,
@@ -132,7 +133,7 @@ class MakeAppointment extends GetView<MakeAppointmentController> {
                             return Center(
                               child: Text(
                                 'No available dates'.tr,
-                                style: const TextStyle(
+                                style: const CustomTextStyle(
                                   fontSize: 14,
                                   color: Colors.grey,
                                 ),
@@ -157,7 +158,8 @@ class MakeAppointment extends GetView<MakeAppointmentController> {
                                 // Fix: Check if selected date is actually today, not just index 0
                                 DateTime selectedDate =
                                     makeAppointmentController.availableDates[i];
-                                DateTime today = DateTime.now();
+                                DateTime today =
+                                    TimezoneService.getCurrentMauritaniaTime();
                                 bool isSelectedDateToday =
                                     selectedDate.year == today.year &&
                                     selectedDate.month == today.month &&
@@ -218,7 +220,7 @@ class MakeAppointment extends GetView<MakeAppointmentController> {
                                     Text(
                                       makeAppointmentController.days[currentDate
                                           .weekday],
-                                      style: TextStyle(
+                                      style: CustomTextStyle(
                                         fontSize: 12,
                                         fontWeight: FontWeight.w500,
                                         color:
@@ -232,7 +234,7 @@ class MakeAppointment extends GetView<MakeAppointmentController> {
                                     const SizedBox(height: 2),
                                     Text(
                                       currentDate.day.toString(),
-                                      style: TextStyle(
+                                      style: CustomTextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.bold,
                                         color:
@@ -263,7 +265,7 @@ class MakeAppointment extends GetView<MakeAppointmentController> {
                     ),
                     child: Text(
                       'choose_the_time'.tr,
-                      style: const TextStyle(
+                      style: const CustomTextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w400,
                       ),
@@ -295,7 +297,7 @@ class MakeAppointment extends GetView<MakeAppointmentController> {
                       ),
                       child: Text(
                         'make_an_appointment'.tr,
-                        style: const TextStyle(
+                        style: const CustomTextStyle(
                           fontSize: 16,
                           color: Colors.white,
                           fontWeight: FontWeight.w500,
@@ -358,7 +360,7 @@ class MakeAppointment extends GetView<MakeAppointmentController> {
                             ? makeAppointmentController.name
                             : makeAppointmentController.name[0].toUpperCase() +
                                   makeAppointmentController.name.substring(1),
-                        style: TextStyle(
+                        style: CustomTextStyle(
                           fontSize: 16.sp,
                           fontWeight: FontWeight.w700,
                         ),
@@ -368,7 +370,7 @@ class MakeAppointment extends GetView<MakeAppointmentController> {
                       SizedBox(height: 4.h),
                       Text(
                         'specialist'.tr,
-                        style: TextStyle(
+                        style: CustomTextStyle(
                           fontSize: 11.sp,
                           fontWeight: FontWeight.w400,
                         ),
@@ -397,7 +399,7 @@ class MakeAppointment extends GetView<MakeAppointmentController> {
                           Flexible(
                             child: Text(
                               'sessions'.tr,
-                              style: TextStyle(
+                              style: CustomTextStyle(
                                 fontSize: 10.sp,
                                 height: 1.3,
                                 fontWeight: FontWeight.w400,
@@ -421,7 +423,7 @@ class MakeAppointment extends GetView<MakeAppointmentController> {
                           Flexible(
                             child: Text(
                               '45 ${"min".tr}',
-                              style: TextStyle(
+                              style: CustomTextStyle(
                                 fontSize: 10.sp,
                                 fontWeight: FontWeight.w400,
                               ),
@@ -449,7 +451,7 @@ class MakeAppointment extends GetView<MakeAppointmentController> {
           padding: const EdgeInsets.all(32.0),
           child: Text(
             'no_slot_available'.tr,
-            style: TextStyle(fontSize: 15, color: Colors.grey[600]),
+            style: CustomTextStyle(fontSize: 15, color: Colors.grey[600]),
           ),
         ),
       );
@@ -468,7 +470,10 @@ class MakeAppointment extends GetView<MakeAppointmentController> {
         const SizedBox(height: 40),
         Text(
           'doc_on_leave_title'.tr,
-          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+          style: const CustomTextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w500,
+          ),
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 5),
@@ -476,7 +481,7 @@ class MakeAppointment extends GetView<MakeAppointmentController> {
             'doc_on_leave_description'.trParams({
               'date': makeAppointmentController.date,
             }),
-            style: TextStyle(color: Colors.grey[600], fontSize: 14),
+            style: CustomTextStyle(color: Colors.grey[600], fontSize: 14),
             textAlign: TextAlign.center,
           ),
         ),
@@ -540,7 +545,7 @@ class MakeAppointment extends GetView<MakeAppointmentController> {
                           Container(
                             height: 32,
                             width: 32,
-                            padding: const EdgeInsets.all(6),
+                            padding: const EdgeInsets.all(4),
                             decoration: BoxDecoration(
                               color:
                                   makeAppointmentController
@@ -550,10 +555,15 @@ class MakeAppointment extends GetView<MakeAppointmentController> {
                                   : Colors.grey[100],
                               borderRadius: BorderRadius.circular(10),
                             ),
-                            child: Image.asset(
-                              makeAppointmentController.selectedSlot[i].value
-                                  ? AppImages.dayActive
-                                  : AppImages.dayUnActive,
+                            child: Icon(
+                              _getSlotIcon(i),
+                              size: 20,
+                              color:
+                                  makeAppointmentController
+                                      .selectedSlot[i]
+                                      .value
+                                  ? const Color(0xFF3366FF)
+                                  : Colors.grey[600],
                             ),
                           ),
                           const SizedBox(width: 10),
@@ -563,7 +573,7 @@ class MakeAppointment extends GetView<MakeAppointmentController> {
                                     .data![i]
                                     .title ??
                                 "",
-                            style: TextStyle(
+                            style: CustomTextStyle(
                               color:
                                   makeAppointmentController
                                       .selectedSlot[i]
@@ -607,7 +617,7 @@ class MakeAppointment extends GetView<MakeAppointmentController> {
                   // Phone number field
                   Text(
                     'phone_number'.tr,
-                    style: TextStyle(
+                    style: CustomTextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
                       color: Colors.grey[700],
@@ -654,7 +664,7 @@ class MakeAppointment extends GetView<MakeAppointmentController> {
                   // Description field
                   Text(
                     'description'.tr,
-                    style: TextStyle(
+                    style: CustomTextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
                       color: Colors.grey[700],
@@ -699,6 +709,28 @@ class MakeAppointment extends GetView<MakeAppointmentController> {
     );
   }
 
+  IconData _getSlotIcon(int index) {
+    if (makeAppointmentController.makeAppointmentClass?.data == null ||
+        index >= makeAppointmentController.makeAppointmentClass!.data!.length) {
+      return Icons.wb_sunny;
+    }
+
+    String? title = makeAppointmentController
+        .makeAppointmentClass!
+        .data![index]
+        .title
+        ?.toLowerCase();
+
+    if (title == 'morning') {
+      return Icons.wb_sunny; // أيقونة الشمس للصباح
+    } else if (title == 'evening') {
+      return Icons.nightlight_round; // أيقونة القمر للمساء
+    }
+
+    // Default fallback
+    return Icons.wb_sunny;
+  }
+
   List<Widget> _buildTimeSlotItems() {
     List<Widget> timeSlots = [];
     final languageController = Get.find<LanguageController>();
@@ -721,7 +753,7 @@ class MakeAppointment extends GetView<MakeAppointmentController> {
           try {
             String timeSlot = list[i].name ?? "";
             // Parse current time and slot time in 24-hour format
-            DateTime now = DateTime.now();
+            DateTime now = TimezoneService.getCurrentMauritaniaTime();
             DateTime slotDateTime = DateFormat(
               'yyyy-MM-dd HH:mm',
             ).parse('${DateFormat('yyyy-MM-dd').format(now)} $timeSlot');
@@ -810,7 +842,7 @@ class MakeAppointment extends GetView<MakeAppointmentController> {
               child: Center(
                 child: Text(
                   displayTime,
-                  style: TextStyle(
+                  style: CustomTextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w400,
                     color: (isBooked || isPastTime)

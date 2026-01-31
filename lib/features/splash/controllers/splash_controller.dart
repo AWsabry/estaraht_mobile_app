@@ -10,14 +10,15 @@ class SplashController extends GetxController {
   }
 
   void checkUserStatus() {
-    Timer(const Duration(seconds: 3), () {
+    Timer(const Duration(seconds: 3), () async {
       // Navigate based on user status
       if (StorageService.readData(key: LocalStorageKeys.isLoggedIn) == true) {
         bool isDoctor =
             StorageService.readData(key: LocalStorageKeys.isLoggedInAsDoctor) ??
-            false;
+                false;
         if (isDoctor) {
-          Get.offAllNamed(Routes.doctorTabScreen);
+          // Check doctor approval status before navigating
+          await _checkDoctorApprovalStatus();
         } else {
           Get.offAllNamed(Routes.userTabScreen);
         }
@@ -32,5 +33,48 @@ class SplashController extends GetxController {
         Get.offAllNamed(Routes.roleSelectionScreen);
       }
     });
+  }
+
+  /// Check doctor's approval status and navigate accordingly
+  Future<void> _checkDoctorApprovalStatus() async {
+    try {
+      final userId = StorageService.readData(key: LocalStorageKeys.userId);
+
+      if (userId == null || userId.isEmpty) {
+        // No user ID, navigate to login
+        Get.offAllNamed(Routes.doctorLoginScreen);
+        return;
+      }
+
+      // Fetch doctor approval status from Supabase
+      final doctorData = await supabaseHelper.client
+          .from('doctors')
+          .select('approval_status')
+          .eq('doctor_id', userId)
+          .single();
+
+      final String approvalStatus =
+          doctorData['approval_status'] ?? 'pending';
+      print('👨‍⚕️ Doctor approval status on splash: $approvalStatus');
+
+      if (approvalStatus == 'pending') {
+        Get.offAllNamed(Routes.underReviewScreen);
+      } else if (approvalStatus == 'approved') {
+        Get.offAllNamed(Routes.doctorTabScreen);
+      } else if (approvalStatus == 'rejected') {
+        final rejectionReason = doctorData['rejection_reason'];
+        Get.offAllNamed(
+          '/account-rejected',
+          arguments: rejectionReason,
+        );
+      } else {
+        // Unknown status, fallback to login
+        Get.offAllNamed(Routes.doctorLoginScreen);
+      }
+    } catch (e) {
+      print('❌ Error checking doctor approval status: $e');
+      // On error, fallback to doctor dashboard (assume approved)
+      Get.offAllNamed(Routes.doctorTabScreen);
+    }
   }
 }

@@ -61,7 +61,7 @@ class ForgetPasswordController extends GetxController {
           Get.back();
         }
       },
-      s3style: TextStyle(
+      s3style: CustomTextStyle(
         fontFamily: AppFontStyleTextStrings.medium,
         color: AppColors.BLACK,
       ),

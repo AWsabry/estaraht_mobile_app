@@ -1,5 +1,6 @@
 import 'package:http/http.dart' as http;
 import 'package:videocalling/core/config/app_imports.dart';
+import 'package:videocalling/shared/services/others/timezone_service.dart';
 
 class BankilyService {
   // Supabase helper instance
@@ -150,14 +151,14 @@ class BankilyService {
         // Calculate expiry times
         if (data['expires_in'] != null) {
           int expiresIn = int.tryParse(data['expires_in'].toString()) ?? 3600;
-          _tokenExpiry = DateTime.now().add(Duration(seconds: expiresIn));
+          _tokenExpiry = TimezoneService.getCurrentMauritaniaTime().add(Duration(seconds: expiresIn));
           loggerNoStack.d('Access token expires in: $expiresIn seconds');
         }
 
         if (data['refresh_expires_in'] != null) {
           int refreshExpiresIn =
               int.tryParse(data['refresh_expires_in'].toString()) ?? 86400;
-          _refreshTokenExpiry = DateTime.now().add(
+          _refreshTokenExpiry = TimezoneService.getCurrentMauritaniaTime().add(
             Duration(seconds: refreshExpiresIn),
           );
           loggerNoStack.d(
@@ -255,13 +256,13 @@ class BankilyService {
         // Update expiry times
         if (data['expires_in'] != null) {
           int expiresIn = int.tryParse(data['expires_in'].toString()) ?? 3600;
-          _tokenExpiry = DateTime.now().add(Duration(seconds: expiresIn));
+          _tokenExpiry = TimezoneService.getCurrentMauritaniaTime().add(Duration(seconds: expiresIn));
         }
 
         if (data['refresh_expires_in'] != null) {
           int refreshExpiresIn =
               int.tryParse(data['refresh_expires_in'].toString()) ?? 86400;
-          _refreshTokenExpiry = DateTime.now().add(
+          _refreshTokenExpiry = TimezoneService.getCurrentMauritaniaTime().add(
             Duration(seconds: refreshExpiresIn),
           );
         }
@@ -303,7 +304,7 @@ class BankilyService {
 
       // Check if token is about to expire (within 5 minutes)
       if (_tokenExpiry != null &&
-          DateTime.now()
+          TimezoneService.getCurrentMauritaniaTime()
               .add(const Duration(minutes: 5))
               .isAfter(_tokenExpiry!)) {
         loggerNoStack.w('⏰ Access token expiring soon, refreshing...');
@@ -580,7 +581,7 @@ class BankilyService {
         'username': username,
         'password': password,
         'client_id': _clientId,
-        'updated_at': DateTime.now().toIso8601String(),
+        'updated_at': TimezoneService.getCurrentMauritaniaTime().toIso8601String(),
       };
 
       if (existing != null) {
@@ -738,7 +739,7 @@ class BankilyService {
   /// Check if authenticated
   bool get isAuthenticated =>
       _accessToken != null &&
-      (_tokenExpiry == null || DateTime.now().isBefore(_tokenExpiry!));
+      (_tokenExpiry == null || TimezoneService.getCurrentMauritaniaTime().isBefore(_tokenExpiry!));
 
   /// Clear all tokens (logout)
   void clearTokens() {

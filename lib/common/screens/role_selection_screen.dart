@@ -91,7 +91,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen>
                   Text(
                     'welcome_back'.tr,
                     textAlign: TextAlign.center,
-                    style: TextStyle(
+                    style: CustomTextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.w700,
                       color: Colors.white,
@@ -104,7 +104,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen>
                   Text(
                     'select_your_role'.tr,
                     textAlign: TextAlign.center,
-                    style: TextStyle(
+                    style: CustomTextStyle(
                       fontSize: 12.sp,
                       fontWeight: FontWeight.w500,
                       color: Colors.grey.shade300,
@@ -208,7 +208,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen>
                   children: [
                     Text(
                       title,
-                      style: TextStyle(
+                      style: CustomTextStyle(
                         fontSize: 16.sp,
                         fontWeight: FontWeight.w600,
                         color: isPrimary
@@ -220,7 +220,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen>
                     const SizedBox(height: 4),
                     Text(
                       subtitle,
-                      style: TextStyle(
+                      style: CustomTextStyle(
                         fontSize: 13.sp,
                         fontWeight: FontWeight.w400,
                         color: isPrimary

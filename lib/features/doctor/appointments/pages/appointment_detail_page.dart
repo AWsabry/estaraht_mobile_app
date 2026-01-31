@@ -24,7 +24,7 @@ class DoctorAppointmentDetails extends GetView<DAppointmentDetailsController> {
           elevation: 0,
           title: Text(
             'appointment'.tr,
-            style: TextStyle(
+            style: CustomTextStyle(
               color: Colors.black,
               fontSize: 16,
               fontWeight: FontWeight.w600,
@@ -63,7 +63,7 @@ class DoctorAppointmentDetails extends GetView<DAppointmentDetailsController> {
             Text(
               'unable_to_load_data'.tr,
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+              style: CustomTextStyle(fontSize: 16, color: Colors.grey[600]),
             ),
           ],
         ),
@@ -174,7 +174,7 @@ class DoctorAppointmentDetails extends GetView<DAppointmentDetailsController> {
                             .doctorAppointmentDetailsClass
                             .data!
                             .userName!,
-                        style: const TextStyle(
+                        style: const CustomTextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
@@ -203,7 +203,7 @@ class DoctorAppointmentDetails extends GetView<DAppointmentDetailsController> {
                       children: [
                         Text(
                           'appointment_date'.tr,
-                          style: TextStyle(
+                          style: CustomTextStyle(
                             fontSize: 14,
                             color: Colors.grey[700],
                           ),
@@ -211,7 +211,7 @@ class DoctorAppointmentDetails extends GetView<DAppointmentDetailsController> {
                         const SizedBox(height: 4),
                         Text(
                           "${detailsController.doctorAppointmentDetailsClass.data!.date.toString().substring(8)}-${detailsController.doctorAppointmentDetailsClass.data!.date.toString().substring(5, 7)}-${detailsController.doctorAppointmentDetailsClass.data!.date.toString().substring(0, 4)}",
-                          style: const TextStyle(
+                          style: const CustomTextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                           ),
@@ -227,12 +227,12 @@ class DoctorAppointmentDetails extends GetView<DAppointmentDetailsController> {
                     children: [
                       Text(
                         'session_time'.tr,
-                        style: TextStyle(fontSize: 14, color: Colors.grey[700]),
+                        style: CustomTextStyle(fontSize: 14, color: Colors.grey[700]),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         formattedSlot,
-                        style: const TextStyle(
+                        style: const CustomTextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                         ),
@@ -330,7 +330,7 @@ class DoctorAppointmentDetails extends GetView<DAppointmentDetailsController> {
           const SizedBox(width: 6),
           Text(
             statusText,
-            style: TextStyle(
+            style: CustomTextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w500,
               color: statusColor,
@@ -353,7 +353,7 @@ class DoctorAppointmentDetails extends GetView<DAppointmentDetailsController> {
           children: [
             Text(
               'contact_info'.tr,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: const CustomTextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
 
@@ -383,7 +383,7 @@ class DoctorAppointmentDetails extends GetView<DAppointmentDetailsController> {
               children: [
                 Text(
                   'description'.tr,
-                  style: TextStyle(
+                  style: CustomTextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
                     color: Colors.grey[700],
@@ -395,7 +395,7 @@ class DoctorAppointmentDetails extends GetView<DAppointmentDetailsController> {
                       .doctorAppointmentDetailsClass
                       .data!
                       .description!,
-                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                  style: CustomTextStyle(fontSize: 14, color: Colors.grey[600]),
                 ),
               ],
             ),
@@ -495,7 +495,7 @@ class DoctorAppointmentDetails extends GetView<DAppointmentDetailsController> {
             children: [
               Text(
                 title,
-                style: TextStyle(
+                style: CustomTextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
                   color: Colors.grey[700],
@@ -504,7 +504,7 @@ class DoctorAppointmentDetails extends GetView<DAppointmentDetailsController> {
               const SizedBox(height: 4),
               Text(
                 value,
-                style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                style: CustomTextStyle(fontSize: 14, color: Colors.grey[600]),
               ),
             ],
           ),
@@ -540,7 +540,7 @@ class DoctorAppointmentDetails extends GetView<DAppointmentDetailsController> {
           const SizedBox(width: 8),
           Text(
             label,
-            style: const TextStyle(
+            style: const CustomTextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w500,
               color: Colors.white,
@@ -599,7 +599,7 @@ class DoctorAppointmentDetails extends GetView<DAppointmentDetailsController> {
                     children: [
                       Text(
                         'prescription'.tr,
-                        style: const TextStyle(
+                        style: const CustomTextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                         ),
@@ -609,7 +609,7 @@ class DoctorAppointmentDetails extends GetView<DAppointmentDetailsController> {
                         hasPrescriptions
                             ? 'd_add_prescription_msg'.tr
                             : 'd_no_prescription_msg'.tr,
-                        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                        style: CustomTextStyle(fontSize: 12, color: Colors.grey[600]),
                       ),
                     ],
                   ),
@@ -702,7 +702,7 @@ class DoctorAppointmentDetails extends GetView<DAppointmentDetailsController> {
                 Expanded(
                   child: Text(
                     medicine.medicine_name ?? "",
-                    style: const TextStyle(
+                    style: const CustomTextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                     ),
@@ -817,7 +817,7 @@ class DoctorAppointmentDetails extends GetView<DAppointmentDetailsController> {
                             ),
                             title: Text(
                               'confirmation'.tr,
-                              style: const TextStyle(
+                              style: const CustomTextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -825,7 +825,7 @@ class DoctorAppointmentDetails extends GetView<DAppointmentDetailsController> {
                             ),
                             content: Text(
                               'delete_medicine'.tr,
-                              style: TextStyle(
+                              style: CustomTextStyle(
                                 fontSize: 16,
                                 color: Colors.grey[700],
                               ),
@@ -836,7 +836,7 @@ class DoctorAppointmentDetails extends GetView<DAppointmentDetailsController> {
                                 onPressed: () => Get.back(),
                                 child: Text(
                                   'cancel'.tr,
-                                  style: TextStyle(
+                                  style: CustomTextStyle(
                                     color: Colors.grey[700],
                                     fontSize: 16,
                                   ),
@@ -890,7 +890,7 @@ class DoctorAppointmentDetails extends GetView<DAppointmentDetailsController> {
                                 ),
                                 child: Text(
                                   'delete'.tr,
-                                  style: const TextStyle(color: Colors.white),
+                                  style: const CustomTextStyle(color: Colors.white),
                                 ),
                               ),
                             ],
@@ -923,7 +923,7 @@ class DoctorAppointmentDetails extends GetView<DAppointmentDetailsController> {
               children: [
                 Text(
                   'medicine_param_3'.tr,
-                  style: TextStyle(
+                  style: CustomTextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
                     color: Colors.grey[700],
@@ -946,7 +946,7 @@ class DoctorAppointmentDetails extends GetView<DAppointmentDetailsController> {
                         ),
                         child: Text(
                           medicine.time![j].tTime ?? "",
-                          style: const TextStyle(
+                          style: const CustomTextStyle(
                             fontSize: 12,
                             color: Color(0xFF3366FF),
                           ),
@@ -959,7 +959,7 @@ class DoctorAppointmentDetails extends GetView<DAppointmentDetailsController> {
             const SizedBox(height: 12),
             Text(
               '${'medicine_param_4'.tr}: ${medicine.repeatDays} ${'days'.tr}',
-              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+              style: const CustomTextStyle(fontSize: 14, fontWeight: FontWeight.w500),
             ),
           ],
         );
@@ -978,13 +978,14 @@ class DoctorAppointmentDetails extends GetView<DAppointmentDetailsController> {
       children: [
         Text(
           title,
-          style: TextStyle(
+          style: CustomTextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w500,
             color: Colors.grey[700],
+            height: 1.3,
           ),
         ),
-        Text(value, style: TextStyle(fontSize: 14, color: Colors.grey[600])),
+        Text(value, style: CustomTextStyle(fontSize: 14, color: Colors.grey[600], height: 1.3)),
       ],
     );
   }
@@ -1028,7 +1029,7 @@ class DoctorAppointmentDetails extends GetView<DAppointmentDetailsController> {
                     children: [
                       Text(
                         'reports'.tr,
-                        style: const TextStyle(
+                        style: const CustomTextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                         ),
@@ -1038,7 +1039,7 @@ class DoctorAppointmentDetails extends GetView<DAppointmentDetailsController> {
                         hasReports
                             ? 'd_add_report_msg'.tr
                             : 'd_no_report_msg'.tr,
-                        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                        style: CustomTextStyle(fontSize: 12, color: Colors.grey[600]),
                       ),
                     ],
                   ),
@@ -1129,7 +1130,7 @@ class DoctorAppointmentDetails extends GetView<DAppointmentDetailsController> {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 12, color: Colors.grey[700]),
+                style: CustomTextStyle(fontSize: 12, color: Colors.grey[700]),
               ),
             ],
           ),
@@ -1177,7 +1178,7 @@ class DoctorAppointmentDetails extends GetView<DAppointmentDetailsController> {
                   Expanded(
                     child: Text(
                       'confirm_session_completion'.tr,
-                      style: TextStyle(
+                      style: CustomTextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                         color: Colors.blue.shade900,
@@ -1191,7 +1192,7 @@ class DoctorAppointmentDetails extends GetView<DAppointmentDetailsController> {
               // Description
               Text(
                 'both_parties_must_confirm'.tr,
-                style: TextStyle(fontSize: 14, color: Colors.grey[700]),
+                style: CustomTextStyle(fontSize: 14, color: Colors.grey[700]),
               ),
               const SizedBox(height: 16),
 
@@ -1245,7 +1246,7 @@ class DoctorAppointmentDetails extends GetView<DAppointmentDetailsController> {
                           doctorConfirmed
                               ? 'session_already_confirmed'.tr
                               : 'confirm_session_completion'.tr,
-                          style: const TextStyle(
+                          style: const CustomTextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                             color: Colors.white,
@@ -1285,7 +1286,7 @@ class DoctorAppointmentDetails extends GetView<DAppointmentDetailsController> {
           children: [
             Text(
               label,
-              style: TextStyle(
+              style: CustomTextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
                 color: Colors.grey[800],
@@ -1306,7 +1307,7 @@ class DoctorAppointmentDetails extends GetView<DAppointmentDetailsController> {
                 const SizedBox(width: 4),
                 Text(
                   isConfirmed ? 'confirmed'.tr : 'pending',
-                  style: TextStyle(
+                  style: CustomTextStyle(
                     fontSize: 12,
                     color: isConfirmed
                         ? Colors.green.shade700

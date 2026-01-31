@@ -1,6 +1,7 @@
 import 'package:videocalling/core/config/app_imports.dart';
 import 'package:videocalling/features/doctor/profile/models/review_model.dart';
 import 'package:videocalling/features/doctor/profile/pages/edit_profile_page.dart';
+import 'package:videocalling/shared/services/others/timezone_service.dart';
 
 class DoctorProfileView extends GetView<DoctorProfileViewController> {
   final DoctorProfileViewController detailController = Get.put(
@@ -41,7 +42,7 @@ class DoctorProfileView extends GetView<DoctorProfileViewController> {
           20.hs,
           Text(
             'unable_to_load_data'.tr,
-            style: TextStyle(fontFamily: AppFontStyleTextStrings.regular),
+            style: CustomTextStyle(fontFamily: AppFontStyleTextStrings.regular),
           ),
         ],
       ),
@@ -85,7 +86,7 @@ class DoctorProfileView extends GetView<DoctorProfileViewController> {
                         labelColor: AppColors.color1,
                         unselectedLabelColor: Colors.black,
                         indicatorColor: AppColors.color1,
-                        labelStyle: TextStyle(
+                        labelStyle: CustomTextStyle(
                           fontSize: 12,
                           fontFamily: AppFontStyleTextStrings.regular,
                           fontWeight: FontWeight.w500,
@@ -260,7 +261,7 @@ class DoctorProfileView extends GetView<DoctorProfileViewController> {
                             Text(
                               detailController.doctorDetailsClass?.data?.name ??
                                   "Name",
-                              style: const TextStyle(
+                              style: const CustomTextStyle(
                                 height: 1.2,
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
@@ -268,7 +269,7 @@ class DoctorProfileView extends GetView<DoctorProfileViewController> {
                             ),
                             Text(
                               "Psychologist".tr,
-                              style: const TextStyle(
+                              style: const CustomTextStyle(
                                 height: 1.2,
                                 color: Colors.black,
                                 fontSize: 12,
@@ -339,7 +340,7 @@ class DoctorProfileView extends GetView<DoctorProfileViewController> {
             children: [
               Text(
                 title,
-                style: const TextStyle(
+                style: const CustomTextStyle(
                   height: 1.2,
                   fontWeight: FontWeight.bold,
                   fontSize: 12,
@@ -347,7 +348,7 @@ class DoctorProfileView extends GetView<DoctorProfileViewController> {
               ),
               Text(
                 subtitle,
-                style: TextStyle(
+                style: CustomTextStyle(
                   height: 1.2,
                   color: Colors.grey.shade900,
                   fontSize: 12,
@@ -370,7 +371,7 @@ class DoctorProfileView extends GetView<DoctorProfileViewController> {
       children: [
         Text(
           aboutText,
-          style: const TextStyle(
+          style: const CustomTextStyle(
             fontSize: 14,
             height: 1.2, // Specific line height for Arabic
             color: Colors.black87,
@@ -474,7 +475,7 @@ class DoctorProfileView extends GetView<DoctorProfileViewController> {
         const SizedBox(height: 8),
         Text(
           title.tr,
-          style: const TextStyle(
+          style: const CustomTextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w500,
             color: Colors.black,
@@ -484,7 +485,7 @@ class DoctorProfileView extends GetView<DoctorProfileViewController> {
         const SizedBox(height: 4),
         Text(
           value,
-          style: const TextStyle(
+          style: const CustomTextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w400,
             height: 1.2, // Specified line height for Arabic
@@ -541,7 +542,7 @@ class DoctorProfileView extends GetView<DoctorProfileViewController> {
       ),
       child: Text(
         title,
-        style: const TextStyle(fontSize: 14, color: Colors.black87),
+        style: const CustomTextStyle(fontSize: 14, color: Colors.black87),
       ),
     );
   }
@@ -561,7 +562,7 @@ class DoctorProfileView extends GetView<DoctorProfileViewController> {
               const SizedBox(height: 16),
               Text(
                 'unable_to_load_data'.tr,
-                style: const TextStyle(color: Colors.grey),
+                style: const CustomTextStyle(color: Colors.grey),
               ),
             ],
           ),
@@ -569,7 +570,7 @@ class DoctorProfileView extends GetView<DoctorProfileViewController> {
       }
 
       // Get today's date
-      final now = DateTime.now();
+      final now = TimezoneService.getCurrentMauritaniaTime();
       final dates = List.generate(7, (index) => now.add(Duration(days: index)));
 
       return SingleChildScrollView(
@@ -616,7 +617,7 @@ class DoctorProfileView extends GetView<DoctorProfileViewController> {
                       padding: const EdgeInsets.symmetric(vertical: 8),
                       child: Text(
                         availabilityController.dayNames[index].tr,
-                        style: const TextStyle(
+                        style: const CustomTextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),
@@ -639,7 +640,7 @@ class DoctorProfileView extends GetView<DoctorProfileViewController> {
                   padding: const EdgeInsets.all(32),
                   child: Text(
                     "no_available_dates".tr,
-                    style: const TextStyle(
+                    style: const CustomTextStyle(
                       color: Colors.grey,
                       fontSize: 14,
                       height: 1.2,
@@ -676,7 +677,7 @@ class DoctorProfileView extends GetView<DoctorProfileViewController> {
       ),
       child: Text(
         time,
-        style: const TextStyle(
+        style: const CustomTextStyle(
           fontSize: 14,
           color: AppColors.color1,
           fontWeight: FontWeight.w500,
@@ -711,7 +712,7 @@ class DoctorProfileView extends GetView<DoctorProfileViewController> {
         children: [
           Text(
             day,
-            style: TextStyle(
+            style: CustomTextStyle(
               color: isSelected ? Colors.white : Colors.black87,
               fontSize: 12,
               fontWeight: FontWeight.w500,
@@ -720,7 +721,7 @@ class DoctorProfileView extends GetView<DoctorProfileViewController> {
           const SizedBox(height: 4),
           Text(
             date,
-            style: TextStyle(
+            style: CustomTextStyle(
               color: isSelected ? Colors.white : Colors.black,
               fontSize: 16,
               fontWeight: FontWeight.bold,
@@ -758,7 +759,7 @@ class DoctorProfileView extends GetView<DoctorProfileViewController> {
               const SizedBox(height: 16),
               Text(
                 'unable_to_load_reviews'.tr,
-                style: const TextStyle(color: Colors.grey),
+                style: const CustomTextStyle(color: Colors.grey),
               ),
             ],
           ),
@@ -778,7 +779,7 @@ class DoctorProfileView extends GetView<DoctorProfileViewController> {
               const SizedBox(height: 16),
               Text(
                 'no_reviews_yet'.tr,
-                style: const TextStyle(color: Colors.grey, fontSize: 16),
+                style: const CustomTextStyle(color: Colors.grey, fontSize: 16),
               ),
             ],
           ),
@@ -804,7 +805,7 @@ class DoctorProfileView extends GetView<DoctorProfileViewController> {
                   children: [
                     Text(
                       detailController.averageRating.value.toStringAsFixed(1),
-                      style: const TextStyle(
+                      style: const CustomTextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
                         height: 1.2,
@@ -824,7 +825,7 @@ class DoctorProfileView extends GetView<DoctorProfileViewController> {
                         const SizedBox(width: 8),
                         Text(
                           '(${detailController.totalReviews.value} ${"reviews".tr})',
-                          style: const TextStyle(
+                          style: const CustomTextStyle(
                             color: Colors.grey,
                             fontSize: 12,
                             height: 1.2,
@@ -911,7 +912,7 @@ class DoctorProfileView extends GetView<DoctorProfileViewController> {
                   Expanded(
                     child: Text(
                       name,
-                      style: const TextStyle(
+                      style: const CustomTextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 14,
                       ),
@@ -920,7 +921,10 @@ class DoctorProfileView extends GetView<DoctorProfileViewController> {
                   ),
                   Text(
                     date,
-                    style: const TextStyle(fontSize: 12, color: Colors.grey),
+                    style: const CustomTextStyle(
+                      fontSize: 12,
+                      color: Colors.grey,
+                    ),
                   ),
                 ],
               ),
@@ -938,7 +942,7 @@ class DoctorProfileView extends GetView<DoctorProfileViewController> {
               const SizedBox(height: 8),
               Text(
                 comment,
-                style: const TextStyle(
+                style: const CustomTextStyle(
                   fontSize: 14,
                   color: Colors.black87,
                   height: 1.4,

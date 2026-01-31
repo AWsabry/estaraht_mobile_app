@@ -1,6 +1,6 @@
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
-
 import 'package:videocalling/core/config/app_imports.dart';
+import 'package:videocalling/shared/services/others/timezone_service.dart';
 import 'package:videocalling/shared/services/session_management_service.dart';
 
 class CallScreen extends StatefulWidget {
@@ -42,6 +42,10 @@ class _CallScreenState extends State<CallScreen> {
   // Minuteur pour la durée de l'appel
   Duration _callDuration = Duration.zero;
   Timer? _timer;
+
+  // Session time limit (30 minutes)
+  static const Duration _sessionTimeLimit = Duration(minutes: 30);
+  bool _sessionExpired = false;
 
   @override
   void initState() {
@@ -125,6 +129,14 @@ class _CallScreenState extends State<CallScreen> {
                       '📺 Removed remote user $uid. Total remote users: ${_remoteUids.length}',
                     );
                   });
+
+                  // Reset timer when a user leaves (new session starts)
+                  if (_remoteUids.isEmpty) {
+                    _resetTimer();
+                    loggerNoStack.i(
+                      '🔄 All participants left - Timer reset for new session',
+                    );
+                  }
                 }
               },
           onLeaveChannel: (RtcConnection connection, RtcStats stats) {
@@ -270,9 +282,51 @@ class _CallScreenState extends State<CallScreen> {
       if (mounted) {
         setState(() {
           _callDuration = Duration(seconds: timer.tick);
+
+          // Check if session time limit is reached
+          if (_callDuration >= _sessionTimeLimit && !_sessionExpired) {
+            _sessionExpired = true;
+            _onSessionExpired();
+          }
         });
       }
     });
+  }
+
+  void _resetTimer() {
+    _timer?.cancel();
+    if (mounted) {
+      setState(() {
+        _callDuration = Duration.zero;
+        _sessionExpired = false;
+      });
+    }
+    _startTimer();
+    loggerNoStack.i('⏱️ Timer reset - New session started');
+  }
+
+  void _onSessionExpired() async {
+    loggerNoStack.w('⏰ Session time limit reached (30 minutes)');
+
+    // Show dialog to user
+    if (mounted) {
+      Get.dialog(
+        AlertDialog(
+          title: Text('session_expired'.tr),
+          content: Text('session_time_limit_reached'.tr),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Get.back(); // Close dialog
+                _onCallEnd(); // End call
+              },
+              child: Text('ok'.tr),
+            ),
+          ],
+        ),
+        barrierDismissible: false,
+      );
+    }
   }
 
   String _formatDuration(Duration duration) {
@@ -286,6 +340,22 @@ class _CallScreenState extends State<CallScreen> {
     } else {
       return '$minutes:$seconds';
     }
+  }
+
+  String _getRemainingTime() {
+    final remaining = _sessionTimeLimit - _callDuration;
+    if (remaining.isNegative) return '00:00';
+
+    String twoDigits(int n) => n.toString().padLeft(2, '0');
+    String minutes = twoDigits(remaining.inMinutes.remainder(60));
+    String seconds = twoDigits(remaining.inSeconds.remainder(60));
+
+    return '$minutes:$seconds';
+  }
+
+  bool _isTimeRunningOut() {
+    final remaining = _sessionTimeLimit - _callDuration;
+    return remaining.inMinutes < 5 && remaining.inSeconds > 0;
   }
 
   Future<void> _disposeAgora() async {
@@ -308,7 +378,7 @@ class _CallScreenState extends State<CallScreen> {
             .from('bookings')
             .update({
               'status': 'completed',
-              'completed_at': DateTime.now().toIso8601String(),
+              'completed_at': TimezoneService.getCurrentMauritaniaTime().toIso8601String(),
               'doctor_confirmed': true, // Auto-confirm from video call end
               'patient_confirmed': true, // Auto-confirm from video call end
             })
@@ -406,7 +476,7 @@ class _CallScreenState extends State<CallScreen> {
                                 padding: const EdgeInsets.all(8.0),
                                 child: Text(
                                   'initializing'.tr,
-                                  style: TextStyle(
+                                  style: CustomTextStyle(
                                     color: Colors.white.withValues(alpha: 0.5),
                                     fontSize: 10,
                                   ),
@@ -428,7 +498,7 @@ class _CallScreenState extends State<CallScreen> {
               children: [
                 Text(
                   widget.opponentName,
-                  style: const TextStyle(
+                  style: const CustomTextStyle(
                     color: Colors.white,
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -439,8 +509,41 @@ class _CallScreenState extends State<CallScreen> {
                   _isJoined
                       ? '${_formatDuration(_callDuration)} • ${_remoteUids.length} ${_remoteUids.length == 1 ? "participant".tr : "participants".tr}'
                       : 'connecting'.tr,
-                  style: const TextStyle(color: Colors.white70, fontSize: 16),
+                  style: const CustomTextStyle(color: Colors.white70, fontSize: 16),
                 ),
+                if (_isTimeRunningOut() && _isJoined)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.orange.withValues(alpha: 0.8),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.access_time,
+                            color: Colors.white,
+                            size: 16,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            '${'time_remaining'.tr}: ${_getRemainingTime()}',
+                            style: const CustomTextStyle(
+                              color: Colors.white,
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
               ],
             ),
           ),
@@ -504,12 +607,12 @@ class _CallScreenState extends State<CallScreen> {
             const SizedBox(height: 20),
             Text(
               'waiting_for_participants'.tr,
-              style: const TextStyle(color: Colors.white, fontSize: 16),
+              style: const CustomTextStyle(color: Colors.white, fontSize: 16),
             ),
             const SizedBox(height: 10),
             Text(
               'Status: ${_isJoined ? "connected".tr : "connecting".tr}',
-              style: const TextStyle(color: Colors.white54, fontSize: 12),
+              style: const CustomTextStyle(color: Colors.white54, fontSize: 12),
             ),
           ],
         ),
@@ -544,7 +647,7 @@ class _CallScreenState extends State<CallScreen> {
               ),
               child: Text(
                 'Remote User: ${_remoteUids[0]}',
-                style: const TextStyle(color: Colors.white, fontSize: 10),
+                style: const CustomTextStyle(color: Colors.white, fontSize: 10),
               ),
             ),
           ),
@@ -589,7 +692,7 @@ class _CallScreenState extends State<CallScreen> {
                   ),
                   child: Text(
                     'User: $uid',
-                    style: const TextStyle(color: Colors.white, fontSize: 8),
+                    style: const CustomTextStyle(color: Colors.white, fontSize: 8),
                   ),
                 ),
               ),
@@ -612,7 +715,7 @@ class _CallScreenState extends State<CallScreen> {
         const SizedBox(height: 20),
         Text(
           widget.opponentName,
-          style: const TextStyle(color: Colors.white, fontSize: 22),
+          style: const CustomTextStyle(color: Colors.white, fontSize: 22),
         ),
       ],
     );

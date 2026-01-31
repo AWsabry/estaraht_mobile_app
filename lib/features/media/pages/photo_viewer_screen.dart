@@ -69,7 +69,7 @@ class MyPhotoViewer extends GetView<MyPhotoViewerController> {
                                   ),
                                   content: Text(
                                     'delete_report'.tr,
-                                    style: TextStyle(
+                                    style: CustomTextStyle(
                                       color: AppColors.BLACK,
                                       fontSize: 18,
                                       fontFamily:
@@ -97,7 +97,7 @@ class MyPhotoViewer extends GetView<MyPhotoViewerController> {
                                               child: Text(
                                                 'cancel'.tr,
                                                 maxLines: 1,
-                                                style: TextStyle(
+                                                style: CustomTextStyle(
                                                   color: AppColors.WHITE,
                                                   fontFamily:
                                                       AppFontStyleTextStrings
@@ -129,7 +129,7 @@ class MyPhotoViewer extends GetView<MyPhotoViewerController> {
                                               child: Text(
                                                 'delete'.tr,
                                                 maxLines: 1,
-                                                style: TextStyle(
+                                                style: CustomTextStyle(
                                                   color: AppColors.WHITE,
                                                   fontFamily:
                                                       AppFontStyleTextStrings
