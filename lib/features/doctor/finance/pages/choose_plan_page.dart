@@ -102,7 +102,7 @@ class DoctorChooseYourPlanScreen
                             const SizedBox(height: 20),
                             Text(
                               'unable_to_load_data'.tr,
-                              style: TextStyle(
+                              style: CustomTextStyle(
                                 fontFamily: AppFontStyleTextStrings.regular,
                               ),
                             ),
@@ -237,7 +237,7 @@ class DoctorChooseYourPlanScreen
                                                                   .tr
                                                             : 'choose_plan_t4'
                                                                   .tr,
-                                                        style: TextStyle(
+                                                        style: CustomTextStyle(
                                                           color:
                                                               choosePlanController
                                                                       .selectedIndex

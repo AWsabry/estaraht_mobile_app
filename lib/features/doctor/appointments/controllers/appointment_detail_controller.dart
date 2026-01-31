@@ -8,8 +8,9 @@ import 'package:logger/logger.dart';
 // Imports de votre projet
 import 'package:videocalling/core/config/app_imports.dart';
 import 'package:videocalling/features/doctor/more/dmy_photo_viewer_controller.dart';
-import 'package:videocalling/shared/services/session_management_service.dart';
 import 'package:videocalling/shared/services/agora_token_service.dart';
+import 'package:videocalling/shared/services/others/timezone_service.dart';
+import 'package:videocalling/shared/services/session_management_service.dart';
 
 // =======================================================================
 // ==================== DÉBUT DE LA CLASSE CORRIGÉE ====================
@@ -84,16 +85,151 @@ class DAppointmentDetailsController extends GetxController {
     }
   }
 
+  /// Check if the current time is within 5 minutes before the appointment
+  bool canJoinSession() {
+    try {
+      final bookingDate = doctorAppointmentDetailsClass.data?.date;
+      final bookingTime = doctorAppointmentDetailsClass.data?.slot;
+
+      if (bookingDate == null || bookingTime == null) {
+        developer.log("❌ Missing booking date or time");
+        return false;
+      }
+
+      // Parse booking date and time
+      final dateParts = bookingDate.split('-');
+      final timeParts = bookingTime.split(':');
+
+      final appointmentDateTime = DateTime(
+        int.parse(dateParts[0]), // year
+        int.parse(dateParts[1]), // month
+        int.parse(dateParts[2]), // day
+        int.parse(timeParts[0]), // hour
+        int.parse(timeParts[1]), // minute
+      );
+
+      // Get current time using Mauritania timezone
+      final now = TimezoneService.getCurrentMauritaniaTime();
+
+      // Calculate time difference
+      final difference = appointmentDateTime.difference(now);
+
+      developer.log(
+        "⏰ Appointment: $appointmentDateTime | Now (Mauritania): $now | Difference: ${difference.inMinutes} minutes",
+      );
+
+      // Allow joining if within 5 minutes before appointment or after appointment time
+      // This gives a 5-minute window before and unlimited time after
+      return difference.inMinutes <= 5;
+    } catch (e) {
+      developer.log("❌ Error checking session join time: $e");
+      return false; // Deny access if there's an error
+    }
+  }
+
+  /// Get time remaining until user can join the session (5 minutes before appointment)
+  String getTimeUntilCanJoin() {
+    try {
+      final bookingDate = doctorAppointmentDetailsClass.data?.date;
+      final bookingTime = doctorAppointmentDetailsClass.data?.slot;
+
+      if (bookingDate == null || bookingTime == null) {
+        return "";
+      }
+
+      // Parse booking date and time
+      final dateParts = bookingDate.split('-');
+      final timeParts = bookingTime.split(':');
+
+      final appointmentDateTime = DateTime(
+        int.parse(dateParts[0]), // year
+        int.parse(dateParts[1]), // month
+        int.parse(dateParts[2]), // day
+        int.parse(timeParts[0]), // hour
+        int.parse(timeParts[1]), // minute
+      );
+
+      // Calculate when user can join (5 minutes before appointment)
+      final canJoinTime = appointmentDateTime.subtract(
+        const Duration(minutes: 5),
+      );
+
+      // Get current time using Mauritania timezone
+      final now = TimezoneService.getCurrentMauritaniaTime();
+
+      // Calculate difference from now to when user can join
+      final difference = canJoinTime.difference(now);
+
+      if (difference.isNegative) {
+        return 'now'
+            .tr; // Can join now (5-minute window already started or appointment passed)
+      }
+
+      final days = difference.inDays;
+      final hours = difference.inHours % 24;
+      final minutes = difference.inMinutes % 60;
+
+      // If 24 hours or more, show in days and hours
+      if (days > 0) {
+        final dayText = days == 1 ? 'day'.tr : 'days'.tr;
+        final hourText = hours == 1 ? 'hour'.tr : 'hours'.tr;
+
+        if (hours > 0) {
+          return "$days $dayText ${'and'.tr} $hours $hourText";
+        } else {
+          return "$days $dayText";
+        }
+      }
+      // If more than 90 minutes (1.5 hours), show in hours and minutes
+      else if (difference.inMinutes >= 90) {
+        final hourText = hours == 1 ? 'hour'.tr : 'hours'.tr;
+        final minuteText = minutes == 1 ? 'minute'.tr : 'minutes'.tr;
+
+        if (minutes > 0) {
+          return "$hours $hourText ${'and'.tr} $minutes $minuteText";
+        } else {
+          return "$hours $hourText";
+        }
+      }
+      // Less than 90 minutes, show only minutes
+      else {
+        final totalMinutes = difference.inMinutes;
+        final minuteText = totalMinutes == 1 ? 'minute'.tr : 'minutes'.tr;
+        return "$totalMinutes $minuteText";
+      }
+    } catch (e) {
+      developer.log("❌ Error calculating time until can join: $e");
+      return "";
+    }
+  }
+
   void initiateVideoCall() async {
     developer.log(
       "============== START VIDEO MEETING (DOCTOR SIDE) ==============",
     );
     try {
+      // Check if user can join the session (5 minutes before appointment)
+      if (!canJoinSession()) {
+        final timeRemaining = getTimeUntilCanJoin();
+        Get.snackbar(
+          'session_available_soon'.tr,
+          '${'session_available_in_5_minutes'.tr}\n${'time_remaining'.tr}: $timeRemaining',
+          backgroundColor: Colors.orange[100],
+          colorText: Colors.orange[900],
+          snackPosition: SnackPosition.BOTTOM,
+          duration: const Duration(seconds: 4),
+        );
+        developer.log(
+          "❌ Too early to join session. Time remaining: $timeRemaining",
+        );
+        return;
+      }
+
       // Use unique channel name per booking for privacy
       final String channelName = "booking_$id";
       final String patientName =
           doctorAppointmentDetailsClass.data?.userName ?? "Patient";
-      developer.log("Joining meeting room: '$channelName' (Booking ID: $id)");
+      developer.log("✅ Joining meeting room: '$channelName' (Booking ID: $id)");
 
       Get.dialog(
         const Center(child: CircularProgressIndicator()),
@@ -499,7 +635,7 @@ class DAppointmentDetailsController extends GetxController {
                                             ),
                                             Text(
                                               'choose_gallery'.tr,
-                                              style: TextStyle(
+                                              style: CustomTextStyle(
                                                 fontSize: 12,
                                                 fontFamily:
                                                     AppFontStyleTextStrings

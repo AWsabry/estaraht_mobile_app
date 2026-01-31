@@ -40,7 +40,7 @@ class PatientOnboardingScreen extends StatelessWidget {
                     RichText(
                       textAlign: TextAlign.center,
                       text: TextSpan(
-                        style: TextStyle(
+                        style: CustomTextStyle(
                           fontSize: isArabic
                               ? 24.sp
                               : 28.sp, // Adjust size based on language
@@ -50,11 +50,11 @@ class PatientOnboardingScreen extends StatelessWidget {
                         children: [
                           TextSpan(
                             text: "connect_with_therapist".tr,
-                            style: const TextStyle(fontWeight: FontWeight.w400),
+                            style: const CustomTextStyle(fontWeight: FontWeight.w400),
                           ),
                           TextSpan(
                             text: "start_your_journey".tr,
-                            style: const TextStyle(fontWeight: FontWeight.w700),
+                            style: const CustomTextStyle(fontWeight: FontWeight.w700),
                           ),
                         ],
                       ),
@@ -66,7 +66,7 @@ class PatientOnboardingScreen extends StatelessWidget {
                     Text(
                       "healing_starts_here".tr,
                       textAlign: TextAlign.center,
-                      style: TextStyle(
+                      style: CustomTextStyle(
                         fontSize: 16,
                         color: Colors.black,
                         fontWeight: FontWeight.w400,
@@ -104,7 +104,7 @@ class PatientOnboardingScreen extends StatelessWidget {
                         ),
                         child: Text(
                           "login".tr,
-                          style: TextStyle(
+                          style: CustomTextStyle(
                             color: Colors.black,
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
@@ -147,7 +147,7 @@ class PatientOnboardingScreen extends StatelessWidget {
                         ),
                         child: Text(
                           "sign_up".tr,
-                          style: TextStyle(
+                          style: CustomTextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                             fontFamily: isArabic ? 'NotoKufiArabic' : 'Roboto',

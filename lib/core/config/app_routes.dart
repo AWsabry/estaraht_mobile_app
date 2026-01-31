@@ -24,6 +24,8 @@ abstract class Routes {
   static const doctorLoginScreen = _Paths.doctorLoginScreen;
   static const doctorRegisterScreen = _Paths.doctorRegisterScreen;
   static const otpScreen = _Paths.otpScreen;
+  static const underReviewScreen = _Paths.underReviewScreen;
+  static const accountRejectedScreen = _Paths.accountRejectedScreen;
   static const chooseYourPlanScreen = _Paths.chooseYourPlanScreen;
   static const dMyPhotoViewerScreen = _Paths.dMyPhotoViewerScreen;
   static const dChangePasswordScreen = _Paths.dChangePasswordScreen;
@@ -93,6 +95,8 @@ abstract class _Paths {
   static const doctorRegisterScreen = '/doctor-register-screen';
   static const doctorLoginScreen = '/doctor-login-screen';
   static const otpScreen = '/otp-screen'; // <-- AJOUTÉ ICI
+  static const underReviewScreen = '/under-review-screen';
+  static const accountRejectedScreen = '/account-rejected-screen';
   static const chooseYourPlanScreen = '/doctor-choose-your-plan-screen';
   static const dMyPhotoViewerScreen = '/doctor-my-photo-viewer-screen';
   static const dChangePasswordScreen = '/doctor-change-password-screen';

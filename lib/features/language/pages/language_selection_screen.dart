@@ -24,7 +24,7 @@ class LanguageSelectionScreen extends StatelessWidget {
               // Test texts to verify fonts
               const Text(
                 "Choose Your Language",
-                style: TextStyle(
+                style: CustomTextStyle(
                   fontSize: 24, // Slightly smaller
                   fontWeight: FontWeight.bold,
                   fontFamily: 'Roboto',
@@ -33,7 +33,7 @@ class LanguageSelectionScreen extends StatelessWidget {
               const SizedBox(height: 8),
               const Text(
                 "اختر لغتك المفضلة",
-                style: TextStyle(
+                style: CustomTextStyle(
                   fontSize: 20, // Smaller to match English visually
                   fontWeight: FontWeight.bold,
                   fontFamily: 'NotoKufiArabic',
@@ -107,7 +107,7 @@ class LanguageSelectionScreen extends StatelessWidget {
                     ),
                     child: Text(
                       buttonText, // Use the appropriate text based on selection
-                      style: TextStyle(
+                      style: CustomTextStyle(
                         fontSize:
                             languageController.tempSelectedLanguage.value ==
                                 'ar'

@@ -27,7 +27,7 @@ class RegisterAsDoctor extends GetView<DoctorRegisterController> {
                       children: [
                         Text(
                           "create_doctor_account_title".tr,
-                          style: TextStyle(
+                          style: CustomTextStyle(
                             fontSize: 30,
                             fontWeight: FontWeight.w700,
                             fontFamily: isArabic ? 'NotoKufiArabic' : 'Roboto',
@@ -37,7 +37,7 @@ class RegisterAsDoctor extends GetView<DoctorRegisterController> {
                         const SizedBox(height: 6),
                         Text(
                           "connect_with_your_patient".tr,
-                          style: TextStyle(
+                          style: CustomTextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w400,
                             color: Colors.black,
@@ -116,7 +116,7 @@ class RegisterAsDoctor extends GetView<DoctorRegisterController> {
                                   value: country['code'],
                                   child: Text(
                                     '${country['flag']} ${country['code']}',
-                                    style: const TextStyle(fontSize: 12),
+                                    style: const CustomTextStyle(fontSize: 12),
                                   ),
                                 );
                               }).toList(),
@@ -208,7 +208,7 @@ class RegisterAsDoctor extends GetView<DoctorRegisterController> {
                     ),
                     child: Text(
                       "at_least_characters".trArgs(['8']),
-                      style: TextStyle(
+                      style: CustomTextStyle(
                         fontSize: 12,
                         color: registerController.isPassError.value
                             ? Colors.red
@@ -265,7 +265,7 @@ class RegisterAsDoctor extends GetView<DoctorRegisterController> {
                                 ),
                                 border: InputBorder.none,
                                 labelText: "gender".tr,
-                                labelStyle: TextStyle(
+                                labelStyle: CustomTextStyle(
                                   color: registerController.isGenderError.value
                                       ? Colors.red
                                       : Colors.grey[800],
@@ -285,7 +285,7 @@ class RegisterAsDoctor extends GetView<DoctorRegisterController> {
                                   value: value,
                                   child: Text(
                                     value.tr,
-                                    style: TextStyle(
+                                    style: CustomTextStyle(
                                       fontFamily: isArabic
                                           ? 'NotoKufiArabic'
                                           : 'Roboto',
@@ -328,7 +328,7 @@ class RegisterAsDoctor extends GetView<DoctorRegisterController> {
                       ),
                       child: Text(
                         "register_button".tr,
-                        style: TextStyle(
+                        style: CustomTextStyle(
                           fontSize: 16,
                           color: Colors.white,
                           fontWeight: FontWeight.w500,
@@ -348,7 +348,7 @@ class RegisterAsDoctor extends GetView<DoctorRegisterController> {
                         children: [
                           Text(
                             "${"have_account".tr} ",
-                            style: TextStyle(
+                            style: CustomTextStyle(
                               fontSize: 14,
                               color: Colors.black,
                               fontFamily: isArabic
@@ -367,7 +367,7 @@ class RegisterAsDoctor extends GetView<DoctorRegisterController> {
                             ),
                             child: Text(
                               "login_link".tr,
-                              style: TextStyle(
+                              style: CustomTextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,
                                 color: const Color(0xFF204FCF),
@@ -391,7 +391,7 @@ class RegisterAsDoctor extends GetView<DoctorRegisterController> {
                         child: Text(
                           "privacy_notice".tr,
                           textAlign: TextAlign.center,
-                          style: TextStyle(
+                          style: CustomTextStyle(
                             fontSize: 12,
                             color: Colors.black,
                             fontFamily: isArabic ? 'NotoKufiArabic' : 'Roboto',
@@ -426,7 +426,7 @@ class RegisterAsDoctor extends GetView<DoctorRegisterController> {
     return TextField(
       obscureText: obscureText,
       keyboardType: keyboardType,
-      style: TextStyle(
+      style: CustomTextStyle(
         fontFamily: isArabic ? 'NotoKufiArabic' : 'Roboto',
         color: hasError ? Colors.red : Colors.black,
       ),
@@ -436,20 +436,20 @@ class RegisterAsDoctor extends GetView<DoctorRegisterController> {
           vertical: 16,
         ),
         prefixText: prefixText,
-        prefixStyle: TextStyle(
+        prefixStyle: CustomTextStyle(
           fontFamily: isArabic ? 'NotoKufiArabic' : 'Roboto',
           color: Colors.black,
           fontWeight: FontWeight.w500,
         ),
         labelText: labelText,
-        labelStyle: TextStyle(
+        labelStyle: CustomTextStyle(
           color: hasError ? Colors.red : Colors.grey[800],
           fontFamily: isArabic ? 'NotoKufiArabic' : 'Roboto',
         ),
         suffixIcon: suffixIcon,
         prefixIcon: prefixIcon,
         errorText: errorText,
-        errorStyle: TextStyle(
+        errorStyle: CustomTextStyle(
           fontFamily: isArabic ? 'NotoKufiArabic' : 'Roboto',
           fontSize: 12,
         ),

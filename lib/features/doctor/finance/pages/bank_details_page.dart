@@ -37,7 +37,7 @@ class BankDetailScreen extends GetView<BankDetailController> {
                     const SizedBox(height: 20),
                     Text(
                       'unable_to_load_data'.tr,
-                      style: TextStyle(
+                      style: CustomTextStyle(
                         fontFamily: AppFontStyleTextStrings.regular,
                       ),
                     ),

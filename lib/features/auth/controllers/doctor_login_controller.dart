@@ -80,6 +80,25 @@ class DoctorLoginController extends GetxController {
       print("✅ Profil du médecin trouvé :");
       print(doctorProfileResponse);
 
+      // 3.5. Check approval status before proceeding
+      final String approvalStatus =
+          doctorProfileResponse['approval_status'] ?? 'pending';
+      print("👨‍⚕️ Doctor approval status: $approvalStatus");
+
+      if (approvalStatus == 'pending') {
+        Get.back(); // Close loading dialog
+        Get.offAllNamed(Routes.underReviewScreen);
+        return;
+      } else if (approvalStatus == 'rejected') {
+        Get.back(); // Close loading dialog
+        final rejectionReason = doctorProfileResponse['rejection_reason'];
+        Get.offAllNamed(
+          '/account-rejected',
+          arguments: rejectionReason,
+        );
+        return;
+      }
+
       // 4. Mettre à jour le token FCM si disponible
       if (token.value.isNotEmpty) {
         await supabase
@@ -89,7 +108,7 @@ class DoctorLoginController extends GetxController {
         print("Token FCM mis à jour dans Supabase.");
       }
 
-      // 5. Gérer le reste de la connexion
+      // 5. Gérer le reste de la connexion (only for approved doctors)
       await _handleSuccessfulLogin(doctorProfileResponse);
     } on FirebaseAuthException catch (e) {
       Get.back();

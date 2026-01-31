@@ -29,7 +29,7 @@ class RegisterAsPatient extends GetView<RegisterPatientController> {
                         children: [
                           Text(
                             "create_account_title".tr,
-                            style: TextStyle(
+                            style: CustomTextStyle(
                               fontSize: 30.sp,
                               fontWeight: FontWeight.w700,
                               fontFamily: isArabic
@@ -41,7 +41,7 @@ class RegisterAsPatient extends GetView<RegisterPatientController> {
                           SizedBox(height: 6.0.h),
                           Text(
                             "journey_begins_here".tr,
-                            style: TextStyle(
+                            style: CustomTextStyle(
                               fontSize: 16.sp,
                               fontWeight: FontWeight.w400,
                               color: Colors.black,
@@ -145,7 +145,7 @@ class RegisterAsPatient extends GetView<RegisterPatientController> {
                               ),
                               child: Text(
                                 "at_least_characters".trArgs(['8']),
-                                style: TextStyle(
+                                style: CustomTextStyle(
                                   fontSize: 12.sp,
                                   color: Colors.grey[600],
                                   fontFamily: isArabic
@@ -208,7 +208,7 @@ class RegisterAsPatient extends GetView<RegisterPatientController> {
                                           ),
                                       border: InputBorder.none,
                                       labelText: "gender".tr,
-                                      labelStyle: TextStyle(
+                                      labelStyle: CustomTextStyle(
                                         color:
                                             registerController
                                                 .isGenderError
@@ -231,7 +231,7 @@ class RegisterAsPatient extends GetView<RegisterPatientController> {
                                           value: value,
                                           child: Text(
                                             value.tr,
-                                            style: TextStyle(
+                                            style: CustomTextStyle(
                                               fontFamily: isArabic
                                                   ? 'NotoKufiArabic'
                                                   : 'Roboto',
@@ -256,7 +256,7 @@ class RegisterAsPatient extends GetView<RegisterPatientController> {
                                     padding: EdgeInsets.only(top: 4.0.h),
                                     child: Text(
                                       "gender_required".tr,
-                                      style: TextStyle(
+                                      style: CustomTextStyle(
                                         fontSize: 12.sp,
                                         color: Colors.red,
                                         fontFamily: isArabic
@@ -297,7 +297,7 @@ class RegisterAsPatient extends GetView<RegisterPatientController> {
                         ),
                         child: Text(
                           "register_button".tr,
-                          style: TextStyle(
+                          style: CustomTextStyle(
                             fontSize: 16,
                             color: Colors.white,
                             fontWeight: FontWeight.w500,
@@ -317,7 +317,7 @@ class RegisterAsPatient extends GetView<RegisterPatientController> {
                           children: [
                             Text(
                               "${"have_account".tr} ",
-                              style: TextStyle(
+                              style: CustomTextStyle(
                                 fontSize: 14,
                                 color: Colors.black,
                                 fontFamily: isArabic
@@ -339,7 +339,7 @@ class RegisterAsPatient extends GetView<RegisterPatientController> {
                               ),
                               child: Text(
                                 "login_link".tr,
-                                style: TextStyle(
+                                style: CustomTextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold,
                                   color: const Color(0xFF204FCF),
@@ -363,7 +363,7 @@ class RegisterAsPatient extends GetView<RegisterPatientController> {
                           child: Text(
                             "privacy_notice".tr,
                             textAlign: TextAlign.center,
-                            style: TextStyle(
+                            style: CustomTextStyle(
                               fontSize: 12,
                               color: Colors.black,
                               fontFamily: isArabic
@@ -404,7 +404,7 @@ class RegisterAsPatient extends GetView<RegisterPatientController> {
         TextField(
           obscureText: obscureText,
           keyboardType: keyboardType,
-          style: TextStyle(
+          style: CustomTextStyle(
             fontFamily: isArabic ? 'NotoKufiArabic' : 'Roboto',
             color: hasError ? Colors.red : Colors.black,
           ),
@@ -414,13 +414,13 @@ class RegisterAsPatient extends GetView<RegisterPatientController> {
               vertical: 16,
             ),
             prefixText: prefixText,
-            prefixStyle: TextStyle(
+            prefixStyle: CustomTextStyle(
               fontFamily: isArabic ? 'NotoKufiArabic' : 'Roboto',
               color: Colors.black,
               fontWeight: FontWeight.w500,
             ),
             labelText: labelText,
-            labelStyle: TextStyle(
+            labelStyle: CustomTextStyle(
               color: hasError ? Colors.red : Colors.grey[800],
               fontFamily: isArabic ? 'NotoKufiArabic' : 'Roboto',
             ),
@@ -464,7 +464,7 @@ class RegisterAsPatient extends GetView<RegisterPatientController> {
             padding: EdgeInsets.only(top: 4.0.h),
             child: Text(
               errorText,
-              style: TextStyle(
+              style: CustomTextStyle(
                 fontSize: 12.sp,
                 color: Colors.red,
                 fontFamily: isArabic ? 'NotoKufiArabic' : 'Roboto',

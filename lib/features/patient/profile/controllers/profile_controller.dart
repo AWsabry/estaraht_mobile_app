@@ -1,4 +1,5 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:videocalling/shared/services/others/timezone_service.dart';
 import 'package:videocalling/core/config/app_imports.dart';
 
 class UserEditController extends GetxController {
@@ -53,7 +54,7 @@ class UserEditController extends GetxController {
       throw Exception('No authenticated user found');
     }
 
-    final fileName = '${userId}_${DateTime.now().millisecondsSinceEpoch}.jpg';
+    final fileName = '${userId}_${TimezoneService.getCurrentMauritaniaTime().millisecondsSinceEpoch}.jpg';
     final filePath = 'profiles/users/$fileName';
 
     // Use stored bytes if available, otherwise read from file

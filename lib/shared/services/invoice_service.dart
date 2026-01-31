@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:videocalling/core/utils/logger.dart';
 import 'package:videocalling/shared/services/others/email_service.dart';
 import 'package:videocalling/core/config/app_imports.dart';
+import 'package:videocalling/shared/services/others/timezone_service.dart';
 
 class InvoiceService {
   static final InvoiceService _instance = InvoiceService._internal();
@@ -88,7 +89,7 @@ class InvoiceService {
   }
 
   String _generateInvoiceNumber() {
-    final now = DateTime.now();
+    final now = TimezoneService.getCurrentMauritaniaTime();
     return 'INV-${now.year}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}-${now.millisecondsSinceEpoch.toString().substring(8)}';
   }
 
@@ -120,7 +121,7 @@ class InvoiceService {
       final variables = {
         'PATIENT_NAME': patientName,
         'INVOICE_NUMBER': _generateInvoiceNumber(),
-        'DATE': _formatDate(DateTime.now()),
+        'DATE': _formatDate(TimezoneService.getCurrentMauritaniaTime()),
         'PLAN_NAME': planName,
         'SESSIONS_COUNT': sessionsCount.toString(),
         'PAYMENT_METHOD': paymentMethod ?? 'Credit Card',
@@ -177,8 +178,8 @@ class InvoiceService {
 
       final variables = {
         'DOCTOR_NAME': doctorName,
-        'TRANSACTION_ID': 'WTH-${DateTime.now().millisecondsSinceEpoch}',
-        'DATE': _formatDate(DateTime.now()),
+        'TRANSACTION_ID': 'WTH-${TimezoneService.getCurrentMauritaniaTime().millisecondsSinceEpoch}',
+        'DATE': _formatDate(TimezoneService.getCurrentMauritaniaTime()),
         'STATUS': status ?? 'Processing',
         'AMOUNT': '$currency $amount',
         'REMAINING_BALANCE': '$currency $remainingBalance',

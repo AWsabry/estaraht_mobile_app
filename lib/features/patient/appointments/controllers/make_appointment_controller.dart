@@ -4,19 +4,21 @@ import 'package:videocalling/features/patient/appointments/models/make_appointme
 import 'package:videocalling/features/video_call/call_manager.dart';
 import 'package:videocalling/shared/models/availability_model.dart';
 import 'package:videocalling/shared/models/country_pricing_model.dart';
+import 'package:videocalling/shared/services/others/timezone_service.dart';
 import 'package:videocalling/shared/services/pricing_service.dart';
+import 'package:videocalling/shared/services/others/booking_email_service.dart';
 
 class MakeAppointmentController extends GetxController {
   String id = Get.arguments['id'];
   String name = Get.arguments['name'];
   String image = Get.arguments['image'];
   String consultationFee = Get.arguments['consultationFee'] ?? '0';
-  
+
   RxString dynamicPrice = "0".obs;
   RxString dynamicCurrency = "USD".obs;
   Rx<CountryPricing?> doctorPricing = Rx<CountryPricing?>(null);
 
-  DateTime dateTime = DateTime.now();
+  DateTime dateTime = TimezoneService.getCurrentMauritaniaTime();
 
   RxBool isToday = true.obs;
 
@@ -222,7 +224,7 @@ class MakeAppointmentController extends GetxController {
       int dayNumber = selectedDate.weekday == 7 ? 0 : selectedDate.weekday;
 
       loggerNoStack.t(
-        'Getting time slots for date ${selectedDate.toString().substring(0, 10)}, Dart weekday: ${selectedDate.weekday}, DB day number: $dayNumber',
+        'Getting time slots for date ${TimezoneService.toIsoDateString(selectedDate)}, Dart weekday: ${selectedDate.weekday}, DB day number: $dayNumber',
       );
 
       List<String> allSlots = await getTimeSlotsForDay(dayNumber);
@@ -232,7 +234,7 @@ class MakeAppointmentController extends GetxController {
       }
 
       // Get booked slots for this date
-      String dateString = selectedDate.toString().substring(0, 10);
+      String dateString = TimezoneService.toIsoDateString(selectedDate);
       Set<String> bookedTimes = await getBookedSlots(dateString);
 
       // Create list with booking status for each slot
@@ -364,11 +366,11 @@ class MakeAppointmentController extends GetxController {
       isLoading.value = true;
       isChecked.value = true;
       isNoSlot.value = false;
-      date = selectedDate.toString().substring(0, 10);
+      date = TimezoneService.toIsoDateString(selectedDate);
 
-      // Update isToday based on selected date
-      DateTime today = DateTime.now();
-      String todayStr = today.toString().substring(0, 10);
+      // Update isToday based on selected date (using Mauritania timezone)
+      DateTime today = TimezoneService.getCurrentMauritaniaTime();
+      String todayStr = TimezoneService.toIsoDateString(today);
       bool wasTodayBefore = isToday.value;
       isToday.value = (date == todayStr);
 
@@ -676,7 +678,8 @@ class MakeAppointmentController extends GetxController {
         'price': '0', // No payment for session-based booking
         'payment_intent_id': null, // No payment
         'video_session_id': null,
-        'created_at': DateTime.now().toIso8601String(),
+        'created_at': TimezoneService.getCurrentMauritaniaTime()
+            .toIso8601String(),
         'booking_date': bookingDate.toIso8601String().split('T')[0],
         'booking_time': formattedTime,
       };
@@ -688,6 +691,15 @@ class MakeAppointmentController extends GetxController {
           .single();
 
       loggerNoStack.i('✅ Booking created successfully: ${response['id']}');
+
+      // 3. Send email notifications to both patient and doctor
+      _sendBookingEmailNotifications(
+        bookingId: response['id'].toString(),
+        patientId: patientId,
+        doctorId: doctorId,
+        bookingDate: bookingDate,
+        bookingTime: formattedTime,
+      );
 
       Get.back();
       isAppointmentMadeSuccessfully.value = true;
@@ -1263,7 +1275,7 @@ class MakeAppointmentController extends GetxController {
   void onInit() {
     super.onInit();
     initialize();
-    date = dateTime.toString().substring(0, 10);
+    date = TimezoneService.toIsoDateString(dateTime);
     loadDoctorPricing();
   }
 
@@ -1327,7 +1339,8 @@ class MakeAppointmentController extends GetxController {
       );
 
       // Generate available dates for the next maxDaysAhead days (15 days)
-      DateTime currentDate = DateTime.now();
+      // Using Mauritania timezone
+      DateTime currentDate = TimezoneService.getCurrentMauritaniaTime();
       int daysChecked = 0;
 
       // Continue until we check all 15 days ahead or find enough dates
@@ -1341,7 +1354,7 @@ class MakeAppointmentController extends GetxController {
         if (availableDays.contains(dayNumber)) {
           availableDates.add(checkDate);
           loggerNoStack.d(
-            'Added available date: ${checkDate.toString().substring(0, 10)} (day $dayNumber)',
+            'Added available date: ${TimezoneService.toIsoDateString(checkDate)} (day $dayNumber)',
           );
         }
 
@@ -1363,6 +1376,73 @@ class MakeAppointmentController extends GetxController {
       }
     } catch (e) {
       loggerNoStack.e('Error generating available dates: $e');
+    }
+  }
+
+  /// Send email notifications to both patient and doctor when booking is created
+  Future<void> _sendBookingEmailNotifications({
+    required String bookingId,
+    required String patientId,
+    required String doctorId,
+    required DateTime bookingDate,
+    required String bookingTime,
+  }) async {
+    try {
+      // Get patient and doctor data
+      final patientDataFuture = supabase
+          .from('patients')
+          .select('name, email')
+          .eq('id', patientId)
+          .single();
+
+      final doctorDataFuture = supabase
+          .from('doctors')
+          .select('full_name, email')
+          .eq('doctor_id', doctorId)
+          .single();
+
+      final results = await Future.wait([patientDataFuture, doctorDataFuture]);
+      final patientData = results[0];
+      final doctorData = results[1];
+
+      final patientName = patientData['name'] ?? 'Patient';
+      final patientEmail = patientData['email'] ?? '';
+      final doctorName = doctorData['full_name'] ?? 'Doctor';
+      final doctorEmail = doctorData['email'] ?? '';
+
+      // Format date and time for display
+      final formattedDate =
+          '${bookingDate.day}/${bookingDate.month}/${bookingDate.year}';
+      final timeOnly = bookingTime.substring(0, 5); // Get HH:mm only
+
+      // Send emails using the multilingual email service
+      if (doctorEmail.isNotEmpty) {
+        await BookingEmailService.sendDoctorEmail(
+          doctorEmail: doctorEmail,
+          doctorName: doctorName,
+          patientName: patientName,
+          bookingId: bookingId,
+          formattedDate: formattedDate,
+          timeOnly: timeOnly,
+        );
+      }
+
+      if (patientEmail.isNotEmpty) {
+        await BookingEmailService.sendPatientEmail(
+          patientEmail: patientEmail,
+          patientName: patientName,
+          doctorName: doctorName,
+          bookingId: bookingId,
+          formattedDate: formattedDate,
+          timeOnly: timeOnly,
+        );
+      }
+
+      loggerNoStack.i('✅ Email notifications sent successfully');
+    } catch (e, stackTrace) {
+      loggerNoStack.e('❌ Error sending email notifications: $e');
+      loggerNoStack.e('Stack trace: $stackTrace');
+      // Don't throw error - email notifications are not critical
     }
   }
 }

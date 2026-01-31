@@ -1,9 +1,9 @@
 import 'package:videocalling/core/config/app_imports.dart';
-import 'package:videocalling/shared/widgets/rating_dialog.dart';
-import 'package:videocalling/shared/widgets/file_picker_widget.dart';
-import 'package:videocalling/shared/services/review_service.dart';
 import 'package:videocalling/shared/models/session_file_model.dart';
 import 'package:videocalling/shared/services/file_upload_service.dart';
+import 'package:videocalling/shared/services/review_service.dart';
+import 'package:videocalling/shared/widgets/file_picker_widget.dart';
+import 'package:videocalling/shared/widgets/rating_dialog.dart';
 
 class UserAppointmentDetailsScreen
     extends GetView<UserAppointmentDetailsController> {
@@ -25,7 +25,7 @@ class UserAppointmentDetailsScreen
         elevation: 0,
         title: Text(
           'appointment'.tr,
-          style: TextStyle(
+          style: CustomTextStyle(
             color: Colors.black,
             fontSize: 16,
             fontWeight: FontWeight.w600,
@@ -51,7 +51,7 @@ class UserAppointmentDetailsScreen
                       child: Text(
                         snapshot.error.toString(),
                         textAlign: TextAlign.center,
-                        style: TextStyle(color: Colors.grey[700], fontSize: 16),
+                        style: CustomTextStyle(color: Colors.grey[700], fontSize: 16),
                       ),
                     );
                   }
@@ -80,7 +80,7 @@ class UserAppointmentDetailsScreen
             Text(
               'unable_to_load_data'.tr,
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+              style: CustomTextStyle(fontSize: 16, color: Colors.grey[600]),
             ),
           ],
         ),
@@ -102,7 +102,7 @@ class UserAppointmentDetailsScreen
             SizedBox(height: 20),
             // Text(
             //   'loading_appointment'.tr,
-            //   style: TextStyle(
+            //   style: CustomTextStyle(
             //     fontSize: 16,
             //     color: Colors.grey[600],
             //   ),
@@ -173,7 +173,7 @@ class UserAppointmentDetailsScreen
                   Expanded(
                     child: Text(
                       'confirm_session_completion'.tr,
-                      style: TextStyle(
+                      style: CustomTextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                         color: Colors.blue.shade700,
@@ -186,7 +186,7 @@ class UserAppointmentDetailsScreen
 
               Text(
                 'both_parties_must_confirm'.tr,
-                style: TextStyle(
+                style: CustomTextStyle(
                   fontSize: 14,
                   color: Colors.grey[600],
                   height: 1.4,
@@ -246,7 +246,7 @@ class UserAppointmentDetailsScreen
                           patientConfirmed
                               ? 'session_already_confirmed'.tr
                               : 'confirm_session_completion'.tr,
-                          style: TextStyle(
+                          style: CustomTextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                             color: patientConfirmed
@@ -278,7 +278,7 @@ class UserAppointmentDetailsScreen
         const SizedBox(width: 8),
         Text(
           label,
-          style: TextStyle(
+          style: CustomTextStyle(
             fontSize: 14,
             color: isConfirmed ? Colors.green.shade700 : Colors.grey.shade600,
             fontWeight: isConfirmed ? FontWeight.w600 : FontWeight.normal,
@@ -328,7 +328,7 @@ class UserAppointmentDetailsScreen
                       Expanded(
                         child: Text(
                           hasReviewed ? 'session_rated'.tr : 'rate_this_session'.tr,
-                          style: TextStyle(
+                          style: CustomTextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                             color: hasReviewed ? Colors.green.shade700 : Colors.amber.shade700,
@@ -342,7 +342,7 @@ class UserAppointmentDetailsScreen
                     hasReviewed
                         ? 'thank_you_for_rating'.tr
                         : 'your_feedback_helps_us'.tr,
-                    style: TextStyle(
+                    style: CustomTextStyle(
                       fontSize: 14,
                       color: Colors.grey[600],
                       height: 1.4,
@@ -379,7 +379,7 @@ class UserAppointmentDetailsScreen
                         ),
                         child: Text(
                           'rate_session'.tr,
-                          style: const TextStyle(
+                          style: const CustomTextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                             color: Colors.white,
@@ -492,7 +492,7 @@ class UserAppointmentDetailsScreen
                             .doctorAppointmentDetailsClass!
                             .data!
                             .doctorName!,
-                        style: const TextStyle(
+                        style: const CustomTextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
@@ -500,7 +500,7 @@ class UserAppointmentDetailsScreen
                       if (detailsController.doctorSpeciality.isNotEmpty)
                         Text(
                           detailsController.doctorSpeciality.value,
-                          style: TextStyle(
+                          style: CustomTextStyle(
                             fontSize: 14,
                             color: Colors.grey[600],
                           ),
@@ -529,7 +529,7 @@ class UserAppointmentDetailsScreen
                       children: [
                         Text(
                           'appointment_date'.tr,
-                          style: TextStyle(
+                          style: CustomTextStyle(
                             fontSize: 14,
                             color: Colors.grey[700],
                           ),
@@ -537,7 +537,7 @@ class UserAppointmentDetailsScreen
                         const SizedBox(height: 4),
                         Text(
                           "${detailsController.doctorAppointmentDetailsClass!.data!.date.toString().substring(8)}-${detailsController.doctorAppointmentDetailsClass!.data!.date.toString().substring(5, 7)}-${detailsController.doctorAppointmentDetailsClass!.data!.date.toString().substring(0, 4)}",
-                          style: const TextStyle(
+                          style: const CustomTextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                           ),
@@ -553,7 +553,7 @@ class UserAppointmentDetailsScreen
                     children: [
                       Text(
                         'time'.tr,
-                        style: TextStyle(fontSize: 14, color: Colors.grey[700]),
+                        style: CustomTextStyle(fontSize: 14, color: Colors.grey[700]),
                       ),
                       const SizedBox(height: 4),
                       Text(
@@ -561,7 +561,7 @@ class UserAppointmentDetailsScreen
                             .doctorAppointmentDetailsClass!
                             .data!
                             .slot!,
-                        style: const TextStyle(
+                        style: const CustomTextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                         ),
@@ -652,7 +652,7 @@ class UserAppointmentDetailsScreen
           const SizedBox(width: 6),
           Text(
             statusText,
-            style: TextStyle(
+            style: CustomTextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w500,
               color: statusColor,
@@ -675,7 +675,7 @@ class UserAppointmentDetailsScreen
           children: [
             Text(
               'contact_info'.tr,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: const CustomTextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             /*    _buildContactItem(
@@ -717,7 +717,7 @@ class UserAppointmentDetailsScreen
               children: [
                 Text(
                   'bio'.tr,
-                  style: TextStyle(
+                  style: CustomTextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
                     color: Colors.grey[700],
@@ -735,7 +735,7 @@ class UserAppointmentDetailsScreen
                             .data!
                             .description!
                       : 'bio_not_available'.tr,
-                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                  style: CustomTextStyle(fontSize: 14, color: Colors.grey[600]),
                 ),
               ],
             ),
@@ -808,7 +808,7 @@ class UserAppointmentDetailsScreen
             children: [
               Text(
                 title,
-                style: TextStyle(
+                style: CustomTextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
                   color: Colors.grey[700],
@@ -817,7 +817,7 @@ class UserAppointmentDetailsScreen
               const SizedBox(height: 4),
               Text(
                 value,
-                style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                style: CustomTextStyle(fontSize: 14, color: Colors.grey[600]),
               ),
             ],
           ),
@@ -853,7 +853,7 @@ class UserAppointmentDetailsScreen
           const SizedBox(width: 8),
           Text(
             label,
-            style: const TextStyle(
+            style: const CustomTextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w500,
               color: Colors.white,
@@ -913,7 +913,7 @@ class UserAppointmentDetailsScreen
                     children: [
                       Text(
                         'prescription'.tr,
-                        style: const TextStyle(
+                        style: const CustomTextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                         ),
@@ -923,7 +923,7 @@ class UserAppointmentDetailsScreen
                         hasPrescriptions
                             ? 'user_no_prescription_msg1'.tr
                             : 'user_no_prescription_msg'.tr,
-                        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                        style: CustomTextStyle(fontSize: 12, color: Colors.grey[600]),
                       ),
                     ],
                   ),
@@ -949,7 +949,7 @@ class UserAppointmentDetailsScreen
                 icon: const Icon(Icons.download, color: Colors.white),
                 label: Text(
                   'download_prescription'.tr,
-                  style: const TextStyle(color: Colors.white),
+                  style: const CustomTextStyle(color: Colors.white),
                 ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF3366FF),
@@ -990,7 +990,7 @@ class UserAppointmentDetailsScreen
           children: [
             Text(
               medicine.medicine_name ?? "",
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              style: const CustomTextStyle(fontSize: 16, fontWeight: FontWeight.w600),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
               textAlign: isArabic ? TextAlign.right : TextAlign.left,
@@ -1016,7 +1016,7 @@ class UserAppointmentDetailsScreen
               children: [
                 Text(
                   'medicine_param3'.tr,
-                  style: const TextStyle(
+                  style: const CustomTextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
                   ),
@@ -1042,7 +1042,7 @@ class UserAppointmentDetailsScreen
                         ),
                         child: Text(
                           medicine.time![j].tTime ?? "",
-                          style: const TextStyle(
+                          style: const CustomTextStyle(
                             fontSize: 12,
                             color: Color(0xFF3366FF),
                           ),
@@ -1055,7 +1055,7 @@ class UserAppointmentDetailsScreen
             const SizedBox(height: 12),
             Text(
               'consume_it_days'.trParams({'days': '${medicine.repeatDays}'}),
-              style: TextStyle(
+              style: CustomTextStyle(
                 fontSize: 14,
                 fontStyle: FontStyle.italic,
                 color: Colors.grey[600],
@@ -1079,9 +1079,9 @@ class UserAppointmentDetailsScreen
       children: [
         Text(
           title,
-          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+          style: const CustomTextStyle(fontSize: 14, fontWeight: FontWeight.w500, height: 1.3),
         ),
-        Text(value, style: TextStyle(fontSize: 14, color: Colors.grey[600])),
+        Text(value, style: CustomTextStyle(fontSize: 14, color: Colors.grey[600], height: 1.3)),
       ],
     );
   }
@@ -1127,7 +1127,7 @@ class UserAppointmentDetailsScreen
                     children: [
                       Text(
                         'report'.tr,
-                        style: const TextStyle(
+                        style: const CustomTextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                         ),
@@ -1137,7 +1137,7 @@ class UserAppointmentDetailsScreen
                         hasReports
                             ? 'user_no_report_msg1'.tr
                             : 'user_no_report_msg'.tr,
-                        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                        style: CustomTextStyle(fontSize: 12, color: Colors.grey[600]),
                       ),
                     ],
                   ),
@@ -1191,7 +1191,7 @@ class UserAppointmentDetailsScreen
                       Expanded(
                         child: Text(
                           report.name ?? "",
-                          style: const TextStyle(fontSize: 14),
+                          style: const CustomTextStyle(fontSize: 14),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                           textAlign: isArabic

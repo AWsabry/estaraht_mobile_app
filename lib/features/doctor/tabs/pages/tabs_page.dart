@@ -20,6 +20,8 @@ class DoctorTabsScreen extends GetView<DoctorTabController> {
                 topLeft: Radius.circular(0),
               ),
               child: BottomNavigationBar(
+                elevation: 0,
+                enableFeedback: false,
                 items: [
                   BottomNavigationBarItem(
                     icon: Column(
@@ -74,14 +76,14 @@ class DoctorTabsScreen extends GetView<DoctorTabController> {
                     label: 'settings'.tr,
                   ),
                 ],
-                selectedLabelStyle: TextStyle(
+                selectedLabelStyle: CustomTextStyle(
                   color: AppColors.BLACK,
                   fontFamily: AppFontStyleTextStrings.regular,
                   fontWeight: FontWeight.w500,
                   fontSize: 10,
                 ),
                 type: BottomNavigationBarType.fixed,
-                unselectedLabelStyle: TextStyle(
+                unselectedLabelStyle: CustomTextStyle(
                   fontFamily: AppFontStyleTextStrings.regular,
                   fontWeight: FontWeight.w500,
                   color: AppColors.BLACK,

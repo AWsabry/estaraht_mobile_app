@@ -1,6 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:videocalling/core/utils/logger.dart';
 import 'package:videocalling/shared/services/invoice_service.dart';
+import 'package:videocalling/shared/services/others/timezone_service.dart';
 
 /// Service for managing patient sessions (available and pending)
 class SessionManagementService {
@@ -174,7 +175,7 @@ class SessionManagementService {
             .from('bookings')
             .update({
               'status': 'completed',
-              'completed_at': DateTime.now().toIso8601String(),
+              'completed_at': TimezoneService.getCurrentMauritaniaTime().toIso8601String(),
             })
             .eq('id', bookingId);
 
@@ -265,7 +266,7 @@ class SessionManagementService {
             .from('bookings')
             .update({
               'status': 'completed',
-              'completed_at': DateTime.now().toIso8601String(),
+              'completed_at': TimezoneService.getCurrentMauritaniaTime().toIso8601String(),
             })
             .eq('id', bookingId);
 
@@ -349,7 +350,7 @@ class SessionManagementService {
         'withrowl_history': 0,
         'action_type': 'income',
         'operation_status': 'success',
-        'payment_date': DateTime.now().toIso8601String(),
+        'payment_date': TimezoneService.getCurrentMauritaniaTime().toIso8601String(),
         'booking_id': bookingId,
         'payment_gateway': 'session_completion',
         'payment_currency': 'USD',

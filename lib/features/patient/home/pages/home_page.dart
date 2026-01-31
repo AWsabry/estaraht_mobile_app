@@ -50,7 +50,10 @@ class UserHomeScreen extends GetView<UserHomeController> {
               padding: EdgeInsets.fromLTRB(45.w, 0, 45.w, 10),
               child: Text(
                 'most_in_demand_doctors'.tr,
-                style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w700),
+                style: CustomTextStyle(
+                  fontSize: 16.sp,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ),
 
@@ -124,7 +127,7 @@ class UserHomeScreen extends GetView<UserHomeController> {
                                           Text(
                                             //"${data.sessionsCount} ",
                                             "",
-                                            style: TextStyle(
+                                            style: CustomTextStyle(
                                               fontSize: 12.sp,
                                               fontWeight: FontWeight.w500,
                                             ),
@@ -132,7 +135,7 @@ class UserHomeScreen extends GetView<UserHomeController> {
                                           SizedBox(width: 4.w),
                                           Text(
                                             "sessions".tr,
-                                            style: TextStyle(
+                                            style: CustomTextStyle(
                                               fontSize: 12.sp,
                                               fontWeight: FontWeight.w500,
                                             ),
@@ -198,7 +201,7 @@ class UserHomeScreen extends GetView<UserHomeController> {
                                                   maxLines: 1,
                                                   overflow:
                                                       TextOverflow.ellipsis,
-                                                  style: TextStyle(
+                                                  style: CustomTextStyle(
                                                     fontFamily:
                                                         AppFontStyleTextStrings
                                                             .medium,
@@ -212,7 +215,7 @@ class UserHomeScreen extends GetView<UserHomeController> {
                                                   data.specialization ?? "",
                                                   overflow:
                                                       TextOverflow.ellipsis,
-                                                  style: TextStyle(
+                                                  style: CustomTextStyle(
                                                     color: AppColors.BLACK,
                                                     fontSize: 12.sp,
                                                   ),
@@ -243,7 +246,7 @@ class UserHomeScreen extends GetView<UserHomeController> {
                                           children: [
                                             Text(
                                               'specialization'.tr,
-                                              style: TextStyle(
+                                              style: CustomTextStyle(
                                                 fontSize: 12.sp,
                                                 height: 1.2,
                                                 fontWeight: FontWeight.w500,
@@ -263,7 +266,7 @@ class UserHomeScreen extends GetView<UserHomeController> {
                                             Text(
                                               "${'bio'.tr}: ${data.bio ?? ""}",
                                               maxLines: 1,
-                                              style: TextStyle(
+                                              style: CustomTextStyle(
                                                 fontSize: 11.sp,
                                                 height: 1.2,
                                                 overflow: TextOverflow.ellipsis,
@@ -335,7 +338,7 @@ class UserHomeScreen extends GetView<UserHomeController> {
                                               ),
                                               child: Text(
                                                 'profile'.tr,
-                                                style: TextStyle(
+                                                style: CustomTextStyle(
                                                   fontSize: 11.sp,
                                                   height: 1.2,
                                                   color: Colors.black87,
@@ -381,7 +384,7 @@ class UserHomeScreen extends GetView<UserHomeController> {
                                               ),
                                               child: Text(
                                                 'book'.tr,
-                                                style: TextStyle(
+                                                style: CustomTextStyle(
                                                   fontSize: 11.sp,
                                                   height: 1.2,
                                                   color: Colors.white,
@@ -422,7 +425,11 @@ class UserHomeScreen extends GetView<UserHomeController> {
       ),
       child: Text(
         label.isEmpty ? "N/A" : label,
-        style: TextStyle(fontSize: 10.sp, height: 1.3, color: Colors.black87),
+        style: CustomTextStyle(
+          fontSize: 10.sp,
+          height: 1.3,
+          color: Colors.black87,
+        ),
       ),
     );
   }

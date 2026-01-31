@@ -41,7 +41,7 @@ class OtpScreen extends StatelessWidget {
     final defaultPinTheme = PinTheme(
       width: 56,
       height: 60,
-      textStyle: TextStyle(
+      textStyle: CustomTextStyle(
         fontSize: 22,
         color: Colors.black,
         fontFamily: isArabic ? 'NotoKufiArabic' : 'Roboto',
@@ -70,7 +70,9 @@ class OtpScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text(
           'OTP'.tr,
-          style: TextStyle(fontFamily: isArabic ? 'NotoKufiArabic' : 'Roboto'),
+          style: CustomTextStyle(
+            fontFamily: isArabic ? 'NotoKufiArabic' : 'Roboto',
+          ),
         ),
         backgroundColor: Colors.white,
         elevation: 0,
@@ -85,7 +87,7 @@ class OtpScreen extends StatelessWidget {
               const SizedBox(height: 40),
               Text(
                 "verify_otp_title".tr, // "رمز التحقق (OTP)"
-                style: TextStyle(
+                style: CustomTextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
                   color: Colors.black,
@@ -98,7 +100,7 @@ class OtpScreen extends StatelessWidget {
                   email ?? phone ?? '',
                 ]), // "الرجاء إدخال الرمز المكون من 6 أرقام المرسل إلى \n..."
                 textAlign: TextAlign.center,
-                style: TextStyle(
+                style: CustomTextStyle(
                   fontSize: 16,
                   color: Colors.grey.shade600,
                   fontFamily: isArabic ? 'NotoKufiArabic' : 'Roboto',
@@ -137,7 +139,7 @@ class OtpScreen extends StatelessWidget {
                     controller.errorMessage.isNotEmpty) {
                   return Text(
                     controller.errorMessage.value, // Message d'erreur dynamique
-                    style: TextStyle(
+                    style: CustomTextStyle(
                       color: Colors.red,
                       fontSize: 14,
                       fontFamily: isArabic ? 'NotoKufiArabic' : 'Roboto',
@@ -167,7 +169,7 @@ class OtpScreen extends StatelessWidget {
                         ? const CircularProgressIndicator(color: Colors.white)
                         : Text(
                             "activate_account_button".tr, // "تفعيل الحساب"
-                            style: TextStyle(
+                            style: CustomTextStyle(
                               fontSize: 18,
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
@@ -201,7 +203,7 @@ class OtpScreen extends StatelessWidget {
                           ? const CircularProgressIndicator(color: Colors.black)
                           : Text(
                               "resend_code_button".tr, // "ارسل مجدداً"
-                              style: TextStyle(
+                              style: CustomTextStyle(
                                 fontSize: 18,
                                 color: Colors.black,
                                 fontWeight: FontWeight.bold,
@@ -218,7 +220,7 @@ class OtpScreen extends StatelessWidget {
                       controller.countdown.value.toString(),
                     ]), // "لم يصلك الرمز؟ يمكنك طلبه مجدداً خلال XX ثانية."
                     textAlign: TextAlign.center,
-                    style: TextStyle(
+                    style: CustomTextStyle(
                       color: Colors.grey.shade600,
                       fontFamily: isArabic ? 'NotoKufiArabic' : 'Roboto',
                     ),

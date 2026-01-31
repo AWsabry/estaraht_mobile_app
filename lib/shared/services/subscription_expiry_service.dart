@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:videocalling/core/utils/logger.dart';
+import 'package:videocalling/shared/services/others/timezone_service.dart';
 
 class SubscriptionExpiryService extends GetxService {
   final supabase = Supabase.instance.client;
@@ -24,7 +25,7 @@ class SubscriptionExpiryService extends GetxService {
       final expiresAt = DateTime.parse(expiresAtStr);
 
       // Check if subscription has expired
-      if (DateTime.now().isAfter(expiresAt)) {
+      if (TimezoneService.getCurrentMauritaniaTime().isAfter(expiresAt)) {
         loggerNoStack.i('Subscription expired for patient $patientId');
 
         // Reset sessions to 0 (subscription expired)

@@ -111,7 +111,7 @@ class _DoctorSearchScreenState extends State<DoctorSearchScreen> {
                     vertical: 12,
                   ),
                   // hintText: isArabic ? 'البحث عن طبيب' : 'Find a therapist',
-                  hintStyle: TextStyle(
+                  hintStyle: CustomTextStyle(
                     color: Colors.grey[600],
                     fontSize: 15,
                     fontWeight: FontWeight.w400,
@@ -191,7 +191,7 @@ class _DoctorSearchScreenState extends State<DoctorSearchScreen> {
                 child: FilterChip(
                   label: Text(
                     displayName,
-                    style: TextStyle(
+                    style: CustomTextStyle(
                       color: isSelected ? Colors.white : Colors.black,
                       fontSize: 13,
                       fontWeight: isSelected
@@ -233,7 +233,7 @@ class _DoctorSearchScreenState extends State<DoctorSearchScreen> {
           const SizedBox(height: 16),
           Text(
             'loading'.tr,
-            style: TextStyle(color: Colors.grey[700], fontSize: 14),
+            style: CustomTextStyle(color: Colors.grey[700], fontSize: 14),
           ),
         ],
       ),
@@ -250,7 +250,7 @@ class _DoctorSearchScreenState extends State<DoctorSearchScreen> {
           Text(
             'unable_to_load_data'.tr,
             textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.grey[700], fontSize: 14),
+            style: CustomTextStyle(color: Colors.grey[700], fontSize: 14),
           ),
           const SizedBox(height: 24),
           ElevatedButton(
@@ -323,7 +323,7 @@ class _DoctorSearchScreenState extends State<DoctorSearchScreen> {
             // Recent searches
             Text(
               isArabic ? 'البحث الأخير' : 'Latest search',
-              style: const TextStyle(
+              style: const CustomTextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
                 color: Colors.black87,
@@ -349,7 +349,7 @@ class _DoctorSearchScreenState extends State<DoctorSearchScreen> {
             // Popular searches
             Text(
               isArabic ? 'البحث الشائع' : 'Popular search',
-              style: const TextStyle(
+              style: const CustomTextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
                 color: Colors.black87,
@@ -390,7 +390,7 @@ class _DoctorSearchScreenState extends State<DoctorSearchScreen> {
           children: [
             Text(
               label,
-              style: const TextStyle(color: Colors.black87, fontSize: 14),
+              style: const CustomTextStyle(color: Colors.black87, fontSize: 14),
             ),
             const SizedBox(width: 4),
             Icon(
@@ -461,7 +461,10 @@ class _DoctorSearchScreenState extends State<DoctorSearchScreen> {
                     children: [
                       Text(
                         '+500 ${isArabic ? 'جلسة' : 'Sessions'}',
-                        style: TextStyle(fontSize: 12, color: Colors.grey[800]),
+                        style: CustomTextStyle(
+                          fontSize: 12,
+                          color: Colors.grey[800],
+                        ),
                       ),
                       const SizedBox(width: 4),
                       const Icon(
@@ -488,7 +491,10 @@ class _DoctorSearchScreenState extends State<DoctorSearchScreen> {
                     children: [
                       Text(
                         '50 ${isArabic ? 'أوقية' : 'MRU'}',
-                        style: TextStyle(fontSize: 12, color: Colors.grey[800]),
+                        style: CustomTextStyle(
+                          fontSize: 12,
+                          color: Colors.grey[800],
+                        ),
                       ),
                       const SizedBox(width: 4),
                       const Icon(
@@ -538,7 +544,7 @@ class _DoctorSearchScreenState extends State<DoctorSearchScreen> {
                     children: [
                       Text(
                         doctor.name ?? "",
-                        style: const TextStyle(
+                        style: const CustomTextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                           color: Colors.black87,
@@ -547,7 +553,10 @@ class _DoctorSearchScreenState extends State<DoctorSearchScreen> {
                       const SizedBox(height: 4),
                       Text(
                         doctor.departmentName ?? "",
-                        style: TextStyle(fontSize: 14, color: Colors.grey[700]),
+                        style: CustomTextStyle(
+                          fontSize: 14,
+                          color: Colors.grey[700],
+                        ),
                       ),
                     ],
                   ),
@@ -560,7 +569,7 @@ class _DoctorSearchScreenState extends State<DoctorSearchScreen> {
             // Specializations
             Text(
               isArabic ? 'التخصصات' : 'Specializations',
-              style: TextStyle(
+              style: CustomTextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
                 color: Colors.grey[800],
@@ -602,7 +611,7 @@ class _DoctorSearchScreenState extends State<DoctorSearchScreen> {
                     ),
                     child: Text(
                       isArabic ? 'إحجز الآن' : 'Book now',
-                      style: const TextStyle(
+                      style: const CustomTextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
                       ),
@@ -630,7 +639,7 @@ class _DoctorSearchScreenState extends State<DoctorSearchScreen> {
                     ),
                     child: Text(
                       isArabic ? 'الصفحة الشخصية' : 'Profile',
-                      style: const TextStyle(
+                      style: const CustomTextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
                       ),
@@ -654,7 +663,7 @@ class _DoctorSearchScreenState extends State<DoctorSearchScreen> {
       ),
       child: Text(
         label,
-        style: TextStyle(fontSize: 12, color: Colors.grey[800]),
+        style: CustomTextStyle(fontSize: 12, color: Colors.grey[800]),
       ),
     );
   }
@@ -673,7 +682,7 @@ class _SpecChip extends StatelessWidget {
       ),
       child: Text(
         label,
-        style: TextStyle(fontSize: 12, color: Colors.grey[800]),
+        style: CustomTextStyle(fontSize: 12, color: Colors.grey[800]),
       ),
     );
   }

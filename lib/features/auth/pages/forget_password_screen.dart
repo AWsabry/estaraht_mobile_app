@@ -44,7 +44,7 @@ class ForgetPassword extends GetView<ForgetPasswordController> {
                   const SizedBox(height: 92),
                   Text(
                     "forgot_password".tr,
-                    style: TextStyle(
+                    style: CustomTextStyle(
                       fontSize: 30,
                       fontWeight: FontWeight.w700,
                       fontFamily: isArabic ? 'NotoKufiArabic' : 'Roboto',
@@ -54,7 +54,7 @@ class ForgetPassword extends GetView<ForgetPasswordController> {
                   const SizedBox(height: 32),
                   Text(
                     "forget_password_enter_email".tr,
-                    style: TextStyle(
+                    style: CustomTextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w400,
                       color: Colors.black,
@@ -65,7 +65,7 @@ class ForgetPassword extends GetView<ForgetPasswordController> {
                   const SizedBox(height: 12),
                   Text(
                     "we_will_email_a_password_reset_link".tr,
-                    style: TextStyle(
+                    style: CustomTextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w400,
                       color: Colors.grey[600],
@@ -131,7 +131,7 @@ class ForgetPassword extends GetView<ForgetPasswordController> {
                 ),
                 child: Text(
                   'btn_submit'.tr,
-                  style: TextStyle(
+                  style: CustomTextStyle(
                     fontSize: 16,
                     color: Colors.white,
                     fontWeight: FontWeight.w500,
@@ -159,7 +159,7 @@ class ForgetPassword extends GetView<ForgetPasswordController> {
                 ),
                 child: Text(
                   'back_to_login'.tr,
-                  style: TextStyle(
+                  style: CustomTextStyle(
                     color: Colors.black,
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
@@ -194,7 +194,7 @@ class ForgetPassword extends GetView<ForgetPasswordController> {
       controller: controller,
       obscureText: obscureText,
       keyboardType: keyboardType,
-      style: TextStyle(
+      style: CustomTextStyle(
         fontFamily: isArabic ? 'NotoKufiArabic' : 'Roboto',
         color: hasError ? Colors.red : Colors.black,
       ),
@@ -204,14 +204,14 @@ class ForgetPassword extends GetView<ForgetPasswordController> {
           vertical: 16,
         ),
         labelText: labelText,
-        labelStyle: TextStyle(
+        labelStyle: CustomTextStyle(
           color: hasError ? Colors.red : Colors.grey[800],
           fontFamily: isArabic ? 'NotoKufiArabic' : 'Roboto',
         ),
         suffixIcon: suffixIcon,
         prefixIcon: prefixIcon,
         errorText: errorText,
-        errorStyle: TextStyle(
+        errorStyle: CustomTextStyle(
           fontFamily: isArabic ? 'NotoKufiArabic' : 'Roboto',
           fontSize: 12,
         ),

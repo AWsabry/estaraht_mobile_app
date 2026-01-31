@@ -1,4 +1,5 @@
 import 'package:videocalling/core/config/app_imports.dart';
+import 'package:videocalling/shared/services/others/timezone_service.dart';
 import 'package:videocalling/features/doctor/finance/models/income_report_model.dart';
 
 class IncomeReportController extends GetxController {
@@ -21,7 +22,7 @@ class IncomeReportController extends GetxController {
     try {
       // Calculate date range based on duration
       DateTime startDate;
-      DateTime endDate = DateTime.now();
+      DateTime endDate = TimezoneService.getCurrentMauritaniaTime();
 
       if (duration == "today") {
         startDate = DateTime(endDate.year, endDate.month, endDate.day);
@@ -270,14 +271,14 @@ class IncomeReportController extends GetxController {
 
   void _showDateRangePicker(BuildContext context) async {
     final initialDateRange = DateTimeRange(
-      start: DateTime.now().add(const Duration(days: -7)),
-      end: DateTime.now().add(const Duration(days: 7)),
+      start: TimezoneService.getCurrentMauritaniaTime().add(const Duration(days: -7)),
+      end: TimezoneService.getCurrentMauritaniaTime().add(const Duration(days: 7)),
     );
 
     DateTimeRange? picked = await showDateRangePicker(
       context: context,
-      firstDate: DateTime(DateTime.now().year - 5),
-      lastDate: DateTime(DateTime.now().year + 5),
+      firstDate: DateTime(TimezoneService.getCurrentMauritaniaTime().year - 5),
+      lastDate: DateTime(TimezoneService.getCurrentMauritaniaTime().year + 5),
       initialDateRange: initialDateRange,
     );
 

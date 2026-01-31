@@ -78,18 +78,28 @@ class _IndemandDoctorScreenState extends State<IndemandDoctorScreen> {
               children: [
                 Row(
                   children: [
-                    SvgPicture.asset(
-                      AppImages.appAccountCircle,
-                      width: 26,
-                      height: 26,
+                    GestureDetector(
+                      onTap: () {
+                        Get.toNamed(Routes.profileParametersScreen);
+                      },
+                      child: SvgPicture.asset(
+                        AppImages.appAccountCircle,
+                        width: 26,
+                        height: 26,
+                      ),
                     ),
                     const SizedBox(width: 6),
-                    Padding(
-                      padding: const EdgeInsets.all(6.0),
-                      child: SvgPicture.asset(
-                        AppImages.appBadging,
-                        width: 24,
-                        height: 24,
+                    GestureDetector(
+                      onTap: () {
+                        Get.toNamed(Routes.notificationScreen);
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.all(6.0),
+                        child: SvgPicture.asset(
+                          AppImages.appBadging,
+                          width: 24,
+                          height: 24,
+                        ),
                       ),
                     ),
                   ],
@@ -116,25 +126,28 @@ class _IndemandDoctorScreenState extends State<IndemandDoctorScreen> {
                     vertical: 20,
                   ),
                   hintText: 'find_a_therapist'.tr,
-                  hintStyle: TextStyle(
+                  hintStyle: CustomTextStyle(
                     color: Colors.grey[600],
                     fontSize: 15,
                     fontWeight: FontWeight.w400,
                   ),
                   prefixIcon: isArabic
                       ? (_textController.text.isNotEmpty
-                          ? GestureDetector(
-                              onTap: () {
-                                _textController.clear();
-                                setState(() {});
-                                controller.search('');
-                              },
-                              child: Padding(
-                                padding: const EdgeInsets.all(16.0),
-                                child: Icon(Icons.close, color: Colors.grey[700]),
-                              ),
-                            )
-                          : null)
+                            ? GestureDetector(
+                                onTap: () {
+                                  _textController.clear();
+                                  setState(() {});
+                                  controller.search('');
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: Icon(
+                                    Icons.close,
+                                    color: Colors.grey[700],
+                                  ),
+                                ),
+                              )
+                            : null)
                       : Padding(
                           padding: const EdgeInsets.all(16.0),
                           child: Icon(Icons.search, color: Colors.grey[700]),
@@ -145,18 +158,21 @@ class _IndemandDoctorScreenState extends State<IndemandDoctorScreen> {
                           child: Icon(Icons.search, color: Colors.grey[700]),
                         )
                       : (_textController.text.isNotEmpty
-                          ? GestureDetector(
-                              onTap: () {
-                                _textController.clear();
-                                setState(() {});
-                                controller.search('');
-                              },
-                              child: Padding(
-                                padding: const EdgeInsets.all(16.0),
-                                child: Icon(Icons.close, color: Colors.grey[700]),
-                              ),
-                            )
-                          : null),
+                            ? GestureDetector(
+                                onTap: () {
+                                  _textController.clear();
+                                  setState(() {});
+                                  controller.search('');
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: Icon(
+                                    Icons.close,
+                                    color: Colors.grey[700],
+                                  ),
+                                ),
+                              )
+                            : null),
                   suffixIconConstraints: const BoxConstraints(
                     minHeight: 48,
                     minWidth: 48,
@@ -219,11 +235,11 @@ class _IndemandDoctorScreenState extends State<IndemandDoctorScreen> {
                 final isSelected = ctrl.selectedCategoryIndex == index;
 
                 return Container(
-                  margin: const EdgeInsets.only(right: 8),
                   child: FilterChip(
+                    showCheckmark: false,
                     label: Text(
                       displayName,
-                      style: TextStyle(
+                      style: CustomTextStyle(
                         color: isSelected ? Colors.white : Colors.black,
                         fontSize: 13,
                         fontWeight: isSelected
@@ -275,7 +291,7 @@ class _IndemandDoctorScreenState extends State<IndemandDoctorScreen> {
           Text(
             'unable_to_load_data'.tr,
             textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.grey[700], fontSize: 14),
+            style: CustomTextStyle(color: Colors.grey[700], fontSize: 14),
           ),
           const SizedBox(height: 16),
           ElevatedButton(
@@ -352,12 +368,14 @@ class _IndemandDoctorScreenState extends State<IndemandDoctorScreen> {
         },
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
             // Top pills (sessions/fee)
             const SizedBox(height: 12),
 
             // Info row
             Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
                 ClipRRect(
                   borderRadius: BorderRadius.circular(40),
@@ -384,19 +402,25 @@ class _IndemandDoctorScreenState extends State<IndemandDoctorScreen> {
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
                         doctor.name ?? "",
-                        style: const TextStyle(
+                        style: const CustomTextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                           color: Colors.black87,
                         ),
                       ),
-                      const SizedBox(height: 4),
                       Text(
-                        doctor.departmentName ?? "",
-                        style: TextStyle(fontSize: 14, color: Colors.grey[700]),
+                        (doctor.departmentName!.isEmpty ||
+                                doctor.departmentName == null)
+                            ? "Psychologist"
+                            : doctor.departmentName ?? "",
+                        style: CustomTextStyle(
+                          fontSize: 14,
+                          color: Colors.grey[700],
+                        ),
                       ),
                     ],
                   ),
@@ -409,7 +433,7 @@ class _IndemandDoctorScreenState extends State<IndemandDoctorScreen> {
             // Specializations header (reused)
             Text(
               'specialization'.tr,
-              style: TextStyle(
+              style: CustomTextStyle(
                 fontSize: 14.sp,
                 fontWeight: FontWeight.w500,
                 color: Colors.grey[800],
@@ -450,7 +474,7 @@ class _IndemandDoctorScreenState extends State<IndemandDoctorScreen> {
                     ),
                     child: Text(
                       'profile_str'.tr,
-                      style: const TextStyle(
+                      style: const CustomTextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
                       ),
@@ -482,7 +506,7 @@ class _IndemandDoctorScreenState extends State<IndemandDoctorScreen> {
                     ),
                     child: Text(
                       'book'.tr,
-                      style: const TextStyle(
+                      style: const CustomTextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
                       ),
@@ -512,7 +536,7 @@ class _SpecChip extends StatelessWidget {
       ),
       child: Text(
         label,
-        style: TextStyle(fontSize: 12, color: Colors.grey[800]),
+        style: CustomTextStyle(fontSize: 12, color: Colors.grey[800]),
       ),
     );
   }

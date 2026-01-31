@@ -81,10 +81,13 @@ class Words extends Translations {
       'initializing': 'Initializing...',
       'connected': 'Connected',
       'contact_info': 'Contact Information',
+      'payment': 'Payment',
+      'payment_details': 'Payment Details',
       'payment_success_title': 'Payment Successful',
       'payment_success': 'Your payment was successful!',
       'withdrawal_amount': "amount",
       'total_balance': "total balance",
+      "activate": "Activate",
       'financial': 'Financial',
       'enter_valid_email': 'Enter valid email',
       'enter_the_coupon_here': 'Enter the coupon here',
@@ -93,8 +96,10 @@ class Words extends Translations {
       'phone_number_hint': 'Enter your phone number',
       'pay_with_visa_or_mastercard_via_bankily':
           'Pay with Visa or Mastercard via Bankily (For people located in Mauritania)',
+      'currency_conversion_notice': 'Amounts converted to MRU (1 USD = @rate MRU)',
       'credit_or_debit_card': 'Credit or Debit Card',
       'total': 'Total',
+      'Card': 'Card',
       'tax': 'Tax',
       'subtotal': 'Subtotal',
       'service_fees': 'Service Fees',
@@ -149,6 +154,27 @@ class Words extends Translations {
       'session_already_completed': 'This session has already been completed',
       'both_parties_must_confirm':
           'Both you and the doctor must confirm to complete the session',
+
+      // Video Session Join Time
+      'session_available_soon': 'Session Available Soon',
+      'session_available_in_5_minutes':
+          'The session link will be available 5 minutes before the appointment time.',
+      'time_remaining': 'Time remaining',
+      'day': 'day',
+      'days': 'days',
+      'hour': 'hour',
+      'hours': 'hours',
+      'minute': 'minute',
+      'minutes': 'minutes',
+      'and': 'and',
+      'now': 'Now',
+
+      // Session Time Limit
+      'session_expired': 'Session Expired',
+      'session_time_limit_reached':
+          'The 30-minute session time limit has been reached. The call will now end.',
+      'ok': 'OK',
+
       'you': 'You',
       'doctor': 'Doctor',
       'patient': 'Patient',
@@ -318,6 +344,36 @@ class Words extends Translations {
       'logout_loading_title': 'Log out',
       'logout_loading_description': 'Please wait while log out...',
       'success': 'Successful',
+
+      // Doctor Approval System
+      'under_review_title': 'Application Under Review',
+      'under_review_message':
+          'Your application is currently being reviewed by our team. You will be notified by email once your account is approved.',
+      'review_time_estimate': 'Review time: 24-48 hours',
+      'review_email_notification':
+          'You\'ll receive an email notification once reviewed',
+      'review_verification_process':
+          'We verify all doctor credentials for patient safety',
+      'refresh_status': 'Refresh Status',
+      'status_unchanged': 'Status Unchanged',
+      'still_under_review': 'Your application is still under review',
+      'account_rejected_title': 'Application Rejected',
+      'account_rejected_message':
+          'We\'re sorry, but your application has been rejected. Please contact support for more information.',
+      'rejection_reason': 'Rejection Reason',
+      'rejection_contact_support': 'Contact our support team for assistance',
+      'rejection_reapply_info':
+          'You may be able to reapply after addressing the issues',
+      'contact_support': 'Contact Support',
+      'support_contact_message':
+          'Please email support@estaraht.com for assistance',
+      'back_to_login': 'Back to Login',
+      'approved': 'Approved',
+      'account_approved_message':
+          'Congratulations! Your account has been approved.',
+      'unable_to_check_status': 'Unable to check status',
+      'logout_error': 'Logout failed',
+
       'success_str': 'Success',
       'payment_success': 'Your payment success',
       'rate_your_session': 'Rate Your Session',
@@ -677,6 +733,15 @@ class Words extends Translations {
       'process_payment': 'Process Payment',
       'consultation_fee': 'Consultation fee',
       'select_a_payment_method': 'Select payment method',
+      'review_payment_details': 'Review Payment Details',
+      'payment_methods': 'Payment Methods',
+      'total_amount': 'Total Amount',
+      'show_details': 'Show Details',
+      'hide_details': 'Hide Details',
+      'saved_payment_methods': 'Saved Payment Methods',
+      'continue': 'Continue',
+      'subscribe_tap_to_pay': 'Subscribe with tap-to-pay - no additional fees',
+      'payment_summary': 'Payment Summary',
       'method1_title': 'Cash On Board',
 
       'method1_description':
@@ -763,6 +828,7 @@ class Words extends Translations {
       'chat_title_yesterday': 'Yesterday',
       'accept_chat_dialog_text1': 'Reject',
       'accept_chat_dialog_text2': 'Accept',
+      'phone': 'Phone',
       'photo_str': 'Photo',
       'video_str': 'Video',
       'document_str': 'Document',
@@ -927,7 +993,9 @@ class Words extends Translations {
       'financial': 'الاستشارات',
       'enter_valid_email': 'أدخل بريد إلكتروني صالح',
       'enter_the_coupon_here': 'أدخل القسيمة هنا',
-      'pay_with_bankily': 'الدفع عبر بنكلي',
+      'pay_with_bankily': 'الدفع عبر بنكيلي',
+      'currency_conversion_notice': 'المبالغ محولة إلى أوقية (@rate أوقية = 1 دولار)',
+      'Card': 'كارد',
       'phone_number_hint': 'أدخل رقم هاتفك',
       'pay_with_visa_or_mastercard_via_bankily':
           'الدفع بفيزا أو ماستركارد عبر بنكلي (للأشخاص الموجودين في موريتانيا)',
@@ -1020,6 +1088,7 @@ class Words extends Translations {
       'connect_with_your_patient': 'تواصل مع مرضاك بمرونة',
       'full_name': 'الاسم كاملًا ',
       'email': 'البريد الإلكتروني',
+      'phone': 'الهاتف',
       'mobile_number': 'رقم الهاتف المحمول',
       'password': 'كلمة المرور',
       'at_least_characters': 'على الأقل 8 أحرف',
@@ -1076,6 +1145,7 @@ class Words extends Translations {
       'yes': 'نعم',
       'no': 'لا',
       'email_or_phone': 'بريدك الإلكتروني',
+      "activate": "تفعيل",
 
       ///home
       'welcome_back': 'مرحبًا بعودتك!',
@@ -1314,6 +1384,27 @@ class Words extends Translations {
       'session_already_completed': 'تم إنهاء هذه الجلسة بالفعل',
       'both_parties_must_confirm':
           'يجب على كل من المريض والطبيب التأكيد لإنهاء الجلسة',
+
+      // Video Session Join Time
+      'session_available_soon': 'الجلسة متاحة قريباً',
+      'session_available_in_5_minutes':
+          'سيكون رابط الجلسة متاحًا قبل موعد الجلسة بـ 5 دقائق.',
+      'time_remaining': 'الوقت المتبقي',
+      'day': 'يوم',
+      'days': 'أيام',
+      'hour': 'ساعة',
+      'hours': 'ساعات',
+      'minute': 'دقيقة',
+      'minutes': 'دقائق',
+      'and': 'و',
+      'now': 'الآن',
+
+      // Session Time Limit
+      'session_expired': 'انتهت مدة الجلسة',
+      'session_time_limit_reached':
+          'تم الوصول إلى الحد الزمني للجلسة (30 دقيقة). سيتم إنهاء المكالمة الآن.',
+      'ok': 'حسناً',
+
       'you': 'أنت',
       'doctor': 'الطبيب',
       'patient': 'المريض',
@@ -1509,6 +1600,18 @@ class Words extends Translations {
       'process_payment': 'ادفع الآن',
       'consultation_fee': 'رسوم الاستشارة',
       'select_a_payment_method': 'اختر وسيلة الدفع',
+      'review_payment_details': 'مراجعة تفاصيل الدفع',
+      'payment': 'الدفع',
+      'payment_methods': 'الدفع',
+      'total_amount': 'المبلغ الإجمالي',
+      'show_details': 'اعرض التفاصيل',
+      'hide_details': 'إخفاء التفاصيل',
+      'saved_payment_methods': 'طرق الدفع المحفوظة',
+      'continue': 'متابعة',
+      'subscribe_tap_to_pay':
+          'اشترك بطريق تدفع نقراً بأمس المتمع بطريقك إضافية',
+      'payment_details': 'تفاصيل الدفع',
+      'payment_summary': 'ملخص الدفع',
       'method1_title': 'الدفع عند الوصول',
       'method1_description': 'ادفع فقط عند زيارة الطبيب في موعدك',
       'method2_title': 'Paystack',
@@ -1707,6 +1810,31 @@ class Words extends Translations {
       'working_hours_saved': 'تم حفظ ساعات العمل بنجاح',
       'invalid_time_range': 'نطاق زمني غير صالح',
       'select_valid_time': 'الرجاء اختيار نطاق زمني صالح',
+
+      // Doctor Approval System
+      'under_review_title': 'الطلب قيد المراجعة',
+      'under_review_message':
+          'طلبك قيد المراجعة من قبل فريقنا حاليًا. سيتم إعلامك عبر البريد الإلكتروني بمجرد الموافقة على حسابك.',
+      'review_time_estimate': 'وقت المراجعة: 24-48 ساعة',
+      'review_email_notification':
+          'ستتلقى إشعارًا عبر البريد الإلكتروني بمجرد المراجعة',
+      'review_verification_process':
+          'نحن نتحقق من جميع بيانات اعتماد الأطباء من أجل سلامة المرضى',
+      'refresh_status': 'تحديث الحالة',
+      'status_unchanged': 'الحالة لم تتغير',
+      'still_under_review': 'طلبك لا يزال قيد المراجعة',
+      'account_rejected_title': 'تم رفض الطلب',
+      'account_rejected_message':
+          'نأسف، لكن تم رفض طلبك. يرجى مراجعة السبب أدناه والاتصال بالدعم إذا كان لديك أي أسئلة.',
+      'rejection_reason': 'سبب الرفض',
+      'rejection_contact_support': 'اتصل بفريق الدعم للحصول على المساعدة',
+      'rejection_reapply_info': 'قد تتمكن من إعادة التقديم بعد معالجة المشاكل',
+      'support_contact_message':
+          'يرجى إرسال بريد إلكتروني إلى support@estaraht.com للحصول على المساعدة',
+      'approved': 'مقبول',
+      'account_approved_message': 'تهانينا! تمت الموافقة على حسابك.',
+      'unable_to_check_status': 'غير قادر على التحقق من الحالة',
+      'logout_error': 'فشل تسجيل الخروج',
     },
     'fr_FR': {
       'duration_plan': '45 minutes par session',
@@ -1761,6 +1889,7 @@ class Words extends Translations {
       'select_department_hint': 'Sélectionnez le département',
       'complete_therapist_info': 'Complétez les informations de votre profil',
       'complete_profile': 'Complétez votre profil',
+      "activate": "Activer",
       'enter_description': 'Entrez la description',
       'back': 'Retour',
       'loading_reviews': 'Chargement des avis...',
@@ -1817,6 +1946,18 @@ class Words extends Translations {
       'make_an_appointment': 'Prendre rendez-vous',
       'process_payment': 'Traiter le paiement',
       'select_a_payment_method': 'Sélectionnez un mode de paiement',
+      'review_payment_details': 'Vérifier les détails du paiement',
+      'payment_methods': 'Méthodes de paiement',
+      'payment': 'Paiement',
+      'total_amount': 'Montant total',
+      'show_details': 'Afficher les détails',
+      'hide_details': 'Masquer les détails',
+      'saved_payment_methods': 'Méthodes de paiement enregistrées',
+      'continue': 'Continuer',
+      'subscribe_tap_to_pay':
+          'Abonnez-vous avec paiement tactile - aucun frais supplémentaire',
+      'payment_details': 'Détails du paiement',
+      'payment_summary': 'Résumé du paiement',
       'method1_title': 'Paiement à la livraison',
       'method1_description':
           'Payez uniquement en visitant le médecin à votre heure de rendez-vous',
@@ -1935,7 +2076,9 @@ class Words extends Translations {
       'enter_the_coupon_here': 'Entrez le coupon ici',
 
       'pay_with_bankily': 'Payer avec Bankily',
+      'currency_conversion_notice': 'Montants convertis en MRU (1 USD = @rate MRU)',
       'phone_number_hint': 'Numéro de téléphone',
+      'Card': 'Card',
       'pay_with_visa_or_mastercard_via_bankily':
           'Payer avec Visa ou Mastercard via Bankily (Pour les personnes situées en Mauritanie)',
       'credit_or_debit_card': 'Carte de crédit ou de débit',
@@ -1994,6 +2137,7 @@ class Words extends Translations {
       'manage_appointments_easily': 'Gérez vos rendez-vous facilement',
 
       'years_of_exp': ' années d\'expérience',
+      'phone': 'téléphone',
       'services_error': 'Veuillez entrer les services de spécialisation',
       'common_textfield_error':
           'Ce champ est obligatoire. Veuillez le remplir pour continuer.',
@@ -2347,6 +2491,27 @@ class Words extends Translations {
       'session_already_completed': 'Cette séance est déjà terminée',
       'both_parties_must_confirm':
           'Le patient et le médecin doivent confirmer pour terminer la séance',
+
+      // Video Session Join Time (French)
+      'session_available_soon': 'Séance bientôt disponible',
+      'session_available_in_5_minutes':
+          'Le lien de la séance sera disponible 5 minutes avant l\'heure du rendez-vous.',
+      'time_remaining': 'Temps restant',
+      'day': 'jour',
+      'days': 'jours',
+      'hour': 'heure',
+      'hours': 'heures',
+      'minute': 'minute',
+      'minutes': 'minutes',
+      'and': 'et',
+      'now': 'Maintenant',
+
+      // Session Time Limit (French)
+      'session_expired': 'Séance expirée',
+      'session_time_limit_reached':
+          'La limite de temps de la séance (30 minutes) a été atteinte. L\'appel va maintenant se terminer.',
+      'ok': 'OK',
+
       'you': 'Vous',
       'doctor': 'Médecin',
       'patient': 'Patient',
@@ -2371,6 +2536,34 @@ class Words extends Translations {
       'appointment_status_5': 'Terminé',
       'appointment_status_6': 'Refusé',
       'appointment_status_7': 'Annuler',
+
+      // Doctor Approval System
+      'under_review_title': 'Demande en cours d\'examen',
+      'under_review_message':
+          'Votre demande est actuellement en cours d\'examen par notre équipe. Vous serez informé par e-mail une fois votre compte approuvé.',
+      'review_time_estimate': 'Délai d\'examen: 24-48 heures',
+      'review_email_notification':
+          'Vous recevrez une notification par e-mail une fois examiné',
+      'review_verification_process':
+          'Nous vérifions toutes les informations d\'identification des médecins pour la sécurité des patients',
+      'refresh_status': 'Actualiser le statut',
+      'status_unchanged': 'Statut inchangé',
+      'still_under_review': 'Votre demande est toujours en cours d\'examen',
+      'account_rejected_title': 'Demande rejetée',
+      'account_rejected_message':
+          'Nous sommes désolés, mais votre demande a été rejetée. Veuillez consulter la raison ci-dessous et contacter le support si vous avez des questions.',
+      'rejection_reason': 'Raison du rejet',
+      'rejection_contact_support':
+          'Contactez notre équipe d\'assistance pour obtenir de l\'aide',
+      'rejection_reapply_info':
+          'Vous pourrez peut-être postuler à nouveau après avoir résolu les problèmes',
+      'contact_support': 'Contacter le support',
+      'support_contact_message':
+          'Veuillez envoyer un e-mail à support@estaraht.com pour obtenir de l\'aide',
+      'approved': 'Approuvé',
+      'account_approved_message': 'Félicitations! Votre compte a été approuvé.',
+      'unable_to_check_status': 'Impossible de vérifier le statut',
+      'logout_error': 'Échec de la déconnexion',
     },
   };
 }

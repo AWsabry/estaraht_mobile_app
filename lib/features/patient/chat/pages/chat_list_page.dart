@@ -104,7 +104,7 @@ class PChatListScreen extends GetView<PatientChatListController> {
                                                 child: ListTile(
                                                   title: Text(
                                                     userName,
-                                                    style: TextStyle(
+                                                    style: CustomTextStyle(
                                                       fontFamily:
                                                           chatListController
                                                                   .chatListDetails[index]
@@ -198,7 +198,7 @@ class PChatListScreen extends GetView<PatientChatListController> {
                                                                       .chatListDetails[index]
                                                                       .messageCount
                                                                       .toString(),
-                                                                  style: const TextStyle(
+                                                                  style: const CustomTextStyle(
                                                                     color: AppColors
                                                                         .BLACK,
                                                                     fontWeight:

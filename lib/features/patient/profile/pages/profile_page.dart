@@ -1,8 +1,9 @@
 import 'package:videocalling/core/config/app_imports.dart';
+
 class UserEditProfile extends GetView<UserEditController> {
   final UserEditController editController = Get.put(UserEditController());
 
-   UserEditProfile({super.key});
+  UserEditProfile({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +16,7 @@ class UserEditProfile extends GetView<UserEditController> {
         elevation: 0,
         title: Text(
           'edit_profile'.tr,
-          style: TextStyle(
+          style: CustomTextStyle(
             color: Colors.black,
             fontSize: 16,
             fontWeight: FontWeight.w400,
@@ -29,13 +30,15 @@ class UserEditProfile extends GetView<UserEditController> {
           onPressed: () => Get.back(),
         ),
       ),
-      body: Obx(() => editController.isLoaded.value
-          ? const Center(
-              child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF204FCF)),
-              ),
-            )
-          : _buildProfileForm(context, isArabic)),
+      body: Obx(
+        () => editController.isLoaded.value
+            ? const Center(
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF204FCF)),
+                ),
+              )
+            : _buildProfileForm(context, isArabic),
+      ),
     );
   }
 
@@ -170,7 +173,7 @@ class UserEditProfile extends GetView<UserEditController> {
                   alignment: Alignment.center,
                   child: Text(
                     'update'.tr,
-                    style: TextStyle(
+                    style: CustomTextStyle(
                       color: Colors.white,
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
@@ -210,39 +213,42 @@ class UserEditProfile extends GetView<UserEditController> {
                     ),
                   ],
                 ),
-                child: Obx(() => ClipRRect(
-                      borderRadius: BorderRadius.circular(60),
-                      child: editController.image != null ||
-                              editController.isImageSelected.value
-                          ? Image.file(
-                              editController.image!,
-                              height: 120,
-                              width: 120,
-                              fit: BoxFit.cover,
-                            )
-                          : CachedNetworkImage(
-                              imageUrl: editController.profileImage,
-                              height: 120,
-                              width: 120,
-                              fit: BoxFit.cover,
-                              placeholder: (context, url) => Container(
-                                color: Colors.grey[200],
-                                child: Icon(
-                                  Icons.person,
-                                  color: Colors.grey[400],
-                                  size: 40,
-                                ),
-                              ),
-                              errorWidget: (context, url, error) => Container(
-                                color: Colors.grey[200],
-                                child: Icon(
-                                  Icons.person,
-                                  color: Colors.grey[400],
-                                  size: 40,
-                                ),
+                child: Obx(
+                  () => ClipRRect(
+                    borderRadius: BorderRadius.circular(60),
+                    child:
+                        editController.image != null ||
+                            editController.isImageSelected.value
+                        ? Image.file(
+                            editController.image!,
+                            height: 120,
+                            width: 120,
+                            fit: BoxFit.cover,
+                          )
+                        : CachedNetworkImage(
+                            imageUrl: editController.profileImage,
+                            height: 120,
+                            width: 120,
+                            fit: BoxFit.cover,
+                            placeholder: (context, url) => Container(
+                              color: Colors.grey[200],
+                              child: Icon(
+                                Icons.person,
+                                color: Colors.grey[400],
+                                size: 40,
                               ),
                             ),
-                    )),
+                            errorWidget: (context, url, error) => Container(
+                              color: Colors.grey[200],
+                              child: Icon(
+                                Icons.person,
+                                color: Colors.grey[400],
+                                size: 40,
+                              ),
+                            ),
+                          ),
+                  ),
+                ),
               ),
 
               // Edit button
@@ -278,10 +284,7 @@ class UserEditProfile extends GetView<UserEditController> {
           const SizedBox(height: 8),
           Text(
             'profile_photo'.tr,
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey[600],
-            ),
+            style: CustomTextStyle(fontSize: 14, color: Colors.grey[600]),
           ),
         ],
       ),
@@ -303,28 +306,28 @@ class UserEditProfile extends GetView<UserEditController> {
       controller: controller,
       obscureText: obscureText,
       keyboardType: keyboardType,
-      style: TextStyle(
+      style: CustomTextStyle(
         fontFamily: isArabic ? 'NotoKufiArabic' : 'Roboto',
         fontSize: 16,
       ),
       decoration: InputDecoration(
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 16,
+        ),
         labelText: labelText,
-        labelStyle: TextStyle(
+        labelStyle: CustomTextStyle(
           color: hasError ? Colors.red : Colors.grey[700],
           fontSize: 15,
           fontFamily: isArabic ? 'NotoKufiArabic' : 'Roboto',
         ),
         errorText: errorText,
-        errorStyle: TextStyle(
+        errorStyle: CustomTextStyle(
           fontFamily: isArabic ? 'NotoKufiArabic' : 'Roboto',
         ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(
-            color: Colors.grey[400]!,
-          ),
+          borderSide: BorderSide(color: Colors.grey[400]!),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
@@ -341,9 +344,7 @@ class UserEditProfile extends GetView<UserEditController> {
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(
-            color: Colors.red,
-          ),
+          borderSide: const BorderSide(color: Colors.red),
         ),
         filled: true,
         fillColor: Colors.white,

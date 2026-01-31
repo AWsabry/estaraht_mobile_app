@@ -15,25 +15,24 @@ class AppTextWidgets {
     return Text(
       text,
       textAlign: textAlign ?? (isRtl ? TextAlign.right : TextAlign.left),
-      style: TextStyle(
+      style: CustomTextStyle(
         fontFamily: AppFontHelper.getFontFamily(),
         fontWeight: weight,
         color: color,
         fontSize: size,
+        height: 1.3,
       ),
     );
   }
 
-//
-  static Widget boldTextNormal({
-    required String text,
-    required double size,
-  }) {
+  //
+  static Widget boldTextNormal({required String text, required double size}) {
     return Text(
       text,
-      style: TextStyle(
+      style: CustomTextStyle(
         fontFamily: AppFontStyleTextStrings.bold,
         fontSize: size,
+        height: 1.3,
       ),
     );
   }
@@ -45,10 +44,11 @@ class AppTextWidgets {
   }) {
     return Text(
       text,
-      style: TextStyle(
+      style: CustomTextStyle(
         fontFamily: AppFontStyleTextStrings.bold,
         color: color,
         fontSize: size,
+        height: 1.3,
       ),
     );
   }
@@ -60,10 +60,11 @@ class AppTextWidgets {
   }) {
     return Text(
       text,
-      style: TextStyle(
+      style: CustomTextStyle(
         fontFamily: AppFontStyleTextStrings.regular,
         color: color,
         fontSize: size,
+        height: 1.3,
       ),
     );
   }
@@ -74,9 +75,10 @@ class AppTextWidgets {
   }) {
     return Text(
       text,
-      style: TextStyle(
+      style: CustomTextStyle(
         fontFamily: AppFontStyleTextStrings.regular,
         color: color,
+        height: 1.3,
       ),
     );
   }
@@ -87,9 +89,10 @@ class AppTextWidgets {
   }) {
     return Text(
       text,
-      style: TextStyle(
+      style: CustomTextStyle(
         fontFamily: AppFontStyleTextStrings.regular,
         fontSize: size,
+        height: 1.3,
       ),
     );
   }
@@ -101,10 +104,11 @@ class AppTextWidgets {
   }) {
     return Text(
       text,
-      style: TextStyle(
+      style: CustomTextStyle(
         fontFamily: AppFontStyleTextStrings.medium,
         color: color,
         fontSize: size,
+        height: 1.3,
       ),
     );
   }
@@ -115,9 +119,10 @@ class AppTextWidgets {
   }) {
     return Text(
       text,
-      style: TextStyle(
+      style: CustomTextStyle(
         fontFamily: AppFontStyleTextStrings.medium,
         color: color,
+        height: 1.3,
       ),
     );
   }
@@ -128,9 +133,10 @@ class AppTextWidgets {
   }) {
     return Text(
       text,
-      style: TextStyle(
+      style: CustomTextStyle(
         fontFamily: AppFontStyleTextStrings.medium,
         fontSize: size,
+        height: 1.3,
       ),
     );
   }
@@ -142,10 +148,11 @@ class AppTextWidgets {
   }) {
     return Text(
       text,
-      style: TextStyle(
+      style: CustomTextStyle(
         fontFamily: AppFontStyleTextStrings.semiBold,
         color: color,
         fontSize: size,
+        height: 1.3,
       ),
     );
   }
@@ -156,9 +163,10 @@ class AppTextWidgets {
   }) {
     return Text(
       text,
-      style: TextStyle(
+      style: CustomTextStyle(
         fontFamily: AppFontStyleTextStrings.semiBold,
         fontSize: size,
+        height: 1.3,
       ),
     );
   }
@@ -169,9 +177,10 @@ class AppTextWidgets {
   }) {
     return Text(
       text,
-      style: TextStyle(
+      style: CustomTextStyle(
         fontFamily: AppFontStyleTextStrings.semiBold,
         color: color,
+        height: 1.3,
       ),
     );
   }
@@ -183,10 +192,11 @@ class AppTextWidgets {
   }) {
     return Text(
       text,
-      style: TextStyle(
+      style: CustomTextStyle(
         fontFamily: AppFontStyleTextStrings.black,
         color: color,
         fontSize: size,
+        height: 1.3,
       ),
     );
   }
@@ -197,9 +207,10 @@ class AppTextWidgets {
   }) {
     return Text(
       text,
-      style: TextStyle(
+      style: CustomTextStyle(
         fontFamily: AppFontStyleTextStrings.black,
         fontSize: size,
+        height: 1.3,
       ),
     );
   }
@@ -210,9 +221,10 @@ class AppTextWidgets {
   }) {
     return Text(
       text,
-      style: TextStyle(
+      style: CustomTextStyle(
         fontFamily: AppFontStyleTextStrings.black,
         color: color,
+        height: 1.3,
       ),
     );
   }

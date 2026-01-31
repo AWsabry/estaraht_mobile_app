@@ -110,7 +110,7 @@ class MoreScreen extends GetView<PatientMoreScreenController> {
               child: Text(
                 'logout_confirmation'.tr,
                 textAlign: TextAlign.center,
-                style: const TextStyle(
+                style: const CustomTextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w400,
                   height: 1.5,
@@ -154,7 +154,7 @@ class MoreScreen extends GetView<PatientMoreScreenController> {
                       ),
                       child: Text(
                         'yes'.tr,
-                        style: TextStyle(
+                        style: CustomTextStyle(
                           fontSize: Get.locale?.languageCode == 'ar' ? 13 : 14,
                           color: Colors.black87,
                         ),
@@ -175,7 +175,7 @@ class MoreScreen extends GetView<PatientMoreScreenController> {
                       ),
                       child: Text(
                         'no'.tr,
-                        style: TextStyle(
+                        style: CustomTextStyle(
                           fontSize: Get.locale?.languageCode == 'ar' ? 13 : 14,
                           color: Colors.white,
                         ),
@@ -227,7 +227,7 @@ class MoreScreen extends GetView<PatientMoreScreenController> {
                   Center(
                     child: Text(
                       'select_your_language'.tr,
-                      style: const TextStyle(
+                      style: const CustomTextStyle(
                         fontSize: 18, // Smaller text
                         fontWeight: FontWeight.w500,
                       ),
@@ -286,7 +286,7 @@ class MoreScreen extends GetView<PatientMoreScreenController> {
                           ),
                           child: Text(
                             'cancel'.tr,
-                            style: TextStyle(
+                            style: CustomTextStyle(
                               fontSize: Get.locale?.languageCode == 'ar'
                                   ? 13
                                   : 14, // Smaller text
@@ -317,7 +317,7 @@ class MoreScreen extends GetView<PatientMoreScreenController> {
                           ),
                           child: Text(
                             'confirm'.tr,
-                            style: TextStyle(
+                            style: CustomTextStyle(
                               // Smaller text
                               color: Colors.white,
                               fontSize: Get.locale?.languageCode == 'ar'
@@ -368,7 +368,7 @@ class MoreScreen extends GetView<PatientMoreScreenController> {
             Expanded(
               child: Text(
                 title,
-                style: TextStyle(
+                style: CustomTextStyle(
                   fontSize: 16, // Smaller text
                   color: isSelected ? const Color(0xFF3961F1) : Colors.black87,
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
@@ -413,7 +413,7 @@ class MoreScreen extends GetView<PatientMoreScreenController> {
                 Expanded(
                   child: Text(
                     title,
-                    style: TextStyle(
+                    style: CustomTextStyle(
                       fontSize: Get.locale?.languageCode == 'ar' ? 15.0 : 16.0,
                       fontWeight: FontWeight.w400,
                       color: Colors.black87,

@@ -47,7 +47,7 @@ class DoctorPastAppointments extends GetView<DoctorPastAppointmentsController> {
                             const SizedBox(height: 10),
                             Text(
                               'unable_to_load_data'.tr,
-                              style: TextStyle(
+                              style: CustomTextStyle(
                                 fontFamily: AppFontStyleTextStrings.regular,
                               ),
                             ),

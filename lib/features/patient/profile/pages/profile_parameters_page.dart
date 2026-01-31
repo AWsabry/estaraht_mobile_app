@@ -47,7 +47,7 @@ class ProfileParametersScreen extends GetView<ProfileParametersController> {
                                 const SizedBox(height: 8),
                                 Text(
                                   'no_profile_image'.tr,
-                                  style: TextStyle(
+                                  style: CustomTextStyle(
                                     color: Colors.grey.shade600,
                                     fontSize: 14,
                                     fontFamily: isArabic
@@ -86,7 +86,7 @@ class ProfileParametersScreen extends GetView<ProfileParametersController> {
                                 const SizedBox(height: 8),
                                 Text(
                                   'no_profile_image'.tr,
-                                  style: TextStyle(
+                                  style: CustomTextStyle(
                                     color: Colors.grey.shade600,
                                     fontSize: 14,
                                     fontFamily: isArabic
@@ -386,27 +386,19 @@ class ProfileParametersScreen extends GetView<ProfileParametersController> {
                               ),
                             ),
                             child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.center,
                               textDirection: isArabic
                                   ? TextDirection.rtl
                                   : TextDirection.ltr,
                               children: [
-                                Container(
-                                  width: 32,
-                                  height: 32,
-                                  alignment: Alignment.topCenter,
-                                  child: const Icon(
-                                    Icons.video_call,
-                                    color: Colors.black54,
-                                    size: 28,
-                                  ),
+                                const Icon(
+                                  Icons.video_call,
+                                  color: Colors.black54,
+                                  size: 28,
                                 ),
                                 const SizedBox(width: 16),
                                 Column(
-                                  crossAxisAlignment: isArabic
-                                      ? CrossAxisAlignment.end
-                                      : CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
                                       'sessions'.tr,
@@ -494,9 +486,7 @@ class ProfileParametersScreen extends GetView<ProfileParametersController> {
             const SizedBox(width: 16),
             Expanded(
               child: Column(
-                crossAxisAlignment: isArabic
-                    ? CrossAxisAlignment.end
-                    : CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     label,

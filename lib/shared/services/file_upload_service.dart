@@ -3,6 +3,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:videocalling/core/utils/logger.dart';
 import 'package:videocalling/shared/models/session_file_model.dart';
 import 'package:videocalling/shared/services/auth/supabase_helper.dart';
+import 'package:videocalling/shared/services/others/timezone_service.dart';
 
 class FileUploadService {
   static final FileUploadService _instance = FileUploadService._internal();
@@ -56,7 +57,7 @@ class FileUploadService {
       }
 
       final fileBytes = await File(file.path!).readAsBytes();
-      final fileName = '${DateTime.now().millisecondsSinceEpoch}_${file.name}';
+      final fileName = '${TimezoneService.getCurrentMauritaniaTime().millisecondsSinceEpoch}_${file.name}';
       final storagePath = '$bookingId/$fileName';
 
       await _supabaseHelper.client.storage
@@ -173,7 +174,7 @@ class FileUploadService {
       final fileBytes = await File(file.path!).readAsBytes();
       // Sanitize filename - only allow alphanumeric, dots, hyphens, underscores
       final sanitizedName = _sanitizeFileName(file.name);
-      final fileName = '${DateTime.now().millisecondsSinceEpoch}_$sanitizedName';
+      final fileName = '${TimezoneService.getCurrentMauritaniaTime().millisecondsSinceEpoch}_$sanitizedName';
       // Sanitize channel ID as well
       final sanitizedChannelId = _sanitizeFileName(channelId);
       final storagePath = '$sanitizedChannelId/$fileName';

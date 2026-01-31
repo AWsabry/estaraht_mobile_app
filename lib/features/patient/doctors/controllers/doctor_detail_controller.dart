@@ -1,4 +1,5 @@
 import 'package:videocalling/core/config/app_imports.dart';
+import 'package:videocalling/shared/services/others/timezone_service.dart';
 import 'package:videocalling/features/patient/doctors/models/doctor_detail_model.dart';
 import 'package:videocalling/shared/models/availability_model.dart';
 import 'package:videocalling/shared/models/review_model.dart';
@@ -147,7 +148,7 @@ class DoctorDetailController extends GetxController {
       loggerNoStack.i('Doctor is available on days: $availableDays (0=Sunday, 1=Monday, etc.)');
 
       // Generate available dates for the next maxDaysAhead days (15 days)
-      DateTime currentDate = DateTime.now();
+      DateTime currentDate = TimezoneService.getCurrentMauritaniaTime();
       int daysChecked = 0;
 
       // Continue until we check all 15 days ahead

@@ -1,0 +1,37 @@
+{
+  "provider": "google_pay",
+  "data": {
+    "environment": "TEST",
+    "apiVersion": 2,
+    "apiVersionMinor": 0,
+    "allowedPaymentMethods": [
+      {
+        "type": "CARD",
+        "tokenizationSpecification": {
+          "type": "PAYMENT_GATEWAY",
+          "parameters": {
+            "gateway": "stripe",
+            "stripe:version": "2018-10-31",
+            "stripe:publishableKey": "YOUR_STRIPE_PUBLISHABLE_KEY_HERE"
+          }
+        },
+        "parameters": {
+          "allowedCardNetworks": ["VISA", "MASTERCARD", "AMEX", "DISCOVER"],
+          "allowedAuthMethods": ["PAN_ONLY", "CRYPTOGRAM_3DS"],
+          "billingAddressRequired": false,
+          "billingAddressParameters": {
+            "format": "MIN",
+            "phoneNumberRequired": false
+          }
+        }
+      }
+    ],
+    "merchantInfo": {
+      "merchantName": "Estaraht"
+    },
+    "transactionInfo": {
+      "countryCode": "US",
+      "currencyCode": "USD"
+    }
+  }
+}

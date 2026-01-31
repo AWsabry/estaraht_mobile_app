@@ -85,6 +85,7 @@ dependencies:
 
   # state management
   flutter_stripe: ^10.0.0
+  pay: ^3.3.0  # Apple Pay and Google Pay
 
   # for webview
   flutter_inappwebview: ^6.1.5

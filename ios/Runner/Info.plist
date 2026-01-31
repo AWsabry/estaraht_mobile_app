@@ -116,5 +116,11 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+
+	<!-- Apple Pay Configuration -->
+	<key>com.apple.developer.in-app-payments</key>
+	<array>
+		<string>merchant.com.yourapp.estaraht</string>
+	</array>
 </dict>
 </plist>

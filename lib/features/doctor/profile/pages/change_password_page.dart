@@ -18,7 +18,7 @@ class ChangePassword extends GetView<DChangePasswordController> {
         elevation: 0,
         title: Text(
           'change_password_str'.tr,
-          style: TextStyle(
+          style: CustomTextStyle(
             color: Colors.black,
             fontSize: 18,
             fontWeight: FontWeight.w500,
@@ -137,7 +137,7 @@ class ChangePassword extends GetView<DChangePasswordController> {
                         ),
                         child: Text(
                           "at_least_characters".trArgs(['$PASS_LENGTH']),
-                          style: TextStyle(
+                          style: CustomTextStyle(
                             fontSize: 12,
                             color: changePasswordController.passwordError2.value
                                 ? Colors.red
@@ -265,7 +265,7 @@ class ChangePassword extends GetView<DChangePasswordController> {
                         )
                       : Text(
                           "change_password_str".tr,
-                          style: TextStyle(
+                          style: CustomTextStyle(
                             fontSize: 16,
                             color: Colors.white,
                             fontWeight: FontWeight.w500,
@@ -299,7 +299,7 @@ class ChangePassword extends GetView<DChangePasswordController> {
       controller: controller,
       obscureText: obscureText,
       keyboardType: keyboardType,
-      style: TextStyle(
+      style: CustomTextStyle(
         fontFamily: isArabic ? 'NotoKufiArabic' : 'Roboto',
         color: hasError ? Colors.red : Colors.black,
       ),
@@ -309,20 +309,20 @@ class ChangePassword extends GetView<DChangePasswordController> {
           vertical: 16,
         ),
         prefixText: prefixText,
-        prefixStyle: TextStyle(
+        prefixStyle: CustomTextStyle(
           fontFamily: isArabic ? 'NotoKufiArabic' : 'Roboto',
           color: Colors.black,
           fontWeight: FontWeight.w500,
         ),
         labelText: labelText,
-        labelStyle: TextStyle(
+        labelStyle: CustomTextStyle(
           color: hasError ? Colors.red : Colors.grey[800],
           fontFamily: isArabic ? 'NotoKufiArabic' : 'Roboto',
         ),
         suffixIcon: suffixIcon,
         prefixIcon: prefixIcon,
         errorText: errorText,
-        errorStyle: TextStyle(
+        errorStyle: CustomTextStyle(
           fontFamily: isArabic ? 'NotoKufiArabic' : 'Roboto',
           fontSize: 12,
         ),

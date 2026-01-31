@@ -59,7 +59,7 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
         ),
         title: Text(
           _title,
-          style: const TextStyle(
+          style: const CustomTextStyle(
             color: Colors.white,
             fontSize: 16,
             fontWeight: FontWeight.w500,
@@ -90,7 +90,7 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
               ? Center(
                   child: Text(
                     'no_pdf_url'.tr,
-                    style: TextStyle(color: Colors.grey[600]),
+                    style: CustomTextStyle(color: Colors.grey[600]),
                   ),
                 )
               : Stack(
@@ -144,7 +144,7 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
             const SizedBox(height: 16),
             Text(
               'failed_to_load_pdf'.tr,
-              style: const TextStyle(
+              style: const CustomTextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
               ),
@@ -154,7 +154,7 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 32),
               child: Text(
                 _errorMessage ?? 'Unknown error',
-                style: TextStyle(
+                style: CustomTextStyle(
                   fontSize: 12,
                   color: Colors.grey[600],
                 ),
@@ -169,7 +169,7 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
               ),
               child: Text(
                 'go_back'.tr,
-                style: const TextStyle(color: Colors.white),
+                style: const CustomTextStyle(color: Colors.white),
               ),
             ),
           ],

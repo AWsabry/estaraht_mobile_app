@@ -30,7 +30,7 @@ class EditTextField extends StatelessWidget {
       decoration: InputDecoration(
         labelText: labelText,
         suffixIcon: suffixIcon ?? const SizedBox(),
-        labelStyle: TextStyle(
+        labelStyle: CustomTextStyle(
           color: AppColors.LIGHT_GREY_TEXT,
           fontFamily: AppFontStyleTextStrings.regular,
         ),
@@ -40,7 +40,7 @@ class EditTextField extends StatelessWidget {
         ),
         errorText: errorText,
       ),
-      style: TextStyle(
+      style: CustomTextStyle(
         color: AppColors.BLACK,
         fontFamily: AppFontStyleTextStrings.medium,
       ),
@@ -77,7 +77,7 @@ class EditTextFormField extends StatelessWidget {
       decoration: InputDecoration(
         suffixIcon: suffixIcon ?? const SizedBox(),
         labelText: labelText,
-        labelStyle: TextStyle(
+        labelStyle: CustomTextStyle(
           color: AppColors.LIGHT_GREY_TEXT,
           fontFamily: AppFontStyleTextStrings.regular,
         ),
@@ -87,7 +87,7 @@ class EditTextFormField extends StatelessWidget {
         ),
         errorText: errorText,
       ),
-      style: TextStyle(
+      style: CustomTextStyle(
         color: AppColors.BLACK,
         fontFamily: AppFontStyleTextStrings.medium,
       ),
@@ -125,7 +125,7 @@ class DEditTextFormField extends StatelessWidget {
       decoration: InputDecoration(
         suffixIcon: suffixIcon ?? const SizedBox(),
         labelText: labelText,
-        labelStyle: TextStyle(
+        labelStyle: CustomTextStyle(
           color: AppColors.LIGHT_GREY_TEXT,
           fontFamily: AppFontStyleTextStrings.regular,
         ),
@@ -135,7 +135,7 @@ class DEditTextFormField extends StatelessWidget {
         ),
         errorText: errorText,
       ),
-      style: TextStyle(
+      style: CustomTextStyle(
         color: AppColors.BLACK,
         fontFamily: AppFontStyleTextStrings.medium,
       ),
@@ -175,7 +175,7 @@ class DEditPasswordFormField extends StatelessWidget {
       decoration: InputDecoration(
         suffixIcon: suffixIcon ?? const SizedBox(),
         labelText: labelText,
-        labelStyle: TextStyle(
+        labelStyle: CustomTextStyle(
           color: AppColors.LIGHT_GREY_TEXT,
           fontFamily: AppFontStyleTextStrings.regular,
         ),
@@ -185,7 +185,7 @@ class DEditPasswordFormField extends StatelessWidget {
         ),
         errorText: errorText,
       ),
-      style: TextStyle(
+      style: CustomTextStyle(
         color: AppColors.BLACK,
         fontFamily: AppFontStyleTextStrings.medium,
       ),
@@ -221,7 +221,7 @@ class CommonTextField1 extends StatelessWidget {
       child: TextFormField(
         keyboardType: textInputType,
         controller: controller,
-        style: TextStyle(
+        style: CustomTextStyle(
           fontSize: 14,
           fontFamily: AppFontStyleTextStrings.medium,
         ),
@@ -274,7 +274,7 @@ class EditProfileFormField extends StatelessWidget {
       minLines: 1,
       decoration: InputDecoration(
         labelText: labelText,
-        labelStyle: TextStyle(
+        labelStyle: CustomTextStyle(
           color: AppColors.LIGHT_GREY_TEXT,
           fontFamily: AppFontStyleTextStrings.regular,
         ),
@@ -284,7 +284,7 @@ class EditProfileFormField extends StatelessWidget {
         ),
         errorText: errorText,
       ),
-      style: TextStyle(
+      style: CustomTextStyle(
         color: AppColors.BLACK,
         fontFamily: AppFontStyleTextStrings.medium,
       ),
@@ -317,7 +317,7 @@ class EditDetailFormField extends StatelessWidget {
       maxLines: maxLines,
       decoration: InputDecoration(
         labelText: labelText,
-        labelStyle: TextStyle(
+        labelStyle: CustomTextStyle(
           color: Theme.of(context).primaryColorDark.withOpacity(0.4),
           fontFamily: AppFontStyleTextStrings.regular,
         ),
@@ -327,7 +327,7 @@ class EditDetailFormField extends StatelessWidget {
         ),
         errorText: errorText,
       ),
-      style: TextStyle(
+      style: CustomTextStyle(
         fontFamily: AppFontStyleTextStrings.medium,
         fontSize: 14,
       ),
@@ -361,7 +361,7 @@ class EditDetailFormField1 extends StatelessWidget {
       keyboardType: keyboardType ?? TextInputType.text,
       decoration: InputDecoration(
         labelText: labelText,
-        labelStyle: TextStyle(
+        labelStyle: CustomTextStyle(
           color: Theme.of(context).primaryColorDark.withOpacity(0.4),
           fontFamily: AppFontStyleTextStrings.regular,
         ),
@@ -372,7 +372,7 @@ class EditDetailFormField1 extends StatelessWidget {
         ),
         errorText: errorText,
       ),
-      style: TextStyle(
+      style: CustomTextStyle(
         fontFamily: AppFontStyleTextStrings.medium,
         fontSize: 14,
       ),

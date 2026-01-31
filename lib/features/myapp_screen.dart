@@ -42,10 +42,11 @@ class MyApp extends GetView<SplashController> {
                   backgroundColor: Colors.white,
                   elevation: 0,
                   iconTheme: IconThemeData(color: Colors.black87),
-                  titleTextStyle: TextStyle(
+                  titleTextStyle: CustomTextStyle(
                     color: Colors.black87,
                     fontSize: 18,
                     fontWeight: FontWeight.w500,
+                    height: 1.3,
                   ),
                 ),
 
@@ -89,9 +90,10 @@ class MyApp extends GetView<SplashController> {
                   hourMinuteTextColor: Colors.black87,
                   dialHandColor: Colors.grey.shade300,
                   dialBackgroundColor: Colors.grey.shade100,
-                  helpTextStyle: TextStyle(
+                  helpTextStyle: CustomTextStyle(
                     fontFamily: fontFamily,
                     color: Colors.black87,
+                    height: 1.3,
                   ),
                 ),
 
@@ -116,60 +118,72 @@ class MyApp extends GetView<SplashController> {
 
                 // Text theme (migrated names)
                 textTheme: TextTheme(
-                  displayLarge: TextStyle(
+                  displayLarge: CustomTextStyle(
                     fontFamily: fontFamily,
                     color: Colors.black87,
+                    height: 1.3,
                   ),
-                  displayMedium: TextStyle(
+                  displayMedium: CustomTextStyle(
                     fontFamily: fontFamily,
                     color: Colors.black87,
+                    height: 1.3,
                   ),
-                  displaySmall: TextStyle(
+                  displaySmall: CustomTextStyle(
                     fontFamily: fontFamily,
                     color: Colors.black87,
+                    height: 1.3,
                   ),
-                  headlineMedium: TextStyle(
+                  headlineMedium: CustomTextStyle(
                     fontFamily: fontFamily,
                     color: Colors.black87,
+                    height: 1.3,
                   ),
-                  headlineSmall: TextStyle(
+                  headlineSmall: CustomTextStyle(
                     fontFamily: fontFamily,
                     color: Colors.black87,
+                    height: 1.3,
                   ),
-                  titleLarge: TextStyle(
-                    fontFamily: fontFamily,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.black87,
-                  ),
-                  titleMedium: TextStyle(
-                    fontFamily: fontFamily,
-                    color: Colors.black87,
-                  ),
-                  titleSmall: TextStyle(
+                  titleLarge: CustomTextStyle(
                     fontFamily: fontFamily,
                     fontWeight: FontWeight.w500,
                     color: Colors.black87,
+                    height: 1.3,
                   ),
-                  bodySmall: TextStyle(
+                  titleMedium: CustomTextStyle(
+                    fontFamily: fontFamily,
+                    color: Colors.black87,
+                    height: 1.3,
+                  ),
+                  titleSmall: CustomTextStyle(
+                    fontFamily: fontFamily,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.black87,
+                    height: 1.3,
+                  ),
+                  bodySmall: CustomTextStyle(
                     fontSize: 10,
                     fontFamily: fontFamily,
                     color: Colors.grey.shade600,
+                    height: 1.3,
                   ),
-                  bodyLarge: TextStyle(
+                  bodyLarge: CustomTextStyle(
                     fontSize: 13,
                     fontFamily: fontFamily,
                     fontWeight: FontWeight.w500,
                     color: Colors.black87,
+                    height: 1.3,
                   ),
-                  bodyMedium: TextStyle(
+                  bodyMedium: CustomTextStyle(
                     fontSize: 13,
                     fontFamily: fontFamily,
                     color: Colors.black87,
+                    height: 1.3,
                   ),
-                  labelLarge: TextStyle(
+                  labelLarge: CustomTextStyle(
                     fontFamily: fontFamily,
                     fontWeight: FontWeight.w500,
                     color: Colors.black87,
+                    height: 1.3,
                   ),
                 ),
               ),

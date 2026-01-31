@@ -76,7 +76,7 @@ class MoreInfoScreen extends GetView<DMoreInfoController> {
   //           const SizedBox(height: 20),
   //           Text(
   //             'unable_to_load_data'.tr,
-  //             style: TextStyle(
+  //             style: CustomTextStyle(
   //               fontSize: 16,
   //               color: Colors.grey[600],
   //             ),
@@ -182,7 +182,7 @@ class MoreInfoScreen extends GetView<DMoreInfoController> {
               child: Text(
                 'logout_confirmation'.tr,
                 textAlign: TextAlign.center,
-                style: const TextStyle(
+                style: const CustomTextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w400,
                   height: 1.5,
@@ -226,7 +226,7 @@ class MoreInfoScreen extends GetView<DMoreInfoController> {
                       ),
                       child: Text(
                         'yes'.tr,
-                        style: TextStyle(
+                        style: CustomTextStyle(
                           fontSize: Get.locale?.languageCode == 'ar' ? 13 : 14,
                           color: Colors.black87,
                         ),
@@ -247,7 +247,7 @@ class MoreInfoScreen extends GetView<DMoreInfoController> {
                       ),
                       child: Text(
                         'no'.tr,
-                        style: TextStyle(
+                        style: CustomTextStyle(
                           fontSize: Get.locale?.languageCode == 'ar' ? 13 : 14,
                           color: Colors.white,
                         ),
@@ -299,7 +299,7 @@ class MoreInfoScreen extends GetView<DMoreInfoController> {
                   Center(
                     child: Text(
                       'select_your_language'.tr,
-                      style: const TextStyle(
+                      style: const CustomTextStyle(
                         fontSize: 18, // Smaller text
                         fontWeight: FontWeight.w500,
                       ),
@@ -355,7 +355,7 @@ class MoreInfoScreen extends GetView<DMoreInfoController> {
                           ),
                           child: Text(
                             'cancel'.tr,
-                            style: const TextStyle(
+                            style: const CustomTextStyle(
                               fontSize: 14,
                               color: Colors.black87,
                             ),
@@ -382,7 +382,7 @@ class MoreInfoScreen extends GetView<DMoreInfoController> {
                           ),
                           child: Text(
                             'confirm'.tr,
-                            style: const TextStyle(
+                            style: const CustomTextStyle(
                               color: Colors.white,
                               fontSize: 14,
                             ),
@@ -425,7 +425,7 @@ class MoreInfoScreen extends GetView<DMoreInfoController> {
             Expanded(
               child: Text(
                 title,
-                style: TextStyle(
+                style: CustomTextStyle(
                   fontSize: Get.locale?.languageCode == 'ar' ? 14 : 16,
                   color: isSelected ? const Color(0xFF3366FF) : Colors.black87,
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
@@ -472,7 +472,7 @@ class MoreInfoScreen extends GetView<DMoreInfoController> {
                 Expanded(
                   child: Text(
                     title,
-                    style: const TextStyle(
+                    style: const CustomTextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w400,
                       color: Colors.black,

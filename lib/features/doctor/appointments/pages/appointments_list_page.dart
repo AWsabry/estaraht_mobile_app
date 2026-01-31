@@ -1,5 +1,6 @@
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:videocalling/core/config/app_imports.dart';
+import 'package:videocalling/shared/services/others/timezone_service.dart';
 
 class DoctorAllAppointments extends GetView<DAllAppointmentsController> {
   final DAllAppointmentsController appointmentsController = Get.put(
@@ -40,7 +41,7 @@ class DoctorAllAppointments extends GetView<DAllAppointmentsController> {
             SizedBox(height: 20.h),
             Text(
               'unable_to_load_data'.tr,
-              style: TextStyle(fontSize: 16.sp, color: Colors.grey[600]),
+              style: CustomTextStyle(fontSize: 16.sp, color: Colors.grey[600]),
             ),
           ],
         ),
@@ -166,7 +167,7 @@ class DoctorAllAppointments extends GetView<DAllAppointmentsController> {
                         Expanded(
                           child: Text(
                             appointment.name ?? "",
-                            style: TextStyle(
+                            style: CustomTextStyle(
                               fontSize: 16.sp,
                               fontWeight: FontWeight.w600,
                               fontFamily: AppFontStyleTextStrings.medium,
@@ -211,10 +212,10 @@ class DoctorAllAppointments extends GetView<DAllAppointmentsController> {
                                                     appointment.bookingDate
                                                         .toString(),
                                                   ) ??
-                                                  DateTime.now(),
+                                                  TimezoneService.getCurrentMauritaniaTime(),
                                             )
                                           : '',
-                                      style: TextStyle(
+                                      style: CustomTextStyle(
                                         fontSize: 12.sp,
                                         fontWeight: FontWeight.w500,
                                         color: const Color(0xFF3366FF),
@@ -251,7 +252,7 @@ class DoctorAllAppointments extends GetView<DAllAppointmentsController> {
                                   Flexible(
                                     child: Text(
                                       appointment.bookingTime ?? "",
-                                      style: TextStyle(
+                                      style: CustomTextStyle(
                                         fontSize: 12.sp,
                                         fontWeight: FontWeight.w500,
                                         color: const Color(0xFF3366FF),
@@ -352,7 +353,7 @@ class DoctorAllAppointments extends GetView<DAllAppointmentsController> {
           SizedBox(width: 6.w),
           Text(
             statusText,
-            style: TextStyle(
+            style: CustomTextStyle(
               fontSize: 12.sp,
               fontWeight: FontWeight.w500,
               color: statusColor,
@@ -383,7 +384,7 @@ class DoctorAllAppointments extends GetView<DAllAppointmentsController> {
             SizedBox(height: 24.h),
             Text(
               'doctor_not_appointment_text'.tr,
-              style: TextStyle(
+              style: CustomTextStyle(
                 fontSize: 14.sp,
                 color: Colors.grey[700],
                 fontFamily: AppFontStyleTextStrings.regular,

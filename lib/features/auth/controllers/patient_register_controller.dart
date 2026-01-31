@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' show OtpType;
 import 'package:videocalling/core/config/app_imports.dart';
+import 'package:videocalling/shared/services/others/timezone_service.dart';
 
 class RegisterPatientController extends GetxController {
   // Instance du client Supabase
@@ -182,7 +183,7 @@ class RegisterPatientController extends GetxController {
             'gender': gender.value,
             'fcm_token': token.value,
             'login_id':
-                '${email.value.split('@')[0]}_${DateTime.now().millisecondsSinceEpoch}',
+                '${email.value.split('@')[0]}_${TimezoneService.getCurrentMauritaniaTime().millisecondsSinceEpoch}',
             'sessions_available': 0,
             'sessions_pending': 0,
             'subscribed': false,
@@ -213,7 +214,7 @@ class RegisterPatientController extends GetxController {
                 'user_id': authResponse.user!.uid,
                 'email': email.value,
                 'otp_code': otpCode,
-                'expires_at': DateTime.now()
+                'expires_at': TimezoneService.getCurrentMauritaniaTime()
                     .add(const Duration(minutes: 5))
                     .toIso8601String(),
                 'is_used': false,

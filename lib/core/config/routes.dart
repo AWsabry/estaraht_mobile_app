@@ -6,6 +6,9 @@ import 'package:videocalling/features/auth/forget_password_binding.dart';
 import 'package:videocalling/features/auth/otp_binding.dart';
 import 'package:videocalling/features/auth/patient_login_binding.dart';
 import 'package:videocalling/features/auth/patient_register_binding.dart';
+import 'package:videocalling/features/auth/pages/under_review_screen.dart';
+import 'package:videocalling/features/auth/pages/account_rejected_screen.dart';
+import 'package:videocalling/features/auth/controllers/review_status_controller.dart';
 import 'package:videocalling/features/doctor/appointments/dall_appointments_binding.dart';
 import 'package:videocalling/features/doctor/appointments/dappointment_details_binding.dart';
 import 'package:videocalling/features/doctor/appointments/pages/appointment_detail_page.dart';
@@ -362,6 +365,15 @@ class AppPages {
       name: _Paths.otpScreen,
       page: () => const OtpScreen(),
       binding: OtpBinding(),
+    ),
+    GetPage(
+      name: _Paths.underReviewScreen,
+      page: () => const UnderReviewScreen(),
+      binding: ReviewStatusBinding(),
+    ),
+    GetPage(
+      name: _Paths.accountRejectedScreen,
+      page: () => const AccountRejectedScreen(),
     ),
     GetPage(
       name: '/session-pdf-viewer',
