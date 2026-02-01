@@ -68,6 +68,13 @@ class MoreScreen extends GetView<PatientMoreScreenController> {
             onTap: () => Get.toNamed(Routes.editProfileScreen),
           ),
 
+          // Customer Service WhatsApp
+          _buildSettingsItem(
+            icon: Icons.support_agent,
+            title: 'تواصل مع خدمة العملاء',
+            onTap: () => moreScreenController.launchWhatsApp(),
+          ),
+
           // Language Settings
           _buildSettingsItem(
             icon: Icons.language_outlined,

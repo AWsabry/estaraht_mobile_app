@@ -68,8 +68,10 @@ class _IndemandDoctorScreenState extends State<IndemandDoctorScreen> {
 
   Widget _buildHeader(BuildContext context, bool isArabic) {
     return SafeArea(
+      bottom: false,
+
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(34, 24, 34, 12),
+        padding: const EdgeInsets.fromLTRB(22, 16, 22, 16),
         child: Column(
           children: [
             // Top row with logo (matching dsearch layout style)
@@ -84,8 +86,8 @@ class _IndemandDoctorScreenState extends State<IndemandDoctorScreen> {
                       },
                       child: SvgPicture.asset(
                         AppImages.appAccountCircle,
-                        width: 26,
-                        height: 26,
+                        width: 26.w,
+                        height: 26.h,
                       ),
                     ),
                     const SizedBox(width: 6),

@@ -56,10 +56,21 @@ class PaymentPlansController extends GetxController {
   /// Load patient subscription status
   Future<void> loadPatientStatus() async {
     try {
-      final user = firebaseHelper.currentUser;
-      if (user == null) {
-        loggerNoStack.w('User not authenticated');
-        return;
+      // Try Firebase Auth first, fallback to StorageService
+      String? patientId = firebaseHelper.currentUser?.uid;
+
+      if (patientId == null) {
+        // Fallback to local storage
+        final storedUserId = StorageService.readData(key: LocalStorageKeys.userId);
+        if (storedUserId != null && storedUserId.toString().isNotEmpty) {
+          patientId = storedUserId.toString();
+          loggerNoStack.i('Using patient ID from local storage: $patientId');
+        } else {
+          loggerNoStack.w('! User not authenticated');
+          return;
+        }
+      } else {
+        loggerNoStack.i('Using patient ID from Firebase Auth: $patientId');
       }
 
       final patientData = await supabase
@@ -67,7 +78,7 @@ class PaymentPlansController extends GetxController {
           .select(
             'subscribed, subscribed_before, sessions_available, sessions_pending',
           )
-          .eq('id', user.uid)
+          .eq('id', patientId)
           .single();
 
       subscribedBefore.value = patientData['subscribed_before'] ?? false;

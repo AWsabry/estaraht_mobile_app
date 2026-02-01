@@ -194,11 +194,6 @@ class _PaymentScreenState extends State<PaymentScreen>
 
           const SizedBox(height: 16),
 
-          // Full breakdown
-          _buildFullBreakdownCard(isArabic),
-
-          const SizedBox(height: 16),
-
           // Coupon section
           _buildCouponSection(isArabic),
         ],
@@ -681,7 +676,7 @@ class _PaymentScreenState extends State<PaymentScreen>
                 Row(
                   children: [
                     Image.asset(
-                      'assets/images/visa.png',
+                      'assets/visa_logo.png',
                       height: 24,
                       width: 36,
                       errorBuilder: (_, __, ___) =>
@@ -712,178 +707,6 @@ class _PaymentScreenState extends State<PaymentScreen>
         ),
       );
     });
-  }
-
-  Widget _buildPaymentSummaryCard({
-    required bool isArabic,
-    required double subtotal,
-    required double serviceFees,
-    required double tax,
-    required double discount,
-    required double total,
-  }) {
-    // Check if Bankily is selected (payment method 1)
-    final isBankilySelected = controller.selectedPaymentMethod.value == 1;
-    final currency = isBankilySelected ? 'MRU' : 'USD';
-    const exchangeRate = 50.0; // 1 USD = 50 MRU
-
-    // Convert amounts to MRU if Bankily is selected (amounts are in USD by default)
-    final displaySubtotal = isBankilySelected
-        ? subtotal * exchangeRate
-        : subtotal;
-    final displayServiceFees = isBankilySelected
-        ? serviceFees * exchangeRate
-        : serviceFees;
-    final displayTax = isBankilySelected ? tax * exchangeRate : tax;
-    final displayDiscount = isBankilySelected
-        ? discount * exchangeRate
-        : discount;
-    final displayTotal = isBankilySelected ? total * exchangeRate : total;
-
-    return Card(
-      margin: const EdgeInsets.all(16),
-      elevation: 0,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      color: Colors.white,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: isArabic
-              ? CrossAxisAlignment.end
-              : CrossAxisAlignment.start,
-          children: [
-            // --- Coupon Row ---
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: controller.couponController,
-                    textAlign: isArabic ? TextAlign.right : TextAlign.left,
-                    decoration: InputDecoration(
-                      hintText: 'enter_the_coupon_here'.tr,
-                      hintStyle: const CustomTextStyle(fontSize: 14),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 12,
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30),
-                        borderSide: const BorderSide(color: Colors.black26),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30),
-                        borderSide: const BorderSide(
-                          color: Color(0xFF3366FF),
-                          width: 1.5,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                ElevatedButton(
-                  onPressed: () => controller.applyCoupon(),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF3366FF),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 14,
-                    ),
-                  ),
-                  child: Text(
-                    "activate".tr,
-                    style: const CustomTextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 20),
-
-            // Show currency conversion notice if Bankily is selected
-            if (isBankilySelected) ...[
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.blue.shade50,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.info_outline,
-                      size: 20,
-                      color: Colors.blue.shade700,
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        'currency_conversion_notice'.tr.replaceAll(
-                          '@rate',
-                          exchangeRate.toString(),
-                        ),
-                        style: CustomTextStyle(
-                          fontSize: 12,
-                          color: Colors.blue.shade700,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 16),
-            ],
-
-            // --- Payment Summary ---
-            _buildSummaryRow(
-              'subtotal'.tr,
-              '$currency ${displaySubtotal.toStringAsFixed(2)}',
-              isArabic,
-            ),
-            const SizedBox(height: 8),
-            _buildSummaryRow(
-              'service_fees'.tr,
-              '$currency ${displayServiceFees.toStringAsFixed(2)}',
-              isArabic,
-            ),
-            const SizedBox(height: 8),
-            _buildSummaryRow(
-              'tax'.tr,
-              '$currency ${displayTax.toStringAsFixed(2)}',
-              isArabic,
-            ),
-            if (discount > 0) ...[
-              const SizedBox(height: 8),
-              _buildSummaryRow(
-                'discount'.tr,
-                '-$currency ${displayDiscount.toStringAsFixed(2)}',
-                isArabic,
-                isDiscount: true,
-              ),
-            ],
-
-            const SizedBox(height: 16),
-            const Divider(thickness: 1, color: Colors.black12),
-            const SizedBox(height: 8),
-
-            // --- Total ---
-            _buildSummaryRow(
-              'total'.tr,
-              '$currency ${displayTotal.toStringAsFixed(2)}',
-              isArabic,
-              isBold: true,
-            ),
-          ],
-        ),
-      ),
-    );
   }
 
   Widget _buildSummaryRow(
@@ -999,140 +822,6 @@ class _PaymentScreenState extends State<PaymentScreen>
     });
   }
 
-  // Full breakdown card for Tab 2
-  Widget _buildFullBreakdownCard(bool isArabic) {
-    return Obx(() {
-      final isBankilySelected = controller.selectedPaymentMethod.value == 2;
-      final currency = isBankilySelected ? 'MRU' : 'USD';
-      const exchangeRate = 50.0;
-
-      final displayTotal = isBankilySelected
-          ? controller.total.value * exchangeRate
-          : controller.total.value;
-
-      final displaySubtotal = isBankilySelected
-          ? controller.subtotal.value * exchangeRate
-          : controller.subtotal.value;
-
-      final displayFees = isBankilySelected
-          ? controller.serviceFees.value * exchangeRate
-          : controller.serviceFees.value;
-
-      final displayTax = isBankilySelected
-          ? controller.tax.value * exchangeRate
-          : controller.tax.value;
-
-      final displayDiscount = isBankilySelected
-          ? controller.discount.value * exchangeRate
-          : controller.discount.value;
-
-      return Card(
-        margin: EdgeInsets.zero,
-        elevation: 0,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        color: Colors.white,
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header
-              Text(
-                isArabic ? 'ملخص الدفع' : 'payment_summary'.tr,
-                style: const CustomTextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black87,
-                ),
-              ),
-
-              const SizedBox(height: 16),
-
-              // Show currency conversion notice if Bankily is selected
-              if (isBankilySelected) ...[
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.blue.shade50,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.info_outline,
-                        size: 20,
-                        color: Colors.blue.shade700,
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          'currency_conversion_notice'.tr.replaceAll(
-                            '@rate',
-                            exchangeRate.toString(),
-                          ),
-                          style: CustomTextStyle(
-                            fontSize: 12,
-                            color: Colors.blue.shade700,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 16),
-              ],
-
-              const Divider(thickness: 1, color: Colors.black12),
-              const SizedBox(height: 12),
-
-              _buildSummaryRow(
-                'subtotal'.tr,
-                '$currency ${displaySubtotal.toStringAsFixed(2)}',
-                isArabic,
-              ),
-              const SizedBox(height: 8),
-
-              _buildSummaryRow(
-                'service_fees'.tr,
-                '$currency ${displayFees.toStringAsFixed(2)}',
-                isArabic,
-              ),
-              const SizedBox(height: 8),
-
-              _buildSummaryRow(
-                'tax'.tr,
-                '$currency ${displayTax.toStringAsFixed(2)}',
-                isArabic,
-              ),
-
-              if (controller.discount.value > 0) ...[
-                const SizedBox(height: 8),
-                _buildSummaryRow(
-                  'discount'.tr,
-                  '-$currency ${displayDiscount.toStringAsFixed(2)}',
-                  isArabic,
-                  isDiscount: true,
-                ),
-              ],
-
-              const SizedBox(height: 16),
-              const Divider(thickness: 1, color: Colors.black12),
-              const SizedBox(height: 12),
-
-              // Total
-              _buildSummaryRow(
-                isArabic ? 'المبلغ الإجمالي' : 'total_amount'.tr,
-                '$currency ${displayTotal.toStringAsFixed(2)}',
-                isArabic,
-                isBold: true,
-              ),
-            ],
-          ),
-        ),
-      );
-    });
-  }
-
   Widget _buildCouponSection(bool isArabic) {
     return Card(
       margin: EdgeInsets.zero,
@@ -1204,18 +893,13 @@ class _PaymentScreenState extends State<PaymentScreen>
     // Create payment items
     final paymentItems = DigitalWalletService.createDetailedPaymentItems(
       subtotal: controller.subtotal.value,
-      serviceFees: controller.serviceFees.value,
-      tax: controller.tax.value,
       discount: controller.discount.value,
       total: controller.total.value,
     );
 
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 4),
-      decoration: BoxDecoration(
-        color: Colors.black,
-        borderRadius: BorderRadius.circular(12),
-      ),
+
       child: ClipRRect(
         borderRadius: BorderRadius.circular(12),
         child: Platform.isIOS
@@ -1225,8 +909,10 @@ class _PaymentScreenState extends State<PaymentScreen>
                 style: pay_package.ApplePayButtonStyle.black,
                 type: pay_package.ApplePayButtonType.buy,
                 margin: const EdgeInsets.only(top: 0),
-                onPaymentResult: (result) {
+                onPaymentResult: (result) async {
                   loggerNoStack.i('🍎 Apple Pay payment result received');
+                  // Prepare payment intent first if not already created
+                  await controller.prepareDigitalWalletPayment();
                   controller.onDigitalWalletPaymentSuccess(result);
                 },
                 loadingIndicator: const Center(
@@ -1250,8 +936,10 @@ class _PaymentScreenState extends State<PaymentScreen>
                 paymentItems: paymentItems,
                 type: pay_package.GooglePayButtonType.pay,
                 margin: const EdgeInsets.only(top: 0),
-                onPaymentResult: (result) {
+                onPaymentResult: (result) async {
                   loggerNoStack.i('📱 Google Pay payment result received');
+                  // Prepare payment intent first if not already created
+                  await controller.prepareDigitalWalletPayment();
                   controller.onDigitalWalletPaymentSuccess(result);
                 },
                 loadingIndicator: const Center(
@@ -1318,8 +1006,6 @@ class _PaymentScreenState extends State<PaymentScreen>
                                       .value ==
                                   'ar',
                               subtotal: controller.subtotal.value,
-                              serviceFees: controller.serviceFees.value,
-                              tax: controller.tax.value,
                               discount: controller.discount.value,
                               total: controller.total.value,
                             ),
@@ -1375,8 +1061,6 @@ class _PaymentScreenState extends State<PaymentScreen>
   Widget _buildBankilyPaymentFields({
     required bool isArabic,
     required double subtotal,
-    required double serviceFees,
-    required double tax,
     required double discount,
     required double total,
   }) {
@@ -1384,8 +1068,6 @@ class _PaymentScreenState extends State<PaymentScreen>
 
     // Convert amounts from USD to MRU for Bankily display
     final displaySubtotal = subtotal * exchangeRate;
-    final displayServiceFees = serviceFees * exchangeRate;
-    final displayTax = tax * exchangeRate;
     final displayDiscount = discount * exchangeRate;
     final displayTotal = total * exchangeRate;
 
@@ -1515,17 +1197,9 @@ class _PaymentScreenState extends State<PaymentScreen>
               isArabic,
             ),
             const SizedBox(height: 8),
-            _buildSummaryRow(
-              'service_fees'.tr,
-              'MRU ${displayServiceFees.toStringAsFixed(2)}',
-              isArabic,
-            ),
+            _buildSummaryRow('service_fees'.tr, 'MRU 0.00', isArabic),
             const SizedBox(height: 8),
-            _buildSummaryRow(
-              'tax'.tr,
-              'MRU ${displayTax.toStringAsFixed(2)}',
-              isArabic,
-            ),
+            _buildSummaryRow('tax'.tr, 'MRU 0.00', isArabic),
             if (discount > 0) ...[
               const SizedBox(height: 8),
               _buildSummaryRow(

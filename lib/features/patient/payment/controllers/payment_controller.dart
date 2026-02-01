@@ -53,8 +53,6 @@ class PaymentController extends GetxController {
 
   // Payment summary
   final subtotal = 0.0.obs;
-  final serviceFees = 5.0.obs;
-  final tax = 2.5.obs;
   final discount = 0.0.obs;
   final total = 0.0.obs;
 
@@ -67,6 +65,9 @@ class PaymentController extends GetxController {
 
   // Stripe payment intent (for card payments)
   Map<String, dynamic>? stripePaymentIntent;
+
+  // Store payment intent ID separately for digital wallet payments
+  String? digitalWalletPaymentIntentId;
 
   // Stripe currency selection
   String stripeCurrencyCode = 'USD';
@@ -298,11 +299,8 @@ class PaymentController extends GetxController {
 
   void _calculateTotal() {
     try {
-      total.value =
-          subtotal.value + serviceFees.value + tax.value - discount.value;
-      loggerNoStack.d(
-        'Total calculated: Subtotal=$subtotal, Fees=$serviceFees, Tax=$tax, Discount=$discount, Total=$total',
-      );
+      total.value = subtotal.value - discount.value;
+      
     } catch (e, stackTrace) {
       loggerNoStack.e('Error calculating total: $e');
       loggerNoStack.e('Stack trace: $stackTrace');
@@ -1569,6 +1567,53 @@ class PaymentController extends GetxController {
     }
   }
 
+  /// Prepare Digital Wallet Payment - Create Payment Intent if not exists
+  Future<void> prepareDigitalWalletPayment() async {
+    // If payment intent already created, skip
+    if (digitalWalletPaymentIntentId != null &&
+        digitalWalletPaymentIntentId!.isNotEmpty) {
+      loggerNoStack.i(
+        '✅ Payment intent already exists: $digitalWalletPaymentIntentId',
+      );
+      return;
+    }
+
+    loggerNoStack.i('🔧 Preparing digital wallet payment...');
+
+    try {
+      // Save initial transaction record as 'waiting'
+      await _savePaymentHistory(
+        status: 'waiting',
+        gateway: DigitalWalletService.getPlatformPaymentName()
+            .toLowerCase()
+            .replaceAll(' ', '_'),
+        currency: stripeCurrencyCode,
+      );
+
+      // Create PaymentIntent on Stripe
+      loggerNoStack.i('🔧 Creating Stripe PaymentIntent...');
+      stripePaymentIntent = await _createStripePaymentIntent();
+
+      // Store the payment intent ID separately for digital wallet
+      digitalWalletPaymentIntentId = stripePaymentIntent!['id'] as String;
+
+      loggerNoStack.i('✅ PaymentIntent created: $digitalWalletPaymentIntentId');
+    } catch (e, stackTrace) {
+      loggerNoStack.e('❌ Error preparing digital wallet payment: $e');
+      loggerNoStack.e('Stack trace: $stackTrace');
+
+      await _updatePaymentHistory(
+        status: 'failed',
+        gateway: DigitalWalletService.getPlatformPaymentName()
+            .toLowerCase()
+            .replaceAll(' ', '_'),
+        currency: stripeCurrencyCode,
+      );
+
+      rethrow;
+    }
+  }
+
   /// Process Digital Wallet Payment (Apple Pay / Google Pay)
   Future<void> _processDigitalWalletPayment() async {
     loggerNoStack.i('=== Starting Digital Wallet Payment Process ===');
@@ -1598,15 +1643,16 @@ class PaymentController extends GetxController {
       loggerNoStack.i('🔧 Step 1: Creating Stripe PaymentIntent...');
       stripePaymentIntent = await _createStripePaymentIntent();
 
+      // Store the payment intent ID separately for digital wallet
+      digitalWalletPaymentIntentId = stripePaymentIntent!['id'] as String;
+
       final clientSecret = stripePaymentIntent!['client_secret'] as String;
-      loggerNoStack.i('✅ PaymentIntent created: ${stripePaymentIntent!['id']}');
+      loggerNoStack.i('✅ PaymentIntent created: $digitalWalletPaymentIntentId');
 
       // 2) Create payment items for digital wallet
       loggerNoStack.i('📋 Step 2: Creating payment items...');
       final paymentItems = DigitalWalletService.createDetailedPaymentItems(
         subtotal: subtotal.value,
-        serviceFees: serviceFees.value,
-        tax: tax.value,
         discount: discount.value,
         total: total.value,
       );
@@ -1648,6 +1694,7 @@ class PaymentController extends GetxController {
       );
     } finally {
       isProcessingPayment.value = false;
+      // Don't clean up digitalWalletPaymentIntentId here - it's needed for the callback
       loggerNoStack.i('=== Digital Wallet Payment Process Complete ===');
     }
   }
@@ -1677,9 +1724,9 @@ class PaymentController extends GetxController {
         throw Exception('Failed to confirm digital wallet payment');
       }
 
-      // Set transaction ID from payment intent
+      // Set transaction ID from saved payment intent ID
       transactionId.value =
-          stripePaymentIntent?['id']?.toString() ?? 'DIGITAL_WALLET_UNKNOWN';
+          digitalWalletPaymentIntentId ?? 'DIGITAL_WALLET_UNKNOWN';
 
       loggerNoStack.i(
         '✅ Payment confirmed, transaction ID: ${transactionId.value}',
@@ -1748,6 +1795,13 @@ class PaymentController extends GetxController {
         position: SnackPosition.BOTTOM,
         backgroundColor: Colors.red,
       );
+    } finally {
+      // Clean up payment intent after processing is complete
+      stripePaymentIntent = null;
+      digitalWalletPaymentIntentId = null;
+      loggerNoStack.i(
+        '=== Digital Wallet Payment Success Handler Complete ===',
+      );
     }
   }
 
@@ -1756,13 +1810,26 @@ class PaymentController extends GetxController {
     try {
       loggerNoStack.i('🔒 Confirming digital wallet payment with Stripe...');
 
+      // Check if payment intent ID exists
+      if (digitalWalletPaymentIntentId == null ||
+          digitalWalletPaymentIntentId!.isEmpty) {
+        loggerNoStack.e(
+          '❌ Payment intent ID is null or empty, cannot confirm payment',
+        );
+        return false;
+      }
+
+      loggerNoStack.i(
+        '💳 Using payment intent ID: $digitalWalletPaymentIntentId',
+      );
+
       // Decode the token (it's usually a JSON string)
       final tokenData = jsonDecode(token);
 
       // Confirm the payment intent with the token
       final response = await http.post(
         Uri.parse(
-          'https://api.stripe.com/v1/payment_intents/${stripePaymentIntent!['id']}/confirm',
+          'https://api.stripe.com/v1/payment_intents/$digitalWalletPaymentIntentId/confirm',
         ),
         headers: {
           'Authorization': 'Bearer $stripeSecretKey',

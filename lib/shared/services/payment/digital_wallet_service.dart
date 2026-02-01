@@ -140,16 +140,12 @@ class DigitalWalletService {
   /// Create detailed payment items with breakdown
   static List<PaymentItem> createDetailedPaymentItems({
     required double subtotal,
-    required double serviceFees,
-    required double tax,
     required double discount,
     required double total,
   }) {
     loggerNoStack.d(
       '📋 Creating detailed payment items - '
       'Subtotal: \$${subtotal.toStringAsFixed(2)}, '
-      'Fees: \$${serviceFees.toStringAsFixed(2)}, '
-      'Tax: \$${tax.toStringAsFixed(2)}, '
       'Discount: \$${discount.toStringAsFixed(2)}, '
       'Total: \$${total.toStringAsFixed(2)}',
     );
@@ -162,28 +158,6 @@ class DigitalWalletService {
         type: PaymentItemType.item,
       ),
     ];
-
-    if (serviceFees > 0) {
-      items.add(
-        PaymentItem(
-          label: 'Service Fee',
-          amount: serviceFees.toStringAsFixed(2),
-          status: PaymentItemStatus.final_price,
-          type: PaymentItemType.item,
-        ),
-      );
-    }
-
-    if (tax > 0) {
-      items.add(
-        PaymentItem(
-          label: 'Tax',
-          amount: tax.toStringAsFixed(2),
-          status: PaymentItemStatus.final_price,
-          type: PaymentItemType.item,
-        ),
-      );
-    }
 
     if (discount > 0) {
       items.add(

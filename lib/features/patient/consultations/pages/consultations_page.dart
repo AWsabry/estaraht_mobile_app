@@ -28,34 +28,44 @@ class _ConsultationsPageState extends State<ConsultationsPage>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.LIGHT_GREY_SCREEN_BACKGROUND,
-      appBar: AppBar(
-        elevation: 0,
-        automaticallyImplyLeading: false,
-        flexibleSpace: CustomAppBar(title: 'consultations'.tr),
-        bottom: TabBar(
-          controller: _tabController,
-          indicatorColor: AppColors.color1,
-          labelColor: AppColors.color1,
-          unselectedLabelColor: AppColors.greyShade6,
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-
-          labelStyle: CustomTextStyle(
-            fontFamily: AppFontStyleTextStrings.bold,
-            fontSize: 16,
+      body: Column(
+        children: [
+          // Header
+          Container(
+            color: Colors.white,
+            child: CustomAppBar(title: 'consultations'.tr, useSafeArea: true),
           ),
-          unselectedLabelStyle: CustomTextStyle(
-            fontFamily: AppFontStyleTextStrings.regular,
-            fontSize: 16,
+          // Tabs
+          Container(
+            color: Colors.white,
+            child: TabBar(
+              controller: _tabController,
+              indicatorColor: AppColors.color1,
+              labelColor: AppColors.color1,
+              unselectedLabelColor: AppColors.greyShade6,
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              labelStyle: CustomTextStyle(
+                fontFamily: AppFontStyleTextStrings.bold,
+                fontSize: 16,
+              ),
+              unselectedLabelStyle: CustomTextStyle(
+                fontFamily: AppFontStyleTextStrings.regular,
+                fontSize: 16,
+              ),
+              tabs: [
+                Tab(text: 'appointments_str'.tr),
+                Tab(text: 'messages'.tr),
+              ],
+            ),
           ),
-          tabs: [
-            Tab(text: 'appointments_str'.tr),
-            Tab(text: 'messages'.tr),
-          ],
-        ),
-      ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [UAllAppointments(), PChatListScreen()],
+          // Content
+          Expanded(
+            child: TabBarView(
+              controller: _tabController,
+              children: [UAllAppointments(), PChatListScreen()],
+            ),
+          ),
+        ],
       ),
     );
   }
