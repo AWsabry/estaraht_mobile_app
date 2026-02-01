@@ -96,7 +96,8 @@ class Words extends Translations {
       'phone_number_hint': 'Enter your phone number',
       'pay_with_visa_or_mastercard_via_bankily':
           'Pay with Visa or Mastercard via Bankily (For people located in Mauritania)',
-      'currency_conversion_notice': 'Amounts converted to MRU (1 USD = @rate MRU)',
+      'currency_conversion_notice':
+          'Amounts converted to MRU (1 USD = @rate MRU)',
       'credit_or_debit_card': 'Credit or Debit Card',
       'total': 'Total',
       'Card': 'Card',
@@ -994,7 +995,8 @@ class Words extends Translations {
       'enter_valid_email': 'أدخل بريد إلكتروني صالح',
       'enter_the_coupon_here': 'أدخل القسيمة هنا',
       'pay_with_bankily': 'الدفع عبر بنكيلي',
-      'currency_conversion_notice': 'المبالغ محولة إلى أوقية (@rate أوقية = 1 دولار)',
+      'currency_conversion_notice':
+          'المبالغ محولة إلى أوقية (@rate أوقية = 1 دولار)',
       'Card': 'كارد',
       'phone_number_hint': 'أدخل رقم هاتفك',
       'pay_with_visa_or_mastercard_via_bankily':
@@ -1149,7 +1151,7 @@ class Words extends Translations {
 
       ///home
       'welcome_back': 'مرحبًا بعودتك!',
-      'wishing_calm_day': 'أتمنى لك يومًا هادئًا ومركزًا',
+      'wishing_calm_day': 'نتمى لك يوما رائعا',
       'book_new_appointment': 'احجز موعدًا جديدًا',
       'find_therapist': 'ابحث عن طبيب نفسي',
 
@@ -2076,7 +2078,8 @@ class Words extends Translations {
       'enter_the_coupon_here': 'Entrez le coupon ici',
 
       'pay_with_bankily': 'Payer avec Bankily',
-      'currency_conversion_notice': 'Montants convertis en MRU (1 USD = @rate MRU)',
+      'currency_conversion_notice':
+          'Montants convertis en MRU (1 USD = @rate MRU)',
       'phone_number_hint': 'Numéro de téléphone',
       'Card': 'Card',
       'pay_with_visa_or_mastercard_via_bankily':

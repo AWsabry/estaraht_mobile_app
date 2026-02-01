@@ -9,6 +9,7 @@ class CustomAppBar extends StatelessWidget {
   final bool showProfileIcons;
   final bool showMenuIcon;
   final VoidCallback? onBackPressed;
+  final bool useSafeArea;
 
   const CustomAppBar({
     super.key,
@@ -19,92 +20,92 @@ class CustomAppBar extends StatelessWidget {
     this.showProfileIcons = true,
     this.showMenuIcon = true,
     this.onBackPressed,
+    this.useSafeArea = true,
   });
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      bottom: false,
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 22.h, vertical: 4.h),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            // Left side - Either back button with title or profile icons
-            if (!showProfileIcons && isBackArrow == true)
-              Expanded(
-                child: Row(
-                  children: [
-                    GestureDetector(
-                      onTap: onBackPressed,
-                      child: const Icon(
-                        Icons.arrow_back_ios,
-                        size: 24,
-                        color: Colors.black,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        title,
-                        style:
-                            textStyle ??
-                            const CustomTextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ),
-              )
-            else if (showProfileIcons)
-              Row(
+    final content = Padding(
+      padding: const EdgeInsets.fromLTRB(22, 16, 22, 16),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          // Left side - Either back button with title or profile icons
+          if (!showProfileIcons && isBackArrow == true)
+            Expanded(
+              child: Row(
                 children: [
                   GestureDetector(
-                    onTap: () {
-                      Get.toNamed(Routes.profileParametersScreen);
-                    },
-                    child: Center(
-                      child: SvgPicture.asset(
-                        AppImages.appAccountCircle,
-                        width: 26,
-                        height: 26,
-                      ),
+                    onTap: onBackPressed,
+                    child: const Icon(
+                      Icons.arrow_back_ios,
+                      size: 24,
+                      color: Colors.black,
                     ),
                   ),
-                  const SizedBox(width: 6),
-                  // Notification badge with click handler
-                  GestureDetector(
-                    onTap: () {
-                      Get.toNamed(Routes.notificationScreen);
-                    },
-                    child: Center(
-                      child: Padding(
-                        padding: const EdgeInsets.all(6.0),
-                        child: SvgPicture.asset(
-                          AppImages.appBadging,
-                          width: 24,
-                          height: 24,
-                        ),
-                      ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      title,
+                      style:
+                          textStyle ??
+                          const CustomTextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ],
-              )
-            else
-              const SizedBox.shrink(),
+              ),
+            )
+          else if (showProfileIcons)
+            Row(
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    Get.toNamed(Routes.profileParametersScreen);
+                  },
+                  child: Center(
+                    child: SvgPicture.asset(
+                      AppImages.appAccountCircle,
+                      width: 26,
+                      height: 26,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 6),
+                // Notification badge with click handler
+                GestureDetector(
+                  onTap: () {
+                    Get.toNamed(Routes.notificationScreen);
+                  },
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(6.0),
+                      child: SvgPicture.asset(
+                        AppImages.appBadging,
+                        width: 24,
+                        height: 24,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            )
+          else
+            const SizedBox.shrink(),
 
-            // Right side - Menu icon (optional)
-            if (showMenuIcon)
-              Center(child: SvgPicture.asset(AppImages.appBarIcon, width: 38))
-            else
-              const SizedBox.shrink(),
-          ],
-        ),
+          // Right side - Menu icon (optional)
+          if (showMenuIcon)
+            Center(child: SvgPicture.asset(AppImages.appBarIcon, width: 38))
+          else
+            const SizedBox.shrink(),
+        ],
       ),
     );
+
+    return useSafeArea ? SafeArea(bottom: false, child: content) : content;
   }
 }
 
