@@ -1,7 +1,7 @@
 {
   "provider": "apple_pay",
   "data": {
-    "merchantIdentifier": "merchant.com.yourapp.estaraht",
+    "merchantIdentifier": "merchant.com.estaraht.appname",
     "displayName": "Estaraht",
     "merchantCapabilities": ["3DS", "debit", "credit"],
     "supportedNetworks": ["visa", "masterCard", "amex", "discover"],

@@ -4,6 +4,7 @@ import 'package:videocalling/core/config/app_imports.dart';
 import 'package:videocalling/features/patient/appointments/models/uall_appointment_model.dart';
 import 'package:videocalling/shared/services/review_service.dart';
 import 'package:videocalling/shared/widgets/rating_dialog.dart';
+import 'package:videocalling/shared/services/others/timezone_service.dart';
 
 class UAllAppointments extends GetView<UAllAppointmentsController> {
   final UAllAppointmentsController appointmentsController = Get.put(
@@ -440,7 +441,7 @@ class UAllAppointments extends GetView<UAllAppointmentsController> {
               ],
             ),
 
-            // Date and time row
+            // Date and time row with timezone support
             Padding(
               padding: EdgeInsets.only(
                 top: appointmentsController.selectedTab.value == 1 ? 12 : 32,
@@ -449,12 +450,14 @@ class UAllAppointments extends GetView<UAllAppointmentsController> {
                 textDirection: isArabic ? TextDirection.rtl : TextDirection.ltr,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Date and time text
+                  // Date and time text with timezone offset
                   Expanded(
                     child: Text(
-                      isArabic
-                          ? "${_formatDateArabic(appointment.date ?? '')} \n ${_formatTimeArabic(appointment.slot ?? '')} "
-                          : "${_formatDate(appointment.date ?? '')} at ${_formatTime(appointment.slot ?? '')}",
+                      _formatAppointmentDateTime(
+                        appointment.date ?? '',
+                        appointment.slot ?? '',
+                        isArabic,
+                      ),
                       style: CustomTextStyle(
                         fontSize: 14.sp,
                         fontWeight: FontWeight.w700,
@@ -462,7 +465,7 @@ class UAllAppointments extends GetView<UAllAppointmentsController> {
                         height: isArabic ? 1.3 : 1.0,
                       ),
                       textAlign: isArabic ? TextAlign.right : TextAlign.left,
-                      maxLines: 2,
+                      maxLines: 3,
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
@@ -491,6 +494,106 @@ class UAllAppointments extends GetView<UAllAppointmentsController> {
         ),
       ),
     );
+  }
+
+  /// Format appointment date and time with timezone support
+  String _formatAppointmentDateTime(String dateStr, String timeStr, bool isArabic) {
+    if (dateStr.isEmpty || timeStr.isEmpty) {
+      return isArabic ? '' : '';
+    }
+
+    try {
+      // Parse date and time to create DateTime object
+      final doctorDateTime = _parseAppointmentDateTime(dateStr, timeStr);
+      
+      if (isArabic) {
+        // For Arabic: show date on first line, time with offset on second line
+        final dateFormatted = TimezoneService.formatDateArabic(doctorDateTime);
+        final timeFormatted = TimezoneService.formatAppointmentTimeWithOffset(doctorDateTime);
+        return '$dateFormatted\n$timeFormatted';
+      } else {
+        // For English: "Date at Time (Timezone offset if needed)"
+        final dateFormatted = _formatDate(dateStr);
+        final timeFormatted = _formatAppointmentTimeEnglish(doctorDateTime);
+        return '$dateFormatted at $timeFormatted';
+      }
+    } catch (e) {
+      // Fallback to old format if parsing fails
+      return isArabic
+          ? "${_formatDateArabic(dateStr)} \n ${_formatTimeArabic(timeStr)} "
+          : "${_formatDate(dateStr)} at ${_formatTime(timeStr)}";
+    }
+  }
+
+  /// Parse appointment date and time strings to DateTime
+  DateTime _parseAppointmentDateTime(String dateStr, String timeStr) {
+    // Parse date (format: YYYY-MM-DD)
+    final dateParts = dateStr.split('-');
+    final year = int.parse(dateParts[0]);
+    final month = int.parse(dateParts[1]);
+    final day = int.parse(dateParts[2]);
+
+    // Parse time (format: "10:00 AM" or "14:30")
+    int hour = 0;
+    int minute = 0;
+
+    if (timeStr.contains('AM') || timeStr.contains('PM') || 
+        timeStr.contains('am') || timeStr.contains('pm')) {
+      // 12-hour format with AM/PM
+      final parts = timeStr.toUpperCase().split(' ');
+      final timePart = parts[0];
+      final period = parts.length > 1 ? parts[1] : 'AM';
+
+      final timeParts = timePart.split(':');
+      hour = int.parse(timeParts[0]);
+      if (timeParts.length > 1) {
+        minute = int.parse(timeParts[1]);
+      }
+
+      // Convert to 24-hour format
+      if (period.contains('PM') && hour != 12) {
+        hour += 12;
+      } else if (period.contains('AM') && hour == 12) {
+        hour = 0;
+      }
+    } else {
+      // 24-hour format
+      final timeParts = timeStr.split(':');
+      hour = int.parse(timeParts[0]);
+      if (timeParts.length > 1) {
+        minute = int.parse(timeParts[1]);
+      }
+    }
+
+    // Create DateTime as UTC (Mauritania time GMT+0)
+    return DateTime.utc(year, month, day, hour, minute);
+  }
+
+  /// Format appointment time for English with timezone offset
+  String _formatAppointmentTimeEnglish(DateTime doctorDateTime) {
+    final offset = TimezoneService.getTimezoneOffsetFromMauritania();
+    
+    // Format doctor's time
+    final hour = doctorDateTime.hour;
+    final minute = doctorDateTime.minute;
+    final hour12 = hour > 12 ? hour - 12 : (hour == 0 ? 12 : hour);
+    final period = hour >= 12 ? 'PM' : 'AM';
+    final doctorTime = '$hour12:${minute.toString().padLeft(2, '0')} $period';
+    
+    // If same timezone, just show the time
+    if (offset == 0) {
+      return doctorTime;
+    }
+    
+    // Convert to patient's local time
+    final patientTime = TimezoneService.mauritaniaToLocalTime(doctorDateTime);
+    final pHour = patientTime.hour;
+    final pMinute = patientTime.minute;
+    final pHour12 = pHour > 12 ? pHour - 12 : (pHour == 0 ? 12 : pHour);
+    final pPeriod = pHour >= 12 ? 'PM' : 'AM';
+    final patientTimeStr = '$pHour12:${pMinute.toString().padLeft(2, '0')} $pPeriod';
+    
+    return '$doctorTime ($patientTimeStr your time)';
   }
 
   String _formatTimeArabic(String timeStr) {

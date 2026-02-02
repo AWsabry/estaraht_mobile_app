@@ -8,12 +8,10 @@ import 'package:videocalling/core/utils/logger.dart';
 /// Service for handling Apple Pay and Google Pay payments via Stripe
 class DigitalWalletService {
   /// Get Apple Pay configuration
-  /// You need to replace the merchantIdentifier with your actual Apple Merchant ID
-  /// from Apple Developer Account
+  /// Merchant ID configured in Apple Developer Console
   static PaymentConfiguration getApplePayConfig() {
-    // TODO: Replace 'merchant.com.yourapp.estaraht' with your actual Apple Merchant ID
-    // You can get this from Apple Developer Console after creating a Merchant ID
-    const merchantId = 'merchant.com.yourapp.estaraht';
+    // Apple Merchant ID: merchant.com.estaraht.appname
+    const merchantId = 'merchant.com.estaraht.appname';
 
     loggerNoStack.i('🍎 Configuring Apple Pay with Merchant ID: $merchantId');
 

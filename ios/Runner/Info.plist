@@ -120,7 +120,7 @@
 	<!-- Apple Pay Configuration -->
 	<key>com.apple.developer.in-app-payments</key>
 	<array>
-		<string>merchant.com.yourapp.estaraht</string>
+		<string>merchant.com.estaraht.appname</string>
 	</array>
 </dict>
 </plist>

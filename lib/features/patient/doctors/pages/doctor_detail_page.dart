@@ -877,33 +877,69 @@ class DoctorDetailScreen extends GetView<DoctorDetailController> {
   Widget _buildTimeSlotGrid() {
     final languageController = Get.find<LanguageController>();
     final bool isArabic = languageController.currentLanguage.value == 'ar';
+    final needsConversion = TimezoneService.needsTimezoneConversion();
 
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 3,
         crossAxisSpacing: 12,
         mainAxisSpacing: 12,
-        childAspectRatio: 2.5,
+        childAspectRatio: needsConversion ? 2.2 : 2.5, // Adjust for extra text
       ),
       itemCount: detailController.currentTimeSlots.length,
       itemBuilder: (context, index) {
         String timeSlot = detailController.currentTimeSlots[index];
 
-        // Format time display
+        // Format time display with timezone support
         String displayTime = timeSlot;
+        String? timezoneHint;
+        
         try {
+          // Parse the time slot
           DateTime time = DateFormat('HH:mm').parse(timeSlot);
+          
+          // Create DateTime for today with this time (in Mauritania timezone)
+          final selectedDate = detailController.selectedDateIndex.value < 
+              detailController.availableDates.length
+              ? detailController.availableDates[detailController.selectedDateIndex.value]
+              : DateTime.now();
+          
+          final doctorDateTime = DateTime.utc(
+            selectedDate.year,
+            selectedDate.month,
+            selectedDate.day,
+            time.hour,
+            time.minute,
+          );
+
           if (isArabic) {
-            int hour = time.hour;
-            if (hour >= 12) {
-              displayTime = '${DateFormat('h:mm').format(time)} مساءً';
+            if (needsConversion) {
+              // Show doctor time + patient local time
+              displayTime = TimezoneService.formatAppointmentTimeWithOffset(doctorDateTime);
+              // Extract just the main time for compact display
+              final parts = displayTime.split('(');
+              if (parts.length > 1) {
+                displayTime = parts[0].trim();
+                timezoneHint = '(${parts[1]}';
+              }
             } else {
-              displayTime = '${DateFormat('h:mm').format(time)} صباحاً';
+              // Just format the time in Arabic
+              int hour = time.hour;
+              if (hour >= 12) {
+                displayTime = '${DateFormat('h:mm').format(time)} مساءً';
+              } else {
+                displayTime = '${DateFormat('h:mm').format(time)} صباحاً';
+              }
             }
           } else {
-            displayTime = DateFormat('h:mm a').format(time);
+            if (needsConversion) {
+              // Format for English with timezone
+              displayTime = TimezoneService.formatAppointmentTimeWithOffset(doctorDateTime);
+            } else {
+              displayTime = DateFormat('h:mm a').format(time);
+            }
           }
         } catch (e) {
           // Keep original format if parsing fails
@@ -928,14 +964,37 @@ class DoctorDetailScreen extends GetView<DoctorDetailController> {
               onTap: () => detailController.processPayment(),
               borderRadius: BorderRadius.circular(8),
               child: Center(
-                child: Text(
-                  displayTime,
-                  style: const CustomTextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.black87,
-                  ),
-                ),
+                child: timezoneHint != null
+                    ? Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            displayTime,
+                            style: const CustomTextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            timezoneHint,
+                            style: CustomTextStyle(
+                              fontSize: 9,
+                              color: Colors.grey[600],
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      )
+                    : Text(
+                        displayTime,
+                        style: const CustomTextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black87,
+                        ),
+                      ),
               ),
             ),
           ),

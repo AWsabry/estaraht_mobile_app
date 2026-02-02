@@ -1,10 +1,15 @@
-/// Service to handle Mauritania timezone (GMT+0)
-/// Mauritania uses GMT+0 year-round (no daylight saving time)
+/// Service to handle timezone conversions between users
+/// Supports showing appointment times in user's local timezone with offset information
 class TimezoneService {
   // Mauritania timezone offset: GMT+0 (0 hours from UTC)
   static const int mauritaniaOffsetHours = 0;
 
-  /// Get current time in Mauritania timezone
+  /// Get current time in user's local timezone (device timezone)
+  static DateTime getCurrentLocalTime() {
+    return DateTime.now();
+  }
+
+  /// Get current time in Mauritania timezone (for doctors)
   static DateTime getCurrentMauritaniaTime() {
     final utcNow = DateTime.now().toUtc();
     return utcNow.add(const Duration(hours: mauritaniaOffsetHours));
@@ -14,6 +19,37 @@ class TimezoneService {
   static DateTime toMauritaniaTime(DateTime dateTime) {
     final utcTime = dateTime.toUtc();
     return utcTime.add(const Duration(hours: mauritaniaOffsetHours));
+  }
+
+  /// Convert Mauritania time to user's local timezone
+  static DateTime mauritaniaToLocalTime(DateTime mauritaniaDateTime) {
+    // Mauritania time is stored as UTC+0
+    // Convert to local timezone
+    final utcTime = mauritaniaDateTime.toUtc();
+    return utcTime.toLocal();
+  }
+
+  /// Get timezone offset difference in hours between user's device and Mauritania
+  /// Returns positive number if user is ahead, negative if behind
+  /// Example: Egypt (GMT+2) returns +2, USA EST (GMT-5) returns -5
+  static int getTimezoneOffsetFromMauritania() {
+    final now = DateTime.now();
+    final localOffset = now.timeZoneOffset.inHours;
+    return localOffset - mauritaniaOffsetHours;
+  }
+
+  /// Get timezone offset in minutes for more accurate calculations
+  static int getTimezoneOffsetInMinutes() {
+    final now = DateTime.now();
+    return now.timeZoneOffset.inMinutes;
+  }
+
+  /// Format timezone offset as string (e.g., "+2", "-5", "+0")
+  static String getTimezoneOffsetString() {
+    final offset = getTimezoneOffsetFromMauritania();
+    if (offset == 0) return "GMT+0";
+    if (offset > 0) return "GMT+$offset";
+    return "GMT$offset";
   }
 
   /// Format date in Arabic style for Mauritania
@@ -54,16 +90,73 @@ class TimezoneService {
 
   /// Format time in 12-hour format with AM/PM in Arabic
   /// Example: "3:30 مساءً" or "9:15 صباحاً"
-  static String formatTimeArabic(DateTime dateTime) {
-    final mauritaniaTime = toMauritaniaTime(dateTime);
+  static String formatTimeArabic(DateTime dateTime, {bool useLocalTime = true}) {
+    final timeToFormat = useLocalTime ? dateTime : toMauritaniaTime(dateTime);
 
-    final hour = mauritaniaTime.hour;
-    final minute = mauritaniaTime.minute;
+    final hour = timeToFormat.hour;
+    final minute = timeToFormat.minute;
 
     final hour12 = hour > 12 ? hour - 12 : (hour == 0 ? 12 : hour);
     final period = hour >= 12 ? 'مساءً' : 'صباحاً';
 
     return '${hour12}:${minute.toString().padLeft(2, '0')} $period';
+  }
+
+  /// Format appointment time showing doctor's time and patient's local time
+  /// Example: "3:30 مساءً (5:30 مساءً بتوقيتك)" if patient is GMT+2
+  /// or just "3:30 مساءً" if patient is in same timezone
+  static String formatAppointmentTimeWithOffset(DateTime doctorDateTime) {
+    final offset = getTimezoneOffsetFromMauritania();
+    
+    // Doctor's time in Mauritania timezone
+    final doctorTime = formatTimeArabic(doctorDateTime, useLocalTime: false);
+    
+    // If same timezone, just show the time
+    if (offset == 0) {
+      return doctorTime;
+    }
+    
+    // Convert to patient's local time
+    final patientTime = mauritaniaToLocalTime(doctorDateTime);
+    final patientTimeStr = formatTimeArabic(patientTime, useLocalTime: true);
+    
+    return '$doctorTime ($patientTimeStr بتوقيتك)';
+  }
+
+  /// Format appointment time with timezone difference message
+  /// Example: "3:30 مساءً (بعد ساعتين من توقيتك)" or "3:30 مساءً (قبل ساعة من توقيتك)"
+  static String formatAppointmentTimeWithDifference(DateTime doctorDateTime) {
+    final offset = getTimezoneOffsetFromMauritania();
+    
+    // Doctor's time in Mauritania timezone
+    final doctorTime = formatTimeArabic(doctorDateTime, useLocalTime: false);
+    
+    // If same timezone, just show the time
+    if (offset == 0) {
+      return doctorTime;
+    }
+    
+    // Build difference message
+    String differenceMsg;
+    final absOffset = offset.abs();
+    
+    if (offset > 0) {
+      // Patient is ahead
+      if (absOffset == 1) {
+        differenceMsg = 'قبل ساعة من توقيتك';
+      } else {
+        differenceMsg = 'قبل $absOffset ساعات من توقيتك';
+      }
+    } else {
+      // Patient is behind
+      if (absOffset == 1) {
+        differenceMsg = 'بعد ساعة من توقيتك';
+      } else {
+        differenceMsg = 'بعد $absOffset ساعات من توقيتك';
+      }
+    }
+    
+    return '$doctorTime ($differenceMsg)';
   }
 
   /// Format time in 24-hour format
@@ -75,8 +168,14 @@ class TimezoneService {
 
   /// Format date and time together
   /// Example: "الجمعة، 24 يناير 2026 - 3:30 مساءً"
-  static String formatDateTimeArabic(DateTime dateTime) {
-    return '${formatDateArabic(dateTime)} - ${formatTimeArabic(dateTime)}';
+  static String formatDateTimeArabic(DateTime dateTime, {bool useLocalTime = true}) {
+    return '${formatDateArabic(dateTime)} - ${formatTimeArabic(dateTime, useLocalTime: useLocalTime)}';
+  }
+
+  /// Format appointment date and time with timezone offset
+  /// Example: "الجمعة، 24 يناير 2026 - 3:30 مساءً (5:30 مساءً بتوقيتك)"
+  static String formatAppointmentDateTimeWithOffset(DateTime doctorDateTime) {
+    return '${formatDateArabic(doctorDateTime)} - ${formatAppointmentTimeWithOffset(doctorDateTime)}';
   }
 
   /// Format date in short format (DD/MM/YYYY)
@@ -209,5 +308,81 @@ class TimezoneService {
       59,
       59,
     );
+  }
+
+  /// Get user's timezone name/abbreviation
+  /// Example: "EET" for Egypt, "EST" for US East, etc.
+  static String getUserTimezoneName() {
+    final now = DateTime.now();
+    final offset = now.timeZoneOffset.inHours;
+    
+    // Common timezone abbreviations based on offset
+    final timezoneNames = {
+      -12: 'BIT',
+      -11: 'SST',
+      -10: 'HST',
+      -9: 'AKST',
+      -8: 'PST',
+      -7: 'MST',
+      -6: 'CST',
+      -5: 'EST',
+      -4: 'AST',
+      -3: 'ART',
+      -2: 'FNT',
+      -1: 'AZOT',
+      0: 'GMT',
+      1: 'CET',
+      2: 'EET',
+      3: 'AST',
+      4: 'GST',
+      5: 'PKT',
+      6: 'BST',
+      7: 'ICT',
+      8: 'CST',
+      9: 'JST',
+      10: 'AEST',
+      11: 'SBT',
+      12: 'NZST',
+    };
+    
+    return timezoneNames[offset] ?? getTimezoneOffsetString();
+  }
+
+  /// Check if user needs timezone conversion (not in Mauritania timezone)
+  static bool needsTimezoneConversion() {
+    return getTimezoneOffsetFromMauritania() != 0;
+  }
+
+  /// Get a friendly timezone difference message in Arabic
+  /// Example: "أنت متقدم بساعتين عن توقيت موريتانيا"
+  static String getTimezoneDifferenceMessage() {
+    final offset = getTimezoneOffsetFromMauritania();
+    
+    if (offset == 0) {
+      return 'أنت في نفس توقيت موريتانيا';
+    }
+    
+    final absOffset = offset.abs();
+    final hoursText = absOffset == 1 ? 'ساعة واحدة' : '$absOffset ساعات';
+    
+    if (offset > 0) {
+      return 'أنت متقدم $hoursText عن توقيت موريتانيا';
+    } else {
+      return 'أنت متأخر $hoursText عن توقيت موريتانيا';
+    }
+  }
+
+  /// Convert appointment time from doctor's timezone to patient's local time
+  /// Used when displaying appointment cards, lists, etc.
+  static DateTime convertDoctorTimeToPatientTime(DateTime doctorDateTime) {
+    return mauritaniaToLocalTime(doctorDateTime);
+  }
+
+  /// Convert patient's selected time to doctor's timezone for saving
+  /// Used when patient books an appointment
+  static DateTime convertPatientTimeToDoctorTime(DateTime patientDateTime) {
+    // Convert local time to UTC, then to Mauritania time
+    final utcTime = patientDateTime.toUtc();
+    return utcTime.add(const Duration(hours: mauritaniaOffsetHours));
   }
 }

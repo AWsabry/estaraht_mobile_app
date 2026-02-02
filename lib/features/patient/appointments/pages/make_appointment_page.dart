@@ -68,6 +68,10 @@ class MakeAppointment extends GetView<MakeAppointmentController> {
                   // Doctor info card
                   _buildDoctorInfoCard(isArabic),
 
+                  // Timezone info banner (if user is in different timezone)
+                  if (TimezoneService.needsTimezoneConversion())
+                    _buildTimezoneInfoBanner(isArabic),
+
                   // Session duration selection
                   //_buildSessionDurationSection(isArabic),
 
@@ -310,6 +314,43 @@ class MakeAppointment extends GetView<MakeAppointmentController> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  /// Build timezone information banner for users in different timezone
+  Widget _buildTimezoneInfoBanner(bool isArabic) {
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 32.w, vertical: 8.h),
+      padding: EdgeInsets.all(12.h),
+      decoration: BoxDecoration(
+        color: const Color(0xFF3366FF).withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: const Color(0xFF3366FF).withOpacity(0.3),
+          width: 1,
+        ),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            Icons.info_outline,
+            color: const Color(0xFF3366FF),
+            size: 20.sp,
+          ),
+          SizedBox(width: 12.w),
+          Expanded(
+            child: Text(
+              TimezoneService.getTimezoneDifferenceMessage(),
+              style: CustomTextStyle(
+                fontSize: 12.sp,
+                color: const Color(0xFF3366FF),
+                fontWeight: FontWeight.w500,
+              ),
+              textAlign: isArabic ? TextAlign.right : TextAlign.left,
+            ),
+          ),
+        ],
       ),
     );
   }

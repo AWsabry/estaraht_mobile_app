@@ -1,8 +1,7 @@
+import 'package:http/http.dart' as http;
 import 'package:videocalling/core/config/app_imports.dart';
 
 class ForgetPasswordController extends GetxController {
-  FirebaseHelper firebaseHelper = FirebaseHelper();
-
   String id = Get.arguments['id'];
 
   TextEditingController emailTextField = TextEditingController();
@@ -19,24 +18,46 @@ class ForgetPasswordController extends GetxController {
     customDialog1(s1: 'loading'.tr, s2: 'please_wait_while_processing'.tr);
 
     try {
-      // Use custom password reset email template
-      final success = await firebaseHelper
-          .sendPasswordResetEmailWithCustomTemplate(emailTextField.text);
+      // Call backend API for password reset request
+      final response = await http
+          .post(
+            Uri.parse('https://backend.estaraht.com/api/auth/request-reset'),
+            headers: {'Content-Type': 'application/json'},
+            body: json.encode({'email': emailTextField.text}),
+          )
+          .timeout(const Duration(seconds: 20));
 
       Get.back(); // Close loading dialog
 
-      if (success) {
-        messageDialog('success'.tr, 'password_reset_email_sent'.tr, 1);
-        loggerNoStack.i(
-          'Firebase password reset email sent successfully to: ${emailTextField.text}',
-        );
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+
+        if (responseData['success'] == true &&
+            responseData['data'] != null &&
+            responseData['data']['resetLink'] != null) {
+          final resetLink = responseData['data']['resetLink'];
+          loggerNoStack.i(
+            'Password reset requested successfully for: ${emailTextField.text}',
+          );
+
+          // Navigate to WebView with reset link
+          Get.toNamed(
+            '/reset-password-webview',
+            arguments: {'url': resetLink, 'email': emailTextField.text},
+          );
+        } else {
+          messageDialog('error'.tr, 'failed_to_send_email'.tr, 0);
+          loggerNoStack.e('Invalid response format from backend');
+        }
       } else {
-        messageDialog('error'.tr, 'failed_to_send_email'.tr, 0);
-        loggerNoStack.e('Failed to send Firebase password reset email');
+        final errorData = json.decode(response.body);
+        final errorMessage = errorData['message'] ?? 'failed_to_send_email'.tr;
+        messageDialog('error'.tr, errorMessage, 0);
+        loggerNoStack.e('Backend returned error: ${response.statusCode}');
       }
     } catch (e) {
       Get.back(); // Close loading dialog
-      loggerNoStack.e('Error sending Firebase password reset email: $e');
+      loggerNoStack.e('Error requesting password reset: $e');
       messageDialog('error'.tr, 'failed_to_send_email'.tr, 0);
     }
   }
