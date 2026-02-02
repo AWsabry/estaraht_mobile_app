@@ -276,6 +276,7 @@ class Words extends Translations {
       'manage_medical_record': 'Manage my medical record',
       'payment_settings': 'Payment settings',
       'language_settings': 'Language settings',
+      'connect_with_customer_service': 'Connect with customer service',
       'sign_out': 'Sign out',
       'select_language': 'Select Language',
       'select_your_language': 'Select your language',
@@ -558,6 +559,7 @@ class Words extends Translations {
       'about': 'About us',
       'unable_to_load_data':
           'We couldn\'t load the information right now. Please check your connection and try again.',
+      'no_doctors_found': 'No doctors available at the moment',
       'unable_to_save_data':
           'We couldn\'t save your changes. Please try again.',
       'report_issue1': 'Doctor not taking appointments on time',
@@ -659,6 +661,7 @@ class Words extends Translations {
       'doctor_register': 'Register as doctor',
       'register_now': ' Register Now',
       'forgot_password': 'Forget Password ?',
+      'reset_password': 'Reset Password',
       'login_now': 'Login Now',
       'login': 'Login',
       'remove': 'Remove',
@@ -1139,7 +1142,9 @@ class Words extends Translations {
       'settings': 'الإعدادات',
       'manage_medical_record': 'إدارة سجلي الطبي',
       'payment_settings': 'إعدادات الدفع',
+
       'language_settings': 'إعدادات اللغة',
+      'connect_with_customer_service': 'تواصل مع خدمة العملاء',
       'sign_out': 'تسجيل الخروج',
       'select_language': 'اختر اللغة',
       'select_your_language': 'اختر لغتك',
@@ -1429,6 +1434,7 @@ class Words extends Translations {
       'about': 'معلومات عنا',
       'unable_to_load_data':
           'لم نتمكن من تحميل المعلومات الآن. يرجى التحقق من اتصالك والمحاولة مرة أخرى.',
+      'no_doctors_found': 'لا يوجد أطباء متاحون حالياً',
       'unable_to_save_data':
           'لم نتمكن من حفظ تغييراتك. يرجى المحاولة مرة أخرى.',
       'invalid_credentials':
@@ -1528,6 +1534,7 @@ class Words extends Translations {
       'doctor_register': 'تسجيل كطبيب',
       'register_now': ' سجل الآن',
       'forgot_password': 'نسيت كلمة المرور؟',
+      'reset_password': 'إعادة تعيين كلمة المرور',
       'login_now': 'تسجيل الدخول الآن',
       'login': 'تسجيل الدخول',
       'remove': 'إزالة',
@@ -2035,6 +2042,7 @@ class Words extends Translations {
       'register_now': ' Inscrivez-vous maintenant',
       'not_have_an_account': 'Vous n\'avez pas de compte?',
       'forgot_password': 'Mot de passe oublié?',
+      'reset_password': 'Réinitialiser le mot de passe',
       'sign_up': 'S\'inscrire',
       'login': 'Connexion',
       'register': 'S\'inscrire',
@@ -2233,6 +2241,7 @@ class Words extends Translations {
       'manage_medical_record': 'Gérer mon dossier médical',
       'payment_settings': 'Paramètres de paiement',
       'language_settings': 'Paramètres de langue',
+      'connect_with_customer_service': 'Contactez le service client',
       'sign_out': 'Se déconnecter',
       'select_language': 'Sélectionner la langue',
       'select_your_language': 'Sélectionnez votre langue',
@@ -2526,6 +2535,7 @@ class Words extends Translations {
           'Connectez-vous avec votre thérapeute facilement et',
       'unable_to_load_data':
           'Nous n\'avons pas pu charger les informations pour le moment. Veuillez vérifier votre connexion et réessayer.',
+      'no_doctors_found': 'Aucun médecin disponible pour le moment',
       'unable_to_save_data':
           'Nous n\'avons pas pu enregistrer vos modifications. Veuillez réessayer.',
       'invalid_credentials':

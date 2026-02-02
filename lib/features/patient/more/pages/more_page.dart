@@ -71,7 +71,7 @@ class MoreScreen extends GetView<PatientMoreScreenController> {
           // Customer Service WhatsApp
           _buildSettingsItem(
             icon: Icons.support_agent,
-            title: 'تواصل مع خدمة العملاء',
+              title: 'connect_with_customer_service'.tr,
             onTap: () => moreScreenController.launchWhatsApp(),
           ),
 

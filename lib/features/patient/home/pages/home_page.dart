@@ -67,11 +67,25 @@ class UserHomeScreen extends GetView<UserHomeController> {
                       height: 820.h * 0.3412,
                       child: Obx(() {
                         // Show a loader when data is loading
-                        if (homeController.list2.isEmpty &&
+                        if (!homeController.isDoctorDataLoaded.value &&
                             !homeController.isErrorInLoadDoctorData.value) {
                           return const Center(
                             child: CircularProgressIndicator(
                               color: Color(0xFF3961F1),
+                            ),
+                          );
+                        }
+
+                        // Show empty state if no doctors found
+                        if (homeController.list2.isEmpty &&
+                            homeController.isDoctorDataLoaded.value) {
+                          return Center(
+                            child: Text(
+                              'no_doctors_found'.tr,
+                              style: CustomTextStyle(
+                                fontSize: 14.sp,
+                                color: Colors.grey[600],
+                              ),
                             ),
                           );
                         }
@@ -408,6 +422,7 @@ class UserHomeScreen extends GetView<UserHomeController> {
                 );
               }
             }),
+
             SizedBox(height: 10.h),
           ],
         ),
