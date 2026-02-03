@@ -122,5 +122,7 @@
 	<array>
 		<string>merchant.com.estaraht.appname</string>
 	</array>
+	    <key>ITSAppUsesNonExemptEncryption</key>
+    <false/>
 </dict>
 </plist>

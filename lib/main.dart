@@ -54,9 +54,15 @@ void main() async {
       try {
         if (Firebase.apps.isEmpty) {
           if (Platform.isAndroid) {
-            await Firebase.initializeApp(options: DefaultFirebaseOptions.android);
+            await Firebase.initializeApp(
+              options: DefaultFirebaseOptions.android,
+            );
           } else {
-            await Firebase.initializeApp(options: DefaultFirebaseOptions.ios);
+            final app = await Firebase.initializeApp(
+              options: DefaultFirebaseOptions.ios,
+            );
+            print("projectId: ${app.options.projectId}");
+            print("appId: ${app.options.appId}");
           }
         }
       } catch (e) {
@@ -64,7 +70,8 @@ void main() async {
           print('⚠️ Firebase already initialized: $e');
         }
       }
-
+      final app = Firebase.app();
+      print("🔥 projectId = ${app.options.projectId}");
       // Set up FCM background message handler BEFORE other Firebase services
       FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 
@@ -89,10 +96,7 @@ void main() async {
       // Run your app
       runApp(
         kDebugMode
-            ? ClarityWidget(
-              app: const MyApp(),
-              clarityConfig: config,
-            )
+            ? ClarityWidget(app: const MyApp(), clarityConfig: config)
             : ClarityWidget(app: const MyApp(), clarityConfig: config),
       );
     },

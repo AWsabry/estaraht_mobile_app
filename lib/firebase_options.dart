@@ -51,6 +51,7 @@ class DefaultFirebaseOptions {
     appId: '1:735559732305:android:5f07d05c35e6ffc27fbc70',
     messagingSenderId: '735559732305',
     projectId: 'estaraht-84839',
+    databaseURL: 'https://estaraht-84839-default-rtdb.firebaseio.com',
     storageBucket: 'estaraht-84839.firebasestorage.app',
   );
 
@@ -59,6 +60,7 @@ class DefaultFirebaseOptions {
     appId: '1:735559732305:ios:d680719e93297c0c7fbc70',
     messagingSenderId: '735559732305',
     projectId: 'estaraht-84839',
+    databaseURL: 'https://estaraht-84839-default-rtdb.firebaseio.com',
     storageBucket: 'estaraht-84839.firebasestorage.app',
     iosBundleId: 'com.owldots.estarhtapppro',
   );
@@ -69,6 +71,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '735559732305',
     projectId: 'estaraht-84839',
     authDomain: 'estaraht-84839.firebaseapp.com',
+    databaseURL: 'https://estaraht-84839-default-rtdb.firebaseio.com',
     storageBucket: 'estaraht-84839.firebasestorage.app',
     measurementId: 'G-X53CM40MD9',
   );

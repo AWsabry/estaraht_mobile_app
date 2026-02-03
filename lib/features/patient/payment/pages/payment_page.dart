@@ -658,11 +658,18 @@ class _PaymentScreenState extends State<PaymentScreen>
                           ),
                           if (subtitle != null) ...[
                             const SizedBox(height: 2),
-                            Text(
-                              subtitle,
-                              style: const CustomTextStyle(
-                                fontSize: 12,
-                                color: Colors.black54,
+                            ConstrainedBox(
+                              constraints: BoxConstraints(
+                                maxWidth:
+                                    MediaQuery.of(context).size.width * 0.8,
+                              ),
+                              child: Text(
+                                subtitle,
+
+                                style: const CustomTextStyle(
+                                  fontSize: 12,
+                                  color: Colors.black54,
+                                ),
                               ),
                             ),
                           ],
@@ -676,9 +683,9 @@ class _PaymentScreenState extends State<PaymentScreen>
                 Row(
                   children: [
                     Image.asset(
-                      'assets/visa_logo.png',
-                      height: 24,
-                      width: 36,
+                      'assets/visa-mastercard.png',
+                      height: 50,
+                      width: 50,
                       errorBuilder: (_, __, ___) =>
                           const Icon(Icons.credit_card, size: 24),
                     ),
