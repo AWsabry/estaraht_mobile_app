@@ -9,7 +9,6 @@
 .buildlog/
 .history
 .svn/
-.swiftpm/
 migrate_working_dir/
 
 # IntelliJ related
@@ -25,7 +24,6 @@ migrate_working_dir/
 
 # Flutter/Dart/Pub related
 **/doc/api/
-**/ios/Flutter/.last_build_id
 
 .dart_tool/
 .flutter-plugins
@@ -33,7 +31,6 @@ migrate_working_dir/
 .pub-cache/
 .pub/
 /build/
-ios/Pods/
 # Symbolication related
 app.*.symbols
 
@@ -44,11 +41,7 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
-/ios/Flutter/Flutter.framework
-/ios/Flutter/Flutter.podspec
-/ios/Flutter/Generated.xcconfig
-/ios/Flutter/ephemeral/
-/ios/Pods/
+
 
 /ios/.symlinks/plugins/agora_rtc_engine/
 /ios/.symlinks/plugins/app_links/
@@ -63,9 +56,6 @@ app.*.map.json
 *.keystore
 key.properties
 
-# Environment variables
-.env
-.env.local
-.env.*.local
+
 # Keep .env.example
 !.env.example
