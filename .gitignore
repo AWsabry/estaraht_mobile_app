@@ -57,6 +57,5 @@ app.*.map.json
 key.properties
 
 
-# Keep .env.example
-.env.example
+# Environment - never commit .env (contains secrets)
 .env
