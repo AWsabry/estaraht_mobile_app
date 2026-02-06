@@ -15,311 +15,333 @@ class MakeAppointment extends GetView<MakeAppointmentController> {
     final languageController = Get.find<LanguageController>();
     final bool isArabic = languageController.currentLanguage.value == 'ar';
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        flexibleSpace: CustomAppBar(title: 'book_a_session'.tr),
-        leading: Container(),
-        elevation: 0,
-        bottom: PreferredSize(
-          preferredSize: Size.fromHeight(100.h),
-          child: Container(
-            height: 60,
-            width: double.infinity,
-            color: Colors.white,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 20.0,
-                vertical: 8.0,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  IconButton(
-                    icon: const Icon(
-                      Icons.arrow_back_ios,
-                      size: 16,
-                      color: Colors.black,
+    return Directionality(
+      textDirection: isArabic ? TextDirection.rtl : TextDirection.ltr,
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        appBar: AppBar(
+          flexibleSpace: CustomAppBar(title: 'book_a_session'.tr),
+          leading: Container(),
+          elevation: 0,
+          bottom: PreferredSize(
+            preferredSize: Size.fromHeight(100.h),
+            child: Container(
+              height: 60,
+              width: double.infinity,
+              color: Colors.white,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20.0,
+                  vertical: 8.0,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    IconButton(
+                      icon: Icon(
+                        isArabic
+                            ? Icons.arrow_forward_ios
+                            : Icons.arrow_back_ios,
+                        size: 16,
+                        color: Colors.black,
+                      ),
+                      onPressed: () => Get.back(),
                     ),
-                    onPressed: () => Get.back(),
-                  ),
-                  Text(
-                    'book_a_session'.tr,
-                    style: const CustomTextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w400,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-      body: Obx(
-        () => Stack(
-          children: [
-            // title back button
-            SingleChildScrollView(
-              controller: makeAppointmentController.scrollController,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Doctor info card
-                  _buildDoctorInfoCard(isArabic),
-
-                  // Timezone info banner (if user is in different timezone)
-                  if (TimezoneService.needsTimezoneConversion())
-                    _buildTimezoneInfoBanner(isArabic),
-
-                  // Session duration selection
-                  //_buildSessionDurationSection(isArabic),
-
-                  // Date selection
-                  Padding(
-                    padding: const EdgeInsets.only(
-                      left: 40,
-                      right: 40,
-                      top: 20,
-                      bottom: 12,
-                    ),
-                    child: Text(
-                      'select_date'.tr,
+                    Text(
+                      'book_a_session'.tr,
                       style: const CustomTextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w400,
                       ),
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(
-                      left: 40,
-                      right: 40,
-                      top: 2,
-                      bottom: 12,
-                    ),
-                    child: Obx(
-                      () => Row(
-                        children: [
-                          const Icon(Icons.arrow_forward),
-                          const SizedBox(width: 8),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+        body: Obx(
+          () => Stack(
+            children: [
+              // title back button
+              SingleChildScrollView(
+                controller: makeAppointmentController.scrollController,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Doctor info card
+                    _buildDoctorInfoCard(isArabic),
 
-                          /// Show actual available date range instead of fixed 7 days
-                          Text(
-                            makeAppointmentController.availableDates.isNotEmpty
-                                ? '${DateFormat('dd MMM').format(makeAppointmentController.availableDates.first)} - ${DateFormat('dd MMM').format(makeAppointmentController.availableDates.last)}'
-                                : 'no_available_dates'.tr,
-                            style: const CustomTextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w400,
-                              color: Colors.black87,
-                            ),
-                          ),
-                        ],
+                    // Timezone info banner (if user is in different timezone from doctor)
+                    Obx(() {
+                      final doctorOffset = makeAppointmentController
+                          .doctorTimezoneOffsetHours
+                          .value;
+                      if (TimezoneService.needsTimezoneConversion(
+                        doctorTimezoneOffsetHours: doctorOffset,
+                      )) {
+                        return _buildTimezoneInfoBanner(isArabic, doctorOffset);
+                      }
+                      return const SizedBox.shrink();
+                    }),
+
+                    // Session duration selection
+                    //_buildSessionDurationSection(isArabic),
+
+                    // Date selection
+                    Padding(
+                      padding: const EdgeInsets.only(
+                        left: 40,
+                        right: 40,
+                        top: 20,
+                        bottom: 12,
+                      ),
+                      child: Text(
+                        'select_date'.tr,
+                        style: const CustomTextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w400,
+                        ),
                       ),
                     ),
-                  ),
+                    Padding(
+                      padding: const EdgeInsets.only(
+                        left: 40,
+                        right: 40,
+                        top: 2,
+                        bottom: 12,
+                      ),
+                      child: Obx(
+                        () => Row(
+                          children: [
+                            const Icon(Icons.arrow_forward),
+                            const SizedBox(width: 8),
 
-                  // Date selection row
-                  Container(
-                    height: 110,
-                    padding: const EdgeInsets.fromLTRB(32, 0, 32, 0),
-                    child: Obx(
-                      () => ListView.builder(
-                        shrinkWrap: true,
-                        scrollDirection: Axis.horizontal,
-                        itemCount:
-                            makeAppointmentController.availableDates.length,
-                        itemBuilder: (context, i) {
-                          if (makeAppointmentController
-                              .availableDates
-                              .isEmpty) {
-                            return Center(
-                              child: Text(
-                                'No available dates'.tr,
-                                style: const CustomTextStyle(
-                                  fontSize: 14,
-                                  color: Colors.grey,
-                                ),
+                            /// Show actual available date range instead of fixed 7 days
+                            Text(
+                              makeAppointmentController
+                                      .availableDates
+                                      .isNotEmpty
+                                  ? '${DateFormat('dd MMM').format(makeAppointmentController.availableDates.first)} - ${DateFormat('dd MMM').format(makeAppointmentController.availableDates.last)}'
+                                  : 'no_available_dates'.tr,
+                              style: const CustomTextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w400,
+                                color: Colors.black87,
                               ),
-                            );
-                          }
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
 
-                          DateTime currentDate =
-                              makeAppointmentController.availableDates[i];
+                    // Date selection row
+                    Container(
+                      height: 110,
+                      padding: const EdgeInsets.fromLTRB(32, 0, 32, 0),
+                      child: Obx(
+                        () => ListView.builder(
+                          shrinkWrap: true,
+                          scrollDirection: Axis.horizontal,
+                          itemCount:
+                              makeAppointmentController.availableDates.length,
+                          itemBuilder: (context, i) {
+                            if (makeAppointmentController
+                                .availableDates
+                                .isEmpty) {
+                              return Center(
+                                child: Text(
+                                  'No available dates'.tr,
+                                  style: const CustomTextStyle(
+                                    fontSize: 14,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              );
+                            }
 
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 4),
-                            child: InkWell(
-                              onTap: () {
-                                if (makeAppointmentController
-                                        .previousSelectedIndex
-                                        .value ==
-                                    i) {
-                                  return;
-                                }
+                            DateTime currentDate =
+                                makeAppointmentController.availableDates[i];
 
-                                // Fix: Check if selected date is actually today, not just index 0
-                                DateTime selectedDate =
-                                    makeAppointmentController.availableDates[i];
-                                DateTime today =
-                                    TimezoneService.getCurrentMauritaniaTime();
-                                bool isSelectedDateToday =
-                                    selectedDate.year == today.year &&
-                                    selectedDate.month == today.month &&
-                                    selectedDate.day == today.day;
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 4,
+                              ),
+                              child: InkWell(
+                                onTap: () {
+                                  if (makeAppointmentController
+                                          .previousSelectedIndex
+                                          .value ==
+                                      i) {
+                                    return;
+                                  }
 
-                                makeAppointmentController.isToday.value =
-                                    isSelectedDateToday;
-
-                                makeAppointmentController
-                                        .isSelected[makeAppointmentController
-                                            .previousSelectedIndex
-                                            .value]
-                                        .value =
-                                    false;
-                                makeAppointmentController.isSelected[i].value =
-                                    !makeAppointmentController
-                                        .isSelected[i]
-                                        .value;
-                                makeAppointmentController
-                                        .previousSelectedIndex
-                                        .value =
-                                    i;
-
-                                // Use new Supabase-based availability check with the selected available date
-
-                                makeAppointmentController
-                                    .checkAvailabilityFromSupabase(
-                                      selectedDate,
-                                      false,
-                                      i: i,
-                                    );
-                              },
-                              borderRadius: BorderRadius.circular(32),
-                              child: Container(
-                                width: 58,
-                                height: 62,
-                                decoration: BoxDecoration(
-                                  color:
+                                  // Fix: Check if selected date is actually today, not just index 0
+                                  DateTime selectedDate =
                                       makeAppointmentController
-                                          .isSelected[i]
-                                          .value
-                                      ? const Color(0xFF3366FF)
-                                      : Colors.white,
-                                  borderRadius: BorderRadius.circular(32),
-                                  border: Border.all(
+                                          .availableDates[i];
+                                  DateTime today =
+                                      TimezoneService.getCurrentMauritaniaTime();
+                                  bool isSelectedDateToday =
+                                      selectedDate.year == today.year &&
+                                      selectedDate.month == today.month &&
+                                      selectedDate.day == today.day;
+
+                                  makeAppointmentController.isToday.value =
+                                      isSelectedDateToday;
+
+                                  makeAppointmentController
+                                          .isSelected[makeAppointmentController
+                                              .previousSelectedIndex
+                                              .value]
+                                          .value =
+                                      false;
+                                  makeAppointmentController
+                                      .isSelected[i]
+                                      .value = !makeAppointmentController
+                                      .isSelected[i]
+                                      .value;
+                                  makeAppointmentController
+                                          .previousSelectedIndex
+                                          .value =
+                                      i;
+
+                                  // Use new Supabase-based availability check with the selected available date
+
+                                  makeAppointmentController
+                                      .checkAvailabilityFromSupabase(
+                                        selectedDate,
+                                        false,
+                                        i: i,
+                                      );
+                                },
+                                borderRadius: BorderRadius.circular(32),
+                                child: Container(
+                                  width: 58,
+                                  height: 62,
+                                  decoration: BoxDecoration(
                                     color:
                                         makeAppointmentController
                                             .isSelected[i]
                                             .value
                                         ? const Color(0xFF3366FF)
-                                        : Colors.grey.shade300,
-                                    width: 1,
+                                        : Colors.white,
+                                    borderRadius: BorderRadius.circular(32),
+                                    border: Border.all(
+                                      color:
+                                          makeAppointmentController
+                                              .isSelected[i]
+                                              .value
+                                          ? const Color(0xFF3366FF)
+                                          : Colors.grey.shade300,
+                                      width: 1,
+                                    ),
+                                  ),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        makeAppointmentController
+                                            .days[currentDate.weekday],
+                                        style: CustomTextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w500,
+                                          color:
+                                              makeAppointmentController
+                                                  .isSelected[i]
+                                                  .value
+                                              ? Colors.white
+                                              : Colors.grey.shade600,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        currentDate.day.toString(),
+                                        style: CustomTextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          color:
+                                              makeAppointmentController
+                                                  .isSelected[i]
+                                                  .value
+                                              ? Colors.white
+                                              : Colors.black,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      makeAppointmentController.days[currentDate
-                                          .weekday],
-                                      style: CustomTextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w500,
-                                        color:
-                                            makeAppointmentController
-                                                .isSelected[i]
-                                                .value
-                                            ? Colors.white
-                                            : Colors.grey.shade600,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 2),
-                                    Text(
-                                      currentDate.day.toString(),
-                                      style: CustomTextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                        color:
-                                            makeAppointmentController
-                                                .isSelected[i]
-                                                .value
-                                            ? Colors.white
-                                            : Colors.black,
-                                      ),
-                                    ),
-                                  ],
-                                ),
                               ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  ),
-                  // Available time slots
-                  // Available time slots
-                  Padding(
-                    padding: const EdgeInsets.only(
-                      left: 40,
-                      right: 40,
-                      top: 20,
-                      bottom: 8,
-                    ),
-                    child: Text(
-                      'choose_the_time'.tr,
-                      style: const CustomTextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
-                  ),
-
-                  // Time slot content based on loading state
-                  !makeAppointmentController.isLoading.value ||
-                          !makeAppointmentController.isLoading1.value
-                      ? _buildTimeSlotContent()
-                      : const Center(child: CircularProgressIndicator()),
-
-                  // // Bottom spacing
-                  // const SizedBox(height: 40),
-                  Container(
-                    width: double.infinity,
-                    margin: const EdgeInsets.all(34),
-                    child: ElevatedButton(
-                      onPressed: () => makeAppointmentController.processPayment(
-                        context: context,
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF3366FF),
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
+                            );
+                          },
                         ),
-                        padding: const EdgeInsets.symmetric(vertical: 14),
+                      ),
+                    ),
+                    // Available time slots
+                    // Available time slots
+                    Padding(
+                      padding: const EdgeInsets.only(
+                        left: 40,
+                        right: 40,
+                        top: 20,
+                        bottom: 8,
                       ),
                       child: Text(
-                        'make_an_appointment'.tr,
+                        'choose_the_time'.tr,
                         style: const CustomTextStyle(
                           fontSize: 16,
-                          color: Colors.white,
-                          fontWeight: FontWeight.w500,
+                          fontWeight: FontWeight.w400,
                         ),
                       ),
                     ),
-                  ),
-                ],
+
+                    // Time slot content based on loading state
+                    !makeAppointmentController.isLoading.value ||
+                            !makeAppointmentController.isLoading1.value
+                        ? _buildTimeSlotContent()
+                        : const Center(child: CircularProgressIndicator()),
+
+                    // // Bottom spacing
+                    // const SizedBox(height: 40),
+                    Container(
+                      width: double.infinity,
+                      margin: const EdgeInsets.all(34),
+                      child: ElevatedButton(
+                        onPressed: () => makeAppointmentController
+                            .processPayment(context: context),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF3366FF),
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                        ),
+                        child: Text(
+                          'make_an_appointment'.tr,
+                          style: const CustomTextStyle(
+                            fontSize: 16,
+                            color: Colors.white,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
-  /// Build timezone information banner for users in different timezone
-  Widget _buildTimezoneInfoBanner(bool isArabic) {
+  /// Build timezone information banner for users in different timezone from doctor
+  Widget _buildTimezoneInfoBanner(
+    bool isArabic,
+    int? doctorTimezoneOffsetHours,
+  ) {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 32.w, vertical: 8.h),
       padding: EdgeInsets.all(12.h),
@@ -333,15 +355,13 @@ class MakeAppointment extends GetView<MakeAppointmentController> {
       ),
       child: Row(
         children: [
-          Icon(
-            Icons.info_outline,
-            color: const Color(0xFF3366FF),
-            size: 20.sp,
-          ),
+          Icon(Icons.info_outline, color: const Color(0xFF3366FF), size: 20.sp),
           SizedBox(width: 12.w),
           Expanded(
             child: Text(
-              TimezoneService.getTimezoneDifferenceMessage(),
+              TimezoneService.getTimezoneDifferenceMessage(
+                doctorTimezoneOffsetHours: doctorTimezoneOffsetHours,
+              ),
               style: CustomTextStyle(
                 fontSize: 12.sp,
                 color: const Color(0xFF3366FF),
@@ -531,8 +551,11 @@ class MakeAppointment extends GetView<MakeAppointmentController> {
   }
 
   Widget _buildAvailableTimeSlots() {
-    return Obx(
-      () => Column(
+    final languageController = Get.find<LanguageController>();
+    return Obx(() {
+      // Rebuild slot titles when locale changes
+      languageController.currentLanguage.value;
+      return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 8),
@@ -609,11 +632,12 @@ class MakeAppointment extends GetView<MakeAppointmentController> {
                           ),
                           const SizedBox(width: 10),
                           Text(
-                            makeAppointmentController
-                                    .makeAppointmentClass!
-                                    .data![i]
-                                    .title ??
-                                "",
+                            _getSlotTitle(
+                              makeAppointmentController
+                                  .makeAppointmentClass!
+                                  .data![i]
+                                  .title,
+                            ),
                             style: CustomTextStyle(
                               color:
                                   makeAppointmentController
@@ -746,8 +770,23 @@ class MakeAppointment extends GetView<MakeAppointmentController> {
               ),
             )*/
         ],
-      ),
-    );
+      );
+    });
+  }
+
+  /// Translate slot group title (morning/evening/all_day) - use explicit keys for proper localization
+  String _getSlotTitle(String? title) {
+    if (title == null || title.isEmpty) return '';
+    switch (title.toLowerCase()) {
+      case 'morning':
+        return 'morning'.tr;
+      case 'evening':
+        return 'evening'.tr;
+      case 'all_day':
+        return 'all_day'.tr;
+      default:
+        return title;
+    }
   }
 
   IconData _getSlotIcon(int index) {
@@ -788,46 +827,37 @@ class MakeAppointment extends GetView<MakeAppointmentController> {
       for (int i = 0; i < list.length; i++) {
         bool isBooked = list[i].isBook == "1";
 
-        // Fix: Handle 24-hour format from Supabase (HH:mm) instead of 12-hour format (hh:mm a)
+        // Past time check: use doctor's timezone (slots are in doctor's time)
         bool isPastTime = false;
         if (makeAppointmentController.isToday.value) {
           try {
             String timeSlot = list[i].name ?? "";
-            // Parse current time and slot time in 24-hour format
-            DateTime now = TimezoneService.getCurrentMauritaniaTime();
-            DateTime slotDateTime = DateFormat(
-              'yyyy-MM-dd HH:mm',
-            ).parse('${DateFormat('yyyy-MM-dd').format(now)} $timeSlot');
-            isPastTime = now.isAfter(slotDateTime);
+            final doctorOffset =
+                makeAppointmentController.doctorTimezoneOffsetHours.value ?? 0;
+            DateTime nowInDoctorTz =
+                TimezoneService.getCurrentTimeInDoctorTimezone(doctorOffset);
+            DateTime slotDateTime = DateFormat('yyyy-MM-dd HH:mm').parse(
+              '${DateFormat('yyyy-MM-dd').format(nowInDoctorTz)} $timeSlot',
+            );
+            isPastTime = nowInDoctorTz.isAfter(slotDateTime);
           } catch (e) {
-            // If parsing fails, assume slot is not in the past
             isPastTime = false;
           }
         }
 
-        // Format time with Arabic AM/PM if needed, or convert to 12-hour format
+        // Format slot: show doctor's time + patient's local equivalent when different timezone
         String displayTime = list[i].name ?? "";
         if (displayTime.isNotEmpty) {
-          try {
-            // Parse 24-hour time and convert to 12-hour format if needed
-            DateTime time = DateFormat('HH:mm').parse(displayTime);
-
-            if (isArabic) {
-              // For Arabic, show 24-hour format with Arabic AM/PM
-              int hour = time.hour;
-              if (hour >= 12) {
-                displayTime = '${DateFormat('h:mm').format(time)} مساءً';
-              } else {
-                displayTime = '${DateFormat('h:mm').format(time)} صباحاً';
-              }
-            } else {
-              // For English, convert to 12-hour format with AM/PM
-              displayTime = DateFormat('h:mm a').format(time);
-            }
-          } catch (e) {
-            // If parsing fails, keep original format
-            displayTime = list[i].name ?? "";
-          }
+          final doctorOffset =
+              makeAppointmentController.doctorTimezoneOffsetHours.value ?? 0;
+          displayTime = TimezoneService.formatSlotForPatient(
+            dateStr: makeAppointmentController.date,
+            timeStr: displayTime.length >= 5
+                ? displayTime.substring(0, 5)
+                : displayTime,
+            doctorTimezoneOffsetHours: doctorOffset,
+            isArabic: isArabic,
+          );
         }
 
         timeSlots.add(

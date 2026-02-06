@@ -1,6 +1,22 @@
 import 'package:videocalling/core/config/app_imports.dart';
 import 'package:videocalling/shared/services/others/timezone_service.dart';
 
+/// Parse chat timestamp (stored in UTC) for display in viewer's local timezone.
+DateTime? _parseChatTime(String? timeStr) {
+  if (timeStr == null || timeStr.isEmpty) return null;
+  final s = timeStr.toString().trim();
+  final toParse = s.endsWith('Z') || RegExp(r'[+-]\d{2}:?\d{2}$').hasMatch(s)
+      ? s
+      : '${s}Z';
+  return DateTime.tryParse(toParse);
+}
+
+/// Format message time in viewer's device local timezone (e.g. "04:30 PM").
+String _formatMessageTime(String? timeStr) {
+  final dt = _parseChatTime(timeStr)?.toLocal();
+  return dt != null ? DateFormat('hh:mm a').format(dt) : '';
+}
+
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
 
@@ -160,27 +176,38 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                                         ? index + 1
                                         : snapshot.data!.docs.length - 1;
 
+                                    final timeStr =
+                                        snapshot.data!.docs[index]['time']
+                                            ?.toString() ??
+                                        '';
+                                    final msgTimeLocal = _parseChatTime(
+                                      timeStr,
+                                    )?.toLocal();
                                     int daysDifferenceForTitle =
-                                        TimezoneService.getCurrentMauritaniaTime()
-                                            .difference(
-                                              DateTime.parse(
-                                                "${snapshot.data!.docs[index]['time']}Z",
-                                              ).toLocal(),
-                                            )
-                                            .inDays;
+                                        msgTimeLocal != null
+                                        ? DateTime.now()
+                                              .difference(msgTimeLocal)
+                                              .inDays
+                                        : 0;
                                     if (index ==
                                         snapshot.data!.docs.length - 1) {
                                       chatController.showDate.value = true;
                                     } else {
-                                      DateTime currentDate = DateTime.parse(
-                                        "${snapshot.data!.docs[index]['time']}",
-                                      );
-                                      DateTime nextDate = DateTime.parse(
-                                        "${snapshot.data!.docs[index + 1]['time']}",
-                                      );
-                                      if (currentDate.year != nextDate.year ||
-                                          currentDate.month != nextDate.month ||
-                                          currentDate.day != nextDate.day) {
+                                      final currentDate = _parseChatTime(
+                                        snapshot.data!.docs[index]['time']
+                                            ?.toString(),
+                                      )?.toLocal();
+                                      final nextDate = _parseChatTime(
+                                        snapshot.data!.docs[index + 1]['time']
+                                            ?.toString(),
+                                      )?.toLocal();
+                                      if (currentDate != null &&
+                                          nextDate != null &&
+                                          (currentDate.year != nextDate.year ||
+                                              currentDate.month !=
+                                                  nextDate.month ||
+                                              currentDate.day !=
+                                                  nextDate.day)) {
                                         chatController.showDate.value = true;
                                       } else {
                                         chatController.showDate.value = false;
@@ -262,17 +289,12 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                                                                 0,
                                                               ),
                                                           child: AppTextWidgets.regularText(
-                                                            text:
-                                                                DateFormat(
-                                                                  'hh:mm a',
-                                                                ).format(
-                                                                  DateTime.parse(
-                                                                    snapshot
-                                                                        .data!
-                                                                        .docs[index]['time']
-                                                                        .toString(),
-                                                                  ),
-                                                                ),
+                                                            text: _formatMessageTime(
+                                                              snapshot
+                                                                  .data!
+                                                                  .docs[index]['time']
+                                                                  .toString(),
+                                                            ),
                                                             color:
                                                                 AppColors.grey,
                                                             size: 10,
@@ -285,29 +307,21 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                                                                     .data!
                                                                     .docs[index +
                                                                     1]['uid'] &&
-                                                            (DateTime.parse(
+                                                            ((_parseChatTime(
                                                                           snapshot
                                                                               .data!
                                                                               .docs[index]['time']
                                                                               .toString(),
-                                                                        )
-                                                                        .add(
-                                                                          TimezoneService.getCurrentMauritaniaTime()
-                                                                              .timeZoneOffset,
-                                                                        )
-                                                                        .minute -
-                                                                    DateTime.parse(
+                                                                        )?.toLocal().minute ??
+                                                                        0) -
+                                                                    (_parseChatTime(
                                                                           snapshot
                                                                               .data!
                                                                               .docs[index +
                                                                                   1]['time']
                                                                               .toString(),
-                                                                        )
-                                                                        .add(
-                                                                          TimezoneService.getCurrentMauritaniaTime()
-                                                                              .timeZoneOffset,
-                                                                        )
-                                                                        .minute) ==
+                                                                        )?.toLocal().minute ??
+                                                                        0)) ==
                                                                 0
                                                       ? Container()
                                                       : Padding(
@@ -319,17 +333,12 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                                                                 0,
                                                               ),
                                                           child: AppTextWidgets.regularText(
-                                                            text:
-                                                                DateFormat(
-                                                                  'hh:mm a',
-                                                                ).format(
-                                                                  DateTime.parse(
-                                                                    snapshot
-                                                                        .data!
-                                                                        .docs[index]['time']
-                                                                        .toString(),
-                                                                  ),
-                                                                ),
+                                                            text: _formatMessageTime(
+                                                              snapshot
+                                                                  .data!
+                                                                  .docs[index]['time']
+                                                                  .toString(),
+                                                            ),
                                                             color:
                                                                 AppColors.grey,
                                                             size: 10,
@@ -408,12 +417,14 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                                                                           .value
                                                                   ? chatController.lastMessageUid.value ==
                                                                                 snapshot.data!.docs[k]['uid'] &&
-                                                                            (DateTime.parse(
-                                                                                      snapshot.data!.docs[index]['time'].toString(),
-                                                                                    ).toLocal().minute -
-                                                                                    DateTime.parse(
-                                                                                      snapshot.data!.docs[index]['time'].toString(),
-                                                                                    ).toLocal().minute) ==
+                                                                            ((_parseChatTime(
+                                                                                          snapshot.data!.docs[index]['time'].toString(),
+                                                                                        )?.toLocal().minute ??
+                                                                                        0) -
+                                                                                    (_parseChatTime(
+                                                                                          snapshot.data!.docs[k]['time'].toString(),
+                                                                                        )?.toLocal().minute ??
+                                                                                        0)) ==
                                                                                 0
                                                                         ? const Radius.circular(
                                                                             5,
@@ -457,12 +468,14 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                                                                           .value
                                                                   ? chatController.lastMessageUid.value ==
                                                                                 snapshot.data!.docs[k]['uid'] &&
-                                                                            (DateTime.parse(
-                                                                                      snapshot.data!.docs[index]['time'].toString(),
-                                                                                    ).toLocal().minute -
-                                                                                    DateTime.parse(
-                                                                                      snapshot.data!.docs[index]['time'].toString(),
-                                                                                    ).toLocal().minute) ==
+                                                                            ((_parseChatTime(
+                                                                                          snapshot.data!.docs[index]['time'].toString(),
+                                                                                        )?.toLocal().minute ??
+                                                                                        0) -
+                                                                                    (_parseChatTime(
+                                                                                          snapshot.data!.docs[k]['time'].toString(),
+                                                                                        )?.toLocal().minute ??
+                                                                                        0)) ==
                                                                                 0
                                                                         ? const Radius.circular(
                                                                             5,

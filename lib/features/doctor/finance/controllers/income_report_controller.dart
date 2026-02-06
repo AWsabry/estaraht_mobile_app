@@ -10,7 +10,7 @@ class IncomeReportController extends GetxController {
       'income_report_tile_short_text3'.tr.obs; // Default to "last 30 days" text
   final String initialDuration;
   RxString selectedFilter = 'income'.obs; // 'income', 'withdrawal', 'total'
-  
+
   // Available balance (income - withdrawals) - always calculated
   RxDouble availableBalance = 0.0.obs;
 
@@ -47,33 +47,9 @@ class IncomeReportController extends GetxController {
       double totalIncome = 0;
       Map<String, double> dailyIncome = {};
 
-      // Get income from payment_history (for 'income' and 'total' filters)
-      if (selectedFilter.value == 'income' || selectedFilter.value == 'total') {
-        final incomeResponse = await supabaseHelper.client
-            .from('payment_history')
-            .select('total_amount, payment_date')
-            .eq('doctor_id', doctorId.value)
-            .eq('operation_status', 'success')
-            .eq('action_type', 'income')
-            .gte('payment_date', startDate.toIso8601String())
-            .lte('payment_date', endDate.toIso8601String())
-            .order('payment_date', ascending: false);
-
-        for (var record in incomeResponse) {
-          String dateStr = record['payment_date'].toString().substring(0, 10);
-          double amount = double.parse(record['total_amount'].toString());
-
-          if (dailyIncome.containsKey(dateStr)) {
-            dailyIncome[dateStr] = dailyIncome[dateStr]! + amount;
-          } else {
-            dailyIncome[dateStr] = amount;
-          }
-          totalIncome += amount;
-        }
-      }
-
       // Get withdrawals from withdraws table (for 'withdrawal' and 'total' filters)
-      if (selectedFilter.value == 'withdrawal' || selectedFilter.value == 'total') {
+      if (selectedFilter.value == 'withdrawal' ||
+          selectedFilter.value == 'total') {
         final withdrawalResponse = await supabaseHelper.client
             .from('withdraws')
             .select('total_amount, payment_date')
@@ -84,7 +60,9 @@ class IncomeReportController extends GetxController {
 
         for (var record in withdrawalResponse) {
           String dateStr = record['payment_date'].toString().substring(0, 10);
-          double amount = -double.parse(record['total_amount'].toString()); // Negative for withdrawals
+          double amount = -double.parse(
+            record['total_amount'].toString(),
+          ); // Negative for withdrawals
 
           if (dailyIncome.containsKey(dateStr)) {
             dailyIncome[dateStr] = dailyIncome[dateStr]! + amount;
@@ -127,22 +105,9 @@ class IncomeReportController extends GetxController {
     }
   }
 
-  /// Calculate the available balance (total income - total withdrawals)
+  /// Calculate the available balance (withdrawals only - no payment_history)
   Future<void> _calculateAvailableBalance() async {
     try {
-      // Get ALL income from payment_history
-      final incomeResponse = await supabaseHelper.client
-          .from('payment_history')
-          .select('total_amount')
-          .eq('doctor_id', doctorId.value)
-          .eq('operation_status', 'success')
-          .eq('action_type', 'income');
-
-      double totalIncome = 0;
-      for (var record in incomeResponse) {
-        totalIncome += double.parse(record['total_amount'].toString());
-      }
-
       // Get ALL withdrawals from withdraws table
       final withdrawalResponse = await supabaseHelper.client
           .from('withdraws')
@@ -154,10 +119,12 @@ class IncomeReportController extends GetxController {
         totalWithdrawals += double.parse(record['total_amount'].toString());
       }
 
-      // Available balance = Income - Withdrawals
-      availableBalance.value = totalIncome - totalWithdrawals;
-      
-      loggerNoStack.i('Available Balance: \$${availableBalance.value} (Income: \$$totalIncome - Withdrawals: \$$totalWithdrawals)');
+      // Available balance (no payment_history - no income tracked)
+      availableBalance.value = 0;
+
+      loggerNoStack.i(
+        'Available Balance: \$${availableBalance.value} (Withdrawals: \$$totalWithdrawals)',
+      );
     } catch (e) {
       loggerNoStack.e('Error calculating available balance: $e');
       availableBalance.value = 0;
@@ -271,8 +238,12 @@ class IncomeReportController extends GetxController {
 
   void _showDateRangePicker(BuildContext context) async {
     final initialDateRange = DateTimeRange(
-      start: TimezoneService.getCurrentMauritaniaTime().add(const Duration(days: -7)),
-      end: TimezoneService.getCurrentMauritaniaTime().add(const Duration(days: 7)),
+      start: TimezoneService.getCurrentMauritaniaTime().add(
+        const Duration(days: -7),
+      ),
+      end: TimezoneService.getCurrentMauritaniaTime().add(
+        const Duration(days: 7),
+      ),
     );
 
     DateTimeRange? picked = await showDateRangePicker(

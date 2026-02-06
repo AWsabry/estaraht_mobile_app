@@ -1,4 +1,5 @@
 import 'package:videocalling/core/config/app_imports.dart';
+import 'package:videocalling/features/doctor/appointments/controllers/appointments_list_controller.dart';
 import 'package:videocalling/features/doctor/appointments/pages/appointments_list_page.dart';
 
 class DoctorConsultationsPage extends StatefulWidget {
@@ -17,6 +18,12 @@ class _DoctorConsultationsPageState extends State<DoctorConsultationsPage>
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    // Always refresh appointments when navigating to consultations (shows loading)
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (Get.isRegistered<DAllAppointmentsController>()) {
+        Get.find<DAllAppointmentsController>().fetchPastAppointments();
+      }
+    });
   }
 
   @override

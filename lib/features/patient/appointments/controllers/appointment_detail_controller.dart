@@ -2,10 +2,10 @@ import 'dart:developer' as developer;
 
 import 'package:http/http.dart' as http;
 import 'package:videocalling/core/config/app_imports.dart';
+import 'package:videocalling/shared/services/others/timezone_service.dart';
 import 'package:videocalling/shared/services/review_service.dart';
 import 'package:videocalling/shared/services/session_management_service.dart';
 import 'package:videocalling/shared/services/agora_token_service.dart';
-import 'package:videocalling/shared/services/others/timezone_service.dart';
 import 'package:videocalling/shared/widgets/rating_dialog.dart';
 
 class UserAppointmentDetailsController extends GetxController {
@@ -26,6 +26,9 @@ class UserAppointmentDetailsController extends GetxController {
   RxBool patientConfirmed = false.obs;
   RxBool doctorConfirmed = false.obs;
   RxString bookingStatus = ''.obs;
+
+  /// Doctor's timezone offset (from doctors table). 0 for legacy doctors.
+  int doctorTimezoneOffsetHours = 0;
 
   fetchAppointmentDetails() async {
     try {
@@ -55,7 +58,8 @@ class UserAppointmentDetailsController extends GetxController {
               specialization,
               profile_img_url,
               booking_price,
-              bio
+              bio,
+              timezone_offset_hours
             ),
             patients!fk_bookings_patient (
               id,
@@ -135,6 +139,9 @@ class UserAppointmentDetailsController extends GetxController {
       doctorSpeciality.value = doctorData?['specialization']?.toString() ?? '';
       doctorId.value = response['doctor_id']?.toString() ?? '';
       userId.value = response['patient_id']?.toString() ?? '';
+      doctorTimezoneOffsetHours = doctorData?['timezone_offset_hours'] != null
+          ? (doctorData!['timezone_offset_hours'] as num).toInt()
+          : 0;
     } catch (e) {
       loggerNoStack.e('Error fetching appointment details', error: e);
       isErrorInLoading.value = true;
@@ -176,20 +183,20 @@ class UserAppointmentDetailsController extends GetxController {
     }
   }
 
-  Future<String?> fetchAgoraToken(String channelName) async {
+  Future<String?> fetchAgoraToken(String channelName, {int uid = 2}) async {
     try {
       // Generate token dynamically using Agora Token Generator
-      // App ID and Certificate are loaded from .env file
+      // Patient uses UID 2 (doctor uses 1) to avoid collision
       final agoraTokenService = AgoraTokenService();
 
       final token = await agoraTokenService.generateToken(
         channelName: channelName,
-        uid: 0,
+        uid: uid,
         tokenExpireSeconds: 86400, // 24 hours
       );
 
       if (token != null) {
-        developer.log('✅ Token generated for channel: $channelName');
+        developer.log('✅ Token generated for channel: $channelName uid=$uid');
         return token;
       } else {
         developer.log('❌ Failed to generate token for channel: $channelName');
@@ -201,119 +208,41 @@ class UserAppointmentDetailsController extends GetxController {
     }
   }
 
-  /// Check if the current time is within 5 minutes before the appointment
   bool canJoinSession() {
-    try {
-      final bookingDate = doctorAppointmentDetailsClass?.data?.date;
-      final bookingTime = doctorAppointmentDetailsClass?.data?.slot;
-
-      if (bookingDate == null || bookingTime == null) {
-        developer.log("❌ Missing booking date or time");
-        return false;
-      }
-
-      // Parse booking date and time
-      final dateParts = bookingDate.split('-');
-      final timeParts = bookingTime.split(':');
-
-      final appointmentDateTime = DateTime(
-        int.parse(dateParts[0]), // year
-        int.parse(dateParts[1]), // month
-        int.parse(dateParts[2]), // day
-        int.parse(timeParts[0]), // hour
-        int.parse(timeParts[1]), // minute
-      );
-
-      // Get current time using Mauritania timezone
-      final now = TimezoneService.getCurrentMauritaniaTime();
-
-      // Calculate time difference
-      final difference = appointmentDateTime.difference(now);
-
-      developer.log(
-        "⏰ Appointment: $appointmentDateTime | Now (Mauritania): $now | Difference: ${difference.inMinutes} minutes",
-      );
-
-      // Allow joining if within 5 minutes before appointment or after appointment time
-      // This gives a 5-minute window before and unlimited time after
-      return difference.inMinutes <= 5;
-    } catch (e) {
-      developer.log("❌ Error checking session join time: $e");
-      return false; // Deny access if there's an error
-    }
+    final bookingDate = doctorAppointmentDetailsClass?.data?.date;
+    final bookingTime = doctorAppointmentDetailsClass?.data?.slot;
+    if (bookingDate == null || bookingTime == null) return false;
+    return TimezoneService.canJoinVideoSession(
+      bookingDate: bookingDate,
+      bookingTime: bookingTime,
+      doctorTimezoneOffsetHours: doctorTimezoneOffsetHours,
+    );
   }
 
-  /// Get time remaining until user can join the session (5 minutes before appointment)
   String getTimeUntilCanJoin() {
-    try {
-      final bookingDate = doctorAppointmentDetailsClass?.data?.date;
-      final bookingTime = doctorAppointmentDetailsClass?.data?.slot;
+    final bookingDate = doctorAppointmentDetailsClass?.data?.date;
+    final bookingTime = doctorAppointmentDetailsClass?.data?.slot;
+    if (bookingDate == null || bookingTime == null) return '';
+    return TimezoneService.getTimeUntilCanJoinVideoSession(
+      bookingDate: bookingDate,
+      bookingTime: bookingTime,
+      doctorTimezoneOffsetHours: doctorTimezoneOffsetHours,
+    );
+  }
 
-      if (bookingDate == null || bookingTime == null) {
-        return "";
-      }
-
-      // Parse booking date and time
-      final dateParts = bookingDate.split('-');
-      final timeParts = bookingTime.split(':');
-
-      final appointmentDateTime = DateTime(
-        int.parse(dateParts[0]), // year
-        int.parse(dateParts[1]), // month
-        int.parse(dateParts[2]), // day
-        int.parse(timeParts[0]), // hour
-        int.parse(timeParts[1]), // minute
-      );
-
-      // Calculate when user can join (5 minutes before appointment)
-      final canJoinTime = appointmentDateTime.subtract(const Duration(minutes: 5));
-
-      // Get current time using Mauritania timezone
-      final now = TimezoneService.getCurrentMauritaniaTime();
-
-      // Calculate difference from now to when user can join
-      final difference = canJoinTime.difference(now);
-
-      if (difference.isNegative) {
-        return 'now'.tr; // Can join now (5-minute window already started or appointment passed)
-      }
-
-      final days = difference.inDays;
-      final hours = difference.inHours % 24;
-      final minutes = difference.inMinutes % 60;
-
-      // If 24 hours or more, show in days and hours
-      if (days > 0) {
-        final dayText = days == 1 ? 'day'.tr : 'days'.tr;
-        final hourText = hours == 1 ? 'hour'.tr : 'hours'.tr;
-
-        if (hours > 0) {
-          return "$days $dayText ${'and'.tr} $hours $hourText";
-        } else {
-          return "$days $dayText";
-        }
-      }
-      // If more than 90 minutes (1.5 hours), show in hours and minutes
-      else if (difference.inMinutes >= 90) {
-        final hourText = hours == 1 ? 'hour'.tr : 'hours'.tr;
-        final minuteText = minutes == 1 ? 'minute'.tr : 'minutes'.tr;
-
-        if (minutes > 0) {
-          return "$hours $hourText ${'and'.tr} $minutes $minuteText";
-        } else {
-          return "$hours $hourText";
-        }
-      }
-      // Less than 90 minutes, show only minutes
-      else {
-        final totalMinutes = difference.inMinutes;
-        final minuteText = totalMinutes == 1 ? 'minute'.tr : 'minutes'.tr;
-        return "$totalMinutes $minuteText";
-      }
-    } catch (e) {
-      developer.log("❌ Error calculating time until can join: $e");
-      return "";
-    }
+  /// Session must have started before showing confirm-completion card
+  bool hasSessionStarted() {
+    final bookingDate = doctorAppointmentDetailsClass?.data?.date;
+    final bookingTime = doctorAppointmentDetailsClass?.data?.slot;
+    if (bookingDate == null || bookingTime == null) return false;
+    final timeStr = bookingTime.length >= 5
+        ? bookingTime.substring(0, 5)
+        : bookingTime;
+    return TimezoneService.hasSessionStarted(
+      bookingDate: bookingDate,
+      bookingTime: timeStr,
+      doctorTimezoneOffsetHours: doctorTimezoneOffsetHours,
+    );
   }
 
   void initiateVideoCall() async {
@@ -338,27 +267,38 @@ class UserAppointmentDetailsController extends GetxController {
         return;
       }
 
-      // Use unique channel name per booking for privacy
-      final String channelName = "booking_$id";
+      // Use unique channel name per booking (normalized for consistency)
+      final String normalizedId = id.toString().toLowerCase().trim();
+      final String channelName = "booking_$normalizedId";
       final String doctorName =
           doctorAppointmentDetailsClass?.data?.doctorName ?? "Doctor";
-      developer.log("✅ Joining meeting room: '$channelName' (Booking ID: $id)");
+      developer.log(
+        "✅ Joining meeting room: '$channelName' (Booking ID: $id, Patient UID=2)",
+      );
 
       Get.dialog(
         const Center(child: CircularProgressIndicator()),
         barrierDismissible: false,
       );
-      final String? token = await fetchAgoraToken(channelName);
+      final String? token = await fetchAgoraToken(channelName, uid: 2);
       Get.back();
 
       if (token != null) {
         developer.log("Launching video meeting screen...");
+        final data = doctorAppointmentDetailsClass?.data;
         Get.to(
           () => CallScreen(
             channelName: channelName,
             token: token,
             isVideoCall: true,
             opponentName: doctorName,
+            localUid: 2,
+            bookingId: id.toString(),
+            patientId: userId.value,
+            doctorId: doctorId.value,
+            bookingDate: data?.date,
+            bookingTime: data?.slot,
+            doctorTimezoneOffsetHours: doctorTimezoneOffsetHours,
           ),
         );
       } else {

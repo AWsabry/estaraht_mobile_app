@@ -61,7 +61,9 @@ class PaymentPlansController extends GetxController {
 
       if (patientId == null) {
         // Fallback to local storage
-        final storedUserId = StorageService.readData(key: LocalStorageKeys.userId);
+        final storedUserId = StorageService.readData(
+          key: LocalStorageKeys.userId,
+        );
         if (storedUserId != null && storedUserId.toString().isNotEmpty) {
           patientId = storedUserId.toString();
           loggerNoStack.i('Using patient ID from local storage: $patientId');
@@ -203,7 +205,9 @@ class PaymentPlansController extends GetxController {
 
       // Calculate expiry date (30 days from now)
       // For first-time-only plan, no expiry (one-time use)
-      final expiresAt = TimezoneService.getCurrentMauritaniaTime().add(const Duration(days: 30));
+      final expiresAt = TimezoneService.getCurrentMauritaniaTime().add(
+        const Duration(days: 30),
+      );
       final subscriptionExpiresAt = plan.isFirstTimeOnly
           ? null
           : expiresAt.toIso8601String();
@@ -221,7 +225,8 @@ class PaymentPlansController extends GetxController {
             'payment_gateway': paymentGateway,
             'payment_currency': paymentCurrency ?? 'USD',
             'payment_status': 'completed',
-            'subscribed_at': TimezoneService.getCurrentMauritaniaTime().toIso8601String(),
+            'subscribed_at': TimezoneService.getCurrentMauritaniaTime()
+                .toIso8601String(),
             'expires_at': subscriptionExpiresAt,
             'status': 'active',
           })
@@ -338,7 +343,9 @@ class PaymentPlansController extends GetxController {
 
       // Calculate expiry date (30 days from now)
       // For first-time-only plan, no expiry (one-time use)
-      final expiresAt = TimezoneService.getCurrentMauritaniaTime().add(const Duration(days: 30));
+      final expiresAt = TimezoneService.getCurrentMauritaniaTime().add(
+        const Duration(days: 30),
+      );
       final subscriptionExpiresAt = plan.isFirstTimeOnly
           ? null
           : expiresAt.toIso8601String();
@@ -356,7 +363,8 @@ class PaymentPlansController extends GetxController {
             'payment_gateway': paymentGateway,
             'payment_currency': paymentCurrency ?? 'USD',
             'payment_status': 'completed',
-            'subscribed_at': TimezoneService.getCurrentMauritaniaTime().toIso8601String(),
+            'subscribed_at': TimezoneService.getCurrentMauritaniaTime()
+                .toIso8601String(),
             'expires_at': subscriptionExpiresAt,
             'status': 'active',
           })

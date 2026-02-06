@@ -125,8 +125,12 @@ class DoctorDData {
     avgratting = json['avgratting'] != null
         ? double.tryParse(json['avgratting'].toString()) ?? 0
         : 0;
-    // Map total reviews from either legacy key 'total_review' or new key 'number_review'
-    if (json.containsKey('total_review')) {
+    // Map total reviews from total_reviews (DB), total_review, or number_review
+    if (json.containsKey('total_reviews')) {
+      totalReview = json['total_reviews'] is int
+          ? json['total_reviews']
+          : int.tryParse(json['total_reviews']?.toString() ?? '0');
+    } else if (json.containsKey('total_review')) {
       totalReview = json['total_review'] is int
           ? json['total_review']
           : int.tryParse(json['total_review']?.toString() ?? '0');

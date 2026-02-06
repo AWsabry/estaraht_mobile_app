@@ -106,17 +106,23 @@ class WithdrawalController extends GetxController {
     try {
       isProcessing.value = true;
 
-      // Add withdrawal to withdraws table only
+      // Add withdrawal to withdraws table (currency always USD)
+      // MRU equivalent: 1 USD = 46.06 MRU
+      const double usdToMruRate = 46.06;
+      final totalAmountInMru = withdrawalAmount.value * usdToMruRate;
+
       await supabaseHelper.client.from('withdraws').insert({
         'doctor_id': doctorId.value,
         'total_amount': withdrawalAmount.value,
         'total_actual_amount': withdrawalAmount.value,
         'withrowl_history': withdrawalAmount.value,
         'income_history': 0,
-        'action_type': 'withrowl',
+        'action_type': 'withdrawal',
         'operation_status': 'waiting',
         'payment_date': TimezoneService.getCurrentMauritaniaTime()
             .toIso8601String(),
+        'currency': 'USD',
+        'total_amount_in_MRU': totalAmountInMru,
       });
 
       isProcessing.value = false;

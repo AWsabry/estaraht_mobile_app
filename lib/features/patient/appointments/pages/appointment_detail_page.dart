@@ -1,5 +1,6 @@
 import 'package:videocalling/core/config/app_imports.dart';
 import 'package:videocalling/shared/models/session_file_model.dart';
+import 'package:videocalling/shared/services/others/timezone_service.dart';
 import 'package:videocalling/shared/services/file_upload_service.dart';
 import 'package:videocalling/shared/services/review_service.dart';
 import 'package:videocalling/shared/widgets/file_picker_widget.dart';
@@ -18,52 +19,66 @@ class UserAppointmentDetailsScreen
     final languageController = Get.find<LanguageController>();
     final bool isArabic = languageController.currentLanguage.value == 'ar';
 
-    return Scaffold(
-      backgroundColor: Colors.grey[50],
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        title: Text(
-          'appointment'.tr,
-          style: CustomTextStyle(
-            color: Colors.black,
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            fontFamily: AppFontStyleTextStrings.medium,
+    return Directionality(
+      textDirection: isArabic ? TextDirection.rtl : TextDirection.ltr,
+      child: Scaffold(
+        backgroundColor: Colors.grey[50],
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0,
+          title: Text(
+            'appointment'.tr,
+            style: CustomTextStyle(
+              color: Colors.black,
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              fontFamily: AppFontStyleTextStrings.medium,
+            ),
           ),
+          centerTitle: false,
+          leading: IconButton(
+            padding: EdgeInsets.only(
+              left: isArabic ? 30 : 8,
+              right: isArabic ? 8 : 30,
+            ),
+            icon: Icon(
+              isArabic ? Icons.arrow_forward : Icons.arrow_back,
+              color: Colors.black,
+              size: 20,
+            ),
+            onPressed: () => Get.back(),
+          ),
+          titleSpacing: 0,
         ),
-        centerTitle: false,
-        leading: IconButton(
-          padding: const EdgeInsets.only(left: 8, right: 30),
-          icon: const Icon(Icons.arrow_back, color: Colors.black, size: 20),
-          onPressed: () => Get.back(),
+        body: Obx(
+          () => detailsController.isErrorInLoading.value
+              ? _buildErrorState()
+              : FutureBuilder(
+                  future: detailsController.getAppointmentDetails,
+                  builder: (context, AsyncSnapshot snapshot) {
+                    if (snapshot.hasError) {
+                      return Center(
+                        child: Text(
+                          snapshot.error.toString(),
+                          textAlign: TextAlign.center,
+                          style: CustomTextStyle(
+                            color: Colors.grey[700],
+                            fontSize: 16,
+                          ),
+                        ),
+                      );
+                    }
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return _buildLoadingState();
+                    } else if (snapshot.connectionState ==
+                        ConnectionState.none) {
+                      return Container();
+                    } else {
+                      return _buildAppointmentDetails(context, isArabic);
+                    }
+                  },
+                ),
         ),
-        titleSpacing: 0,
-      ),
-      body: Obx(
-        () => detailsController.isErrorInLoading.value
-            ? _buildErrorState()
-            : FutureBuilder(
-                future: detailsController.getAppointmentDetails,
-                builder: (context, AsyncSnapshot snapshot) {
-                  if (snapshot.hasError) {
-                    return Center(
-                      child: Text(
-                        snapshot.error.toString(),
-                        textAlign: TextAlign.center,
-                        style: CustomTextStyle(color: Colors.grey[700], fontSize: 16),
-                      ),
-                    );
-                  }
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return _buildLoadingState();
-                  } else if (snapshot.connectionState == ConnectionState.none) {
-                    return Container();
-                  } else {
-                    return _buildAppointmentDetails(context, isArabic);
-                  }
-                },
-              ),
       ),
     );
   }
@@ -86,6 +101,32 @@ class UserAppointmentDetailsScreen
         ),
       ),
     );
+  }
+
+  String _getPatientFormattedDate(bool isArabic) {
+    final data = detailsController.doctorAppointmentDetailsClass?.data;
+    if (data?.date == null || data?.slot == null) return '';
+    final formatted = TimezoneService.formatAppointmentForPatient(
+      dateStr: data!.date!,
+      timeStr: data.slot!.length >= 5 ? data.slot!.substring(0, 5) : data.slot!,
+      doctorTimezoneOffsetHours: detailsController.doctorTimezoneOffsetHours,
+      isArabic: isArabic,
+    );
+    final parts = formatted.split(' - ');
+    return parts.isNotEmpty ? parts.first : '';
+  }
+
+  String _getPatientFormattedTime(bool isArabic) {
+    final data = detailsController.doctorAppointmentDetailsClass?.data;
+    if (data?.date == null || data?.slot == null) return data?.slot ?? '';
+    final formatted = TimezoneService.formatAppointmentForPatient(
+      dateStr: data!.date!,
+      timeStr: data.slot!.length >= 5 ? data.slot!.substring(0, 5) : data.slot!,
+      doctorTimezoneOffsetHours: detailsController.doctorTimezoneOffsetHours,
+      isArabic: isArabic,
+    );
+    final parts = formatted.split(' - ');
+    return parts.length > 1 ? parts.last : (data.slot ?? '');
   }
 
   Widget _buildLoadingState() {
@@ -143,6 +184,10 @@ class UserAppointmentDetailsScreen
       final isCompleted = status == 'completed';
       final isAccepted = status == 'accepted' || status == 'confirmed';
 
+      // Don't show before session has started - both must confirm after session
+      if (!detailsController.hasSessionStarted()) {
+        return const SizedBox.shrink();
+      }
       if (!isAccepted || isCompleted) {
         return const SizedBox.shrink();
       }
@@ -308,7 +353,9 @@ class UserAppointmentDetailsScreen
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
               side: BorderSide(
-                color: hasReviewed ? Colors.green.shade100 : Colors.amber.shade100,
+                color: hasReviewed
+                    ? Colors.green.shade100
+                    : Colors.amber.shade100,
                 width: 2,
               ),
             ),
@@ -321,17 +368,23 @@ class UserAppointmentDetailsScreen
                     children: [
                       Icon(
                         hasReviewed ? Icons.star : Icons.star_outline,
-                        color: hasReviewed ? Colors.green.shade700 : Colors.amber.shade700,
+                        color: hasReviewed
+                            ? Colors.green.shade700
+                            : Colors.amber.shade700,
                         size: 24,
                       ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
-                          hasReviewed ? 'session_rated'.tr : 'rate_this_session'.tr,
+                          hasReviewed
+                              ? 'session_rated'.tr
+                              : 'rate_this_session'.tr,
                           style: CustomTextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
-                            color: hasReviewed ? Colors.green.shade700 : Colors.amber.shade700,
+                            color: hasReviewed
+                                ? Colors.green.shade700
+                                : Colors.amber.shade700,
                           ),
                         ),
                       ),
@@ -354,7 +407,8 @@ class UserAppointmentDetailsScreen
                       width: double.infinity,
                       child: ElevatedButton(
                         onPressed: () {
-                          final doctorName = detailsController
+                          final doctorName =
+                              detailsController
                                   .doctorAppointmentDetailsClass
                                   ?.data
                                   ?.doctorName ??
@@ -411,9 +465,7 @@ class UserAppointmentDetailsScreen
       return Card(
         margin: const EdgeInsets.symmetric(horizontal: 16),
         elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: SessionFilesWidget(
           bookingId: detailsController.id,
           currentUserId: detailsController.userId.value,
@@ -440,9 +492,10 @@ class UserAppointmentDetailsScreen
         future: fileUploadService.getFilesForBooking(detailsController.id),
         builder: (context, snapshot) {
           final hasFiles = snapshot.hasData && snapshot.data!.isNotEmpty;
-          
+
           // Check if any file is uploaded by doctor
-          final hasDoctorFiles = hasFiles && 
+          final hasDoctorFiles =
+              hasFiles &&
               snapshot.data!.any((file) => file.uploaderType == 'doctor');
 
           if (hasDoctorFiles) {
@@ -536,7 +589,7 @@ class UserAppointmentDetailsScreen
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          "${detailsController.doctorAppointmentDetailsClass!.data!.date.toString().substring(8)}-${detailsController.doctorAppointmentDetailsClass!.data!.date.toString().substring(5, 7)}-${detailsController.doctorAppointmentDetailsClass!.data!.date.toString().substring(0, 4)}",
+                          _getPatientFormattedDate(isArabic),
                           style: const CustomTextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
@@ -553,14 +606,14 @@ class UserAppointmentDetailsScreen
                     children: [
                       Text(
                         'time'.tr,
-                        style: CustomTextStyle(fontSize: 14, color: Colors.grey[700]),
+                        style: CustomTextStyle(
+                          fontSize: 14,
+                          color: Colors.grey[700],
+                        ),
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        detailsController
-                            .doctorAppointmentDetailsClass!
-                            .data!
-                            .slot!,
+                        _getPatientFormattedTime(isArabic),
                         style: const CustomTextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -675,7 +728,10 @@ class UserAppointmentDetailsScreen
           children: [
             Text(
               'contact_info'.tr,
-              style: const CustomTextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: const CustomTextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             const SizedBox(height: 16),
             /*    _buildContactItem(
@@ -923,7 +979,10 @@ class UserAppointmentDetailsScreen
                         hasPrescriptions
                             ? 'user_no_prescription_msg1'.tr
                             : 'user_no_prescription_msg'.tr,
-                        style: CustomTextStyle(fontSize: 12, color: Colors.grey[600]),
+                        style: CustomTextStyle(
+                          fontSize: 12,
+                          color: Colors.grey[600],
+                        ),
                       ),
                     ],
                   ),
@@ -990,7 +1049,10 @@ class UserAppointmentDetailsScreen
           children: [
             Text(
               medicine.medicine_name ?? "",
-              style: const CustomTextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              style: const CustomTextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
               textAlign: isArabic ? TextAlign.right : TextAlign.left,
@@ -1079,9 +1141,20 @@ class UserAppointmentDetailsScreen
       children: [
         Text(
           title,
-          style: const CustomTextStyle(fontSize: 14, fontWeight: FontWeight.w500, height: 1.3),
+          style: const CustomTextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            height: 1.3,
+          ),
         ),
-        Text(value, style: CustomTextStyle(fontSize: 14, color: Colors.grey[600], height: 1.3)),
+        Text(
+          value,
+          style: CustomTextStyle(
+            fontSize: 14,
+            color: Colors.grey[600],
+            height: 1.3,
+          ),
+        ),
       ],
     );
   }
@@ -1137,7 +1210,10 @@ class UserAppointmentDetailsScreen
                         hasReports
                             ? 'user_no_report_msg1'.tr
                             : 'user_no_report_msg'.tr,
-                        style: CustomTextStyle(fontSize: 12, color: Colors.grey[600]),
+                        style: CustomTextStyle(
+                          fontSize: 12,
+                          color: Colors.grey[600],
+                        ),
                       ),
                     ],
                   ),

@@ -10,7 +10,12 @@ class UserPastAppointmentsScreen
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    final languageController = Get.find<LanguageController>();
+    final bool isArabic = languageController.currentLanguage.value == 'ar';
+
+    return Directionality(
+      textDirection: isArabic ? TextDirection.rtl : TextDirection.ltr,
+      child: Scaffold(
       appBar: AppBar(
         flexibleSpace: CustomAppBar(title: 'all_appointment'.tr),
         leading: Container(),
@@ -294,6 +299,7 @@ class UserPastAppointmentsScreen
           ),
         ),
       ),
+    ),
     );
   }
 }

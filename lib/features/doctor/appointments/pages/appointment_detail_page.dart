@@ -134,9 +134,7 @@ class DoctorAppointmentDetails extends GetView<DAppointmentDetailsController> {
       return Card(
         margin: const EdgeInsets.symmetric(horizontal: 16),
         elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: SessionFilesWidget(
           bookingId: detailsController.id,
           currentUserId: detailsController.doctorId.value,
@@ -227,7 +225,10 @@ class DoctorAppointmentDetails extends GetView<DAppointmentDetailsController> {
                     children: [
                       Text(
                         'session_time'.tr,
-                        style: CustomTextStyle(fontSize: 14, color: Colors.grey[700]),
+                        style: CustomTextStyle(
+                          fontSize: 14,
+                          color: Colors.grey[700],
+                        ),
                       ),
                       const SizedBox(height: 4),
                       Text(
@@ -276,44 +277,41 @@ class DoctorAppointmentDetails extends GetView<DAppointmentDetailsController> {
   }
 
   Widget _buildStatusChip(BuildContext context, bool isArabic) {
-    String statusText = '';
+    // Use raw DB status (bookingStatus) to match consultations list and database
+    final status = detailsController.bookingStatus.value.toLowerCase();
+    String statusText;
     Color statusColor;
-    switch (detailsController.apStatus.value) {
-      case 0:
-        statusText = 'appointment_status_1'.tr; // pending
-        statusColor = Colors.blue;
-        break;
-      case 1:
-        statusText = 'appointment_status_2'.tr; // confirmed
-        statusColor = Colors.green;
-        break;
-      case 2:
-        statusText = 'appointment_status_3'.tr; // accepted
+    switch (status) {
+      case 'pending':
+        statusText = 'appointment_status_2'.tr; // Received
         statusColor = Colors.orange;
         break;
-      case 3:
-        statusText = 'appointment_status_4'.tr; // rejected
-        statusColor = Colors.red;
+      case 'confirmed':
+        statusText = 'appointment_status_3'.tr; // Approved
+        statusColor = Colors.green;
         break;
-      case 4:
-        statusText = 'appointment_status_5'.tr; // completed
+      case 'accepted':
+        statusText = 'appointment_status_4'.tr; // In Process
+        statusColor = Colors.orangeAccent;
+        break;
+      case 'completed':
+        statusText = 'appointment_status_5'.tr; // Completed
         statusColor = Colors.purple;
         break;
-      case 5:
-        statusText = 'appointment_status_6'.tr; // cancelled
+      case 'rejected':
+        statusText = 'appointment_status_6'.tr; // Rejected
+        statusColor = Colors.red;
+        break;
+      case 'cancelled':
+        statusText = 'appointment_status_7'.tr; // Cancelled
         statusColor = Colors.grey;
         break;
-      case 6:
-        statusText = 'appointment_status_7'.tr; // absent
+      case 'absent':
+        statusText = 'appointment_status_1'.tr; // Absent
         statusColor = Colors.brown;
         break;
-      case 7:
-        statusText = 'appointment_status_8'.tr; // rejected
-        statusColor = Colors.redAccent;
-        break;
-
       default:
-        statusText = 'appointment_status_6'.tr; // unknown
+        statusText = status.isNotEmpty ? status : 'appointment_status_2'.tr;
         statusColor = Colors.grey;
     }
 
@@ -353,7 +351,10 @@ class DoctorAppointmentDetails extends GetView<DAppointmentDetailsController> {
           children: [
             Text(
               'contact_info'.tr,
-              style: const CustomTextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: const CustomTextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             const SizedBox(height: 16),
 
@@ -609,7 +610,10 @@ class DoctorAppointmentDetails extends GetView<DAppointmentDetailsController> {
                         hasPrescriptions
                             ? 'd_add_prescription_msg'.tr
                             : 'd_no_prescription_msg'.tr,
-                        style: CustomTextStyle(fontSize: 12, color: Colors.grey[600]),
+                        style: CustomTextStyle(
+                          fontSize: 12,
+                          color: Colors.grey[600],
+                        ),
                       ),
                     ],
                   ),
@@ -890,7 +894,9 @@ class DoctorAppointmentDetails extends GetView<DAppointmentDetailsController> {
                                 ),
                                 child: Text(
                                   'delete'.tr,
-                                  style: const CustomTextStyle(color: Colors.white),
+                                  style: const CustomTextStyle(
+                                    color: Colors.white,
+                                  ),
                                 ),
                               ),
                             ],
@@ -959,7 +965,10 @@ class DoctorAppointmentDetails extends GetView<DAppointmentDetailsController> {
             const SizedBox(height: 12),
             Text(
               '${'medicine_param_4'.tr}: ${medicine.repeatDays} ${'days'.tr}',
-              style: const CustomTextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+              style: const CustomTextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ],
         );
@@ -985,7 +994,14 @@ class DoctorAppointmentDetails extends GetView<DAppointmentDetailsController> {
             height: 1.3,
           ),
         ),
-        Text(value, style: CustomTextStyle(fontSize: 14, color: Colors.grey[600], height: 1.3)),
+        Text(
+          value,
+          style: CustomTextStyle(
+            fontSize: 14,
+            color: Colors.grey[600],
+            height: 1.3,
+          ),
+        ),
       ],
     );
   }
@@ -1039,7 +1055,10 @@ class DoctorAppointmentDetails extends GetView<DAppointmentDetailsController> {
                         hasReports
                             ? 'd_add_report_msg'.tr
                             : 'd_no_report_msg'.tr,
-                        style: CustomTextStyle(fontSize: 12, color: Colors.grey[600]),
+                        style: CustomTextStyle(
+                          fontSize: 12,
+                          color: Colors.grey[600],
+                        ),
                       ),
                     ],
                   ),
@@ -1147,6 +1166,10 @@ class DoctorAppointmentDetails extends GetView<DAppointmentDetailsController> {
       final isCompleted = status == 'completed';
       final isAccepted = status == 'accepted' || status == 'confirmed';
 
+      // Don't show before session has started - both must confirm after session
+      if (!detailsController.hasSessionStarted()) {
+        return const SizedBox.shrink();
+      }
       if (!isAccepted || isCompleted) {
         return const SizedBox.shrink();
       }

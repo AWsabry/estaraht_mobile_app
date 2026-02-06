@@ -123,6 +123,9 @@ class Words extends Translations {
       'book_a_session': ' Book a Session',
       'book': 'Book',
       'choose_the_time': 'Choose the time',
+      'morning': 'Morning',
+      'evening': 'Evening',
+      'all_day': 'All Day',
       'remaining_balance': 'Remaining Balance',
 
       // Payment Plans & Sessions
@@ -1034,6 +1037,9 @@ class Words extends Translations {
       'book_a_session': ' احجز جلسة',
       'book': "احجز",
       'choose_the_time': 'اختر الوقت',
+      'morning': 'الصباح',
+      'evening': 'المساء',
+      'all_day': 'طوال اليوم',
       'remaining_balance': 'الرصيد المتبقي',
 
       // Payment Plans & Sessions
@@ -2121,6 +2127,9 @@ class Words extends Translations {
       'available_dates': 'Dates disponibles',
       'book_a_session': 'Réservez une séance',
       'choose_the_time': 'Choisissez l\'heure',
+      'morning': 'Matin',
+      'evening': 'Soir',
+      'all_day': 'Toute la journée',
       'remaining_balance': 'Solde restant',
       'enter_amount': 'Entrez le montant',
       'view_details': 'Voir les détails',

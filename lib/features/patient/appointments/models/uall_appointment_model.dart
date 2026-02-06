@@ -114,6 +114,7 @@ class UAppointmentData {
   String? departmentName;
   String? status;
   String? gender;
+  int doctorTimezoneOffsetHours = 0;
 
   UAppointmentData({
     this.id,
@@ -127,6 +128,7 @@ class UAppointmentData {
     this.departmentName,
     this.status,
     this.gender,
+    this.doctorTimezoneOffsetHours = 0,
   });
 
   UAppointmentData.fromJson(Map<String, dynamic> json) {
@@ -141,6 +143,8 @@ class UAppointmentData {
     departmentName = json['department_name'];
     status = json['status'].toString();
     gender = json['gender'];
+    doctorTimezoneOffsetHours =
+        (json['doctor_timezone_offset_hours'] as num?)?.toInt() ?? 0;
   }
 
   Map<String, dynamic> toJson() {

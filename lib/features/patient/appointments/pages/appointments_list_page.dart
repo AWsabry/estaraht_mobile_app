@@ -15,55 +15,61 @@ class UAllAppointments extends GetView<UAllAppointmentsController> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Column(
-        children: [
-          Obx(
-            () => Visibility(
-              visible: appointmentsController.selectedTab.value == 0,
-              child: Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: 16.0.w,
-                  vertical: 10.0.h,
-                ),
-                child: _buildFilterChips(),
-              ),
-            ),
-          ),
-          Obx(
-            () => Visibility(
-              visible: appointmentsController.selectedTab.value == 1,
-              child: Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: 46.0.w,
-                  vertical: 10.0.h,
+    final languageController = Get.find<LanguageController>();
+    final bool isArabic = languageController.currentLanguage.value == 'ar';
+
+    return Directionality(
+      textDirection: isArabic ? TextDirection.rtl : TextDirection.ltr,
+      child: Scaffold(
+        body: Column(
+          children: [
+            Obx(
+              () => Visibility(
+                visible: appointmentsController.selectedTab.value == 0,
+                child: Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 16.0.w,
+                    vertical: 10.0.h,
+                  ),
+                  child: _buildFilterChips(),
                 ),
               ),
             ),
-          ),
-          // Main content area with loading states
-          Expanded(
-            child: Obx(() {
-              // Loading state
-              if (!appointmentsController.isLoaded.value) {
-                return _buildLoadingState();
-              }
+            Obx(
+              () => Visibility(
+                visible: appointmentsController.selectedTab.value == 1,
+                child: Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 46.0.w,
+                    vertical: 10.0.h,
+                  ),
+                ),
+              ),
+            ),
+            // Main content area with loading states
+            Expanded(
+              child: Obx(() {
+                // Loading state
+                if (!appointmentsController.isLoaded.value) {
+                  return _buildLoadingState();
+                }
 
-              // Error state
-              if (appointmentsController.isErrorInLoading.value) {
-                return _buildErrorState();
-              }
+                // Error state
+                if (appointmentsController.isErrorInLoading.value) {
+                  return _buildErrorState();
+                }
 
-              // Empty or content state
-              if (appointmentsController.isAppointmentExist.value &&
-                  appointmentsController.filteredList.isNotEmpty) {
-                return _buildRefreshableAppointmentList();
-              } else {
-                return _buildEmptyState(context);
-              }
-            }),
-          ),
-        ],
+                // Empty or content state
+                if (appointmentsController.isAppointmentExist.value &&
+                    appointmentsController.filteredList.isNotEmpty) {
+                  return _buildRefreshableAppointmentList();
+                } else {
+                  return _buildEmptyState(context);
+                }
+              }),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -312,7 +318,9 @@ class UAllAppointments extends GetView<UAllAppointmentsController> {
             padding: EdgeInsets.all(20.0.w),
             child: Center(
               child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF3366FF)),
+                valueColor: const AlwaysStoppedAnimation<Color>(
+                  Color(0xFF3366FF),
+                ),
                 strokeWidth: 2.w,
               ),
             ),
@@ -456,6 +464,7 @@ class UAllAppointments extends GetView<UAllAppointmentsController> {
                       _formatAppointmentDateTime(
                         appointment.date ?? '',
                         appointment.slot ?? '',
+                        appointment.doctorTimezoneOffsetHours,
                         isArabic,
                       ),
                       style: CustomTextStyle(
@@ -496,33 +505,20 @@ class UAllAppointments extends GetView<UAllAppointmentsController> {
     );
   }
 
-  /// Format appointment date and time with timezone support
-  String _formatAppointmentDateTime(String dateStr, String timeStr, bool isArabic) {
-    if (dateStr.isEmpty || timeStr.isEmpty) {
-      return isArabic ? '' : '';
-    }
-
-    try {
-      // Parse date and time to create DateTime object
-      final doctorDateTime = _parseAppointmentDateTime(dateStr, timeStr);
-      
-      if (isArabic) {
-        // For Arabic: show date on first line, time with offset on second line
-        final dateFormatted = TimezoneService.formatDateArabic(doctorDateTime);
-        final timeFormatted = TimezoneService.formatAppointmentTimeWithOffset(doctorDateTime);
-        return '$dateFormatted\n$timeFormatted';
-      } else {
-        // For English: "Date at Time (Timezone offset if needed)"
-        final dateFormatted = _formatDate(dateStr);
-        final timeFormatted = _formatAppointmentTimeEnglish(doctorDateTime);
-        return '$dateFormatted at $timeFormatted';
-      }
-    } catch (e) {
-      // Fallback to old format if parsing fails
-      return isArabic
-          ? "${_formatDateArabic(dateStr)} \n ${_formatTimeArabic(timeStr)} "
-          : "${_formatDate(dateStr)} at ${_formatTime(timeStr)}";
-    }
+  /// Format appointment date and time with timezone support (doctor time + patient equivalent)
+  String _formatAppointmentDateTime(
+    String dateStr,
+    String timeStr,
+    int doctorTimezoneOffsetHours,
+    bool isArabic,
+  ) {
+    if (dateStr.isEmpty || timeStr.isEmpty) return '';
+    return TimezoneService.formatAppointmentForPatient(
+      dateStr: dateStr,
+      timeStr: timeStr.length >= 5 ? timeStr.substring(0, 5) : timeStr,
+      doctorTimezoneOffsetHours: doctorTimezoneOffsetHours,
+      isArabic: isArabic,
+    );
   }
 
   /// Parse appointment date and time strings to DateTime
@@ -537,8 +533,10 @@ class UAllAppointments extends GetView<UAllAppointmentsController> {
     int hour = 0;
     int minute = 0;
 
-    if (timeStr.contains('AM') || timeStr.contains('PM') || 
-        timeStr.contains('am') || timeStr.contains('pm')) {
+    if (timeStr.contains('AM') ||
+        timeStr.contains('PM') ||
+        timeStr.contains('am') ||
+        timeStr.contains('pm')) {
       // 12-hour format with AM/PM
       final parts = timeStr.toUpperCase().split(' ');
       final timePart = parts[0];
@@ -572,27 +570,28 @@ class UAllAppointments extends GetView<UAllAppointmentsController> {
   /// Format appointment time for English with timezone offset
   String _formatAppointmentTimeEnglish(DateTime doctorDateTime) {
     final offset = TimezoneService.getTimezoneOffsetFromMauritania();
-    
+
     // Format doctor's time
     final hour = doctorDateTime.hour;
     final minute = doctorDateTime.minute;
     final hour12 = hour > 12 ? hour - 12 : (hour == 0 ? 12 : hour);
     final period = hour >= 12 ? 'PM' : 'AM';
     final doctorTime = '$hour12:${minute.toString().padLeft(2, '0')} $period';
-    
+
     // If same timezone, just show the time
     if (offset == 0) {
       return doctorTime;
     }
-    
+
     // Convert to patient's local time
     final patientTime = TimezoneService.mauritaniaToLocalTime(doctorDateTime);
     final pHour = patientTime.hour;
     final pMinute = patientTime.minute;
     final pHour12 = pHour > 12 ? pHour - 12 : (pHour == 0 ? 12 : pHour);
     final pPeriod = pHour >= 12 ? 'PM' : 'AM';
-    final patientTimeStr = '$pHour12:${pMinute.toString().padLeft(2, '0')} $pPeriod';
-    
+    final patientTimeStr =
+        '$pHour12:${pMinute.toString().padLeft(2, '0')} $pPeriod';
+
     return '$doctorTime ($patientTimeStr your time)';
   }
 
@@ -601,9 +600,9 @@ class UAllAppointments extends GetView<UAllAppointmentsController> {
 
     // Check if the time string contains AM or PM
     if (timeStr.contains('AM') || timeStr.contains('am')) {
-      return timeStr.replaceAll('AM', 'صباحا').replaceAll('am', 'صباحا');
+      return timeStr.replaceAll('AM', 'صباحاً').replaceAll('am', 'صباحاً');
     } else if (timeStr.contains('PM') || timeStr.contains('pm')) {
-      return timeStr.replaceAll('PM', 'مساء').replaceAll('pm', 'مساء');
+      return timeStr.replaceAll('PM', 'مساءً').replaceAll('pm', 'مساءً');
     }
 
     return timeStr;

@@ -98,7 +98,9 @@ class DoctorProfileController extends GetxController {
         'bio': aboutUsController.text,
         'years_of_exp': int.tryParse(yearsOfExpController.text) ?? 0,
         'avg_session_time': int.tryParse(avgSessionTimeController.text) ?? 30,
-        'updated_at': TimezoneService.getCurrentMauritaniaTime().toIso8601String(),
+        'timezone_offset_hours': DateTime.now().timeZoneOffset.inHours,
+        'updated_at': TimezoneService.getCurrentMauritaniaTime()
+            .toIso8601String(),
       };
 
       // Only update image URL if a new image was uploaded
@@ -298,9 +300,16 @@ class DoctorProfileController extends GetxController {
               ? jsonResponse['numb_patients']
               : int.tryParse(jsonResponse['numb_patients']?.toString() ?? '0'),
           consultationFee: jsonResponse['booking_price']?.toString(),
-          totalReview: jsonResponse['number_review'] is int
-              ? jsonResponse['number_review']
-              : int.tryParse(jsonResponse['number_review']?.toString() ?? '0'),
+          totalReview:
+              (jsonResponse['total_reviews'] ?? jsonResponse['number_review'])
+                  is int
+              ? (jsonResponse['total_reviews'] ?? jsonResponse['number_review'])
+              : int.tryParse(
+                  (jsonResponse['total_reviews'] ??
+                              jsonResponse['number_review'])
+                          ?.toString() ??
+                      '0',
+                ),
           avgSessionTime: jsonResponse['avg_session_time'] is int
               ? jsonResponse['avg_session_time']
               : int.tryParse(
@@ -502,7 +511,8 @@ class DoctorProfileController extends GetxController {
       // Insert new specialization
       await supabaseHelper.client.from('specializations').insert({
         'name': specializationName,
-        'created_at': TimezoneService.getCurrentMauritaniaTime().toIso8601String(),
+        'created_at': TimezoneService.getCurrentMauritaniaTime()
+            .toIso8601String(),
       });
 
       loggerNoStack.i('New specialization added successfully');
@@ -689,7 +699,10 @@ class DoctorProfileController extends GetxController {
                     const SizedBox(height: 8),
                     Text(
                       'profile_photo'.tr,
-                      style: CustomTextStyle(fontSize: 14, color: Colors.grey[600]),
+                      style: CustomTextStyle(
+                        fontSize: 14,
+                        color: Colors.grey[600],
+                      ),
                     ),
                   ],
                 ),

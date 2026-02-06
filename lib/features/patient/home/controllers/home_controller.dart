@@ -231,8 +231,8 @@ class UserHomeController extends GetxController {
             numb_patients,
             profile_img_url,
             booking_price,
-            avg_rating,
-            number_review,
+            average_rating,
+            total_reviews,
             numb_session,
             fcm_token,
             updated_at

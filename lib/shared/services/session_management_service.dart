@@ -175,19 +175,16 @@ class SessionManagementService {
             .from('bookings')
             .update({
               'status': 'completed',
-              'completed_at': TimezoneService.getCurrentMauritaniaTime().toIso8601String(),
+              'completed_at': TimezoneService.getCurrentMauritaniaTime()
+                  .toIso8601String(),
             })
             .eq('id', bookingId);
 
         // Deduct from pending sessions
         await completeSession(patientId);
 
-        // Transfer payment to doctor
-        await _transferPaymentToDoctor(
-          bookingId: bookingId,
-          doctorId: doctorId,
-          patientId: patientId,
-        );
+        // Increment doctor's number of sessions
+        await _incrementDoctorSessionCount(doctorId);
 
         // Send session summary emails to both parties
         await _sendSessionCompletionEmails(
@@ -266,19 +263,16 @@ class SessionManagementService {
             .from('bookings')
             .update({
               'status': 'completed',
-              'completed_at': TimezoneService.getCurrentMauritaniaTime().toIso8601String(),
+              'completed_at': TimezoneService.getCurrentMauritaniaTime()
+                  .toIso8601String(),
             })
             .eq('id', bookingId);
 
         // Deduct from pending sessions
         await completeSession(patientId);
 
-        // Transfer payment to doctor
-        await _transferPaymentToDoctor(
-          bookingId: bookingId,
-          doctorId: doctorId,
-          patientId: patientId,
-        );
+        // Increment doctor's number of sessions
+        await _incrementDoctorSessionCount(doctorId);
 
         // Send session summary emails to both parties
         await _sendSessionCompletionEmails(
@@ -315,54 +309,29 @@ class SessionManagementService {
     }
   }
 
-  /// Transfer payment to doctor when session is completed
-  /// Fixed amount: 30 USD per session
-  Future<void> _transferPaymentToDoctor({
-    required String bookingId,
-    required String doctorId,
-    required String patientId,
-  }) async {
+  /// Increment doctor's numb_session when session is completed (both confirmed)
+  Future<void> _incrementDoctorSessionCount(String doctorId) async {
     try {
-      loggerNoStack.i(
-        '💰 Transferring payment to doctor for session: $bookingId',
-      );
-
-      // Get doctor's fee per session (default 30 USD)
       final doctorData = await supabase
           .from('doctors')
-          .select('doctor_fee_per_session')
+          .select('numb_session')
           .eq('doctor_id', doctorId)
           .single();
 
-      final feePerSession = doctorData['doctor_fee_per_session'] ?? 30.0;
+      final currentSessions = (doctorData['numb_session'] ?? 0) as num;
+      final newCount = (currentSessions.toInt() + 1).clamp(0, 999999);
+
+      await supabase
+          .from('doctors')
+          .update({'numb_session': newCount})
+          .eq('doctor_id', doctorId);
 
       loggerNoStack.i(
-        'Doctor fee per session: \$${feePerSession.toStringAsFixed(2)}',
-      );
-
-      // Create payment history record for doctor
-      await supabase.from('payment_history').insert({
-        'doctor_id': doctorId,
-        'patient_id': patientId,
-        'total_amount': feePerSession,
-        'total_actual_amount': feePerSession,
-        'income_history': feePerSession,
-        'withrowl_history': 0,
-        'action_type': 'income',
-        'operation_status': 'success',
-        'payment_date': TimezoneService.getCurrentMauritaniaTime().toIso8601String(),
-        'booking_id': bookingId,
-        'payment_gateway': 'session_completion',
-        'payment_currency': 'USD',
-      });
-
-      loggerNoStack.i(
-        '✅ Payment of \$${feePerSession.toStringAsFixed(2)} transferred to doctor $doctorId',
+        '✅ Doctor $doctorId sessions: $currentSessions → $newCount',
       );
     } catch (e, stackTrace) {
-      loggerNoStack.e('❌ Error transferring payment to doctor: $e');
+      loggerNoStack.e('❌ Error incrementing doctor session count: $e');
       loggerNoStack.e('Stack trace: $stackTrace');
-      // Don't throw - session completion should succeed even if payment record fails
     }
   }
 
@@ -400,8 +369,10 @@ class SessionManagementService {
       final doctorName = doctorData['full_name']?.toString() ?? 'Doctor';
       final patientEmail = patientData['email']?.toString();
       final patientName = patientData['name']?.toString() ?? 'Patient';
-      final sessionsRemaining = patientData['sessions_available']?.toString() ?? '0';
-      final sessionEarnings = '\$${(doctorData['doctor_fee_per_session'] ?? 30.0).toStringAsFixed(2)}';
+      final sessionsRemaining =
+          patientData['sessions_available']?.toString() ?? '0';
+      final sessionEarnings =
+          '\$${(doctorData['doctor_fee_per_session'] ?? 17.0).toStringAsFixed(2)}';
 
       final sessionDate = bookingData['booking_date']?.toString() ?? '';
       final sessionTime = bookingData['booking_time']?.toString() ?? '';
@@ -423,7 +394,9 @@ class SessionManagementService {
         );
         loggerNoStack.i('✅ Session summary emails sent to both parties');
       } else {
-        loggerNoStack.w('⚠️ Missing email addresses - Doctor: $doctorEmail, Patient: $patientEmail');
+        loggerNoStack.w(
+          '⚠️ Missing email addresses - Doctor: $doctorEmail, Patient: $patientEmail',
+        );
       }
     } catch (e, stackTrace) {
       loggerNoStack.e('❌ Error sending session completion emails: $e');

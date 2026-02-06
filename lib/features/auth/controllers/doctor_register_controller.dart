@@ -184,6 +184,8 @@ class DoctorRegisterController extends GetxController {
         print('✅ User registered successfully: ${authResponse.user!.uid}');
 
         // Insert into doctors table (country code is included in phone_number)
+        // Store doctor's timezone offset from their device for timezone-aware scheduling
+        final doctorTimezoneOffset = DateTime.now().timeZoneOffset.inHours;
         try {
           await supabase.from('doctors').insert({
             'doctor_id': authResponse.user!.uid,
@@ -200,8 +202,9 @@ class DoctorRegisterController extends GetxController {
             'numb_patients': 0,
             'profile_img_url': "",
             'booking_price': 50,
-            'avg_session_time': 30,
+            'avg_session_time': 45,
             'approval_status': 'pending', // Set new doctors as pending approval
+            'timezone_offset_hours': doctorTimezoneOffset,
           });
           print(
             '✅ Doctor profile created in Supabase for user ID: ${authResponse.user!.uid}',
@@ -232,7 +235,8 @@ class DoctorRegisterController extends GetxController {
                     .add(const Duration(minutes: 5))
                     .toIso8601String(),
                 'is_used': false,
-                'created_at': TimezoneService.getCurrentMauritaniaTime().toIso8601String(),
+                'created_at': TimezoneService.getCurrentMauritaniaTime()
+                    .toIso8601String(),
               })
               .select()
               .single();

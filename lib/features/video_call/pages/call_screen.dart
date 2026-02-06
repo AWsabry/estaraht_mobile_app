@@ -1,4 +1,5 @@
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:videocalling/core/config/app_imports.dart';
 import 'package:videocalling/shared/services/others/timezone_service.dart';
 import 'package:videocalling/shared/services/session_management_service.dart';
@@ -8,9 +9,14 @@ class CallScreen extends StatefulWidget {
   final String token;
   final bool isVideoCall;
   final String opponentName;
+  final int localUid; // Unique UID: 1=doctor, 2=patient (must match token)
   final String? bookingId; // Optional booking ID for session completion
   final String? patientId; // Optional patient ID for session completion
   final String? doctorId; // Optional doctor ID for session completion
+  // Optional: for 5-min-before validation (appointment flow - both sides)
+  final String? bookingDate; // YYYY-MM-DD
+  final String? bookingTime; // HH:mm or HH:mm:ss
+  final int? doctorTimezoneOffsetHours;
 
   const CallScreen({
     Key? key,
@@ -18,9 +24,13 @@ class CallScreen extends StatefulWidget {
     required this.token,
     required this.isVideoCall,
     required this.opponentName,
+    this.localUid = 0,
     this.bookingId,
     this.patientId,
     this.doctorId,
+    this.bookingDate,
+    this.bookingTime,
+    this.doctorTimezoneOffsetHours,
   }) : super(key: key);
 
   @override
@@ -28,8 +38,7 @@ class CallScreen extends StatefulWidget {
 }
 
 class _CallScreenState extends State<CallScreen> {
-  // --- Votre App ID Agora est inséré ici ---
-  final String _appId = "15f7b6b0ab4842d086941d04f7eda2f1";
+  late final String _appId;
 
   late RtcEngine _engine;
   bool _isJoined = false;
@@ -50,6 +59,7 @@ class _CallScreenState extends State<CallScreen> {
   @override
   void initState() {
     super.initState();
+    _appId = dotenv.get('AGORA_APP_ID', fallback: '');
     _isVideoEnabled = widget.isVideoCall;
     _initAgora();
     _startTimer();
@@ -94,7 +104,7 @@ class _CallScreenState extends State<CallScreen> {
         RtcEngineEventHandler(
           onJoinChannelSuccess: (RtcConnection connection, int elapsed) {
             print(
-              '✅ Successfully joined channel: ${connection.channelId} with UID: ${connection.localUid}',
+              '✅ Successfully joined channel: "${connection.channelId}" (length: ${connection.channelId?.length ?? 0}) with UID: ${connection.localUid}',
             );
             if (mounted) {
               setState(() {
@@ -103,7 +113,9 @@ class _CallScreenState extends State<CallScreen> {
             }
           },
           onUserJoined: (RtcConnection connection, int uid, int elapsed) {
-            print('👤 User joined: $uid in channel ${connection.channelId}');
+            print(
+              '👤 User joined: uid=$uid in channel "${connection.channelId}"',
+            );
             if (mounted) {
               setState(() {
                 if (!_remoteUids.contains(uid)) {
@@ -256,12 +268,44 @@ class _CallScreenState extends State<CallScreen> {
         print('✅ Engine initialized, UI should update now');
       }
 
+      // Enforce 5-min-before rule for appointment calls (both doctor & patient)
+      if (widget.bookingDate != null &&
+          widget.bookingTime != null &&
+          widget.doctorTimezoneOffsetHours != null) {
+        if (!TimezoneService.canJoinVideoSession(
+          bookingDate: widget.bookingDate!,
+          bookingTime: widget.bookingTime!,
+          doctorTimezoneOffsetHours: widget.doctorTimezoneOffsetHours!,
+        )) {
+          if (mounted) {
+            final timeRemaining =
+                TimezoneService.getTimeUntilCanJoinVideoSession(
+                  bookingDate: widget.bookingDate!,
+                  bookingTime: widget.bookingTime!,
+                  doctorTimezoneOffsetHours: widget.doctorTimezoneOffsetHours!,
+                );
+            Get.back();
+            Get.snackbar(
+              'session_available_soon'.tr,
+              '${'session_available_in_5_minutes'.tr}\n${'time_remaining'.tr}: $timeRemaining',
+              backgroundColor: Colors.orange[100],
+              colorText: Colors.orange[900],
+              snackPosition: SnackPosition.BOTTOM,
+              duration: const Duration(seconds: 4),
+            );
+          }
+          return;
+        }
+      }
+
       // Join channel after everything is set up
-      print('🔗 Joining channel: ${widget.channelName}');
+      print(
+        '🔗 Joining channel: "${widget.channelName}" (length: ${widget.channelName.length}) | appId: $_appId | localUid: ${widget.localUid}',
+      );
       await _engine.joinChannel(
         token: widget.token,
         channelId: widget.channelName,
-        uid: 0,
+        uid: widget.localUid,
         options: ChannelMediaOptions(
           channelProfile: ChannelProfileType.channelProfileCommunication,
           clientRoleType: ClientRoleType.clientRoleBroadcaster,
@@ -378,7 +422,8 @@ class _CallScreenState extends State<CallScreen> {
             .from('bookings')
             .update({
               'status': 'completed',
-              'completed_at': TimezoneService.getCurrentMauritaniaTime().toIso8601String(),
+              'completed_at': TimezoneService.getCurrentMauritaniaTime()
+                  .toIso8601String(),
               'doctor_confirmed': true, // Auto-confirm from video call end
               'patient_confirmed': true, // Auto-confirm from video call end
             })
@@ -509,7 +554,10 @@ class _CallScreenState extends State<CallScreen> {
                   _isJoined
                       ? '${_formatDuration(_callDuration)} • ${_remoteUids.length} ${_remoteUids.length == 1 ? "participant".tr : "participants".tr}'
                       : 'connecting'.tr,
-                  style: const CustomTextStyle(color: Colors.white70, fontSize: 16),
+                  style: const CustomTextStyle(
+                    color: Colors.white70,
+                    fontSize: 16,
+                  ),
                 ),
                 if (_isTimeRunningOut() && _isJoined)
                   Padding(
@@ -692,7 +740,10 @@ class _CallScreenState extends State<CallScreen> {
                   ),
                   child: Text(
                     'User: $uid',
-                    style: const CustomTextStyle(color: Colors.white, fontSize: 8),
+                    style: const CustomTextStyle(
+                      color: Colors.white,
+                      fontSize: 8,
+                    ),
                   ),
                 ),
               ),

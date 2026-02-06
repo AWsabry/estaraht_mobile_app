@@ -80,9 +80,14 @@ class LanguageController extends GetxController {
     }
   }
 
-  // Update app locale
+  // Update app locale - use full locale to match translation keys (ar_MR, en_US, fr_FR)
   void updateLocale(String languageCode) {
-    Get.updateLocale(Locale(languageCode));
+    final locale = switch (languageCode) {
+      'ar' => const Locale('ar', 'MR'),
+      'fr' => const Locale('fr', 'FR'),
+      _ => const Locale('en', 'US'),
+    };
+    Get.updateLocale(locale);
   }
 
   // Save language preference to storage

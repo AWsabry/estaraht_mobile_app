@@ -60,7 +60,8 @@ class UAllAppointmentsController extends GetxController {
               years_of_exp,
               numb_patients,
               gender,
-              bio
+              bio,
+              timezone_offset_hours
             )
           ''')
           .eq('patient_id', userId.value)
@@ -112,6 +113,8 @@ class UAllAppointmentsController extends GetxController {
                 doctorData?['specialization']?.toString() ?? 'Specialist',
             status: status,
             gender: doctorData?['gender']?.toString(),
+            doctorTimezoneOffsetHours:
+                (doctorData?['timezone_offset_hours'] as num?)?.toInt() ?? 0,
           );
 
           list.add(appointmentData);

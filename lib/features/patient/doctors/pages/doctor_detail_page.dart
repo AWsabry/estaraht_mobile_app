@@ -877,7 +877,10 @@ class DoctorDetailScreen extends GetView<DoctorDetailController> {
   Widget _buildTimeSlotGrid() {
     final languageController = Get.find<LanguageController>();
     final bool isArabic = languageController.currentLanguage.value == 'ar';
-    final needsConversion = TimezoneService.needsTimezoneConversion();
+    final doctorOffset = detailController.doctorTimezoneOffsetHours.value;
+    final needsConversion = TimezoneService.needsTimezoneConversion(
+      doctorTimezoneOffsetHours: doctorOffset,
+    );
 
     return GridView.builder(
       shrinkWrap: true,
@@ -895,17 +898,20 @@ class DoctorDetailScreen extends GetView<DoctorDetailController> {
         // Format time display with timezone support
         String displayTime = timeSlot;
         String? timezoneHint;
-        
+
         try {
           // Parse the time slot
           DateTime time = DateFormat('HH:mm').parse(timeSlot);
-          
+
           // Create DateTime for today with this time (in Mauritania timezone)
-          final selectedDate = detailController.selectedDateIndex.value < 
-              detailController.availableDates.length
-              ? detailController.availableDates[detailController.selectedDateIndex.value]
+          final selectedDate =
+              detailController.selectedDateIndex.value <
+                  detailController.availableDates.length
+              ? detailController.availableDates[detailController
+                    .selectedDateIndex
+                    .value]
               : DateTime.now();
-          
+
           final doctorDateTime = DateTime.utc(
             selectedDate.year,
             selectedDate.month,
@@ -917,7 +923,9 @@ class DoctorDetailScreen extends GetView<DoctorDetailController> {
           if (isArabic) {
             if (needsConversion) {
               // Show doctor time + patient local time
-              displayTime = TimezoneService.formatAppointmentTimeWithOffset(doctorDateTime);
+              displayTime = TimezoneService.formatAppointmentTimeWithOffset(
+                doctorDateTime,
+              );
               // Extract just the main time for compact display
               final parts = displayTime.split('(');
               if (parts.length > 1) {
@@ -936,7 +944,9 @@ class DoctorDetailScreen extends GetView<DoctorDetailController> {
           } else {
             if (needsConversion) {
               // Format for English with timezone
-              displayTime = TimezoneService.formatAppointmentTimeWithOffset(doctorDateTime);
+              displayTime = TimezoneService.formatAppointmentTimeWithOffset(
+                doctorDateTime,
+              );
             } else {
               displayTime = DateFormat('h:mm a').format(time);
             }

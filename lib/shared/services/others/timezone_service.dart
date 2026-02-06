@@ -1,3 +1,5 @@
+import 'package:get/get.dart';
+
 /// Service to handle timezone conversions between users
 /// Supports showing appointment times in user's local timezone with offset information
 class TimezoneService {
@@ -52,6 +54,121 @@ class TimezoneService {
     return "GMT$offset";
   }
 
+  /// Check if user can join video session (5 mins before appointment).
+  /// Uses UTC: appointment is in doctor's local time; we convert to UTC and compare
+  /// with DateTime.now().toUtc(). Must use DateTime.utc() to avoid device timezone affecting the result.
+  /// [doctorTimezoneOffsetHours] = doctor's offset from UTC (e.g. +2 for Egypt, -5 for US Eastern).
+  static bool canJoinVideoSession({
+    required String bookingDate,
+    required String bookingTime,
+    required int doctorTimezoneOffsetHours,
+  }) {
+    try {
+      final dateParts = bookingDate.split('-');
+      final timeParts = bookingTime.split(':');
+      if (dateParts.length < 3 || timeParts.isEmpty) return false;
+
+      final year = int.parse(dateParts[0]);
+      final month = int.parse(dateParts[1]);
+      final day = int.parse(dateParts[2]);
+      final hour = int.parse(timeParts[0]);
+      final minute = timeParts.length > 1 ? int.parse(timeParts[1]) : 0;
+
+      // Build UTC moment: appointment (doctor local) minus offset = UTC
+      // Use DateTime.utc() so comparison with nowUtc is correct (device timezone must not affect this)
+      final appointmentUtc = DateTime.utc(
+        year,
+        month,
+        day,
+        hour - doctorTimezoneOffsetHours,
+        minute,
+      );
+      final canJoinUtc = appointmentUtc.subtract(const Duration(minutes: 5));
+      final nowUtc = DateTime.now().toUtc();
+
+      return nowUtc.isAfter(canJoinUtc) || nowUtc.isAtSameMomentAs(canJoinUtc);
+    } catch (_) {
+      return true; // Fail open
+    }
+  }
+
+  /// Check if the session has started (current time >= appointment start time).
+  /// Used to show confirm-session-completion card only after session begins.
+  static bool hasSessionStarted({
+    required String bookingDate,
+    required String bookingTime,
+    required int doctorTimezoneOffsetHours,
+  }) {
+    try {
+      final dateParts = bookingDate.split('-');
+      final timeParts = bookingTime.split(':');
+      if (dateParts.length < 3 || timeParts.isEmpty) return false;
+
+      final year = int.parse(dateParts[0]);
+      final month = int.parse(dateParts[1]);
+      final day = int.parse(dateParts[2]);
+      final hour = int.parse(timeParts[0]);
+      final minute = timeParts.length > 1 ? int.parse(timeParts[1]) : 0;
+
+      final appointmentUtc = DateTime.utc(
+        year,
+        month,
+        day,
+        hour - doctorTimezoneOffsetHours,
+        minute,
+      );
+      final nowUtc = DateTime.now().toUtc();
+
+      return nowUtc.isAfter(appointmentUtc) ||
+          nowUtc.isAtSameMomentAs(appointmentUtc);
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// Get human-readable time until user can join (5 mins before appointment).
+  static String getTimeUntilCanJoinVideoSession({
+    required String bookingDate,
+    required String bookingTime,
+    required int doctorTimezoneOffsetHours,
+  }) {
+    try {
+      final dateParts = bookingDate.split('-');
+      final timeParts = bookingTime.split(':');
+      if (dateParts.length < 3 || timeParts.isEmpty) return '';
+
+      final year = int.parse(dateParts[0]);
+      final month = int.parse(dateParts[1]);
+      final day = int.parse(dateParts[2]);
+      final hour = int.parse(timeParts[0]);
+      final minute = timeParts.length > 1 ? int.parse(timeParts[1]) : 0;
+
+      final appointmentUtc = DateTime.utc(
+        year,
+        month,
+        day,
+        hour - doctorTimezoneOffsetHours,
+        minute,
+      );
+      final canJoinUtc = appointmentUtc.subtract(const Duration(minutes: 5));
+      final nowUtc = DateTime.now().toUtc();
+      final diff = canJoinUtc.difference(nowUtc);
+
+      if (diff.isNegative) return 'now'.tr;
+      if (diff.inDays > 0) {
+        return '${diff.inDays} ${diff.inDays == 1 ? 'day'.tr : 'days'.tr}';
+      }
+      if (diff.inMinutes >= 90) {
+        final h = diff.inHours % 24;
+        final m = diff.inMinutes % 60;
+        return '$h ${h == 1 ? 'hour'.tr : 'hours'.tr} ${'and'.tr} $m ${m == 1 ? 'minute'.tr : 'minutes'.tr}';
+      }
+      return '${diff.inMinutes} ${diff.inMinutes == 1 ? 'minute'.tr : 'minutes'.tr}';
+    } catch (_) {
+      return 'now'.tr;
+    }
+  }
+
   /// Format date in Arabic style for Mauritania
   /// Example: "الجمعة، 24 يناير 2026"
   static String formatDateArabic(DateTime dateTime) {
@@ -64,7 +181,7 @@ class TimezoneService {
       'الخميس',
       'الجمعة',
       'السبت',
-      'الأحد'
+      'الأحد',
     ];
 
     final monthNames = [
@@ -79,7 +196,7 @@ class TimezoneService {
       'سبتمبر',
       'أكتوبر',
       'نوفمبر',
-      'ديسمبر'
+      'ديسمبر',
     ];
 
     final dayName = dayNames[mauritaniaTime.weekday - 1];
@@ -90,7 +207,10 @@ class TimezoneService {
 
   /// Format time in 12-hour format with AM/PM in Arabic
   /// Example: "3:30 مساءً" or "9:15 صباحاً"
-  static String formatTimeArabic(DateTime dateTime, {bool useLocalTime = true}) {
+  static String formatTimeArabic(
+    DateTime dateTime, {
+    bool useLocalTime = true,
+  }) {
     final timeToFormat = useLocalTime ? dateTime : toMauritaniaTime(dateTime);
 
     final hour = timeToFormat.hour;
@@ -99,7 +219,7 @@ class TimezoneService {
     final hour12 = hour > 12 ? hour - 12 : (hour == 0 ? 12 : hour);
     final period = hour >= 12 ? 'مساءً' : 'صباحاً';
 
-    return '${hour12}:${minute.toString().padLeft(2, '0')} $period';
+    return '$hour12:${minute.toString().padLeft(2, '0')} $period';
   }
 
   /// Format appointment time showing doctor's time and patient's local time
@@ -107,19 +227,19 @@ class TimezoneService {
   /// or just "3:30 مساءً" if patient is in same timezone
   static String formatAppointmentTimeWithOffset(DateTime doctorDateTime) {
     final offset = getTimezoneOffsetFromMauritania();
-    
+
     // Doctor's time in Mauritania timezone
     final doctorTime = formatTimeArabic(doctorDateTime, useLocalTime: false);
-    
+
     // If same timezone, just show the time
     if (offset == 0) {
       return doctorTime;
     }
-    
+
     // Convert to patient's local time
     final patientTime = mauritaniaToLocalTime(doctorDateTime);
     final patientTimeStr = formatTimeArabic(patientTime, useLocalTime: true);
-    
+
     return '$doctorTime ($patientTimeStr بتوقيتك)';
   }
 
@@ -127,19 +247,19 @@ class TimezoneService {
   /// Example: "3:30 مساءً (بعد ساعتين من توقيتك)" or "3:30 مساءً (قبل ساعة من توقيتك)"
   static String formatAppointmentTimeWithDifference(DateTime doctorDateTime) {
     final offset = getTimezoneOffsetFromMauritania();
-    
+
     // Doctor's time in Mauritania timezone
     final doctorTime = formatTimeArabic(doctorDateTime, useLocalTime: false);
-    
+
     // If same timezone, just show the time
     if (offset == 0) {
       return doctorTime;
     }
-    
+
     // Build difference message
     String differenceMsg;
     final absOffset = offset.abs();
-    
+
     if (offset > 0) {
       // Patient is ahead
       if (absOffset == 1) {
@@ -155,7 +275,7 @@ class TimezoneService {
         differenceMsg = 'بعد $absOffset ساعات من توقيتك';
       }
     }
-    
+
     return '$doctorTime ($differenceMsg)';
   }
 
@@ -168,7 +288,10 @@ class TimezoneService {
 
   /// Format date and time together
   /// Example: "الجمعة، 24 يناير 2026 - 3:30 مساءً"
-  static String formatDateTimeArabic(DateTime dateTime, {bool useLocalTime = true}) {
+  static String formatDateTimeArabic(
+    DateTime dateTime, {
+    bool useLocalTime = true,
+  }) {
     return '${formatDateArabic(dateTime)} - ${formatTimeArabic(dateTime, useLocalTime: useLocalTime)}';
   }
 
@@ -209,8 +332,8 @@ class TimezoneService {
     final today = getCurrentMauritaniaTime();
 
     return mauritaniaTime.year == today.year &&
-           mauritaniaTime.month == today.month &&
-           mauritaniaTime.day == today.day;
+        mauritaniaTime.month == today.month &&
+        mauritaniaTime.day == today.day;
   }
 
   /// Check if a given date is tomorrow in Mauritania timezone
@@ -219,8 +342,8 @@ class TimezoneService {
     final tomorrow = getCurrentMauritaniaTime().add(const Duration(days: 1));
 
     return mauritaniaTime.year == tomorrow.year &&
-           mauritaniaTime.month == tomorrow.month &&
-           mauritaniaTime.day == tomorrow.day;
+        mauritaniaTime.month == tomorrow.month &&
+        mauritaniaTime.day == tomorrow.day;
   }
 
   /// Get relative date string (Today, Tomorrow, or date)
@@ -315,7 +438,7 @@ class TimezoneService {
   static String getUserTimezoneName() {
     final now = DateTime.now();
     final offset = now.timeZoneOffset.inHours;
-    
+
     // Common timezone abbreviations based on offset
     final timezoneNames = {
       -12: 'BIT',
@@ -344,31 +467,43 @@ class TimezoneService {
       11: 'SBT',
       12: 'NZST',
     };
-    
+
     return timezoneNames[offset] ?? getTimezoneOffsetString();
   }
 
-  /// Check if user needs timezone conversion (not in Mauritania timezone)
-  static bool needsTimezoneConversion() {
-    return getTimezoneOffsetFromMauritania() != 0;
+  /// Get timezone offset difference in hours between user's device and doctor's timezone
+  /// Returns positive if user is ahead, negative if behind
+  static int getTimezoneOffsetFromDoctor(int doctorTimezoneOffsetHours) {
+    final localOffset = DateTime.now().timeZoneOffset.inHours;
+    return localOffset - doctorTimezoneOffsetHours;
+  }
+
+  /// Check if user needs timezone conversion
+  /// [doctorTimezoneOffsetHours] - doctor's UTC offset; if null, compares to Mauritania (0)
+  static bool needsTimezoneConversion({int? doctorTimezoneOffsetHours}) {
+    final doctorOffset = doctorTimezoneOffsetHours ?? mauritaniaOffsetHours;
+    return getTimezoneOffsetFromDoctor(doctorOffset) != 0;
   }
 
   /// Get a friendly timezone difference message in Arabic
-  /// Example: "أنت متقدم بساعتين عن توقيت موريتانيا"
-  static String getTimezoneDifferenceMessage() {
-    final offset = getTimezoneOffsetFromMauritania();
-    
+  /// [doctorTimezoneOffsetHours] - doctor's UTC offset (e.g. 2 for Egypt, 0 for Mauritania)
+  /// If null, falls back to Mauritania (0) for backward compatibility
+  /// Example: "أنت متقدم ساعتين عن توقيت الطبيب"
+  static String getTimezoneDifferenceMessage({int? doctorTimezoneOffsetHours}) {
+    final doctorOffset = doctorTimezoneOffsetHours ?? mauritaniaOffsetHours;
+    final offset = getTimezoneOffsetFromDoctor(doctorOffset);
+
     if (offset == 0) {
-      return 'أنت في نفس توقيت موريتانيا';
+      return 'أنت في نفس توقيت الطبيب';
     }
-    
+
     final absOffset = offset.abs();
     final hoursText = absOffset == 1 ? 'ساعة واحدة' : '$absOffset ساعات';
-    
+
     if (offset > 0) {
-      return 'أنت متقدم $hoursText عن توقيت موريتانيا';
+      return 'أنت متقدم $hoursText عن توقيت الطبيب';
     } else {
-      return 'أنت متأخر $hoursText عن توقيت موريتانيا';
+      return 'أنت متأخر $hoursText عن توقيت الطبيب';
     }
   }
 
@@ -384,5 +519,176 @@ class TimezoneService {
     // Convert local time to UTC, then to Mauritania time
     final utcTime = patientDateTime.toUtc();
     return utcTime.add(const Duration(hours: mauritaniaOffsetHours));
+  }
+
+  /// Format slot time for patient: show only patient's local time (no doctor time)
+  /// [dateStr] YYYY-MM-DD, [timeStr] HH:mm in doctor's timezone
+  static String formatSlotForPatient({
+    required String dateStr,
+    required String timeStr,
+    required int doctorTimezoneOffsetHours,
+    bool isArabic = false,
+  }) {
+    try {
+      final utcMoment = _parseDoctorDateTimeToUtc(
+        dateStr,
+        timeStr,
+        doctorTimezoneOffsetHours,
+      );
+      if (utcMoment == null) return timeStr;
+
+      final patientLocal = utcMoment.toLocal();
+      return _formatTimeShort(patientLocal, isArabic);
+    } catch (_) {
+      return timeStr;
+    }
+  }
+
+  static DateTime? _parseDoctorDateTimeToUtc(
+    String dateStr,
+    String timeStr,
+    int doctorOffset,
+  ) {
+    try {
+      final dateParts = dateStr.split('-');
+      final timeParts = timeStr.split(':');
+      if (dateParts.length < 3 || timeParts.isEmpty) return null;
+      final dt = DateTime(
+        int.parse(dateParts[0]),
+        int.parse(dateParts[1]),
+        int.parse(dateParts[2]),
+        int.parse(timeParts[0]),
+        timeParts.length > 1 ? int.parse(timeParts[1]) : 0,
+      );
+      return DateTime.utc(
+        dt.year,
+        dt.month,
+        dt.day,
+        dt.hour - doctorOffset,
+        dt.minute,
+      );
+    } catch (_) {
+      return null;
+    }
+  }
+
+  static String _formatTimeShort(DateTime dt, bool isArabic) {
+    final hour = dt.hour;
+    final minute = dt.minute;
+    if (isArabic) {
+      final h12 = hour > 12 ? hour - 12 : (hour == 0 ? 12 : hour);
+      final period = hour >= 12 ? 'مساءً' : 'صباحاً';
+      return '$h12:${minute.toString().padLeft(2, '0')} $period';
+    }
+    final h12 = hour > 12 ? hour - 12 : (hour == 0 ? 12 : hour);
+    final period = hour >= 12 ? 'PM' : 'AM';
+    return '$h12:${minute.toString().padLeft(2, '0')} $period';
+  }
+
+  /// Format appointment date+time for display - patient view (only patient's local time)
+  static String formatAppointmentForPatient({
+    required String dateStr,
+    required String timeStr,
+    required int doctorTimezoneOffsetHours,
+    bool isArabic = false,
+  }) {
+    if (dateStr.isEmpty || timeStr.isEmpty) return '';
+    try {
+      final dateParts = dateStr.split('-');
+      final timeParts = timeStr.split(':');
+      if (dateParts.length < 3 || timeParts.isEmpty) return '$dateStr $timeStr';
+
+      final doctorLocal = DateTime(
+        int.parse(dateParts[0]),
+        int.parse(dateParts[1]),
+        int.parse(dateParts[2]),
+        int.parse(timeParts[0]),
+        timeParts.length > 1 ? int.parse(timeParts[1]) : 0,
+      );
+      final utcMoment = doctorLocal.subtract(
+        Duration(hours: doctorTimezoneOffsetHours),
+      );
+      final patientLocal = utcMoment.toLocal();
+
+      final dateFmt = isArabic
+          ? formatDateArabic(patientLocal)
+          : '${patientLocal.day}/${patientLocal.month}/${patientLocal.year}';
+      final timeFmt = _formatTimeShort(patientLocal, isArabic);
+      return '$dateFmt - $timeFmt';
+    } catch (_) {
+      return '$dateStr $timeStr';
+    }
+  }
+
+  /// Format appointment date+time for display - doctor view (stored in doctor's timezone)
+  static String formatAppointmentForDoctor({
+    required String dateStr,
+    required String timeStr,
+    bool isArabic = false,
+  }) {
+    if (dateStr.isEmpty || timeStr.isEmpty) return '';
+    try {
+      final dateParts = dateStr.split('-');
+      final timeParts = timeStr.split(':');
+      if (dateParts.length < 3 || timeParts.isEmpty) return '$dateStr $timeStr';
+
+      final dt = DateTime(
+        int.parse(dateParts[0]),
+        int.parse(dateParts[1]),
+        int.parse(dateParts[2]),
+        int.parse(timeParts[0]),
+        timeParts.length > 1 ? int.parse(timeParts[1]) : 0,
+      );
+      final dateFmt = isArabic
+          ? formatDateArabic(dt)
+          : '${dt.day}/${dt.month}/${dt.year}';
+      final timeFmt = _formatTimeShort(dt, isArabic);
+      return '$dateFmt - $timeFmt';
+    } catch (_) {
+      return '$dateStr $timeStr';
+    }
+  }
+
+  /// Get current time in doctor's timezone (for join window comparison)
+  /// booking_date + booking_time are stored in doctor's timezone
+  static DateTime getCurrentTimeInDoctorTimezone(
+    int doctorTimezoneOffsetHours,
+  ) {
+    final utcNow = DateTime.now().toUtc();
+    return utcNow.add(Duration(hours: doctorTimezoneOffsetHours));
+  }
+
+  /// Check if user can join session (within 5 minutes before appointment or after)
+  /// [appointmentDateTime] - parsed from booking_date + booking_time (in doctor's timezone)
+  /// [doctorTimezoneOffsetHours] - doctor's UTC offset from doctors table
+  static bool isWithinJoinWindow(
+    DateTime appointmentDateTime, {
+    required int doctorTimezoneOffsetHours,
+    int minutesBefore = 5,
+  }) {
+    final nowInDoctorTz = getCurrentTimeInDoctorTimezone(
+      doctorTimezoneOffsetHours,
+    );
+    final canJoinTime = appointmentDateTime.subtract(
+      Duration(minutes: minutesBefore),
+    );
+    return nowInDoctorTz.isAfter(canJoinTime) ||
+        nowInDoctorTz.isAtSameMomentAs(canJoinTime);
+  }
+
+  /// Minutes from now until user can join (5 mins before appointment)
+  /// Returns negative if already within join window or past appointment
+  static int getMinutesUntilCanJoin(
+    DateTime appointmentDateTime, {
+    required int doctorTimezoneOffsetHours,
+    int minutesBefore = 5,
+  }) {
+    final nowInDoctorTz = getCurrentTimeInDoctorTimezone(
+      doctorTimezoneOffsetHours,
+    );
+    final canJoinTime = appointmentDateTime.subtract(
+      Duration(minutes: minutesBefore),
+    );
+    return canJoinTime.difference(nowInDoctorTz).inMinutes;
   }
 }

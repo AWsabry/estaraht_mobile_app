@@ -49,6 +49,9 @@ class MakeAppointmentController extends GetxController {
   // Supabase client
   final supabase = supabaseHelper.client;
 
+  /// Doctor's timezone offset in hours (UTC). Null until fetched; defaults to 0 (Mauritania) for existing doctors.
+  final Rx<int?> doctorTimezoneOffsetHours = Rx<int?>(null);
+
   // Availability data from Supabase
   RxList<AvailabilityModel> weeklyAvailability = <AvailabilityModel>[].obs;
   RxBool isLoadingAvailability = false.obs;
@@ -333,11 +336,34 @@ class MakeAppointmentController extends GetxController {
     }
   }
 
+  /// Fetch doctor's timezone offset from database for timezone-aware messaging
+  Future<void> _fetchDoctorTimezone() async {
+    try {
+      final response = await supabase
+          .from('doctors')
+          .select('timezone_offset_hours')
+          .eq('doctor_id', doctorId)
+          .maybeSingle();
+      if (response != null && response['timezone_offset_hours'] != null) {
+        doctorTimezoneOffsetHours.value =
+            (response['timezone_offset_hours'] as num).toInt();
+      } else {
+        doctorTimezoneOffsetHours.value = 0; // Default to Mauritania
+      }
+    } catch (e) {
+      loggerNoStack.w('Could not fetch doctor timezone: $e');
+      doctorTimezoneOffsetHours.value = 0;
+    }
+  }
+
   initialize() async {
     textEditingController.text =
         StorageService.readData(key: LocalStorageKeys.phone) ?? "";
     userId = StorageService.readData(key: LocalStorageKeys.userId) ?? "";
     doctorId = id;
+
+    // Fetch doctor's timezone for timezone-aware messaging
+    await _fetchDoctorTimezone();
 
     // Load weekly availability from Supabase
     await getAvailableDatesFromSupabase();
@@ -368,8 +394,11 @@ class MakeAppointmentController extends GetxController {
       isNoSlot.value = false;
       date = TimezoneService.toIsoDateString(selectedDate);
 
-      // Update isToday based on selected date (using Mauritania timezone)
-      DateTime today = TimezoneService.getCurrentMauritaniaTime();
+      // Update isToday based on selected date (using doctor's timezone)
+      final doctorOffset = doctorTimezoneOffsetHours.value ?? 0;
+      DateTime today = TimezoneService.getCurrentTimeInDoctorTimezone(
+        doctorOffset,
+      );
       String todayStr = TimezoneService.toIsoDateString(today);
       bool wasTodayBefore = isToday.value;
       isToday.value = (date == todayStr);
@@ -445,16 +474,16 @@ class MakeAppointmentController extends GetxController {
 
           if (morningSlots.isNotEmpty && eveningSlots.isNotEmpty) {
             slotsData = [
-              {'title': 'Morning', 'slottime': morningSlots},
-              {'title': 'Evening', 'slottime': eveningSlots},
+              {'title': 'morning', 'slottime': morningSlots},
+              {'title': 'evening', 'slottime': eveningSlots},
             ];
           } else if (morningSlots.isNotEmpty) {
             slotsData = [
-              {'title': 'Morning', 'slottime': morningSlots},
+              {'title': 'morning', 'slottime': morningSlots},
             ];
           } else if (eveningSlots.isNotEmpty) {
             slotsData = [
-              {'title': 'Evening', 'slottime': eveningSlots},
+              {'title': 'evening', 'slottime': eveningSlots},
             ];
           } else {
             // All day - create slot info with booking status
@@ -469,7 +498,7 @@ class MakeAppointmentController extends GetxController {
                 .toList();
 
             slotsData = [
-              {'title': 'All Day', 'slottime': allDaySlots},
+              {'title': 'all_day', 'slottime': allDaySlots},
             ];
           }
 
@@ -660,15 +689,10 @@ class MakeAppointmentController extends GetxController {
       );
 
       // 2. Create booking in Supabase
-      final bookingDate = DateTime.parse(date);
+      // date and slotName are in doctor's timezone (from doctor's availability)
       final timeParts = slotName.value.split(':');
-      final bookingTime = TimeOfDay(
-        hour: int.parse(timeParts[0]),
-        minute: int.parse(timeParts[1]),
-      );
-
       final formattedTime =
-          '${bookingTime.hour.toString().padLeft(2, '0')}:${bookingTime.minute.toString().padLeft(2, '0')}:00';
+          '${int.parse(timeParts[0]).toString().padLeft(2, '0')}:${int.parse(timeParts[1]).toString().padLeft(2, '0')}:00';
 
       final bookingData = {
         'patient_id': patientId,
@@ -680,8 +704,8 @@ class MakeAppointmentController extends GetxController {
         'video_session_id': null,
         'created_at': TimezoneService.getCurrentMauritaniaTime()
             .toIso8601String(),
-        'booking_date': bookingDate.toIso8601String().split('T')[0],
-        'booking_time': formattedTime,
+        'booking_date': date, // YYYY-MM-DD in doctor's timezone
+        'booking_time': formattedTime, // HH:mm:ss in doctor's timezone
       };
 
       final response = await supabase
@@ -697,7 +721,7 @@ class MakeAppointmentController extends GetxController {
         bookingId: response['id'].toString(),
         patientId: patientId,
         doctorId: doctorId,
-        bookingDate: bookingDate,
+        bookingDate: DateTime.parse(date),
         bookingTime: formattedTime,
       );
 
@@ -1339,8 +1363,11 @@ class MakeAppointmentController extends GetxController {
       );
 
       // Generate available dates for the next maxDaysAhead days (15 days)
-      // Using Mauritania timezone
-      DateTime currentDate = TimezoneService.getCurrentMauritaniaTime();
+      // Use doctor's timezone so dates align with doctor's calendar
+      final doctorOffset = doctorTimezoneOffsetHours.value ?? 0;
+      DateTime currentDate = TimezoneService.getCurrentTimeInDoctorTimezone(
+        doctorOffset,
+      );
       int daysChecked = 0;
 
       // Continue until we check all 15 days ahead or find enough dates
@@ -1397,7 +1424,7 @@ class MakeAppointmentController extends GetxController {
 
       final doctorDataFuture = supabase
           .from('doctors')
-          .select('full_name, email')
+          .select('full_name, email, timezone_offset_hours')
           .eq('doctor_id', doctorId)
           .single();
 
@@ -1409,11 +1436,15 @@ class MakeAppointmentController extends GetxController {
       final patientEmail = patientData['email'] ?? '';
       final doctorName = doctorData['full_name'] ?? 'Doctor';
       final doctorEmail = doctorData['email'] ?? '';
+      final doctorTimezoneOffset =
+          (doctorData['timezone_offset_hours'] as num?)?.toInt() ?? 0;
 
-      // Format date and time for display
+      // Format date and time (already in doctor's timezone from booking)
       final formattedDate =
           '${bookingDate.day}/${bookingDate.month}/${bookingDate.year}';
-      final timeOnly = bookingTime.substring(0, 5); // Get HH:mm only
+      final timeOnly = bookingTime.length >= 5
+          ? bookingTime.substring(0, 5)
+          : bookingTime; // HH:mm
 
       // Send emails using the multilingual email service
       if (doctorEmail.isNotEmpty) {
@@ -1424,6 +1455,7 @@ class MakeAppointmentController extends GetxController {
           bookingId: bookingId,
           formattedDate: formattedDate,
           timeOnly: timeOnly,
+          doctorTimezoneOffsetHours: doctorTimezoneOffset,
         );
       }
 

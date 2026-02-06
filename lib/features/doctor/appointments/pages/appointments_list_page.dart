@@ -128,6 +128,28 @@ class DoctorAllAppointments extends GetView<DAllAppointmentsController> {
 
   Widget _buildAppointmentCard(BuildContext context, int index, bool isArabic) {
     final appointment = appointmentsController.list[index];
+    final dateTimeFormatted =
+        (appointment.bookingDate != null && appointment.bookingTime != null)
+        ? TimezoneService.formatAppointmentForDoctor(
+            dateStr: appointment.bookingDate!,
+            timeStr: appointment.bookingTime!.length >= 5
+                ? appointment.bookingTime!.substring(0, 5)
+                : appointment.bookingTime!,
+            isArabic: isArabic,
+          )
+        : null;
+    final parts = dateTimeFormatted?.split(' - ') ?? [];
+    final dateFormatted = parts.isNotEmpty
+        ? parts.first
+        : (appointment.bookingDate != null
+              ? DateFormat('dd-MM-yyyy').format(
+                  DateTime.tryParse(appointment.bookingDate!) ??
+                      TimezoneService.getCurrentMauritaniaTime(),
+                )
+              : '');
+    final timeFormatted = parts.length > 1
+        ? parts.last
+        : (appointment.bookingTime ?? '');
 
     return Card(
       margin: EdgeInsets.symmetric(horizontal: 10.w, vertical: 8.h),
@@ -140,16 +162,14 @@ class DoctorAllAppointments extends GetView<DAllAppointmentsController> {
       child: InkWell(
         borderRadius: BorderRadius.circular(16.r),
         onTap: () async {
-          final result = await Get.toNamed(
+          await Get.toNamed(
             Routes.dAppointmentDetailScreen,
             arguments: {'id': appointment.id.toString()},
           );
           Get.delete<DAppointmentDetailsController>();
 
-          // Refresh list if changes were made
-          if (result == true) {
-            appointmentsController.fetchPastAppointments();
-          }
+          // Always refresh from database to show current status (e.g. after dashboard updates)
+          appointmentsController.fetchPastAppointments();
         },
         child: Padding(
           padding: EdgeInsets.all(16.w),
@@ -206,15 +226,7 @@ class DoctorAllAppointments extends GetView<DAllAppointmentsController> {
                                   SizedBox(width: 6.w),
                                   Flexible(
                                     child: Text(
-                                      appointment.bookingDate != null
-                                          ? DateFormat('dd-MM-yyyy').format(
-                                              DateTime.tryParse(
-                                                    appointment.bookingDate
-                                                        .toString(),
-                                                  ) ??
-                                                  TimezoneService.getCurrentMauritaniaTime(),
-                                            )
-                                          : '',
+                                      dateFormatted,
                                       style: CustomTextStyle(
                                         fontSize: 12.sp,
                                         fontWeight: FontWeight.w500,
@@ -251,7 +263,7 @@ class DoctorAllAppointments extends GetView<DAllAppointmentsController> {
                                   SizedBox(width: 6.w),
                                   Flexible(
                                     child: Text(
-                                      appointment.bookingTime ?? "",
+                                      timeFormatted,
                                       style: CustomTextStyle(
                                         fontSize: 12.sp,
                                         fontWeight: FontWeight.w500,
@@ -305,39 +317,40 @@ class DoctorAllAppointments extends GetView<DAllAppointmentsController> {
   Widget _buildStatusBadge(dynamic appointment, BuildContext context) {
     Color statusColor;
     String statusText;
-
-    switch (appointment.status?.toLowerCase()) {
+    // Map DB status to display strings (must match appointment_detail_controller mapping)
+    final status = appointment.status?.toString().toLowerCase() ?? '';
+    switch (status) {
       case 'pending':
         statusColor = Colors.orange;
-        statusText = 'appointment_status_1'.tr;
+        statusText = 'appointment_status_2'.tr; // Received
         break;
       case 'confirmed':
-        statusColor = Colors.blue;
-        statusText = 'appointment_status_2'.tr;
+        statusColor = Colors.green;
+        statusText = 'appointment_status_3'.tr; // Approved
         break;
       case 'accepted':
         statusColor = Colors.orangeAccent;
-        statusText = 'appointment_status_3'.tr;
-        break;
-      case 'rejected':
-        statusColor = Colors.red;
-        statusText = 'appointment_status_4'.tr;
+        statusText = 'appointment_status_4'.tr; // In Process
         break;
       case 'completed':
         statusColor = Colors.purple;
-        statusText = 'appointment_status_5'.tr;
+        statusText = 'appointment_status_5'.tr; // Completed
+        break;
+      case 'rejected':
+        statusColor = Colors.red;
+        statusText = 'appointment_status_6'.tr; // Rejected
         break;
       case 'cancelled':
         statusColor = Colors.grey;
-        statusText = 'appointment_status_6'.tr;
+        statusText = 'appointment_status_7'.tr; // Cancelled
         break;
       case 'absent':
         statusColor = Colors.brown;
-        statusText = 'appointment_status_7'.tr;
+        statusText = 'appointment_status_1'.tr; // Absent
         break;
       default:
         statusColor = Colors.grey;
-        statusText = appointment.status ?? "";
+        statusText = status.isNotEmpty ? status : 'appointment_status_2'.tr;
     }
 
     return Container(

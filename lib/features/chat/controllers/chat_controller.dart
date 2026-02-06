@@ -3,7 +3,6 @@ import 'package:file_picker/file_picker.dart';
 import 'package:logger/logger.dart';
 import 'package:videocalling/core/config/app_imports.dart';
 import 'package:videocalling/shared/services/file_upload_service.dart';
-import 'package:videocalling/shared/services/others/timezone_service.dart';
 
 class ChatController extends GetxController {
   static const int _maxFileSizeBytes = 10 * 1024 * 1024; // 10 MB
@@ -214,7 +213,7 @@ class ChatController extends GetxController {
 
     await collectionReference.doc(taskId.toString()).update({
       "msg": uploadedPath,
-      "time": TimezoneService.getCurrentMauritaniaTime().toString(),
+      "time": DateTime.now().toUtc().toIso8601String(),
       "uid": myUid.value,
       "type": isImage ? 1 : 2,
     });
@@ -226,7 +225,7 @@ class ChatController extends GetxController {
           .child(uid);
 
       await dbRef.set({
-        "time": TimezoneService.getCurrentMauritaniaTime().toString(),
+        "time": DateTime.now().toUtc().toIso8601String(),
         "last_msg": uploadedPath,
         "type": isImage ? 1 : 2,
         "messageCount": 0,
@@ -244,7 +243,7 @@ class ChatController extends GetxController {
         final snapshot = event.snapshot.value as Map;
 
         dbRef2.set({
-          "time": TimezoneService.getCurrentMauritaniaTime().toString(),
+          "time": DateTime.now().toUtc().toIso8601String(),
           "last_msg": uploadedPath,
           "type": isImage ? 1 : 2,
           "messageCount": event.snapshot.value == null
@@ -262,7 +261,7 @@ class ChatController extends GetxController {
           .child("chatlist")
           .child(uid);
       await dbRef.update({
-        "time": TimezoneService.getCurrentMauritaniaTime().toString(),
+        "time": DateTime.now().toUtc().toIso8601String(),
         "last_msg": uploadedPath,
         "type": isImage ? 1 : 2,
         "messageCount": 0,
@@ -278,7 +277,7 @@ class ChatController extends GetxController {
         final snapshot = event.snapshot.value as Map;
 
         dbRef2.update({
-          "time": TimezoneService.getCurrentMauritaniaTime().toString(),
+          "time": DateTime.now().toUtc().toIso8601String(),
           "last_msg": uploadedPath,
           "type": isImage ? 1 : 2,
           "messageCount": snapshot.isEmpty ? 1 : snapshot['messageCount'] + 1,
@@ -352,7 +351,7 @@ class ChatController extends GetxController {
         .collection("All Chat")
         .add({
           "msg": msg,
-          "time": TimezoneService.getCurrentMauritaniaTime().toString(),
+          "time": DateTime.now().toUtc().toIso8601String(),
           "uid": myUid.value,
           "type": type,
         });
@@ -364,7 +363,7 @@ class ChatController extends GetxController {
           .child(uid);
       Logger().e("a7aaaa $userName");
       await dbRef.set({
-        "time": TimezoneService.getCurrentMauritaniaTime().toString(),
+        "time": DateTime.now().toUtc().toIso8601String(),
         "last_msg": msg,
         "type": type,
         "messageCount": 0,
@@ -381,7 +380,7 @@ class ChatController extends GetxController {
       await dbRef2.once().then((value) {
         final snapshot = value.snapshot.value as Map;
         dbRef2.set({
-          "time": TimezoneService.getCurrentMauritaniaTime().toString(),
+          "time": DateTime.now().toUtc().toIso8601String(),
           "last_msg": msg,
           "type": type,
           "messageCount": snapshot.isEmpty
@@ -401,7 +400,7 @@ class ChatController extends GetxController {
           .child("chatlist")
           .child(uid);
       await dbRef.update({
-        "time": TimezoneService.getCurrentMauritaniaTime().toString(),
+        "time": DateTime.now().toUtc().toIso8601String(),
         "last_msg": msg,
         "type": type,
         "messageCount": 0,
@@ -417,7 +416,7 @@ class ChatController extends GetxController {
         final call = data.snapshot.value as Map;
 
         dbRef2.update({
-          "time": TimezoneService.getCurrentMauritaniaTime().toString(),
+          "time": DateTime.now().toUtc().toIso8601String(),
           "last_msg": msg,
           "type": type,
           "messageCount": call.isEmpty
@@ -450,7 +449,7 @@ class ChatController extends GetxController {
         .collection("All Chat");
     await collectionReference.doc(taskId).set({
       "msg": msg,
-      "time": TimezoneService.getCurrentMauritaniaTime().toString(),
+      "time": DateTime.now().toUtc().toIso8601String(),
       "uid": myUid.value,
       "type": type,
     });
@@ -477,7 +476,7 @@ class ChatController extends GetxController {
         .collection("All Chat");
     await collectionReference.doc(taskId).set({
       "msg": msg,
-      "time": TimezoneService.getCurrentMauritaniaTime().toString(),
+      "time": DateTime.now().toUtc().toIso8601String(),
       "uid": myUid.value,
       "type": type,
     });
@@ -489,7 +488,7 @@ class ChatController extends GetxController {
           .child(uid);
 
       await dbRef.set({
-        "time": TimezoneService.getCurrentMauritaniaTime().toString(),
+        "time": DateTime.now().toUtc().toIso8601String(),
         "last_msg": msg,
         "type": type,
         "messageCount": 0,
@@ -507,7 +506,7 @@ class ChatController extends GetxController {
         final snapshot = event.snapshot.value as Map;
 
         dbRef2.set({
-          "time": TimezoneService.getCurrentMauritaniaTime().toString(),
+          "time": DateTime.now().toUtc().toIso8601String(),
           "last_msg": msg,
           "type": type,
           "messageCount": snapshot.isEmpty ? 1 : snapshot['messageCount'] + 1,
@@ -524,7 +523,7 @@ class ChatController extends GetxController {
           .child(uid);
 
       await dbRef.update({
-        "time": TimezoneService.getCurrentMauritaniaTime().toString(),
+        "time": DateTime.now().toUtc().toIso8601String(),
         "last_msg": msg,
         "type": type,
         "messageCount": 0,
@@ -540,7 +539,7 @@ class ChatController extends GetxController {
         final snapshot = event.snapshot.value as Map;
 
         dbRef2.update({
-          "time": TimezoneService.getCurrentMauritaniaTime().toString(),
+          "time": DateTime.now().toUtc().toIso8601String(),
           "last_msg": msg,
           "type": type,
           "messageCount": snapshot.isEmpty ? 1 : snapshot['messageCount'] + 1,
@@ -652,7 +651,7 @@ class ChatController extends GetxController {
         .collection("All Chat")
         .add({
           "msg": fileUrl,
-          "time": TimezoneService.getCurrentMauritaniaTime().toString(),
+          "time": DateTime.now().toUtc().toIso8601String(),
           "uid": myUid.value,
           "type": messageType,
         });
@@ -665,7 +664,7 @@ class ChatController extends GetxController {
           .child(uid);
 
       await dbRef.set({
-        "time": TimezoneService.getCurrentMauritaniaTime().toString(),
+        "time": DateTime.now().toUtc().toIso8601String(),
         "last_msg": fileUrl,
         "type": messageType,
         "messageCount": 0,
@@ -683,7 +682,7 @@ class ChatController extends GetxController {
         final snapshot = event.snapshot.value as Map?;
 
         dbRef2.set({
-          "time": TimezoneService.getCurrentMauritaniaTime().toString(),
+          "time": DateTime.now().toUtc().toIso8601String(),
           "last_msg": fileUrl,
           "type": messageType,
           "messageCount": snapshot == null
@@ -701,7 +700,7 @@ class ChatController extends GetxController {
           .child("chatlist")
           .child(uid);
       await dbRef.update({
-        "time": TimezoneService.getCurrentMauritaniaTime().toString(),
+        "time": DateTime.now().toUtc().toIso8601String(),
         "last_msg": fileUrl,
         "type": messageType,
         "messageCount": 0,
@@ -717,7 +716,7 @@ class ChatController extends GetxController {
         final snapshot = event.snapshot.value as Map?;
 
         dbRef2.update({
-          "time": TimezoneService.getCurrentMauritaniaTime().toString(),
+          "time": DateTime.now().toUtc().toIso8601String(),
           "last_msg": fileUrl,
           "type": messageType,
           "messageCount": snapshot == null || snapshot.isEmpty
@@ -1140,7 +1139,9 @@ class ChatController extends GetxController {
                   padding: const EdgeInsets.all(20.0),
                   child: Text(
                     "accept_chat_dialog_text1".tr,
-                    style: CustomTextStyle(fontFamily: AppFontStyleTextStrings.black),
+                    style: CustomTextStyle(
+                      fontFamily: AppFontStyleTextStrings.black,
+                    ),
                     textAlign: TextAlign.center,
                   ),
                 ),
@@ -1305,7 +1306,10 @@ class ChatController extends GetxController {
                       replaceEmojiOnLimitExceed: false,
                       noRecents: Text(
                         'No recent emojis',
-                        style: CustomTextStyle(fontSize: 16, color: AppColors.grey),
+                        style: CustomTextStyle(
+                          fontSize: 16,
+                          color: AppColors.grey,
+                        ),
                         textAlign: TextAlign.center,
                       ),
                       loadingIndicator: const Center(

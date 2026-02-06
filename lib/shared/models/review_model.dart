@@ -58,6 +58,8 @@ class ReviewModel {
       'doctor_id': doctorId,
       'rating': rating,
       'comment': comment,
+      'created_at': TimezoneService.getCurrentMauritaniaTime()
+          .toIso8601String(),
     };
   }
 

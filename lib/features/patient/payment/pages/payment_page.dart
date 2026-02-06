@@ -476,22 +476,22 @@ class _PaymentScreenState extends State<PaymentScreen>
             const SizedBox(height: 12),
           ],
 
-          // Card Payment Option (Stripe - displayed as "Card")
+          // Card Payment Option (Stripe - Visa/Mastercard, USD)
           _buildPaymentOption(
             title: 'Card',
             subtitle: null,
-            index: 2,
+            index: 1,
             isArabic: isArabic,
             icon: Icons.credit_card,
             showCardLogos: true,
           ),
           const SizedBox(height: 8),
 
-          // Bankily Payment Option
+          // Bankily Payment Option (MRU)
           _buildPaymentOption(
             title: 'Bankily',
             subtitle: null,
-            index: 1,
+            index: 2,
             isArabic: isArabic,
             logos: [Image.asset(AppImages.bankily, height: 30, width: 30)],
           ),
