@@ -1,5 +1,6 @@
 import 'package:http/http.dart' as http;
 import 'package:videocalling/core/config/app_imports.dart';
+import 'package:videocalling/shared/services/others/email_service.dart';
 
 class ForgetPasswordController extends GetxController {
   String id = Get.arguments['id'];
@@ -35,16 +36,36 @@ class ForgetPasswordController extends GetxController {
         if (responseData['success'] == true &&
             responseData['data'] != null &&
             responseData['data']['resetLink'] != null) {
-          final resetLink = responseData['data']['resetLink'];
-          loggerNoStack.i(
-            'Password reset requested successfully for: ${emailTextField.text}',
+          final data = responseData['data'] as Map<String, dynamic>;
+          final resetLink = data['resetLink'] as String;
+          final userName = (data['userName'] ?? emailTextField.text) as String;
+          final email = emailTextField.text;
+          loggerNoStack.i('Password reset requested successfully for: $email');
+
+          // Send email with hyperlink button containing the reset link
+          final emailSent = await EmailService.sendPasswordResetEmail(
+            to: email,
+            resetLink: resetLink,
+            userName: userName,
           );
 
-          // Navigate to WebView with reset link
-          Get.toNamed(
-            '/reset-password-webview',
-            arguments: {'url': resetLink, 'email': emailTextField.text},
-          );
+          if (emailSent) {
+            messageDialog('success'.tr, 'check_email_for_reset_link'.tr, 0);
+          } else {
+            // API succeeded but email failed - offer to open reset link directly
+            customDialog2(
+              s1: 'warning'.tr,
+              s2: 'email_send_failed_open_link_instead'.tr,
+              onPressedYes: () {
+                Get.back();
+                Get.toNamed(
+                  '/reset-password-webview',
+                  arguments: {'url': resetLink, 'email': email},
+                );
+              },
+              onPressedNo: () => Get.back(),
+            );
+          }
         } else {
           messageDialog('error'.tr, 'failed_to_send_email'.tr, 0);
           loggerNoStack.e('Invalid response format from backend');

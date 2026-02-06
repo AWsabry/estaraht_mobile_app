@@ -796,42 +796,46 @@ class UserAppointmentDetailsScreen
               ],
             ),
             const SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: _buildActionButton(
-                    icon: Icons.video_call,
-                    label: 'video_call'.tr,
-                    onTap: () {
-                      detailsController.initiateVideoCall();
-                    },
+            if (!['completed', 'cancelled', 'rejected', 'absent'].contains(
+              detailsController.bookingStatus.value.toLowerCase(),
+            )) ...[
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: _buildActionButton(
+                      icon: Icons.video_call,
+                      label: 'video_call'.tr,
+                      onTap: () {
+                        detailsController.initiateVideoCall();
+                      },
+                    ),
                   ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: _buildActionButton(
-                    icon: Icons.chat,
-                    label: 'chat'.tr,
-                    onTap: () async {
-                      await Get.toNamed(
-                        Routes.chatScreen,
-                        arguments: {
-                          'userName': detailsController
-                              .doctorAppointmentDetailsClass!
-                              .data!
-                              .doctorName,
-                          'uid': '100${detailsController.doctorId.value}',
-                          'isUser': false,
-                        },
-                      );
-                      Get.delete<ChatController>();
-                    },
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: _buildActionButton(
+                      icon: Icons.chat,
+                      label: 'chat'.tr,
+                      onTap: () async {
+                        await Get.toNamed(
+                          Routes.chatScreen,
+                          arguments: {
+                            'userName': detailsController
+                                .doctorAppointmentDetailsClass!
+                                .data!
+                                .doctorName,
+                            'uid': '100${detailsController.doctorId.value}',
+                            'isUser': false,
+                          },
+                        );
+                        Get.delete<ChatController>();
+                      },
+                    ),
                   ),
-                ),
-              ],
-            ),
+                ],
+              ),
+            ],
           ],
         ),
       ),

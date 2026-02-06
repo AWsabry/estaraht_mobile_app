@@ -1439,12 +1439,31 @@ class MakeAppointmentController extends GetxController {
       final doctorTimezoneOffset =
           (doctorData['timezone_offset_hours'] as num?)?.toInt() ?? 0;
 
-      // Format date and time (already in doctor's timezone from booking)
-      final formattedDate =
-          '${bookingDate.day}/${bookingDate.month}/${bookingDate.year}';
       final timeOnly = bookingTime.length >= 5
           ? bookingTime.substring(0, 5)
           : bookingTime; // HH:mm
+
+      // Doctor email: time in doctor's timezone (already stored that way)
+      final doctorFormattedDate =
+          '${bookingDate.day}/${bookingDate.month}/${bookingDate.year}';
+
+      // Patient email: convert to patient's device time (patient made booking on their device)
+      final dateStr =
+          '${bookingDate.year}-${bookingDate.month.toString().padLeft(2, '0')}-${bookingDate.day.toString().padLeft(2, '0')}';
+      final isArabic = Get.locale?.languageCode == 'ar';
+      final patientFormatted = TimezoneService.formatAppointmentForPatient(
+        dateStr: dateStr,
+        timeStr: timeOnly,
+        doctorTimezoneOffsetHours: doctorTimezoneOffset,
+        isArabic: isArabic,
+      );
+      final patientParts = patientFormatted.split(' - ');
+      final patientFormattedDate = patientParts.isNotEmpty
+          ? patientParts.first
+          : doctorFormattedDate;
+      final patientFormattedTime = patientParts.length > 1
+          ? patientParts.last
+          : timeOnly;
 
       // Send emails using the multilingual email service
       if (doctorEmail.isNotEmpty) {
@@ -1453,7 +1472,7 @@ class MakeAppointmentController extends GetxController {
           doctorName: doctorName,
           patientName: patientName,
           bookingId: bookingId,
-          formattedDate: formattedDate,
+          formattedDate: doctorFormattedDate,
           timeOnly: timeOnly,
           doctorTimezoneOffsetHours: doctorTimezoneOffset,
         );
@@ -1465,8 +1484,8 @@ class MakeAppointmentController extends GetxController {
           patientName: patientName,
           doctorName: doctorName,
           bookingId: bookingId,
-          formattedDate: formattedDate,
-          timeOnly: timeOnly,
+          formattedDate: patientFormattedDate,
+          timeOnly: patientFormattedTime,
         );
       }
 

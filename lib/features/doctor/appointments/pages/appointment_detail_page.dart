@@ -1,5 +1,6 @@
 import 'package:videocalling/core/config/app_imports.dart';
 import 'package:videocalling/features/doctor/appointments/pages/add_medicine_page.dart';
+import 'package:videocalling/shared/services/others/timezone_service.dart';
 import 'package:videocalling/features/doctor/more/search_medicine_controller.dart';
 import 'package:videocalling/features/doctor/more/search_medicine_model.dart';
 import 'package:videocalling/shared/widgets/file_picker_widget.dart';
@@ -146,9 +147,29 @@ class DoctorAppointmentDetails extends GetView<DAppointmentDetailsController> {
   }
 
   Widget _buildPatientInfoCard(BuildContext context, bool isArabic) {
-    String slot =
+    final dateStr =
+        detailsController.doctorAppointmentDetailsClass.data?.date ?? '';
+    final slot =
         detailsController.doctorAppointmentDetailsClass.data?.slot ?? '';
-    String formattedSlot = slot.length >= 5 ? slot.substring(0, 5) : slot;
+    final timeStr = slot.length >= 5 ? slot.substring(0, 5) : slot;
+    final dateTimeFormatted = (dateStr.isNotEmpty && timeStr.isNotEmpty)
+        ? TimezoneService.formatAppointmentForDoctor(
+            dateStr: dateStr,
+            timeStr: timeStr,
+            isArabic: isArabic,
+            doctorTimezoneOffsetHours:
+                detailsController.doctorTimezoneOffsetHours,
+          )
+        : null;
+    final parts = dateTimeFormatted?.split(' - ') ?? [];
+    final dateFormatted = parts.isNotEmpty
+        ? parts.first
+        : (dateStr.length >= 10
+              ? '${dateStr.substring(8, 10)}-${dateStr.substring(5, 7)}-${dateStr.substring(0, 4)}'
+              : dateStr);
+    final timeFormatted = parts.length > 1
+        ? parts.last
+        : (timeStr.isNotEmpty ? timeStr : '');
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -208,7 +229,7 @@ class DoctorAppointmentDetails extends GetView<DAppointmentDetailsController> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          "${detailsController.doctorAppointmentDetailsClass.data!.date.toString().substring(8)}-${detailsController.doctorAppointmentDetailsClass.data!.date.toString().substring(5, 7)}-${detailsController.doctorAppointmentDetailsClass.data!.date.toString().substring(0, 4)}",
+                          dateFormatted,
                           style: const CustomTextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
@@ -232,7 +253,7 @@ class DoctorAppointmentDetails extends GetView<DAppointmentDetailsController> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        formattedSlot,
+                        timeFormatted,
                         style: const CustomTextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,

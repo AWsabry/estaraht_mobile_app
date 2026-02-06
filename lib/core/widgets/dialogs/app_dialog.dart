@@ -15,81 +15,88 @@ customDialog({
   final languageController = Get.find<LanguageController>();
   final bool isArabic = languageController.currentLanguage.value == 'ar';
   final fontFamily = isArabic ? 'NotoKufiArabic' : 'Roboto';
+  final textDirection = isArabic ? TextDirection.rtl : TextDirection.ltr;
 
   Get.dialog(
-    Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Container(
-        padding: EdgeInsets.all(24.sp),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Title
-            Text(
-              s1,
-              style:
-                  s1style ??
-                  CustomTextStyle(
-                    fontFamily: fontFamily,
-                    fontSize: 18.sp,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black87,
+    Directionality(
+      textDirection: textDirection,
+      child: Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: Container(
+          padding: EdgeInsets.all(24.sp),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Title
+              Text(
+                s1,
+                textDirection: textDirection,
+                style:
+                    s1style ??
+                    CustomTextStyle(
+                      fontFamily: fontFamily,
+                      fontSize: 18.sp,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
+                    ),
+              ),
+              SizedBox(height: 16.h),
+              // Content
+              Text(
+                s2,
+                textDirection: textDirection,
+                maxLines: 5,
+                overflow: TextOverflow.ellipsis,
+                style:
+                    s2style ??
+                    CustomTextStyle(
+                      fontFamily: fontFamily,
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w400,
+                      color: Colors.black87,
+                      height: 1.5,
+                    ),
+              ),
+              SizedBox(height: 24.h),
+              // OK Button
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed:
+                      onPressed ??
+                      () {
+                        Get.back();
+                      },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF204FCF),
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    padding: EdgeInsets.symmetric(vertical: 14.h),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(4),
+                    ),
                   ),
-            ),
-            SizedBox(height: 16.h),
-            // Content
-            Text(
-              s2,
-              maxLines: 5,
-              overflow: TextOverflow.ellipsis,
-              style:
-                  s2style ??
-                  CustomTextStyle(
-                    fontFamily: fontFamily,
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w400,
-                    color: Colors.black87,
-                    height: 1.5,
+                  child: Text(
+                    'ok_btn'.tr,
+                    textDirection: textDirection,
+                    style:
+                        s3style ??
+                        CustomTextStyle(
+                          fontFamily: fontFamily,
+                          fontSize: 16.sp,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
                   ),
-            ),
-            SizedBox(height: 24.h),
-            // OK Button
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed:
-                    onPressed ??
-                    () {
-                      Get.back();
-                    },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF204FCF),
-                  foregroundColor: Colors.white,
-                  elevation: 0,
-                  padding: EdgeInsets.symmetric(vertical: 14.h),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                ),
-                child: Text(
-                  'ok_btn'.tr,
-                  style:
-                      s3style ??
-                      CustomTextStyle(
-                        fontFamily: fontFamily,
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     ),
@@ -166,33 +173,60 @@ customDialog2({
   required VoidCallback onPressedYes,
   required VoidCallback onPressedNo,
 }) {
+  final languageController = Get.find<LanguageController>();
+  final bool isArabic = languageController.currentLanguage.value == 'ar';
+  final fontFamily = isArabic ? 'NotoKufiArabic' : 'Roboto';
+  final textDirection = isArabic ? TextDirection.rtl : TextDirection.ltr;
+
   Get.dialog(
-    AlertDialog(
-      title: Text(
-        s1,
-        style: s1style ?? CustomTextStyle(fontFamily: AppFontStyleTextStrings.black, height: 1.3),
-      ),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            s2,
-            maxLines: 3,
-            style:
-                s2style ??
-                CustomTextStyle(
-                  fontSize: 14,
-                  fontFamily: AppFontStyleTextStrings.regular,
-                  height: 1.3,
-                ),
+    Directionality(
+      textDirection: textDirection,
+      child: AlertDialog(
+        title: Text(
+          s1,
+          style:
+              s1style ??
+              CustomTextStyle(
+                fontFamily: fontFamily,
+                fontWeight: FontWeight.w600,
+                height: 1.3,
+              ),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              s2,
+              maxLines: 5,
+              textDirection: textDirection,
+              style:
+                  s2style ??
+                  CustomTextStyle(
+                    fontSize: 14,
+                    fontFamily: fontFamily,
+                    height: 1.3,
+                  ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: onPressedYes,
+            child: Text(
+              'yes_btn'.tr,
+              style: CustomTextStyle(fontFamily: fontFamily),
+            ),
+          ),
+          TextButton(
+            onPressed: onPressedNo,
+            child: Text(
+              'no_btn'.tr,
+              style: CustomTextStyle(fontFamily: fontFamily),
+            ),
           ),
         ],
       ),
-      actions: [
-        TextButton(onPressed: onPressedYes, child: Text('yes_btn'.tr)),
-        TextButton(onPressed: onPressedNo, child: Text('no_btn'.tr)),
-      ],
     ),
   );
 }
@@ -206,7 +240,10 @@ logoutDialog({
     AlertDialog(
       title: Text(
         s1,
-        style: CustomTextStyle(fontFamily: AppFontStyleTextStrings.black, height: 1.3),
+        style: CustomTextStyle(
+          fontFamily: AppFontStyleTextStrings.black,
+          height: 1.3,
+        ),
       ),
       content: Column(
         mainAxisSize: MainAxisSize.min,

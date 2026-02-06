@@ -202,6 +202,7 @@ class DoctorRegisterController extends GetxController {
             'numb_patients': 0,
             'profile_img_url': "",
             'booking_price': 50,
+            'doctor_fee_per_session': 17,
             'avg_session_time': 45,
             'approval_status': 'pending', // Set new doctors as pending approval
             'timezone_offset_hours': doctorTimezoneOffset,

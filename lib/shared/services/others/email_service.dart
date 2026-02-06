@@ -515,25 +515,6 @@ class EmailService {
                 line-height: 1.6;
                 margin: 0;
             }
-            .cta-section {
-                text-align: center;
-                margin: 40px 0 30px;
-            }
-            .cta-button {
-                display: inline-block;
-                background: linear-gradient(135deg, #204FCF 0%, #667eea 100%);
-                color: white;
-                padding: 16px 40px;
-                text-decoration: none;
-                border-radius: 50px;
-                font-size: 16px;
-                font-weight: 600;
-                box-shadow: 0 4px 15px rgba(32, 79, 207, 0.3);
-                transition: transform 0.2s;
-            }
-            .cta-button:hover {
-                transform: translateY(-2px);
-            }
             .closing {
                 text-align: center;
                 margin-top: 40px;
@@ -614,10 +595,6 @@ class EmailService {
                         $featuresHtml
                     </div>
 
-                    <div class="cta-section">
-                        <a href="#" class="cta-button">Get Started Now</a>
-                    </div>
-
                     <div class="closing">
                         <p>We're here to support you every step of the way.</p>
                         <p>If you have any questions, our support team is ready to help.</p>
@@ -626,11 +603,6 @@ class EmailService {
                 </div>
                 <div class="footer">
                     <p><strong>Estaraht - Your Trusted Therapy Companion</strong></p>
-                    <div class="social-links">
-                        <a href="#">Help Center</a> | 
-                        <a href="#">Contact Support</a> | 
-                        <a href="#">Privacy Policy</a>
-                    </div>
                     <p>&copy; 2025 Estaraht. All rights reserved.</p>
                 </div>
             </div>
@@ -940,25 +912,6 @@ class EmailService {
                 line-height: 1.8;
                 margin-bottom: 30px;
             }
-            .cta-section {
-                text-align: center;
-                margin: 40px 0;
-            }
-            .cta-button {
-                display: inline-block;
-                background: linear-gradient(135deg, #204FCF 0%, #667eea 100%);
-                color: white;
-                padding: 18px 50px;
-                text-decoration: none;
-                border-radius: 50px;
-                font-size: 16px;
-                font-weight: 600;
-                box-shadow: 0 4px 15px rgba(32, 79, 207, 0.3);
-                transition: transform 0.2s;
-            }
-            .cta-button:hover {
-                transform: translateY(-2px);
-            }
             .security-notice {
                 background: #fff4e6;
                 border-left: 4px solid #ffa726;
@@ -1017,7 +970,6 @@ class EmailService {
                 .content { padding: 30px 20px; }
                 .header { padding: 40px 20px; }
                 .greeting { font-size: 20px; }
-                .cta-button { padding: 16px 40px; font-size: 14px; }
             }
         </style>
     </head>
@@ -1033,9 +985,8 @@ class EmailService {
                     <p class="message">
                         We received a request to reset your password for your Estaraht account. Click the button below to create a new password.
                     </p>
-                    
-                    <div class="cta-section">
-                        <a href="$resetLink" class="cta-button">Reset Password</a>
+                    <div style="text-align: center; margin: 24px 0;">
+                        <a href="$resetLink" style="display: inline-block; background: linear-gradient(135deg, #204FCF 0%, #667eea 100%); color: white; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-size: 16px; font-weight: 600;">Reset Password</a>
                     </div>
 
                     <div class="security-notice">
@@ -1485,25 +1436,6 @@ class EmailService {
                 line-height: 1.6;
                 margin: 0;
             }
-            .cta-section {
-                text-align: center;
-                margin: 40px 0 30px;
-            }
-            .cta-button {
-                display: inline-block;
-                background: linear-gradient(135deg, #204FCF 0%, #667eea 100%);
-                color: white;
-                padding: 16px 40px;
-                text-decoration: none;
-                border-radius: 50px;
-                font-size: 16px;
-                font-weight: 600;
-                box-shadow: 0 4px 15px rgba(32, 79, 207, 0.3);
-                transition: transform 0.2s;
-            }
-            .cta-button:hover {
-                transform: translateY(-2px);
-            }
             .closing {
                 text-align: center;
                 margin-top: 40px;
@@ -1584,10 +1516,6 @@ class EmailService {
                         $featuresHtml
                     </div>
 
-                    <div class="cta-section">
-                        <a href="#" class="cta-button">Commencer Maintenant</a>
-                    </div>
-
                     <div class="closing">
                         <p>Nous sommes là pour vous soutenir à chaque étape.</p>
                         <p>Si vous avez des questions, notre équipe de support est prête à vous aider.</p>
@@ -1596,11 +1524,6 @@ class EmailService {
                 </div>
                 <div class="footer">
                     <p><strong>Estaraht - Votre Compagnon de Thérapie de Confiance</strong></p>
-                    <div class="social-links">
-                        <a href="#">Centre d'Aide</a> | 
-                        <a href="#">Contacter le Support</a> | 
-                        <a href="#">Politique de Confidentialité</a>
-                    </div>
                     <p>&copy; 2025 Estaraht. Tous droits réservés.</p>
                 </div>
             </div>
@@ -1910,25 +1833,6 @@ class EmailService {
                 line-height: 1.8;
                 margin-bottom: 30px;
             }
-            .cta-section {
-                text-align: center;
-                margin: 40px 0;
-            }
-            .cta-button {
-                display: inline-block;
-                background: linear-gradient(135deg, #204FCF 0%, #667eea 100%);
-                color: white;
-                padding: 18px 50px;
-                text-decoration: none;
-                border-radius: 50px;
-                font-size: 16px;
-                font-weight: 600;
-                box-shadow: 0 4px 15px rgba(32, 79, 207, 0.3);
-                transition: transform 0.2s;
-            }
-            .cta-button:hover {
-                transform: translateY(-2px);
-            }
             .security-notice {
                 background: #fff4e6;
                 border-left: 4px solid #ffa726;
@@ -1987,7 +1891,6 @@ class EmailService {
                 .content { padding: 30px 20px; }
                 .header { padding: 40px 20px; }
                 .greeting { font-size: 20px; }
-                .cta-button { padding: 16px 40px; font-size: 14px; }
             }
         </style>
     </head>
@@ -2003,9 +1906,8 @@ class EmailService {
                     <p class="message">
                         Nous avons reçu une demande de réinitialisation du mot de passe pour votre compte Estaraht. Cliquez sur le bouton ci-dessous pour créer un nouveau mot de passe.
                     </p>
-                    
-                    <div class="cta-section">
-                        <a href="$resetLink" class="cta-button">Réinitialiser le Mot de Passe</a>
+                    <div style="text-align: center; margin: 24px 0;">
+                        <a href="$resetLink" style="display: inline-block; background: linear-gradient(135deg, #204FCF 0%, #667eea 100%); color: white; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-size: 16px; font-weight: 600;">Réinitialiser le Mot de Passe</a>
                     </div>
 
                     <div class="security-notice">
@@ -2458,25 +2360,6 @@ class EmailService {
                 line-height: 1.8;
                 margin: 0;
             }
-            .cta-section {
-                text-align: center;
-                margin: 40px 0 30px;
-            }
-            .cta-button {
-                display: inline-block;
-                background: linear-gradient(135deg, #204FCF 0%, #667eea 100%);
-                color: white;
-                padding: 16px 40px;
-                text-decoration: none;
-                border-radius: 50px;
-                font-size: 16px;
-                font-weight: 600;
-                box-shadow: 0 4px 15px rgba(32, 79, 207, 0.3);
-                transition: transform 0.2s;
-            }
-            .cta-button:hover {
-                transform: translateY(-2px);
-            }
             .closing {
                 text-align: center;
                 margin-top: 40px;
@@ -2557,10 +2440,6 @@ class EmailService {
                         $featuresHtml
                     </div>
 
-                    <div class="cta-section">
-                        <a href="#" class="cta-button">ابدأ الآن</a>
-                    </div>
-
                     <div class="closing">
                         <p>.نحن هنا لدعمك في كل خطوة</p>
                         <p>.إذا كان لديك أي أسئلة، فريق الدعم لدينا جاهز لمساعدتك</p>
@@ -2569,11 +2448,6 @@ class EmailService {
                 </div>
                 <div class="footer">
                     <p><strong>استرحت - رفيقك الموثوق في العلاج النفسي</strong></p>
-                    <div class="social-links">
-                        <a href="#">مركز المساعدة</a> | 
-                        <a href="#">اتصل بالدعم</a> | 
-                        <a href="#">سياسة الخصوصية</a>
-                    </div>
                     <p>&copy; 2025 استرحت. جميع الحقوق محفوظة.</p>
                 </div>
             </div>
@@ -2818,6 +2692,7 @@ class EmailService {
                 background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
                 min-height: 100vh;
                 direction: rtl;
+                text-align: right;
             }
             .email-wrapper { 
                 padding: 40px 20px; 
@@ -2829,12 +2704,14 @@ class EmailService {
                 border-radius: 16px; 
                 overflow: hidden;
                 box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+                direction: rtl;
             }
             .header { 
                 background: linear-gradient(135deg, #204FCF 0%, #667eea 100%);
                 color: white; 
                 padding: 50px 30px; 
                 text-align: center;
+                direction: rtl;
                 position: relative;
                 overflow: hidden;
             }
@@ -2842,7 +2719,7 @@ class EmailService {
                 content: '';
                 position: absolute;
                 top: -50%;
-                left: -50%;
+                right: -50%;
                 width: 200%;
                 height: 200%;
                 background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
@@ -2873,37 +2750,22 @@ class EmailService {
             .content { 
                 padding: 50px 40px;
                 background: #ffffff;
+                direction: rtl;
+                text-align: right;
             }
-            .greeting {
+            .content .greeting {
                 font-size: 24px;
                 font-weight: 600;
                 color: #1a1a1a;
                 margin-bottom: 15px;
+                text-align: right;
             }
-            .message {
+            .content .message {
                 font-size: 16px;
                 color: #666666;
                 line-height: 1.8;
                 margin-bottom: 30px;
-            }
-            .cta-section {
-                text-align: center;
-                margin: 40px 0;
-            }
-            .cta-button {
-                display: inline-block;
-                background: linear-gradient(135deg, #204FCF 0%, #667eea 100%);
-                color: white;
-                padding: 18px 50px;
-                text-decoration: none;
-                border-radius: 50px;
-                font-size: 16px;
-                font-weight: 600;
-                box-shadow: 0 4px 15px rgba(32, 79, 207, 0.3);
-                transition: transform 0.2s;
-            }
-            .cta-button:hover {
-                transform: translateY(-2px);
+                text-align: right;
             }
             .security-notice {
                 background: #fff4e6;
@@ -2950,6 +2812,7 @@ class EmailService {
                 background: #f8f9fa; 
                 padding: 30px 40px; 
                 text-align: center; 
+                direction: rtl;
                 color: #888888;
                 border-top: 1px solid #e9ecef;
             }
@@ -2965,7 +2828,6 @@ class EmailService {
                 .content { padding: 30px 20px; }
                 .header { padding: 40px 20px; }
                 .greeting { font-size: 20px; }
-                .cta-button { padding: 16px 40px; font-size: 14px; }
             }
         </style>
     </head>
@@ -2981,9 +2843,8 @@ class EmailService {
                     <p class="message">
                         تلقينا طلباً لإعادة تعيين كلمة المرور لحسابك في استرحت. انقر على الزر أدناه لإنشاء كلمة مرور جديدة.
                     </p>
-                    
-                    <div class="cta-section">
-                        <a href="$resetLink" class="cta-button">إعادة تعيين كلمة المرور</a>
+                    <div style="text-align: center; margin: 24px 0;">
+                        <a href="$resetLink" style="display: inline-block; background: linear-gradient(135deg, #204FCF 0%, #667eea 100%); color: white; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-size: 16px; font-weight: 600;">إعادة تعيين كلمة المرور</a>
                     </div>
 
                     <div class="security-notice">

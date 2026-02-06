@@ -586,6 +586,7 @@ class TimezoneService {
   }
 
   /// Format appointment date+time for display - patient view (only patient's local time)
+  /// Stored time is in doctor's timezone; we convert to UTC then to patient's device timezone
   static String formatAppointmentForPatient({
     required String dateStr,
     required String timeStr,
@@ -598,15 +599,20 @@ class TimezoneService {
       final timeParts = timeStr.split(':');
       if (dateParts.length < 3 || timeParts.isEmpty) return '$dateStr $timeStr';
 
-      final doctorLocal = DateTime(
-        int.parse(dateParts[0]),
-        int.parse(dateParts[1]),
-        int.parse(dateParts[2]),
-        int.parse(timeParts[0]),
-        timeParts.length > 1 ? int.parse(timeParts[1]) : 0,
-      );
-      final utcMoment = doctorLocal.subtract(
-        Duration(hours: doctorTimezoneOffsetHours),
+      final year = int.parse(dateParts[0]);
+      final month = int.parse(dateParts[1]);
+      final day = int.parse(dateParts[2]);
+      final hour = int.parse(timeParts[0]);
+      final minute = timeParts.length > 1 ? int.parse(timeParts[1]) : 0;
+
+      // Stored time is doctor's local time. UTC = doctor_local - offset
+      // Use DateTime.utc() so conversion is timezone-independent (device timezone must not affect this)
+      final utcMoment = DateTime.utc(
+        year,
+        month,
+        day,
+        hour - doctorTimezoneOffsetHours,
+        minute,
       );
       final patientLocal = utcMoment.toLocal();
 
@@ -620,11 +626,14 @@ class TimezoneService {
     }
   }
 
-  /// Format appointment date+time for display - doctor view (stored in doctor's timezone)
+  /// Format appointment date+time for display - doctor view
+  /// [doctorTimezoneOffsetHours] - when provided, treats [dateStr]+[timeStr] as UTC and
+  /// converts to doctor's local time for display (handles backend returning UTC)
   static String formatAppointmentForDoctor({
     required String dateStr,
     required String timeStr,
     bool isArabic = false,
+    int? doctorTimezoneOffsetHours,
   }) {
     if (dateStr.isEmpty || timeStr.isEmpty) return '';
     try {
@@ -632,13 +641,20 @@ class TimezoneService {
       final timeParts = timeStr.split(':');
       if (dateParts.length < 3 || timeParts.isEmpty) return '$dateStr $timeStr';
 
-      final dt = DateTime(
-        int.parse(dateParts[0]),
-        int.parse(dateParts[1]),
-        int.parse(dateParts[2]),
-        int.parse(timeParts[0]),
-        timeParts.length > 1 ? int.parse(timeParts[1]) : 0,
-      );
+      final year = int.parse(dateParts[0]);
+      final month = int.parse(dateParts[1]);
+      final day = int.parse(dateParts[2]);
+      final hour = int.parse(timeParts[0]);
+      final minute = timeParts.length > 1 ? int.parse(timeParts[1]) : 0;
+
+      DateTime dt;
+      if (doctorTimezoneOffsetHours != null && doctorTimezoneOffsetHours != 0) {
+        // Stored time is UTC; convert to doctor's local for display
+        final utcMoment = DateTime.utc(year, month, day, hour, minute);
+        dt = utcMoment.add(Duration(hours: doctorTimezoneOffsetHours));
+      } else {
+        dt = DateTime(year, month, day, hour, minute);
+      }
       final dateFmt = isArabic
           ? formatDateArabic(dt)
           : '${dt.day}/${dt.month}/${dt.year}';

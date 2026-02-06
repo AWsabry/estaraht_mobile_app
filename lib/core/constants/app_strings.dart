@@ -53,6 +53,11 @@ class Words extends Translations {
       'appointment_status_7': 'Cancelled',
       'password_reset_email_sent':
           "An email has been sent to you, please check your inbox. If you don't see it, please check your spam folder.",
+      'check_email_for_reset_link':
+          'Check your email for a link to reset your password. Click the link in the email to continue.',
+      'email_send_failed_open_link_instead':
+          'We could not send the email. Would you like to open the reset link directly?',
+      'warning': 'Warning',
       'saving': 'Saving...',
       'please_wait': 'Please wait...',
       'availabilities_saved_successfully': 'Availabilities saved successfully',
@@ -963,6 +968,11 @@ class Words extends Translations {
       'appointment_status_7': 'إلغاء',
       'password_reset_email_sent':
           'تم إرسال رسالة إلكترونية لإعادة تعيين كلمة المرور إليك، يرجى التحقق من صندوق الوارد. إذا لم تجدها في الوارد، يرجى التحقق من مجلد الرسائل المزعجة.',
+      'check_email_for_reset_link':
+          'تحقق من بريدك الإلكتروني للحصول على رابط إعادة تعيين كلمة المرور. انقر على الرابط في البريد للمتابعة.',
+      'email_send_failed_open_link_instead':
+          'لم نتمكن من إرسال البريد الإلكتروني. هل تريد فتح رابط إعادة التعيين مباشرة؟',
+      'warning': 'تحذير',
       'saving': 'جارٍ الحفظ...',
       'please_wait': 'يرجى الانتظار...',
       'availabilities_saved_successfully': 'تم حفظ التوافر بنجاح',
@@ -2021,6 +2031,11 @@ class Words extends Translations {
       'enter_email_hint': 'Entrez votre adresse e-mail',
       'password_reset_email_sent':
           'Un email de réinitialisation de mot de passe vous a été envoyé, veuillez vérifier votre boîte de réception. Si vous ne le trouvez pas, veuillez vérifier votre dossier spam.',
+      'check_email_for_reset_link':
+          'Vérifiez votre email pour le lien de réinitialisation. Cliquez sur le lien dans l\'email pour continuer.',
+      'email_send_failed_open_link_instead':
+          'Nous n\'avons pas pu envoyer l\'email. Voulez-vous ouvrir le lien de réinitialisation directement ?',
+      'warning': 'Avertissement',
       'change_password_str': 'Changer le mot de passe',
       'old_pwd': 'Ancien mot de passe',
       'new_pwd': 'Nouveau mot de passe',
