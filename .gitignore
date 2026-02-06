@@ -58,5 +58,5 @@ key.properties
 
 
 # Keep .env.example
-!.env.example
+.env.example
 .env
