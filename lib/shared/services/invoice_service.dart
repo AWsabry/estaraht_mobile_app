@@ -1,7 +1,3 @@
-import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
-import 'package:videocalling/core/utils/logger.dart';
-import 'package:videocalling/shared/services/others/email_service.dart';
 import 'package:videocalling/core/config/app_imports.dart';
 import 'package:videocalling/shared/services/others/timezone_service.dart';
 
@@ -67,17 +63,14 @@ class InvoiceService {
 
     if (hasArabic) {
       // Add dir="rtl" to html tag
-      htmlContent = htmlContent.replaceAll(
-        '<html>',
-        '<html dir="rtl">',
-      );
-      
+      htmlContent = htmlContent.replaceAll('<html>', '<html dir="rtl">');
+
       // Add rtl class to body
       htmlContent = htmlContent.replaceAll(
         '<body style="',
         '<body class="rtl" style="',
       );
-      
+
       // Add RTL styles to main content divs
       htmlContent = htmlContent.replaceAll(
         '<div style="background: #fff;',
@@ -107,8 +100,10 @@ class InvoiceService {
     String? paymentMethod,
   }) async {
     try {
-      loggerNoStack.i('📧 InvoiceService: Starting to send subscription invoice to $patientEmail');
-      
+      loggerNoStack.i(
+        '📧 InvoiceService: Starting to send subscription invoice to $patientEmail',
+      );
+
       await _loadTemplates();
 
       if (_subscriptionTemplate == null) {
@@ -116,7 +111,9 @@ class InvoiceService {
         return false;
       }
 
-      loggerNoStack.i('📧 InvoiceService: Template loaded, preparing variables');
+      loggerNoStack.i(
+        '📧 InvoiceService: Template loaded, preparing variables',
+      );
 
       final variables = {
         'PATIENT_NAME': patientName,
@@ -148,13 +145,19 @@ class InvoiceService {
       );
 
       if (success) {
-        loggerNoStack.i('✅ InvoiceService: Subscription invoice sent successfully to $patientEmail');
+        loggerNoStack.i(
+          '✅ InvoiceService: Subscription invoice sent successfully to $patientEmail',
+        );
       } else {
-        loggerNoStack.w('⚠️ InvoiceService: EmailService returned false for $patientEmail');
+        loggerNoStack.w(
+          '⚠️ InvoiceService: EmailService returned false for $patientEmail',
+        );
       }
       return success;
     } catch (e, stackTrace) {
-      loggerNoStack.e('❌ InvoiceService: Error sending subscription invoice: $e');
+      loggerNoStack.e(
+        '❌ InvoiceService: Error sending subscription invoice: $e',
+      );
       loggerNoStack.e('❌ Stack trace: $stackTrace');
       return false;
     }
@@ -178,7 +181,8 @@ class InvoiceService {
 
       final variables = {
         'DOCTOR_NAME': doctorName,
-        'TRANSACTION_ID': 'WTH-${TimezoneService.getCurrentMauritaniaTime().millisecondsSinceEpoch}',
+        'TRANSACTION_ID':
+            'WTH-${TimezoneService.getCurrentMauritaniaTime().millisecondsSinceEpoch}',
         'DATE': _formatDate(TimezoneService.getCurrentMauritaniaTime()),
         'STATUS': status ?? 'Processing',
         'AMOUNT': '$currency $amount',

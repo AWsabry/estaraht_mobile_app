@@ -56,6 +56,9 @@ class _CallScreenState extends State<CallScreen> {
   static const Duration _sessionTimeLimit = Duration(minutes: 30);
   bool _sessionExpired = false;
 
+  // Time when user joined channel - used to check if full 30 min passed (timer resets when remote leaves)
+  DateTime? _channelJoinTime;
+
   @override
   void initState() {
     super.initState();
@@ -109,6 +112,8 @@ class _CallScreenState extends State<CallScreen> {
             if (mounted) {
               setState(() {
                 _isJoined = true;
+                _channelJoinTime ??=
+                    DateTime.now(); // Set once when first joining
               });
             }
           },
@@ -408,43 +413,57 @@ class _CallScreenState extends State<CallScreen> {
   }
 
   void _onCallEnd() async {
-    // Auto-complete session when video call ends (if booking info provided)
+    // Auto-complete session ONLY when user was in call for full 30 minutes (if booking info provided)
+    // Use _channelJoinTime (total time in channel) - _callDuration resets when remote leaves
+    // If user hangs up before 30 min, booking stays confirmed - manual completion from appointment detail
     if (widget.bookingId != null &&
         widget.patientId != null &&
         widget.doctorId != null) {
-      try {
+      final totalTimeInCall = _channelJoinTime != null
+          ? DateTime.now().difference(_channelJoinTime!)
+          : _callDuration;
+      final callLastedFullSession = totalTimeInCall >= _sessionTimeLimit;
+
+      if (callLastedFullSession) {
+        try {
+          loggerNoStack.i(
+            '📞 Video call ended after full session (30 min) - Auto-completing: ${widget.bookingId}',
+          );
+
+          // Mark booking as completed automatically (only when 30 min reached)
+          await supabaseHelper.client
+              .from('bookings')
+              .update({
+                'status': 'completed',
+                'completed_at': TimezoneService.getCurrentMauritaniaTime()
+                    .toIso8601String(),
+                'doctor_confirmed': true, // Auto-confirm from video call end
+                'patient_confirmed': true, // Auto-confirm from video call end
+              })
+              .eq('id', widget.bookingId!);
+
+          // Use session management service for payment transfer
+          final sessionService = SessionManagementService();
+          await sessionService.completeSession(widget.patientId!);
+
+          // Transfer payment to doctor
+          await sessionService.confirmSessionFromDoctor(
+            bookingId: widget.bookingId!,
+            patientId: widget.patientId!,
+            doctorId: widget.doctorId!,
+          );
+
+          loggerNoStack.i('✅ Session auto-completed after full 30 min call');
+        } catch (e, stackTrace) {
+          loggerNoStack.e('❌ Error auto-completing session after call: $e');
+          loggerNoStack.e('Stack trace: $stackTrace');
+          // Don't block call ending if completion fails
+        }
+      } else {
         loggerNoStack.i(
-          '📞 Video call ended - Auto-completing session: ${widget.bookingId}',
+          '📞 Video call ended before 30 min (${totalTimeInCall.inMinutes} min in call) - '
+          'Booking stays confirmed. Complete manually from appointment detail.',
         );
-
-        // Mark booking as completed automatically
-        await supabaseHelper.client
-            .from('bookings')
-            .update({
-              'status': 'completed',
-              'completed_at': TimezoneService.getCurrentMauritaniaTime()
-                  .toIso8601String(),
-              'doctor_confirmed': true, // Auto-confirm from video call end
-              'patient_confirmed': true, // Auto-confirm from video call end
-            })
-            .eq('id', widget.bookingId!);
-
-        // Use session management service for payment transfer
-        final sessionService = SessionManagementService();
-        await sessionService.completeSession(widget.patientId!);
-
-        // Transfer payment to doctor
-        await sessionService.confirmSessionFromDoctor(
-          bookingId: widget.bookingId!,
-          patientId: widget.patientId!,
-          doctorId: widget.doctorId!,
-        );
-
-        loggerNoStack.i('✅ Session auto-completed after video call');
-      } catch (e, stackTrace) {
-        loggerNoStack.e('❌ Error auto-completing session after call: $e');
-        loggerNoStack.e('Stack trace: $stackTrace');
-        // Don't block call ending if completion fails
       }
     }
 
