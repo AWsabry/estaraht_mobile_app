@@ -490,6 +490,28 @@ class Words extends Translations {
       'fail': 'Fail',
       'fail_description': 'Your payment fail try again',
       'appointment_made_success': 'Appointment made successfully',
+      'subscription_success_message':
+          'Subscription successful! {sessions} sessions added to your account.',
+      'payment_booking_success':
+          'Payment successful! Your appointment has been booked.',
+      'authentication_error_title': 'Authentication Error',
+      'failed_to_connect_payment_service':
+          'Failed to connect to payment service: {message}',
+      'payment_failed_title': 'Payment Failed',
+      'transaction_declined': 'Transaction was declined. Please try again.',
+      'payment_timeout_title': 'Payment Timeout',
+      'payment_timeout_message':
+          'Payment is taking longer than expected. Please check your transaction status.',
+      'failed_to_process_payment_try_again':
+          'Failed to process payment. Please try again.',
+      'payment_cancelled_or_failed':
+          'Payment was cancelled or failed. Please try again.',
+      'patient_id_not_found': 'Patient ID not found',
+      'apple_pay_error': 'Apple Pay Error',
+      'google_pay_error': 'Google Pay Error',
+      'cannot_open_whatsapp_app': 'Could not open WhatsApp app',
+      'digital_wallet_coming_soon': 'Digital wallet payment coming soon!',
+      'buy_with_platform': 'Buy with {platform}',
       'appoint_make_dialog': 'Please wait while making appointment',
       'while_saving_changes': 'Please wait while saving changes',
       'receipt_uploading': 'Receipt Uploading...',
@@ -1337,6 +1359,27 @@ class Words extends Translations {
       'fail': 'فشل',
       'fail_description': 'فشل الدفع، حاول مرة أخرى',
       'appointment_made_success': 'تم تحديد الموعد بنجاح',
+      'subscription_success_message':
+          'تم الاشتراك بنجاح! تمت إضافة {sessions} جلسات إلى حسابك.',
+      'payment_booking_success': 'تم الدفع بنجاح! تم حجز موعدك.',
+      'authentication_error_title': 'خطأ في المصادقة',
+      'failed_to_connect_payment_service':
+          'فشل الاتصال بخدمة الدفع: {message}',
+      'payment_failed_title': 'فشل الدفع',
+      'transaction_declined': 'تم رفض المعاملة. يرجى المحاولة مرة أخرى.',
+      'payment_timeout_title': 'انتهت مهلة الدفع',
+      'payment_timeout_message':
+          'الدفع يستغرق وقتاً أطول من المتوقع. يرجى التحقق من حالة معاملتك.',
+      'failed_to_process_payment_try_again':
+          'فشل في معالجة الدفع. يرجى المحاولة مرة أخرى.',
+      'payment_cancelled_or_failed':
+          'تم إلغاء الدفع أو فشله. يرجى المحاولة مرة أخرى.',
+      'patient_id_not_found': 'معرف المريض غير موجود',
+      'apple_pay_error': 'خطأ في Apple Pay',
+      'google_pay_error': 'خطأ في Google Pay',
+      'cannot_open_whatsapp_app': 'تعذر فتح تطبيق الواتساب',
+      'digital_wallet_coming_soon': 'الدفع بالمحفظة الرقمية قريباً!',
+      'buy_with_platform': 'الشراء عبر {platform}',
       'appoint_make_dialog': 'يرجى الانتظار أثناء تحديد الموعد',
       'while_saving_changes': 'يرجى الانتظار أثناء حفظ التغييرات',
       'receipt_uploading': 'جاري رفع الإيصال...',
@@ -2454,6 +2497,31 @@ class Words extends Translations {
       'fail': 'Échec',
       'fail_description': 'Votre paiement a échoué, réessayez',
       'appointment_made_success': 'Rendez-vous pris avec succès',
+      'subscription_success_message':
+          'Abonnement réussi ! {sessions} séances ajoutées à votre compte.',
+      'payment_booking_success':
+          'Paiement réussi ! Votre rendez-vous a été réservé.',
+      'authentication_error_title': 'Erreur d\'authentification',
+      'failed_to_connect_payment_service':
+          'Échec de la connexion au service de paiement : {message}',
+      'payment_failed_title': 'Échec du paiement',
+      'transaction_declined':
+          'La transaction a été refusée. Veuillez réessayer.',
+      'payment_timeout_title': 'Délai de paiement dépassé',
+      'payment_timeout_message':
+          'Le paiement prend plus de temps que prévu. Veuillez vérifier le statut de votre transaction.',
+      'failed_to_process_payment_try_again':
+          'Échec du traitement du paiement. Veuillez réessayer.',
+      'payment_cancelled_or_failed':
+          'Le paiement a été annulé ou a échoué. Veuillez réessayer.',
+      'patient_id_not_found': 'ID patient introuvable',
+      'apple_pay_error': 'Erreur Apple Pay',
+      'google_pay_error': 'Erreur Google Pay',
+      'cannot_open_whatsapp_app':
+          'Impossible d\'ouvrir l\'application WhatsApp',
+      'digital_wallet_coming_soon':
+          'Paiement par portefeuille numérique bientôt disponible !',
+      'buy_with_platform': 'Acheter avec {platform}',
       'appoint_make_dialog':
           'Veuillez patienter pendant la prise de rendez-vous',
       'while_saving_changes':

@@ -12,6 +12,8 @@ class DAllAppointmentsController extends GetxController {
   ScrollController scrollController = ScrollController();
   RxBool isLoaded = false.obs;
   RxBool isErrorInLoading = false.obs;
+  /// Doctor's timezone offset for displaying stored UTC booking times in doctor local.
+  RxInt doctorTimezoneOffsetHours = 0.obs;
 
   Future<void> fetchPastAppointments() async {
     isErrorInLoading.value = false;
@@ -25,6 +27,18 @@ class DAllAppointmentsController extends GetxController {
         return;
       }
       userId.value = doctorId;
+      // Fetch doctor timezone for UTC → doctor local display
+      try {
+        final doctorRow = await supabaseHelper.client
+            .from('doctors')
+            .select('timezone_offset_hours')
+            .eq('doctor_id', doctorId)
+            .maybeSingle();
+        if (doctorRow != null && doctorRow['timezone_offset_hours'] != null) {
+          doctorTimezoneOffsetHours.value =
+              (doctorRow['timezone_offset_hours'] as num).toInt();
+        }
+      } catch (_) {}
       // Fetch appointments from Supabase
       final response = await supabaseHelper
           .from('bookings')

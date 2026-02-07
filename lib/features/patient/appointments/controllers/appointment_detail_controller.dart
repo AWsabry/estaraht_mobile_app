@@ -160,7 +160,7 @@ class UserAppointmentDetailsController extends GetxController {
           Get.back();
         },
         s1: 'error'.tr,
-        s2: '${req.reasonPhrase}'.tr,
+        s2: 'an_unexpected_error_occurred'.tr,
       );
       return false;
     }
@@ -177,7 +177,7 @@ class UserAppointmentDetailsController extends GetxController {
           Get.back();
         },
         s1: 'error'.tr,
-        s2: e.toString(),
+        s2: 'an_unexpected_error_occurred'.tr,
       );
       return false;
     }

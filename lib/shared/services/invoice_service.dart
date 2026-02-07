@@ -37,47 +37,60 @@ class InvoiceService {
     return result;
   }
 
-  bool _containsArabic(String text) {
-    // Check if text contains Arabic characters (Unicode range: \u0600-\u06FF)
-    return RegExp(r'[\u0600-\u06FF]').hasMatch(text);
-  }
-
-  String _applyRtlSupport(String htmlContent, Map<String, String> variables) {
-    // Check if any variable contains Arabic text
-    bool hasArabic = false;
-    variables.forEach((key, value) {
-      if (_containsArabic(value)) {
-        hasArabic = true;
-      }
-    });
-
-    // Also check current language
+  /// Get current app language code (en, ar, fr) for email language and RTL.
+  String _getAppLanguageCode() {
     try {
       final languageController = Get.find<LanguageController>();
-      if (languageController.currentLanguage.value == 'ar') {
-        hasArabic = true;
-      }
-    } catch (e) {
-      // LanguageController not available, continue with text detection
+      final lang = languageController.currentLanguage.value;
+      if (lang == 'ar' || lang == 'fr' || lang == 'en') return lang;
+    } catch (_) {}
+    final locale = Get.locale;
+    if (locale != null) {
+      if (locale.languageCode == 'ar' || locale.languageCode == 'fr') return locale.languageCode;
+      return 'en';
     }
+    return 'en';
+  }
 
-    if (hasArabic) {
-      // Add dir="rtl" to html tag
-      htmlContent = htmlContent.replaceAll('<html>', '<html dir="rtl">');
-
-      // Add rtl class to body
-      htmlContent = htmlContent.replaceAll(
-        '<body style="',
-        '<body class="rtl" style="',
-      );
-
-      // Add RTL styles to main content divs
-      htmlContent = htmlContent.replaceAll(
-        '<div style="background: #fff;',
-        '<div class="rtl" style="background: #fff;',
-      );
+  /// Email subject by type and app language.
+  String _getEmailSubject(String type, String lang) {
+    switch (type) {
+      case 'subscription_invoice':
+        return lang == 'ar'
+            ? 'فاتورة اشتراكك - Estaraht'
+            : lang == 'fr'
+                ? 'Votre facture d\'abonnement Estaraht'
+                : 'Your Estaraht Subscription Invoice';
+      case 'withdrawal_receipt':
+        return lang == 'ar'
+            ? 'إيصال السحب - Estaraht'
+            : lang == 'fr'
+                ? 'Votre reçu de retrait Estaraht'
+                : 'Your Estaraht Withdrawal Receipt';
+      case 'session_summary':
+        return lang == 'ar'
+            ? 'ملخص الجلسة - Estaraht'
+            : lang == 'fr'
+                ? 'Résumé de la séance - Estaraht'
+                : 'Your Estaraht Session Summary';
+      default:
+        return 'Estaraht';
     }
+  }
 
+  /// Apply RTL to HTML when app language is Arabic (no new data/buttons).
+  String _applyRtlSupport(String htmlContent, String appLanguageCode) {
+    if (appLanguageCode != 'ar') return htmlContent;
+
+    htmlContent = htmlContent.replaceAll('<html>', '<html dir="rtl" lang="ar">');
+    htmlContent = htmlContent.replaceAll(
+      '<body style="',
+      '<body class="rtl" style="',
+    );
+    htmlContent = htmlContent.replaceAll(
+      '<div style="background: #fff;',
+      '<div class="rtl" style="background: #fff;',
+    );
     return htmlContent;
   }
 
@@ -126,20 +139,20 @@ class InvoiceService {
         'APP_LINK': 'https://estaraht.com/app',
       };
 
+      final appLang = _getAppLanguageCode();
       String htmlContent = _replaceTemplateVariables(
         _subscriptionTemplate!,
         variables,
       );
 
-      // Apply RTL support for Arabic
-      htmlContent = _applyRtlSupport(htmlContent, variables);
+      htmlContent = _applyRtlSupport(htmlContent, appLang);
 
       loggerNoStack.i('📧 InvoiceService: Calling EmailService.sendEmail...');
 
       final success = await EmailService.sendEmail(
         to: patientEmail,
         toName: patientName,
-        subject: 'Your Estaraht Subscription Invoice',
+        subject: _getEmailSubject('subscription_invoice', appLang),
         body: htmlContent,
         isHtml: true,
       );
@@ -189,18 +202,18 @@ class InvoiceService {
         'REMAINING_BALANCE': '$currency $remainingBalance',
       };
 
+      final appLang = _getAppLanguageCode();
       String htmlContent = _replaceTemplateVariables(
         _withdrawalTemplate!,
         variables,
       );
 
-      // Apply RTL support for Arabic
-      htmlContent = _applyRtlSupport(htmlContent, variables);
+      htmlContent = _applyRtlSupport(htmlContent, appLang);
 
       final success = await EmailService.sendEmail(
         to: doctorEmail,
         toName: doctorName,
-        subject: 'Your Estaraht Withdrawal Receipt',
+        subject: _getEmailSubject('withdrawal_receipt', appLang),
         body: htmlContent,
         isHtml: true,
       );
@@ -268,13 +281,13 @@ class InvoiceService {
             .replaceAll('{{/IF_PATIENT}}', '');
       }
 
-      // Apply RTL support for Arabic
-      htmlContent = _applyRtlSupport(htmlContent, variables);
+      final appLang = _getAppLanguageCode();
+      htmlContent = _applyRtlSupport(htmlContent, appLang);
 
       final success = await EmailService.sendEmail(
         to: recipientEmail,
         toName: recipientName,
-        subject: 'Your Estaraht Session Summary',
+        subject: _getEmailSubject('session_summary', appLang),
         body: htmlContent,
         isHtml: true,
       );

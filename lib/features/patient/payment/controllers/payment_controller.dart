@@ -733,8 +733,11 @@ class PaymentController extends GetxController {
         );
 
         Get.snackbar(
-          'Authentication Error',
-          'Failed to connect to payment service: ${authResult['message']}',
+          'authentication_error_title'.tr,
+          'failed_to_connect_payment_service'.tr.replaceAll(
+            '{message}',
+            authResult['message']?.toString() ?? '',
+          ),
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.red,
           colorText: Colors.white,
@@ -775,8 +778,8 @@ class PaymentController extends GetxController {
         );
 
         Get.snackbar(
-          'Payment Failed',
-          errorMessage ?? 'Payment processing failed',
+          'payment_failed_title'.tr,
+          errorMessage ?? 'payment_processing_failed'.tr,
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.red,
           colorText: Colors.white,
@@ -836,8 +839,8 @@ class PaymentController extends GetxController {
             );
 
             Get.snackbar(
-              'Payment Failed',
-              'Transaction was declined. Please try again.',
+              'payment_failed_title'.tr,
+              'transaction_declined'.tr,
               snackPosition: SnackPosition.BOTTOM,
               backgroundColor: Colors.red,
               colorText: Colors.white,
@@ -867,8 +870,8 @@ class PaymentController extends GetxController {
         );
 
         Get.snackbar(
-          'Payment Timeout',
-          'Payment is taking longer than expected. Please check your transaction status.',
+          'payment_timeout_title'.tr,
+          'payment_timeout_message'.tr,
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.orange,
           colorText: Colors.white,
@@ -899,8 +902,11 @@ class PaymentController extends GetxController {
 
         loggerNoStack.i('✅ Plan subscription completed successfully!');
         Get.snackbar(
-          'Success',
-          'Subscription successful! ${selectedPlan!.sessions} sessions added to your account.',
+          'success_str'.tr,
+          'subscription_success_message'.tr.replaceAll(
+            '{sessions}',
+            '${selectedPlan!.sessions}',
+          ),
           snackPosition: SnackPosition.TOP,
           backgroundColor: Colors.green,
           colorText: Colors.white,
@@ -918,8 +924,8 @@ class PaymentController extends GetxController {
 
         loggerNoStack.i('✅ Payment and booking completed successfully!');
         Get.snackbar(
-          'Success',
-          'Payment successful! Your appointment has been booked.',
+          'success_str'.tr,
+          'payment_booking_success'.tr,
           snackPosition: SnackPosition.TOP,
           backgroundColor: Colors.green,
           colorText: Colors.white,
@@ -1105,27 +1111,39 @@ class PaymentController extends GetxController {
       // Deduct session from patient's available count
       await _deductSessionFromPatient(patientId);
 
-      // Parse booking date and time
-      final bookingDate = DateTime.parse(appointmentDate);
-      final timeParts = appointmentTime.split(':');
-      final bookingTime = TimeOfDay(
-        hour: int.parse(timeParts[0]),
-        minute: int.parse(timeParts[1]),
-      );
+      // appointmentDate and appointmentTime are in doctor's local time; convert to UTC for storage
+      int doctorOffset = 0;
+      try {
+        final doctorRow = await Supabase.instance.client
+            .from('doctors')
+            .select('timezone_offset_hours')
+            .eq('doctor_id', doctorId)
+            .maybeSingle();
+        if (doctorRow != null && doctorRow['timezone_offset_hours'] != null) {
+          doctorOffset = (doctorRow['timezone_offset_hours'] as num).toInt();
+        }
+      } catch (_) {}
 
-      // Format time as HH:mm:ss
-      final formattedTime =
-          '${bookingTime.hour.toString().padLeft(2, '0')}:${bookingTime.minute.toString().padLeft(2, '0')}:00';
+      final timeStr = appointmentTime.contains(':')
+          ? appointmentTime.length >= 5
+              ? appointmentTime.substring(0, 5)
+              : appointmentTime
+          : appointmentTime;
+      final utcBooking = TimezoneService.localDateAndTimeToUtcStrings(
+        appointmentDate,
+        timeStr,
+        doctorOffset,
+      );
 
       loggerNoStack.d(
-        'Booking Date: ${bookingDate.toIso8601String().split('T')[0]}',
+        'Booking Date (UTC): ${utcBooking.utcDateStr}',
       );
-      loggerNoStack.d('Booking Time: $formattedTime');
+      loggerNoStack.d('Booking Time (UTC): ${utcBooking.utcTimeStr}');
 
       // Generate unique booking ID with date prefix
       final bookingId = _generateBookingId();
 
-      // Create booking data
+      // Create booking data (store UTC)
       final bookingData = {
         'patient_id': patientId,
         'doctor_id': doctorId,
@@ -1136,10 +1154,8 @@ class PaymentController extends GetxController {
         'video_session_id': null, // Will be set when video call starts
         'created_at': TimezoneService.getCurrentMauritaniaTime()
             .toIso8601String(),
-        'booking_date': bookingDate.toIso8601String().split(
-          'T',
-        )[0], // YYYY-MM-DD
-        'booking_time': formattedTime, // HH:mm:ss
+        'booking_date': utcBooking.utcDateStr,
+        'booking_time': utcBooking.utcTimeStr,
       };
 
       loggerNoStack.d('Booking data to insert: $bookingData');
@@ -1369,9 +1385,11 @@ class PaymentController extends GetxController {
 
         loggerNoStack.i('✅ Stripe plan subscription completed successfully!');
         _showSafeSnackbar(
-          title: 'Success',
-          message:
-              'Subscription successful! ${selectedPlan!.sessions} sessions added to your account.',
+          title: 'success_str'.tr,
+          message: 'subscription_success_message'.tr.replaceAll(
+            '{sessions}',
+            '${selectedPlan!.sessions}',
+          ),
           position: SnackPosition.TOP,
           backgroundColor: Colors.green,
         );
@@ -1385,8 +1403,8 @@ class PaymentController extends GetxController {
 
         loggerNoStack.i('✅ Stripe payment and booking completed successfully!');
         _showSafeSnackbar(
-          title: 'Success',
-          message: 'Payment successful! Your appointment has been booked.',
+          title: 'success_str'.tr,
+          message: 'payment_booking_success'.tr,
           position: SnackPosition.TOP,
           backgroundColor: Colors.green,
         );
@@ -1407,8 +1425,8 @@ class PaymentController extends GetxController {
       );
 
       _showSafeSnackbar(
-        title: 'Payment Failed',
-        message: 'Payment was cancelled or failed. Please try again.',
+        title: 'payment_failed_title'.tr,
+        message: 'payment_cancelled_or_failed'.tr,
         position: SnackPosition.BOTTOM,
         backgroundColor: Colors.red,
       );
@@ -1627,9 +1645,11 @@ class PaymentController extends GetxController {
 
         loggerNoStack.i('✅ Digital wallet plan subscription completed!');
         _showSafeSnackbar(
-          title: 'Success',
-          message:
-              'Subscription successful! ${selectedPlan!.sessions} sessions added.',
+          title: 'success_str'.tr,
+          message: 'subscription_success_message'.tr.replaceAll(
+            '{sessions}',
+            '${selectedPlan!.sessions}',
+          ),
           position: SnackPosition.TOP,
           backgroundColor: Colors.green,
         );
@@ -1642,8 +1662,8 @@ class PaymentController extends GetxController {
 
         loggerNoStack.i('✅ Digital wallet payment and booking completed!');
         _showSafeSnackbar(
-          title: 'Success',
-          message: 'Payment successful! Your appointment has been booked.',
+          title: 'success_str'.tr,
+          message: 'payment_booking_success'.tr,
           position: SnackPosition.TOP,
           backgroundColor: Colors.green,
         );
@@ -1665,7 +1685,7 @@ class PaymentController extends GetxController {
 
       _showSafeSnackbar(
         title: 'error'.tr,
-        message: 'Failed to process payment. Please try again.',
+        message: 'failed_to_process_payment_try_again'.tr,
         position: SnackPosition.BOTTOM,
         backgroundColor: Colors.red,
       );

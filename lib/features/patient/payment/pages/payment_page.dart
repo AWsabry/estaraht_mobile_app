@@ -548,7 +548,7 @@ class _PaymentScreenState extends State<PaymentScreen>
             // TODO: Handle digital wallet payment
             customDialog(
               s1: platformName,
-              s2: 'Digital wallet payment coming soon!',
+              s2: 'digital_wallet_coming_soon'.tr,
             );
           },
           borderRadius: BorderRadius.circular(12),
@@ -564,7 +564,7 @@ class _PaymentScreenState extends State<PaymentScreen>
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  'Buy with $platformName',
+                  'buy_with_platform'.trParams({'platform': platformName}),
                   style: const CustomTextStyle(
                     color: Colors.white,
                     fontSize: 16,
@@ -928,8 +928,8 @@ class _PaymentScreenState extends State<PaymentScreen>
                 onError: (error) {
                   loggerNoStack.e('❌ Apple Pay error: $error');
                   Get.snackbar(
-                    'Apple Pay Error',
-                    error.toString(),
+                    'apple_pay_error'.tr,
+                    'an_unexpected_error_occurred'.tr,
                     snackPosition: SnackPosition.BOTTOM,
                     backgroundColor: Colors.red,
                     colorText: Colors.white,
@@ -955,8 +955,8 @@ class _PaymentScreenState extends State<PaymentScreen>
                 onError: (error) {
                   loggerNoStack.e('❌ Google Pay error: $error');
                   Get.snackbar(
-                    'Google Pay Error',
-                    error.toString(),
+                    'google_pay_error'.tr,
+                    'an_unexpected_error_occurred'.tr,
                     snackPosition: SnackPosition.BOTTOM,
                     backgroundColor: Colors.red,
                     colorText: Colors.white,

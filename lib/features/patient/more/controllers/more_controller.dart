@@ -68,8 +68,8 @@ class PatientMoreScreenController extends GetxController {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
       } else {
         Get.snackbar(
-          'خطأ',
-          'تعذر فتح تطبيق الواتساب',
+          'error'.tr,
+          'cannot_open_whatsapp_app'.tr,
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.red,
           colorText: Colors.white,
@@ -77,8 +77,8 @@ class PatientMoreScreenController extends GetxController {
       }
     } catch (e) {
       Get.snackbar(
-        'خطأ',
-        'تعذر فتح تطبيق الواتساب',
+        'error'.tr,
+        'cannot_open_whatsapp_app'.tr,
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red,
         colorText: Colors.white,

@@ -136,6 +136,8 @@ class DoctorAllAppointments extends GetView<DAllAppointmentsController> {
                 ? appointment.bookingTime!.substring(0, 5)
                 : appointment.bookingTime!,
             isArabic: isArabic,
+            doctorTimezoneOffsetHours:
+                appointmentsController.doctorTimezoneOffsetHours.value,
           )
         : null;
     final parts = dateTimeFormatted?.split(' - ') ?? [];

@@ -1,3 +1,4 @@
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:videocalling/core/config/app_imports.dart';
 import 'package:videocalling/features/doctor/appointments/pages/add_medicine_page.dart';
 import 'package:videocalling/shared/services/others/timezone_service.dart';
@@ -193,8 +194,8 @@ class DoctorAppointmentDetails extends GetView<DAppointmentDetailsController> {
                             .doctorAppointmentDetailsClass
                             .data!
                             .userName!,
-                        style: const CustomTextStyle(
-                          fontSize: 18,
+                        style: CustomTextStyle(
+                          fontSize: 18.sp,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -215,7 +216,7 @@ class DoctorAppointmentDetails extends GetView<DAppointmentDetailsController> {
               child: Row(
                 children: [
                   const Icon(Icons.calendar_today, color: Color(0xFF3366FF)),
-                  const SizedBox(width: 12),
+                  SizedBox(width: 12.w),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -223,15 +224,15 @@ class DoctorAppointmentDetails extends GetView<DAppointmentDetailsController> {
                         Text(
                           'appointment_date'.tr,
                           style: CustomTextStyle(
-                            fontSize: 14,
+                            fontSize: 14.sp,
                             color: Colors.grey[700],
                           ),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           dateFormatted,
-                          style: const CustomTextStyle(
-                            fontSize: 16,
+                          style: CustomTextStyle(
+                            fontSize: 14.sp,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -460,7 +461,7 @@ class DoctorAppointmentDetails extends GetView<DAppointmentDetailsController> {
                         if (patientId.isEmpty) {
                           Get.snackbar(
                             'error'.tr,
-                            'Patient ID not found',
+                            'patient_id_not_found'.tr,
                             snackPosition: SnackPosition.BOTTOM,
                           );
                           return;

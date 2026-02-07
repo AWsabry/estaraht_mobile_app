@@ -55,37 +55,18 @@ class TimezoneService {
   }
 
   /// Check if user can join video session (5 mins before appointment).
-  /// Uses UTC: appointment is in doctor's local time; we convert to UTC and compare
-  /// with DateTime.now().toUtc(). Must use DateTime.utc() to avoid device timezone affecting the result.
-  /// [doctorTimezoneOffsetHours] = doctor's offset from UTC (e.g. +2 for Egypt, -5 for US Eastern).
+  /// Stored booking_date + booking_time are in UTC; parse as UTC and compare with nowUtc.
+  /// [doctorTimezoneOffsetHours] kept for API compatibility, not used when stored is UTC.
   static bool canJoinVideoSession({
     required String bookingDate,
     required String bookingTime,
     required int doctorTimezoneOffsetHours,
   }) {
     try {
-      final dateParts = bookingDate.split('-');
-      final timeParts = bookingTime.split(':');
-      if (dateParts.length < 3 || timeParts.isEmpty) return false;
-
-      final year = int.parse(dateParts[0]);
-      final month = int.parse(dateParts[1]);
-      final day = int.parse(dateParts[2]);
-      final hour = int.parse(timeParts[0]);
-      final minute = timeParts.length > 1 ? int.parse(timeParts[1]) : 0;
-
-      // Build UTC moment: appointment (doctor local) minus offset = UTC
-      // Use DateTime.utc() so comparison with nowUtc is correct (device timezone must not affect this)
-      final appointmentUtc = DateTime.utc(
-        year,
-        month,
-        day,
-        hour - doctorTimezoneOffsetHours,
-        minute,
-      );
+      final appointmentUtc = parseUtcBookingToDateTime(bookingDate, bookingTime);
+      if (appointmentUtc == null) return true;
       final canJoinUtc = appointmentUtc.subtract(const Duration(minutes: 5));
       final nowUtc = DateTime.now().toUtc();
-
       return nowUtc.isAfter(canJoinUtc) || nowUtc.isAtSameMomentAs(canJoinUtc);
     } catch (_) {
       return true; // Fail open
@@ -93,32 +74,16 @@ class TimezoneService {
   }
 
   /// Check if the session has started (current time >= appointment start time).
-  /// Used to show confirm-session-completion card only after session begins.
+  /// Stored booking_date + booking_time are in UTC.
   static bool hasSessionStarted({
     required String bookingDate,
     required String bookingTime,
     required int doctorTimezoneOffsetHours,
   }) {
     try {
-      final dateParts = bookingDate.split('-');
-      final timeParts = bookingTime.split(':');
-      if (dateParts.length < 3 || timeParts.isEmpty) return false;
-
-      final year = int.parse(dateParts[0]);
-      final month = int.parse(dateParts[1]);
-      final day = int.parse(dateParts[2]);
-      final hour = int.parse(timeParts[0]);
-      final minute = timeParts.length > 1 ? int.parse(timeParts[1]) : 0;
-
-      final appointmentUtc = DateTime.utc(
-        year,
-        month,
-        day,
-        hour - doctorTimezoneOffsetHours,
-        minute,
-      );
+      final appointmentUtc = parseUtcBookingToDateTime(bookingDate, bookingTime);
+      if (appointmentUtc == null) return false;
       final nowUtc = DateTime.now().toUtc();
-
       return nowUtc.isAfter(appointmentUtc) ||
           nowUtc.isAtSameMomentAs(appointmentUtc);
     } catch (_) {
@@ -127,29 +92,15 @@ class TimezoneService {
   }
 
   /// Get human-readable time until user can join (5 mins before appointment).
+  /// Stored booking_date + booking_time are in UTC.
   static String getTimeUntilCanJoinVideoSession({
     required String bookingDate,
     required String bookingTime,
     required int doctorTimezoneOffsetHours,
   }) {
     try {
-      final dateParts = bookingDate.split('-');
-      final timeParts = bookingTime.split(':');
-      if (dateParts.length < 3 || timeParts.isEmpty) return '';
-
-      final year = int.parse(dateParts[0]);
-      final month = int.parse(dateParts[1]);
-      final day = int.parse(dateParts[2]);
-      final hour = int.parse(timeParts[0]);
-      final minute = timeParts.length > 1 ? int.parse(timeParts[1]) : 0;
-
-      final appointmentUtc = DateTime.utc(
-        year,
-        month,
-        day,
-        hour - doctorTimezoneOffsetHours,
-        minute,
-      );
+      final appointmentUtc = parseUtcBookingToDateTime(bookingDate, bookingTime);
+      if (appointmentUtc == null) return 'now'.tr;
       final canJoinUtc = appointmentUtc.subtract(const Duration(minutes: 5));
       final nowUtc = DateTime.now().toUtc();
       final diff = canJoinUtc.difference(nowUtc);
@@ -433,6 +384,93 @@ class TimezoneService {
     );
   }
 
+  // ---------------------------------------------------------------------------
+  // UTC booking storage: stored = UTC; display uses each user's offset
+  // ---------------------------------------------------------------------------
+
+  /// Parse stored UTC booking_date + booking_time to DateTime (UTC).
+  /// [dateStr] YYYY-MM-DD, [timeStr] HH:mm or HH:mm:ss.
+  static DateTime? parseUtcBookingToDateTime(String dateStr, String timeStr) {
+    try {
+      final dateParts = dateStr.split('-');
+      final timeParts = timeStr.split(':');
+      if (dateParts.length < 3 || timeParts.isEmpty) return null;
+      final year = int.parse(dateParts[0]);
+      final month = int.parse(dateParts[1]);
+      final day = int.parse(dateParts[2]);
+      final hour = int.parse(timeParts[0]);
+      final minute = timeParts.length > 1 ? int.parse(timeParts[1]) : 0;
+      return DateTime.utc(year, month, day, hour, minute);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// Convert local (e.g. doctor) date+time to UTC for storage.
+  /// [dateStr] YYYY-MM-DD, [timeStr] HH:mm or HH:mm:ss in local time.
+  /// Returns (utcDateStr, utcTimeStr) for booking_date and booking_time.
+  static ({String utcDateStr, String utcTimeStr}) localDateAndTimeToUtcStrings(
+    String dateStr,
+    String timeStr,
+    int localOffsetHours,
+  ) {
+    final dateParts = dateStr.split('-');
+    final timeParts = timeStr.split(':');
+    if (dateParts.length < 3 || timeParts.isEmpty) {
+      return (utcDateStr: dateStr, utcTimeStr: timeStr);
+    }
+    final year = int.parse(dateParts[0]);
+    final month = int.parse(dateParts[1]);
+    final day = int.parse(dateParts[2]);
+    final hour = int.parse(timeParts[0]);
+    final minute = timeParts.length > 1 ? int.parse(timeParts[1]) : 0;
+    // Local moment as if it were UTC, then subtract offset to get real UTC
+    final utcMoment = DateTime.utc(year, month, day, hour, minute)
+        .subtract(Duration(hours: localOffsetHours));
+    final utcDateStr =
+        '${utcMoment.year}-${utcMoment.month.toString().padLeft(2, '0')}-${utcMoment.day.toString().padLeft(2, '0')}';
+    final utcTimeStr =
+        '${utcMoment.hour.toString().padLeft(2, '0')}:${utcMoment.minute.toString().padLeft(2, '0')}:00';
+    return (utcDateStr: utcDateStr, utcTimeStr: utcTimeStr);
+  }
+
+  /// Convert stored UTC booking to local time string (HH:mm) for a given offset.
+  /// Used when building "booked slots" in doctor local for a given day.
+  static String utcBookingToLocalTimeString(
+    String dateStr,
+    String timeStr,
+    int localOffsetHours,
+  ) {
+    final utc = parseUtcBookingToDateTime(dateStr, timeStr);
+    if (utc == null) return '';
+    final local = utc.add(Duration(hours: localOffsetHours));
+    return '${local.hour.toString().padLeft(2, '0')}:${local.minute.toString().padLeft(2, '0')}';
+  }
+
+  /// Get UTC date range that overlaps a given local date (for querying bookings).
+  /// [localDateStr] YYYY-MM-DD in local time; [localOffsetHours] that timezone's offset.
+  /// Returns (utcDateStart, utcDateEnd) inclusive - the UTC dates that might contain bookings for that local day.
+  static ({String start, String end}) utcDateRangeForLocalDay(
+    String localDateStr,
+    int localOffsetHours,
+  ) {
+    final parts = localDateStr.split('-');
+    if (parts.length < 3) return (start: localDateStr, end: localDateStr);
+    final year = int.parse(parts[0]);
+    final month = int.parse(parts[1]);
+    final day = int.parse(parts[2]);
+    // Local day start = 00:00 local = 00:00 - offset in UTC (might be previous UTC day)
+    final localDayStartUtc = DateTime.utc(year, month, day, 0, 0)
+        .subtract(Duration(hours: localOffsetHours));
+    final localDayEndUtc = DateTime.utc(year, month, day, 23, 59)
+        .subtract(Duration(hours: localOffsetHours));
+    final startStr =
+        '${localDayStartUtc.year}-${localDayStartUtc.month.toString().padLeft(2, '0')}-${localDayStartUtc.day.toString().padLeft(2, '0')}';
+    final endStr =
+        '${localDayEndUtc.year}-${localDayEndUtc.month.toString().padLeft(2, '0')}-${localDayEndUtc.day.toString().padLeft(2, '0')}';
+    return (start: startStr, end: endStr);
+  }
+
   /// Get user's timezone name/abbreviation
   /// Example: "EET" for Egypt, "EST" for US East, etc.
   static String getUserTimezoneName() {
@@ -585,36 +623,22 @@ class TimezoneService {
     return '$h12:${minute.toString().padLeft(2, '0')} $period';
   }
 
-  /// Format appointment date+time for display - patient view (only patient's local time)
-  /// Stored time is in doctor's timezone; we convert to UTC then to patient's device timezone
+  /// Format appointment date+time for display - patient view (only patient's local time).
+  /// Stored time is UTC; convert to patient's local (device .toLocal() or patient offset).
   static String formatAppointmentForPatient({
     required String dateStr,
     required String timeStr,
     required int doctorTimezoneOffsetHours,
     bool isArabic = false,
+    int? patientTimezoneOffsetHours,
   }) {
     if (dateStr.isEmpty || timeStr.isEmpty) return '';
     try {
-      final dateParts = dateStr.split('-');
-      final timeParts = timeStr.split(':');
-      if (dateParts.length < 3 || timeParts.isEmpty) return '$dateStr $timeStr';
-
-      final year = int.parse(dateParts[0]);
-      final month = int.parse(dateParts[1]);
-      final day = int.parse(dateParts[2]);
-      final hour = int.parse(timeParts[0]);
-      final minute = timeParts.length > 1 ? int.parse(timeParts[1]) : 0;
-
-      // Stored time is doctor's local time. UTC = doctor_local - offset
-      // Use DateTime.utc() so conversion is timezone-independent (device timezone must not affect this)
-      final utcMoment = DateTime.utc(
-        year,
-        month,
-        day,
-        hour - doctorTimezoneOffsetHours,
-        minute,
-      );
-      final patientLocal = utcMoment.toLocal();
+      final utcMoment = parseUtcBookingToDateTime(dateStr, timeStr);
+      if (utcMoment == null) return '$dateStr $timeStr';
+      final patientLocal = patientTimezoneOffsetHours != null
+          ? utcMoment.add(Duration(hours: patientTimezoneOffsetHours))
+          : utcMoment.toLocal();
 
       final dateFmt = isArabic
           ? formatDateArabic(patientLocal)
@@ -626,9 +650,8 @@ class TimezoneService {
     }
   }
 
-  /// Format appointment date+time for display - doctor view
-  /// [doctorTimezoneOffsetHours] - when provided, treats [dateStr]+[timeStr] as UTC and
-  /// converts to doctor's local time for display (handles backend returning UTC)
+  /// Format appointment date+time for display - doctor view.
+  /// Stored time is UTC; convert to doctor local (UTC + doctor_offset) for display.
   static String formatAppointmentForDoctor({
     required String dateStr,
     required String timeStr,
@@ -637,28 +660,15 @@ class TimezoneService {
   }) {
     if (dateStr.isEmpty || timeStr.isEmpty) return '';
     try {
-      final dateParts = dateStr.split('-');
-      final timeParts = timeStr.split(':');
-      if (dateParts.length < 3 || timeParts.isEmpty) return '$dateStr $timeStr';
+      final utcMoment = parseUtcBookingToDateTime(dateStr, timeStr);
+      if (utcMoment == null) return '$dateStr $timeStr';
+      final offset = doctorTimezoneOffsetHours ?? 0;
+      final doctorLocal = utcMoment.add(Duration(hours: offset));
 
-      final year = int.parse(dateParts[0]);
-      final month = int.parse(dateParts[1]);
-      final day = int.parse(dateParts[2]);
-      final hour = int.parse(timeParts[0]);
-      final minute = timeParts.length > 1 ? int.parse(timeParts[1]) : 0;
-
-      DateTime dt;
-      if (doctorTimezoneOffsetHours != null && doctorTimezoneOffsetHours != 0) {
-        // Stored time is UTC; convert to doctor's local for display
-        final utcMoment = DateTime.utc(year, month, day, hour, minute);
-        dt = utcMoment.add(Duration(hours: doctorTimezoneOffsetHours));
-      } else {
-        dt = DateTime(year, month, day, hour, minute);
-      }
       final dateFmt = isArabic
-          ? formatDateArabic(dt)
-          : '${dt.day}/${dt.month}/${dt.year}';
-      final timeFmt = _formatTimeShort(dt, isArabic);
+          ? formatDateArabic(doctorLocal)
+          : '${doctorLocal.day}/${doctorLocal.month}/${doctorLocal.year}';
+      final timeFmt = _formatTimeShort(doctorLocal, isArabic);
       return '$dateFmt - $timeFmt';
     } catch (_) {
       return '$dateStr $timeStr';

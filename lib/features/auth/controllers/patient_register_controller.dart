@@ -188,6 +188,7 @@ class RegisterPatientController extends GetxController {
             'sessions_pending': 0,
             'subscribed': false,
             'subscribed_before': false,
+            'timezone_offset_hours': DateTime.now().timeZoneOffset.inHours,
           });
           print(
             '✅ Patient profile created in Supabase for user ID: ${authResponse.user!.uid}',

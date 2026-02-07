@@ -345,43 +345,75 @@ class DoctorDetailController extends GetxController {
     }
   }
 
-  /// Filter out time slots that are already booked
+  /// Filter out time slots that are already booked.
+  /// [date] is doctor-local date (YYYY-MM-DD). Bookings are stored in UTC.
   Future<List<String>> filterBookedSlots(
     List<String> allSlots,
     String date,
   ) async {
     try {
-      final bookedSlots = await supabaseHelper.client
+      final doctorOffset = doctorTimezoneOffsetHours.value ?? 0;
+      final range = TimezoneService.utcDateRangeForLocalDay(date, doctorOffset);
+      List<dynamic> bookedSlots = await supabaseHelper.client
           .from('bookings')
-          .select('booking_time, status')
+          .select('booking_date, booking_time, status')
           .eq('doctor_id', id)
-          .eq('booking_date', date);
+          .eq('booking_date', range.start);
+      if (range.start != range.end) {
+        final second = await supabaseHelper.client
+            .from('bookings')
+            .select('booking_date, booking_time, status')
+            .eq('doctor_id', id)
+            .eq('booking_date', range.end);
+        bookedSlots = [...bookedSlots, ...second];
+      }
 
       if (bookedSlots.isEmpty) {
         return allSlots;
       }
 
-      // Extract booked time slots
+      final dateParts = date.split('-');
+      if (dateParts.length < 3) return allSlots;
+      final year = int.parse(dateParts[0]);
+      final month = int.parse(dateParts[1]);
+      final day = int.parse(dateParts[2]);
+      final localDayStartUtc = DateTime.utc(year, month, day, 0, 0)
+          .subtract(Duration(hours: doctorOffset));
+      final localDayEndUtc = DateTime.utc(year, month, day, 23, 59)
+          .subtract(Duration(hours: doctorOffset));
+
       Set<String> bookedTimes = {};
       for (var booking in bookedSlots) {
         String status = booking['status']?.toString().toLowerCase() ?? '';
-        if ((status == 'confirmed' || status == 'pending') &&
-            booking['booking_time'] != null) {
-          String timeStr = booking['booking_time'].toString();
-          // Normalize to HH:mm format
-          if (timeStr.contains(':')) {
-            List<String> parts = timeStr.split(':');
-            timeStr = '${parts[0].padLeft(2, '0')}:${parts[1].padLeft(2, '0')}';
-          }
-          bookedTimes.add(timeStr);
-        }
+        if ((status != 'confirmed' && status != 'pending') ||
+            booking['booking_date'] == null ||
+            booking['booking_time'] == null) continue;
+
+        final utcMoment = TimezoneService.parseUtcBookingToDateTime(
+          booking['booking_date'].toString(),
+          booking['booking_time'].toString(),
+        );
+        if (utcMoment == null) continue;
+        if (utcMoment.isBefore(localDayStartUtc) ||
+            utcMoment.isAfter(localDayEndUtc)) continue;
+
+        final timeStr = TimezoneService.utcBookingToLocalTimeString(
+          booking['booking_date'].toString(),
+          booking['booking_time'].toString(),
+          doctorOffset,
+        );
+        if (timeStr.isNotEmpty) bookedTimes.add(timeStr);
       }
 
-      // Filter out booked slots
-      return allSlots.where((slot) => !bookedTimes.contains(slot)).toList();
+      return allSlots.where((slot) {
+        final normalized = slot.contains(':')
+            ? '${slot.split(':')[0].padLeft(2, '0')}:${slot.split(':')[1].padLeft(2, '0')}'
+            : slot;
+        return !bookedTimes.contains(normalized);
+      }).toList();
     } catch (e) {
       loggerNoStack.e('Error filtering booked slots: $e');
-      return allSlots; // Return all slots if error occurs
+      return allSlots;
     }
   }
 

@@ -1,20 +1,22 @@
 import 'package:get/get.dart';
+import 'package:videocalling/features/language/controllers/language_controller.dart';
 import 'package:videocalling/shared/services/others/email_service.dart';
 
 /// Service to send booking email notifications in multiple languages
 class BookingEmailService {
-  /// Get current app language code
+  /// Get current app language code (en, ar, fr) for email language and RTL.
   static String getCurrentLanguageCode() {
+    try {
+      final languageController = Get.find<LanguageController>();
+      final lang = languageController.currentLanguage.value;
+      if (lang == 'ar' || lang == 'fr' || lang == 'en') return lang;
+    } catch (_) {}
     final locale = Get.locale;
-    if (locale == null) return 'ar'; // Default to Arabic
-
-    // Extract language code (e.g., 'en' from 'en_US')
-    final languageCode = locale.languageCode;
-
-    // Support ar, en, fr
-    if (languageCode == 'en') return 'en';
-    if (languageCode == 'fr') return 'fr';
-    return 'ar'; // Default to Arabic
+    if (locale != null) {
+      if (locale.languageCode == 'ar' || locale.languageCode == 'fr') return locale.languageCode;
+      return 'en';
+    }
+    return 'en';
   }
 
   /// Timezone note for doctor email - indicates time is in their local timezone
