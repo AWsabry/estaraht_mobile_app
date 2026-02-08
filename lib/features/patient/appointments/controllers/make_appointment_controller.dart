@@ -59,8 +59,8 @@ class MakeAppointmentController extends GetxController {
   // Available dates list - only dates when doctor is available
   RxList<DateTime> availableDates = <DateTime>[].obs;
 
-  // Maximum days to look ahead for available dates
-  final int maxDaysAhead = 15;
+  // Maximum days to look ahead for available dates (full month)
+  final int maxDaysAhead = 31;
 
   List<String> days = [
     'day1'.tr,
@@ -207,6 +207,19 @@ class MakeAppointmentController extends GetxController {
         );
         return slots;
       }
+      // Backward compatibility: legacy data may have Sunday stored as 7
+      if (dayNumber == 0) {
+        final legacy = await supabase
+            .from('availabilities')
+            .select('time_slots')
+            .eq('doctor_id', doctorId)
+            .eq('day_number', 7)
+            .eq('is_available', true)
+            .maybeSingle();
+        if (legacy != null && legacy['time_slots'] != null) {
+          return List<String>.from(legacy['time_slots']);
+        }
+      }
       loggerNoStack.w('No time slots found for day $dayNumber');
       return [];
     } catch (e) {
@@ -280,9 +293,7 @@ class MakeAppointmentController extends GetxController {
         bookedSlots = [...bookedSlots, ...second];
       }
 
-      loggerNoStack.d(
-        'Booked slots response (${bookedSlots.length} records)',
-      );
+      loggerNoStack.d('Booked slots response (${bookedSlots.length} records)');
 
       if (bookedSlots.isEmpty) {
         loggerNoStack.i('No bookings found for this date');
@@ -295,17 +306,30 @@ class MakeAppointmentController extends GetxController {
       final year = int.parse(dateParts[0]);
       final month = int.parse(dateParts[1]);
       final day = int.parse(dateParts[2]);
-      final localDayStartUtc = DateTime.utc(year, month, day, 0, 0)
-          .subtract(Duration(hours: doctorOffset));
-      final localDayEndUtc = DateTime.utc(year, month, day, 23, 59)
-          .subtract(Duration(hours: doctorOffset));
+      final localDayStartUtc = DateTime.utc(
+        year,
+        month,
+        day,
+        0,
+        0,
+      ).subtract(Duration(hours: doctorOffset));
+      final localDayEndUtc = DateTime.utc(
+        year,
+        month,
+        day,
+        23,
+        59,
+      ).subtract(Duration(hours: doctorOffset));
 
       Set<String> bookedTimes = {};
       for (var booking in bookedSlots) {
         String status = booking['status']?.toString().toLowerCase() ?? '';
-        if ((status != 'confirmed' && status != 'pending' && status != 'accepted') ||
+        if ((status != 'confirmed' &&
+                status != 'pending' &&
+                status != 'accepted') ||
             booking['booking_date'] == null ||
-            booking['booking_time'] == null) continue;
+            booking['booking_time'] == null)
+          continue;
 
         final utcMoment = TimezoneService.parseUtcBookingToDateTime(
           booking['booking_date'].toString(),
@@ -313,7 +337,8 @@ class MakeAppointmentController extends GetxController {
         );
         if (utcMoment == null) continue;
         if (utcMoment.isBefore(localDayStartUtc) ||
-            utcMoment.isAfter(localDayEndUtc)) continue;
+            utcMoment.isAfter(localDayEndUtc))
+          continue;
 
         final timeStr = TimezoneService.utcBookingToLocalTimeString(
           booking['booking_date'].toString(),
@@ -351,6 +376,15 @@ class MakeAppointmentController extends GetxController {
       loggerNoStack.d('Availability response: $response');
 
       bool isAvailable = response != null && response['is_available'] == true;
+      if (!isAvailable && dayNumber == 0) {
+        final legacy = await supabase
+            .from('availabilities')
+            .select('is_available')
+            .eq('doctor_id', doctorId)
+            .eq('day_number', 7)
+            .maybeSingle();
+        isAvailable = legacy != null && legacy['is_available'] == true;
+      }
       loggerNoStack.i('Doctor available on day $dayNumber: $isAvailable');
 
       return isAvailable;
@@ -717,8 +751,7 @@ class MakeAppointmentController extends GetxController {
       final timeParts = slotName.value.split(':');
       final timeStr =
           '${int.parse(timeParts[0]).toString().padLeft(2, '0')}:${int.parse(timeParts[1]).toString().padLeft(2, '0')}:00';
-      final doctorOffset =
-          doctorTimezoneOffsetHours.value ?? 0;
+      final doctorOffset = doctorTimezoneOffsetHours.value ?? 0;
       final utcBooking = TimezoneService.localDateAndTimeToUtcStrings(
         date,
         timeStr,
@@ -1383,17 +1416,18 @@ class MakeAppointmentController extends GetxController {
         return;
       }
 
-      // Get the days of week when doctor is available
+      // Get the days of week when doctor is available (DB: 0=Sunday..6=Saturday; normalize legacy 7→0)
       Set<int> availableDays = weeklyAvailability
           .where((availability) => availability.isAvailable)
-          .map((availability) => availability.dayNumber)
+          .map((availability) =>
+              availability.dayNumber == 7 ? 0 : availability.dayNumber)
           .toSet();
 
       loggerNoStack.i(
         'Doctor is available on days: $availableDays (0=Sunday, 1=Monday, etc.)',
       );
 
-      // Generate available dates for the next maxDaysAhead days (15 days)
+      // Generate available dates for the next maxDaysAhead days (full month)
       // Use doctor's timezone so dates align with doctor's calendar
       final doctorOffset = doctorTimezoneOffsetHours.value ?? 0;
       DateTime currentDate = TimezoneService.getCurrentTimeInDoctorTimezone(
@@ -1401,7 +1435,7 @@ class MakeAppointmentController extends GetxController {
       );
       int daysChecked = 0;
 
-      // Continue until we check all 15 days ahead or find enough dates
+      // Continue until we check all days ahead (full month)
       while (daysChecked < maxDaysAhead) {
         DateTime checkDate = currentDate.add(Duration(days: daysChecked));
 

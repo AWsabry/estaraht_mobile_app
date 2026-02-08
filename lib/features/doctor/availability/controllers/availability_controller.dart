@@ -88,8 +88,9 @@ class DAvailabilityManagementController extends GetxController {
         final availability = AvailabilityModel.fromJson(item);
         availabilities.add(availability);
 
-        // Populate selected slots
-        selectedSlots[availability.dayNumber]?.value = List<String>.from(
+        // Populate selected slots: DB uses 0=Sunday,1=Mon,...,6=Sat; UI uses 1=Mon,...,7=Sun
+        final uiKey = availability.dayNumber == 0 ? 7 : availability.dayNumber;
+        selectedSlots[uiKey]?.value = List<String>.from(
           availability.timeSlots,
         );
       }
@@ -141,9 +142,11 @@ class DAvailabilityManagementController extends GetxController {
       for (int dayNumber = 1; dayNumber <= 7; dayNumber++) {
         final slots = selectedSlots[dayNumber]?.toList() ?? [];
         if (slots.isNotEmpty) {
+          // DB format: 0=Sunday, 1=Monday, ..., 6=Saturday (UI Sunday = 7 → 0)
+          final dbDayNumber = dayNumber == 7 ? 0 : dayNumber;
           dataToInsert.add({
             'doctor_id': doctorId,
-            'day_number': dayNumber,
+            'day_number': dbDayNumber,
             'time_slots': slots,
             'is_available': true,
           });

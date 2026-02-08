@@ -16,7 +16,7 @@ class DoctorDetailController extends GetxController {
   RxList<AvailabilityModel> weeklyAvailability = <AvailabilityModel>[].obs;
   RxList<DateTime> availableDates = <DateTime>[].obs;
   RxBool isLoadingAvailability = false.obs;
-  final int maxDaysAhead = 15;
+  final int maxDaysAhead = 31;
 
   // Time slot display
   RxInt selectedDateIndex = 0.obs;
@@ -151,21 +151,21 @@ class DoctorDetailController extends GetxController {
         return;
       }
 
-      // Get the days of week when doctor is available
+      // Get the days of week when doctor is available (DB: 0=Sunday..6=Saturday; normalize legacy 7→0)
       Set<int> availableDays = weeklyAvailability
           .where((availability) => availability.isAvailable)
-          .map((availability) => availability.dayNumber)
+          .map((availability) =>
+              availability.dayNumber == 7 ? 0 : availability.dayNumber)
           .toSet();
 
       loggerNoStack.i(
         'Doctor is available on days: $availableDays (0=Sunday, 1=Monday, etc.)',
       );
 
-      // Generate available dates for the next maxDaysAhead days (15 days)
+      // Generate available dates for the next maxDaysAhead days (full month)
       DateTime currentDate = TimezoneService.getCurrentMauritaniaTime();
       int daysChecked = 0;
 
-      // Continue until we check all 15 days ahead
       while (daysChecked < maxDaysAhead) {
         DateTime checkDate = currentDate.add(Duration(days: daysChecked));
 
@@ -314,13 +314,25 @@ class DoctorDetailController extends GetxController {
         'Getting time slots for date ${selectedDate.toString().substring(0, 10)}, day number: $dayNumber',
       );
 
-      final response = await supabaseHelper.client
+      var response = await supabaseHelper.client
           .from('availabilities')
           .select('time_slots')
           .eq('doctor_id', id)
           .eq('day_number', dayNumber)
           .eq('is_available', true)
           .maybeSingle();
+
+      // Backward compatibility: legacy data may have Sunday stored as 7
+      if ((response == null || response['time_slots'] == null) &&
+          dayNumber == 0) {
+        response = await supabaseHelper.client
+            .from('availabilities')
+            .select('time_slots')
+            .eq('doctor_id', id)
+            .eq('day_number', 7)
+            .eq('is_available', true)
+            .maybeSingle();
+      }
 
       if (response != null && response['time_slots'] != null) {
         List<String> slots = List<String>.from(response['time_slots']);
@@ -377,17 +389,28 @@ class DoctorDetailController extends GetxController {
       final year = int.parse(dateParts[0]);
       final month = int.parse(dateParts[1]);
       final day = int.parse(dateParts[2]);
-      final localDayStartUtc = DateTime.utc(year, month, day, 0, 0)
-          .subtract(Duration(hours: doctorOffset));
-      final localDayEndUtc = DateTime.utc(year, month, day, 23, 59)
-          .subtract(Duration(hours: doctorOffset));
+      final localDayStartUtc = DateTime.utc(
+        year,
+        month,
+        day,
+        0,
+        0,
+      ).subtract(Duration(hours: doctorOffset));
+      final localDayEndUtc = DateTime.utc(
+        year,
+        month,
+        day,
+        23,
+        59,
+      ).subtract(Duration(hours: doctorOffset));
 
       Set<String> bookedTimes = {};
       for (var booking in bookedSlots) {
         String status = booking['status']?.toString().toLowerCase() ?? '';
         if ((status != 'confirmed' && status != 'pending') ||
             booking['booking_date'] == null ||
-            booking['booking_time'] == null) continue;
+            booking['booking_time'] == null)
+          continue;
 
         final utcMoment = TimezoneService.parseUtcBookingToDateTime(
           booking['booking_date'].toString(),
@@ -395,7 +418,8 @@ class DoctorDetailController extends GetxController {
         );
         if (utcMoment == null) continue;
         if (utcMoment.isBefore(localDayStartUtc) ||
-            utcMoment.isAfter(localDayEndUtc)) continue;
+            utcMoment.isAfter(localDayEndUtc))
+          continue;
 
         final timeStr = TimezoneService.utcBookingToLocalTimeString(
           booking['booking_date'].toString(),
