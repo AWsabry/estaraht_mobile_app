@@ -183,11 +183,8 @@ class SessionManagementService {
         // Deduct from pending sessions
         await completeSession(patientId);
 
-        // Increment doctor's number of sessions
-        await _incrementDoctorSessionCount(doctorId);
-
-        // Add $17 to doctor's wallet
-        await _updateDoctorWallet(doctorId, 17.00);
+        // Doctor wallet + session count: handled by DB trigger on bookings (on_booking_completed_credit_doctor)
+        // so it works when patient confirms last (RLS would block app-side update of doctors table).
 
         // Send session summary emails to both parties
         await _sendSessionCompletionEmails(
@@ -274,11 +271,8 @@ class SessionManagementService {
         // Deduct from pending sessions
         await completeSession(patientId);
 
-        // Increment doctor's number of sessions
-        await _incrementDoctorSessionCount(doctorId);
-
-        // Add $17 to doctor's wallet
-        await _updateDoctorWallet(doctorId, 17.00);
+        // Doctor wallet + session count: handled by DB trigger on bookings (on_booking_completed_credit_doctor)
+        // so it works when patient confirms last (RLS would block app-side update of doctors table).
 
         // Send session summary emails to both parties
         await _sendSessionCompletionEmails(
@@ -312,101 +306,6 @@ class SessionManagementService {
         bothConfirmed: false,
         message: 'Failed to confirm session',
       );
-    }
-  }
-
-  /// Increment doctor's numb_session when session is completed (both confirmed)
-  Future<void> _incrementDoctorSessionCount(String doctorId) async {
-    try {
-      final doctorData = await supabase
-          .from('doctors')
-          .select('numb_session')
-          .eq('doctor_id', doctorId)
-          .single();
-
-      final currentSessions = (doctorData['numb_session'] ?? 0) as num;
-      final newCount = (currentSessions.toInt() + 1).clamp(0, 999999);
-
-      await supabase
-          .from('doctors')
-          .update({'numb_session': newCount})
-          .eq('doctor_id', doctorId);
-
-      loggerNoStack.i(
-        '✅ Doctor $doctorId sessions: $currentSessions → $newCount',
-      );
-    } catch (e, stackTrace) {
-      loggerNoStack.e('❌ Error incrementing doctor session count: $e');
-      loggerNoStack.e('Stack trace: $stackTrace');
-    }
-  }
-
-  /// Update doctor's wallet by adding the specified amount
-  Future<void> _updateDoctorWallet(String doctorId, double amount) async {
-    try {
-      if (doctorId.isEmpty) {
-        loggerNoStack.e('❌ Cannot update wallet: doctorId is empty');
-        return;
-      }
-
-      loggerNoStack.i(
-        '💰 Updating wallet for doctor: $doctorId, adding \$${amount.toStringAsFixed(2)}',
-      );
-
-      // Try to find doctor by doctor_id first (most common case)
-      var doctorData = await supabase
-          .from('doctors')
-          .select('wallet, doctor_id, id')
-          .eq('doctor_id', doctorId)
-          .maybeSingle();
-
-      // If not found by doctor_id, try by id (UUID) in case bookings.doctor_id references id
-      if (doctorData == null) {
-        loggerNoStack.w(
-          '⚠️ Doctor not found with doctor_id: $doctorId, trying id...',
-        );
-        doctorData = await supabase
-            .from('doctors')
-            .select('wallet, doctor_id, id')
-            .eq('id', doctorId)
-            .maybeSingle();
-      }
-
-      if (doctorData == null) {
-        loggerNoStack.e(
-          '❌ Doctor not found with doctor_id or id: $doctorId',
-        );
-        return;
-      }
-
-      final currentWallet = (doctorData['wallet'] ?? 0.0) as num;
-      final newWallet = (currentWallet.toDouble() + amount);
-      final actualDoctorId = doctorData['doctor_id']?.toString() ?? doctorId;
-
-      // Update wallet using doctor_id (the text field, not UUID)
-      final updateResponse = await supabase
-          .from('doctors')
-          .update({'wallet': newWallet})
-          .eq('doctor_id', actualDoctorId)
-          .select('wallet');
-
-      if (updateResponse.isEmpty) {
-        loggerNoStack.e(
-          '❌ Failed to update wallet: No rows affected for doctor_id: $actualDoctorId',
-        );
-        return;
-      }
-
-      final updatedWallet = updateResponse[0]['wallet'] ?? 0.0;
-      loggerNoStack.i(
-        '✅ Doctor $actualDoctorId wallet updated successfully: '
-        '\$${currentWallet.toStringAsFixed(2)} → \$${updatedWallet.toStringAsFixed(2)} '
-        '(+ \$${amount.toStringAsFixed(2)})',
-      );
-    } catch (e, stackTrace) {
-      loggerNoStack.e('❌ Error updating doctor wallet: $e');
-      loggerNoStack.e('Stack trace: $stackTrace');
-      // Don't rethrow - wallet update failure shouldn't block session completion
     }
   }
 
