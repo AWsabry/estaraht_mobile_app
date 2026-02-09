@@ -827,19 +827,42 @@ class MakeAppointment extends GetView<MakeAppointmentController> {
       for (int i = 0; i < list.length; i++) {
         bool isBooked = list[i].isBook == "1";
 
-        // Past time check: use doctor's timezone (slots are in doctor's time)
+        // Past time check: compare slot (doctor local) against *current UTC time*
+        // using doctor's timezone offset, so we don't accidentally block
+        // upcoming slots when patient and doctor are in different timezones.
         bool isPastTime = false;
         if (makeAppointmentController.isToday.value) {
           try {
             String timeSlot = list[i].name ?? "";
             final doctorOffset =
                 makeAppointmentController.doctorTimezoneOffsetHours.value ?? 0;
-            DateTime nowInDoctorTz =
-                TimezoneService.getCurrentTimeInDoctorTimezone(doctorOffset);
-            DateTime slotDateTime = DateFormat('yyyy-MM-dd HH:mm').parse(
-              '${DateFormat('yyyy-MM-dd').format(nowInDoctorTz)} $timeSlot',
+
+            // Date is stored in doctor's local timezone as YYYY-MM-DD
+            final dateStr = makeAppointmentController.date;
+
+            // Normalize time to HH:mm
+            final normalizedTime = timeSlot.length >= 5
+                ? timeSlot.substring(0, 5)
+                : timeSlot;
+
+            // Convert doctor's local date+time to UTC, then compare with now UTC.
+            final utcStrings = TimezoneService.localDateAndTimeToUtcStrings(
+              dateStr,
+              normalizedTime,
+              doctorOffset,
             );
-            isPastTime = nowInDoctorTz.isAfter(slotDateTime);
+
+            final slotUtc = TimezoneService.parseUtcBookingToDateTime(
+              utcStrings.utcDateStr,
+              utcStrings.utcTimeStr,
+            );
+
+            if (slotUtc != null) {
+              final nowUtc = DateTime.now().toUtc();
+              isPastTime = nowUtc.isAfter(slotUtc);
+            } else {
+              isPastTime = false;
+            }
           } catch (e) {
             isPastTime = false;
           }
