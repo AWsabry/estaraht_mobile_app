@@ -52,11 +52,11 @@ class _CallScreenState extends State<CallScreen> {
   Duration _callDuration = Duration.zero;
   Timer? _timer;
 
-  // Session time limit (30 minutes)
-  static const Duration _sessionTimeLimit = Duration(minutes: 30);
+  // Session time limit (45 minutes)
+  static const Duration _sessionTimeLimit = Duration(minutes: 45);
   bool _sessionExpired = false;
 
-  // Time when user joined channel - used to check if full 30 min passed (timer resets when remote leaves)
+  // Time when user joined channel - used to check if full 45 min passed (timer resets when remote leaves)
   DateTime? _channelJoinTime;
 
   @override
@@ -355,7 +355,7 @@ class _CallScreenState extends State<CallScreen> {
   }
 
   void _onSessionExpired() async {
-    loggerNoStack.w('⏰ Session time limit reached (30 minutes)');
+    loggerNoStack.w('⏰ Session time limit reached (45 minutes)');
 
     // Show dialog to user
     if (mounted) {
@@ -413,7 +413,7 @@ class _CallScreenState extends State<CallScreen> {
   }
 
   void _onCallEnd() async {
-    // Auto-complete session ONLY when user was in call for full 30 minutes (if booking info provided)
+    // Auto-complete session ONLY when user was in call for full 45 minutes (if booking info provided)
     // Use _channelJoinTime (total time in channel) - _callDuration resets when remote leaves
     // If user hangs up before 30 min, booking stays confirmed - manual completion from appointment detail
     if (widget.bookingId != null &&

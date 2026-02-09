@@ -812,6 +812,9 @@ class Words extends Translations {
       'appointment_status_4': 'In Process',
       'appointment_status_5': 'Completed',
       'appointment_status_6': 'Rejected',
+      'completed': 'Completed',
+      'received': 'Received',
+      'accepted': 'Accepted',
       'email_address': 'Email Address',
       'consume_it_days': 'Consume it for @days Days',
       'download_prescription': 'Download prescription',
@@ -1363,8 +1366,7 @@ class Words extends Translations {
           'تم الاشتراك بنجاح! تمت إضافة {sessions} جلسات إلى حسابك.',
       'payment_booking_success': 'تم الدفع بنجاح! تم حجز موعدك.',
       'authentication_error_title': 'خطأ في المصادقة',
-      'failed_to_connect_payment_service':
-          'فشل الاتصال بخدمة الدفع: {message}',
+      'failed_to_connect_payment_service': 'فشل الاتصال بخدمة الدفع: {message}',
       'payment_failed_title': 'فشل الدفع',
       'transaction_declined': 'تم رفض المعاملة. يرجى المحاولة مرة أخرى.',
       'payment_timeout_title': 'انتهت مهلة الدفع',
@@ -1719,6 +1721,9 @@ class Words extends Translations {
       'appointment_status_4': 'قيد المعالجة',
       'appointment_status_5': 'مكتمل',
       'appointment_status_6': 'مرفوض',
+      'completed': 'مكتمل',
+      'received': 'مستلم',
+      'accepted': 'مقبول',
       'email_address': 'عنوان البريد الإلكتروني',
       'consume_it_days': 'تناوله لمدة @days يوم',
       'download_prescription': 'تنزيل الوصفة الطبية',
@@ -2616,7 +2621,7 @@ class Words extends Translations {
       // Session Time Limit (French)
       'session_expired': 'Séance expirée',
       'session_time_limit_reached':
-          'La limite de temps de la séance (30 minutes) a été atteinte. L\'appel va maintenant se terminer.',
+          'La limite de temps de la séance (45 minutes) a été atteinte. L\'appel va maintenant se terminer.',
       'ok': 'OK',
 
       'you': 'Vous',
@@ -2644,6 +2649,9 @@ class Words extends Translations {
       'appointment_status_5': 'Terminé',
       'appointment_status_6': 'Refusé',
       'appointment_status_7': 'Annuler',
+      'completed': 'Terminé',
+      'received': 'Reçu',
+      'accepted': 'Accepté',
 
       // Doctor Approval System
       'under_review_title': 'Demande en cours d\'examen',

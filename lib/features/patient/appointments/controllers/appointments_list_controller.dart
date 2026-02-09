@@ -14,21 +14,13 @@ class UAllAppointmentsController extends GetxController {
   UserAAppointmentsClass? userAppointmentsClass;
   ScrollController scrollController = ScrollController();
 
-  // Status mapping based on backend code
-  final Map<String, String> statusMap = {
-    '0': 'Absent',
-    '1': 'Received',
-    '2': 'Approved',
-    '3': 'In Process',
-    '4': 'Completed',
-    '5': 'Rejected',
-    '6': 'Refunded',
-  };
+  // Simplified status mapping for patient side
+  // 1 = Confirmed (booked), 2 = Completed (finished)
+  final Map<String, String> statusMap = {'1': 'Confirmed', '2': 'Completed'};
 
   // Tab and filter state
   RxInt selectedTab = 1.obs; // 0 = Previous, 1 = Upcoming
-  RxInt selectedFilter =
-      0.obs; // 0 = All, 1 = Attended, 2 = Canceled, 3 = Absent
+  RxInt selectedFilter = 0.obs; // 0 = All, 1 = Completed, 2 = Received/Accepted
 
   Future<void> fetchAppointments() async {
     isErrorInLoading.value = false;
@@ -82,22 +74,24 @@ class UAllAppointmentsController extends GetxController {
           final bookingDate = booking['booking_date']?.toString() ?? '';
           final bookingTime = booking['booking_time']?.toString() ?? '';
 
-          // Map Supabase status to numeric codes
-          String status = booking['status']?.toString() ?? 'confirmed';
-          if (status == 'confirmed' || status == 'pending') {
-            status = '1'; // Received
-          } else if (status == 'approved') {
+          // Map Supabase status to two patient-side states:
+          // '1' = confirmed (booked but not finished)
+          // '2' = completed (finished session)
+          String rawStatus = booking['status']?.toString() ?? 'confirmed';
+          final statusLower = rawStatus.toLowerCase();
+
+          String? status;
+          if (statusLower == 'completed') {
             status = '2';
-          } else if (status == 'in_progress') {
-            status = '3';
-          } else if (status == 'completed') {
-            status = '4';
-          } else if (status == 'cancelled' || status == 'rejected') {
-            status = '5';
-          } else if (status == 'refunded') {
-            status = '6';
-          } else if (status == 'absent') {
-            status = '0';
+          } else if (statusLower == 'cancelled' ||
+              statusLower == 'rejected' ||
+              statusLower == 'refunded' ||
+              statusLower == 'absent') {
+            // Hide cancelled / rejected / refunded / absent bookings
+            continue;
+          } else {
+            // Treat all other active states as "confirmed"
+            status = '1';
           }
 
           final appointmentData = UAppointmentData(
@@ -166,23 +160,27 @@ class UAllAppointmentsController extends GetxController {
     final todayStr =
         "${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}";
 
-    // First filter by DATE, based on tab selection to exactly match backend logic
+    // First filter by DATE, based on tab selection
     if (selectedTab.value == 1) {
-      // UPCOMING TAB: Future dates OR today's date with pending status
+      // UPCOMING TAB:
+      // Show only CONFIRMED sessions (status '1') in the future or today
       var upcoming = list.where((appointment) {
         final appointmentDate = appointment.date ?? '';
+        final status = appointment.status;
 
-        // Future dates - always show
+        // Only show confirmed sessions
+        if (status != '1') {
+          return false;
+        }
+
+        // Future dates - show confirmed appointments
         if (appointmentDate.compareTo(todayStr) > 0) {
           return true;
         }
 
-        // Today's appointments with pending status
+        // Today's appointments with confirmed status (booked but not completed)
         if (appointmentDate == todayStr) {
-          final status = appointment.status;
-          return status == '1' ||
-              status == '2' ||
-              status == '3'; // Received, Approved, In Process
+          return true;
         }
 
         return false;
@@ -204,22 +202,25 @@ class UAllAppointmentsController extends GetxController {
 
       filteredList.value = upcoming;
     } else {
-      // PREVIOUS TAB: Past dates OR today's date with completed/canceled status
+      // PREVIOUS TAB:
+      // Show CONFIRMED (1) and COMPLETED (2) sessions in the past or today
       var past = list.where((appointment) {
         final appointmentDate = appointment.date ?? '';
+        final status = appointment.status;
 
-        // Past dates - always show
+        // Only care about confirmed or completed
+        if (status != '1' && status != '2') {
+          return false;
+        }
+
+        // Past dates - always include
         if (appointmentDate.compareTo(todayStr) < 0) {
           return true;
         }
 
-        // Today's appointments with completed/canceled status
+        // Today's appointments - include confirmed/completed
         if (appointmentDate == todayStr) {
-          final status = appointment.status;
-          return status == '0' ||
-              status == '4' ||
-              status == '5' ||
-              status == '6';
+          return true;
         }
 
         return false;
@@ -229,18 +230,13 @@ class UAllAppointmentsController extends GetxController {
 
       // Apply additional status filter for past appointments
       switch (selectedFilter.value) {
-        case 1: // Completed (status 4)
-          filteredList.value = past.where((a) => a.status == '4').toList();
+        case 1: // Completed (status 2)
+          filteredList.value = past.where((a) => a.status == '2').toList();
           break;
-        case 2: // Canceled - Rejected & Refunded (status 5, 6)
-          filteredList.value = past
-              .where((a) => a.status == '5' || a.status == '6')
-              .toList();
+        case 2: // Confirmed (status 1 - booked but not finished)
+          filteredList.value = past.where((a) => a.status == '1').toList();
           break;
-        case 3: // Absent (status 0) - correctly labeled now
-          filteredList.value = past.where((a) => a.status == '0').toList();
-          break;
-        default: // All past
+        default: // All past (confirmed and completed)
           filteredList.value = past;
       }
 

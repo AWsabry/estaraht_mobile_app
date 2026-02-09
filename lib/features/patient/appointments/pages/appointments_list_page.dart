@@ -237,11 +237,9 @@ class UAllAppointments extends GetView<UAllAppointmentsController> {
         children: [
           _buildFilterChip('all'.tr, 0),
           const SizedBox(width: 8),
-          _buildFilterChip('attended'.tr, 1),
+          _buildFilterChip('completed'.tr, 1),
           const SizedBox(width: 8),
-          _buildFilterChip('canceled'.tr, 2),
-          const SizedBox(width: 8),
-          _buildFilterChip('postponed'.tr, 3),
+          _buildFilterChip('received'.tr, 2),
         ],
       ),
     );
@@ -256,13 +254,10 @@ class UAllAppointments extends GetView<UAllAppointmentsController> {
 
     if (isSelected) {
       switch (index) {
-        case 1: // Attended
+        case 1: // Completed
           backgroundColor = AppColors.checkColor2;
           break;
-        case 2: // Canceled
-          backgroundColor = AppColors.checkColor1;
-          break;
-        case 3: // Postponed
+        case 2: // Received/Accepted
           backgroundColor = AppColors.color2;
           break;
         default: // All

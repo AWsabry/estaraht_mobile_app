@@ -105,29 +105,56 @@ class IncomeReportController extends GetxController {
     }
   }
 
-  /// Calculate the available balance (withdrawals only - no payment_history)
+  /// Calculate the available balance by fetching wallet directly from doctors table
   Future<void> _calculateAvailableBalance() async {
     try {
-      // Get ALL withdrawals from withdraws table
-      final withdrawalResponse = await supabaseHelper.client
-          .from('withdraws')
-          .select('total_amount')
-          .eq('doctor_id', doctorId.value);
-
-      double totalWithdrawals = 0;
-      for (var record in withdrawalResponse) {
-        totalWithdrawals += double.parse(record['total_amount'].toString());
+      if (doctorId.value.isEmpty) {
+        loggerNoStack.w('⚠️ Doctor ID is empty, cannot fetch wallet');
+        availableBalance.value = 0.0;
+        return;
       }
 
-      // Available balance (no payment_history - no income tracked)
-      availableBalance.value = 0;
+      // Fetch wallet directly from doctors table
+      final doctorData = await supabaseHelper.client
+          .from('doctors')
+          .select('wallet')
+          .eq('doctor_id', doctorId.value)
+          .maybeSingle();
+      loggerNoStack.i('💰 Doctor data: $doctorData');
+
+      if (doctorData == null) {
+        loggerNoStack.w(
+          '⚠️ Doctor not found with doctor_id: ${doctorId.value}',
+        );
+        // Try by id (UUID) as fallback
+        final doctorDataById = await supabaseHelper.client
+            .from('doctors')
+            .select('wallet')
+            .eq('id', doctorId.value)
+            .maybeSingle();
+
+        if (doctorDataById == null) {
+          loggerNoStack.e(
+            '❌ Doctor not found with doctor_id or id: ${doctorId.value}',
+          );
+          availableBalance.value = 0.0;
+          return;
+        }
+
+        final wallet = (doctorDataById['wallet'] ?? 0.0) as num;
+        availableBalance.value = wallet.toDouble();
+      } else {
+        final wallet = (doctorData['wallet'] ?? 0.0) as num;
+        availableBalance.value = wallet.toDouble();
+      }
 
       loggerNoStack.i(
-        'Available Balance: \$${availableBalance.value} (Withdrawals: \$$totalWithdrawals)',
+        '✅ Available Balance (from wallet): \$${availableBalance.value.toStringAsFixed(2)}',
       );
-    } catch (e) {
-      loggerNoStack.e('Error calculating available balance: $e');
-      availableBalance.value = 0;
+    } catch (e, stackTrace) {
+      loggerNoStack.e('❌ Error fetching wallet from doctors table: $e');
+      loggerNoStack.e('Stack trace: $stackTrace');
+      availableBalance.value = 0.0;
     }
   }
 

@@ -165,7 +165,9 @@ class PushNotificationService {
       'doctor_id': 'doctor_id_here', // Replace with actual doctor ID
       'patient_name': patientName,
       'amount': amount.toString(),
-      'timestamp': TimezoneService.getCurrentMauritaniaTime().millisecondsSinceEpoch.toString(),
+      'timestamp': TimezoneService.getCurrentMauritaniaTime()
+          .millisecondsSinceEpoch
+          .toString(),
     };
 
     return await sendPushNotification(
@@ -202,7 +204,9 @@ class PushNotificationService {
       'appointment_date': appointmentDate,
       'appointment_time': appointmentTime,
       'is_doctor': isForDoctor.toString(),
-      'timestamp': TimezoneService.getCurrentMauritaniaTime().millisecondsSinceEpoch.toString(),
+      'timestamp': TimezoneService.getCurrentMauritaniaTime()
+          .millisecondsSinceEpoch
+          .toString(),
     };
 
     return await sendPushNotification(
@@ -224,8 +228,8 @@ class PushNotificationService {
   }) async {
     const title = 'Appointment Reminder ⏰';
     final body = isForDoctor
-        ? 'You have an appointment with $patientName in 30 minutes at $appointmentTime'
-        : 'Your appointment with Dr. $doctorName is in 30 minutes at $appointmentTime';
+        ? 'You have an appointment with $patientName in 45 minutes at $appointmentTime'
+        : 'Your appointment with Dr. $doctorName is in 45 minutes at $appointmentTime';
 
     final data = {
       'type': 'appointment_reminder',
@@ -234,7 +238,9 @@ class PushNotificationService {
       'doctor_name': doctorName,
       'appointment_time': appointmentTime,
       'is_doctor': isForDoctor.toString(),
-      'timestamp': TimezoneService.getCurrentMauritaniaTime().millisecondsSinceEpoch.toString(),
+      'timestamp': TimezoneService.getCurrentMauritaniaTime()
+          .millisecondsSinceEpoch
+          .toString(),
     };
 
     return await sendPushNotification(
@@ -266,7 +272,9 @@ class PushNotificationService {
       'sender_name': senderName,
       'message': message,
       'is_from_doctor': isFromDoctor.toString(),
-      'timestamp': TimezoneService.getCurrentMauritaniaTime().millisecondsSinceEpoch.toString(),
+      'timestamp': TimezoneService.getCurrentMauritaniaTime()
+          .millisecondsSinceEpoch
+          .toString(),
     };
 
     return await sendPushNotification(
@@ -297,7 +305,9 @@ class PushNotificationService {
       'channel_id': channelId,
       'caller_name': callerName,
       'is_from_doctor': isFromDoctor.toString(),
-      'timestamp': TimezoneService.getCurrentMauritaniaTime().millisecondsSinceEpoch.toString(),
+      'timestamp': TimezoneService.getCurrentMauritaniaTime()
+          .millisecondsSinceEpoch
+          .toString(),
     };
 
     return await sendPushNotification(

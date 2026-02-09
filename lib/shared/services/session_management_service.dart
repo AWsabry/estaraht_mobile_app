@@ -186,6 +186,9 @@ class SessionManagementService {
         // Increment doctor's number of sessions
         await _incrementDoctorSessionCount(doctorId);
 
+        // Add $17 to doctor's wallet
+        await _updateDoctorWallet(doctorId, 17.00);
+
         // Send session summary emails to both parties
         await _sendSessionCompletionEmails(
           bookingId: bookingId,
@@ -274,6 +277,9 @@ class SessionManagementService {
         // Increment doctor's number of sessions
         await _incrementDoctorSessionCount(doctorId);
 
+        // Add $17 to doctor's wallet
+        await _updateDoctorWallet(doctorId, 17.00);
+
         // Send session summary emails to both parties
         await _sendSessionCompletionEmails(
           bookingId: bookingId,
@@ -335,6 +341,75 @@ class SessionManagementService {
     }
   }
 
+  /// Update doctor's wallet by adding the specified amount
+  Future<void> _updateDoctorWallet(String doctorId, double amount) async {
+    try {
+      if (doctorId.isEmpty) {
+        loggerNoStack.e('❌ Cannot update wallet: doctorId is empty');
+        return;
+      }
+
+      loggerNoStack.i(
+        '💰 Updating wallet for doctor: $doctorId, adding \$${amount.toStringAsFixed(2)}',
+      );
+
+      // Try to find doctor by doctor_id first (most common case)
+      var doctorData = await supabase
+          .from('doctors')
+          .select('wallet, doctor_id, id')
+          .eq('doctor_id', doctorId)
+          .maybeSingle();
+
+      // If not found by doctor_id, try by id (UUID) in case bookings.doctor_id references id
+      if (doctorData == null) {
+        loggerNoStack.w(
+          '⚠️ Doctor not found with doctor_id: $doctorId, trying id...',
+        );
+        doctorData = await supabase
+            .from('doctors')
+            .select('wallet, doctor_id, id')
+            .eq('id', doctorId)
+            .maybeSingle();
+      }
+
+      if (doctorData == null) {
+        loggerNoStack.e(
+          '❌ Doctor not found with doctor_id or id: $doctorId',
+        );
+        return;
+      }
+
+      final currentWallet = (doctorData['wallet'] ?? 0.0) as num;
+      final newWallet = (currentWallet.toDouble() + amount);
+      final actualDoctorId = doctorData['doctor_id']?.toString() ?? doctorId;
+
+      // Update wallet using doctor_id (the text field, not UUID)
+      final updateResponse = await supabase
+          .from('doctors')
+          .update({'wallet': newWallet})
+          .eq('doctor_id', actualDoctorId)
+          .select('wallet');
+
+      if (updateResponse.isEmpty) {
+        loggerNoStack.e(
+          '❌ Failed to update wallet: No rows affected for doctor_id: $actualDoctorId',
+        );
+        return;
+      }
+
+      final updatedWallet = updateResponse[0]['wallet'] ?? 0.0;
+      loggerNoStack.i(
+        '✅ Doctor $actualDoctorId wallet updated successfully: '
+        '\$${currentWallet.toStringAsFixed(2)} → \$${updatedWallet.toStringAsFixed(2)} '
+        '(+ \$${amount.toStringAsFixed(2)})',
+      );
+    } catch (e, stackTrace) {
+      loggerNoStack.e('❌ Error updating doctor wallet: $e');
+      loggerNoStack.e('Stack trace: $stackTrace');
+      // Don't rethrow - wallet update failure shouldn't block session completion
+    }
+  }
+
   /// Send session completion emails to both doctor and patient
   Future<void> _sendSessionCompletionEmails({
     required String bookingId,
@@ -382,7 +457,7 @@ class SessionManagementService {
           sessionId: bookingId,
           sessionDate: sessionDate,
           sessionTime: sessionTime,
-          duration: '30 minutes',
+          duration: '45 minutes',
           doctorId: doctorId,
           doctorName: doctorName,
           doctorEmail: doctorEmail,

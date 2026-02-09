@@ -166,7 +166,7 @@ class DAppointmentDetailsController extends GetxController {
       if (token != null) {
         developer.log("Launching video meeting screen...");
         final data = doctorAppointmentDetailsClass.data;
-        Get.to(
+        final callScreenFuture = Get.to(
           () => CallScreen(
             channelName: channelName,
             token: token,
@@ -181,6 +181,13 @@ class DAppointmentDetailsController extends GetxController {
             doctorTimezoneOffsetHours: doctorTimezoneOffsetHours,
           ),
         );
+        if (callScreenFuture != null) {
+          callScreenFuture.then((_) {
+            // Refresh appointment details when returning from call screen
+            // This ensures session completion card appears if session has started
+            fetchAppointmentDetails();
+          });
+        }
       } else {
         Get.snackbar(
           'error'.tr,
