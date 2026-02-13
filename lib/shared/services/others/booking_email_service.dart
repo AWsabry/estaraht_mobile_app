@@ -20,21 +20,20 @@ class BookingEmailService {
     return 'en';
   }
 
-  /// Timezone note for doctor email - indicates time is in their local timezone
-  static String _getTimezoneNote(String languageCode, int offsetHours) {
-    if (offsetHours == 0) {
-      return languageCode == 'ar'
-          ? '(بتوقيتك المحلي)'
-          : languageCode == 'fr'
-          ? '(votre heure locale)'
-          : '(Your local time)';
-    }
-    final gmt = offsetHours >= 0 ? 'GMT+$offsetHours' : 'GMT$offsetHours';
-    return languageCode == 'ar'
-        ? '(توقيتك: $gmt)'
-        : languageCode == 'fr'
-        ? '(Votre fuseau: $gmt)'
-        : '(Your timezone: $gmt)';
+  /// Convert time string (HH:mm, UTC) to doctor's local time by adding [offsetHours].
+  /// Example: "17:00" with offset +2 → "19:00".
+  static String _utcTimeToDoctorLocal(String timeOnly, int offsetHours) {
+    if (offsetHours == 0) return timeOnly;
+    final parts = timeOnly.split(':');
+    if (parts.length < 2) return timeOnly;
+    final h = int.tryParse(parts[0].trim()) ?? 0;
+    final m = int.tryParse(parts[1].trim()) ?? 0;
+    var totalMinutes = h * 60 + m + (offsetHours * 60);
+    totalMinutes = totalMinutes % (24 * 60);
+    if (totalMinutes < 0) totalMinutes += 24 * 60;
+    final hour = totalMinutes ~/ 60;
+    final min = totalMinutes % 60;
+    return '${hour.toString().padLeft(2, '0')}:${min.toString().padLeft(2, '0')}';
   }
 
   /// Get email content in the appropriate language
@@ -140,9 +139,9 @@ class BookingEmailService {
     final comma = isRTL ? '،' : ',';
     final textAlign = isRTL ? 'right' : 'left';
 
-    // Timezone note for doctor - time is already in their timezone
-    final timezoneNote = _getTimezoneNote(
-      languageCode,
+    // Convert UTC time to doctor's local time (e.g. 17:00 UTC + offset 2 → 19:00)
+    final doctorLocalTime = _utcTimeToDoctorLocal(
+      timeOnly,
       doctorTimezoneOffsetHours,
     );
 
@@ -163,7 +162,6 @@ class BookingEmailService {
     .label { font-weight: bold; color: #555; }
     .value { color: #333; }
     .footer { background-color: #f8f9fa; padding: 20px; text-align: center; color: #666; font-size: 12px; }
-    .time-note { font-size: 11px; color: #888; margin-top: 4px; }
   </style>
 </head>
 <body>
@@ -186,7 +184,7 @@ class BookingEmailService {
         </div>
         <div class="info-row">
           <span class="label">${content['time_label']}</span>
-          <span class="value">$timeOnly${timezoneNote.isNotEmpty ? '<br><span class="time-note">$timezoneNote</span>' : ''}</span>
+          <span class="value">$doctorLocalTime</span>
         </div>
         <div class="info-row">
           <span class="label">${content['booking_id_label']}</span>
