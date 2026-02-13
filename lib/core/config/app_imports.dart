@@ -21,7 +21,7 @@ export 'package:flutter/material.dart'
     hide RefreshIndicator, RefreshIndicatorState, CarouselController;
 export 'package:flutter/services.dart';
 export 'package:flutter_html/flutter_html.dart' hide OnTap, Marker;
-export 'package:flutter_inappwebview/flutter_inappwebview.dart';
+export 'package:flutter_inappwebview/flutter_inappwebview.dart' hide WebNotification;
 export 'package:flutter_pdfview/flutter_pdfview.dart';
 export 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 export 'package:flutter_stripe/flutter_stripe.dart' hide Card, Address;
