@@ -12,7 +12,7 @@ class ProfileParametersScreen extends GetView<ProfileParametersController> {
       backgroundColor: Colors.white,
 
       body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 20),
+        padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
         child: Column(
           mainAxisSize: MainAxisSize.max,
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -30,6 +30,9 @@ class ProfileParametersScreen extends GetView<ProfileParametersController> {
                       child: Obx(() {
                         final imageUrl = controller.profileImageUrl.value;
                         if (imageUrl.isEmpty) {
+                          print(
+                            "No profile image URL provided. ${controller.profileImageUrl.value}",
+                          );
                           return Container(
                             width: double.infinity,
                             color: Colors.grey.shade200,
@@ -44,7 +47,7 @@ class ProfileParametersScreen extends GetView<ProfileParametersController> {
                                 const SizedBox(height: 8),
                                 Text(
                                   'no_profile_image'.tr,
-                                  style: TextStyle(
+                                  style: CustomTextStyle(
                                     color: Colors.grey.shade600,
                                     fontSize: 14,
                                     fontFamily: isArabic
@@ -83,7 +86,7 @@ class ProfileParametersScreen extends GetView<ProfileParametersController> {
                                 const SizedBox(height: 8),
                                 Text(
                                   'no_profile_image'.tr,
-                                  style: TextStyle(
+                                  style: CustomTextStyle(
                                     color: Colors.grey.shade600,
                                     fontSize: 14,
                                     fontFamily: isArabic
@@ -190,22 +193,36 @@ class ProfileParametersScreen extends GetView<ProfileParametersController> {
                                   ),
                                 ),
                                 const SizedBox(height: 4),
-                                Obx(
-                                  () => Text(
-                                    controller.userEmail.value.isEmpty
-                                        ? 'email'.tr
-                                        : controller.userEmail.value,
-                                    style: theme.textTheme.bodyMedium?.copyWith(
-                                      color: Colors.white70,
-                                      fontFamily: isArabic
-                                          ? 'NotoKufiArabic'
-                                          : 'Roboto',
+                                Obx(() {
+                                  final emailText =
+                                      controller.userEmail.value.isEmpty
+                                      ? 'email'.tr
+                                      : controller.userEmail.value;
+                                  final isEmail =
+                                      controller.userEmail.value.isNotEmpty &&
+                                      controller.userEmail.value.contains('@');
+
+                                  return Directionality(
+                                    textDirection: isArabic && isEmail
+                                        ? TextDirection.ltr
+                                        : (isArabic
+                                              ? TextDirection.rtl
+                                              : TextDirection.ltr),
+                                    child: Text(
+                                      emailText,
+                                      style: theme.textTheme.bodyMedium
+                                          ?.copyWith(
+                                            color: Colors.white70,
+                                            fontFamily: isArabic && !isEmail
+                                                ? 'NotoKufiArabic'
+                                                : 'Roboto',
+                                          ),
+                                      textAlign: isArabic && !isEmail
+                                          ? TextAlign.right
+                                          : TextAlign.left,
                                     ),
-                                    textAlign: isArabic
-                                        ? TextAlign.right
-                                        : TextAlign.left,
-                                  ),
-                                ),
+                                  );
+                                }),
                               ],
                             ),
                           ),
@@ -369,27 +386,19 @@ class ProfileParametersScreen extends GetView<ProfileParametersController> {
                               ),
                             ),
                             child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.center,
                               textDirection: isArabic
                                   ? TextDirection.rtl
                                   : TextDirection.ltr,
                               children: [
-                                Container(
-                                  width: 32,
-                                  height: 32,
-                                  alignment: Alignment.topCenter,
-                                  child: const Icon(
-                                    Icons.video_call,
-                                    color: Colors.black54,
-                                    size: 28,
-                                  ),
+                                const Icon(
+                                  Icons.video_call,
+                                  color: Colors.black54,
+                                  size: 28,
                                 ),
                                 const SizedBox(width: 16),
                                 Column(
-                                  crossAxisAlignment: isArabic
-                                      ? CrossAxisAlignment.end
-                                      : CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
                                       'sessions'.tr,
@@ -438,6 +447,21 @@ class ProfileParametersScreen extends GetView<ProfileParametersController> {
     );
   }
 
+  // Helper function to detect if value is email or contains special characters that need LTR
+  bool _isEmailOrSpecialChars(String value) {
+    // Check if it's an email address (most common case)
+    if (value.contains('@') && value.contains('.')) {
+      return true;
+    }
+    // Check for URLs
+    if (value.startsWith('http://') ||
+        value.startsWith('https://') ||
+        value.startsWith('www.')) {
+      return true;
+    }
+    return false;
+  }
+
   Widget _buildInfoRow({
     required IconData icon,
     required String label,
@@ -462,9 +486,7 @@ class ProfileParametersScreen extends GetView<ProfileParametersController> {
             const SizedBox(width: 16),
             Expanded(
               child: Column(
-                crossAxisAlignment: isArabic
-                    ? CrossAxisAlignment.end
-                    : CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     label,
@@ -476,15 +498,24 @@ class ProfileParametersScreen extends GetView<ProfileParametersController> {
                     textAlign: isArabic ? TextAlign.right : TextAlign.left,
                   ),
                   const SizedBox(height: 4),
-                  Text(
-                    value,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: Colors.black87,
-                      fontWeight: FontWeight.w500,
-                      fontSize: 14,
-                      fontFamily: isArabic ? 'NotoKufiArabic' : 'Roboto',
+                  Directionality(
+                    textDirection: isArabic && _isEmailOrSpecialChars(value)
+                        ? TextDirection.ltr
+                        : (isArabic ? TextDirection.rtl : TextDirection.ltr),
+                    child: Text(
+                      value,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: Colors.black87,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 14,
+                        fontFamily: isArabic && !_isEmailOrSpecialChars(value)
+                            ? 'NotoKufiArabic'
+                            : 'Roboto',
+                      ),
+                      textAlign: isArabic && !_isEmailOrSpecialChars(value)
+                          ? TextAlign.right
+                          : TextAlign.left,
                     ),
-                    textAlign: isArabic ? TextAlign.right : TextAlign.left,
                   ),
                 ],
               ),

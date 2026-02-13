@@ -8,7 +8,9 @@ import 'package:logger/logger.dart';
 // Imports de votre projet
 import 'package:videocalling/core/config/app_imports.dart';
 import 'package:videocalling/features/doctor/more/dmy_photo_viewer_controller.dart';
+import 'package:videocalling/shared/services/agora_token_service.dart';
 import 'package:videocalling/shared/services/session_management_service.dart';
+import 'package:videocalling/shared/services/others/timezone_service.dart';
 
 // =======================================================================
 // ==================== DÉBUT DE LA CLASSE CORRIGÉE ====================
@@ -46,6 +48,9 @@ class DAppointmentDetailsController extends GetxController {
   RxString patientId = ''.obs;
   RxString doctorId = ''.obs;
 
+  /// Doctor's timezone offset (from doctors table). 0 for legacy doctors.
+  int doctorTimezoneOffsetHours = 0;
+
   // ==========================
   // MÉTHODE D'INITIALISATION
   // ==========================
@@ -58,19 +63,66 @@ class DAppointmentDetailsController extends GetxController {
     fetchAppointmentDetails();
   }
 
-  Future<String?> fetchAgoraToken(String channelName) async {
-    final response1 = await supabaseHelper.client.from('agora_tokens').select();
+  Future<String?> fetchAgoraToken(String channelName, {int uid = 1}) async {
+    try {
+      // Generate token dynamically using Agora Token Generator
+      // Doctor uses UID 1 (patient uses 2) to avoid collision
+      final agoraTokenService = AgoraTokenService();
 
-    loggerNoStack.i('Fetched all tokens: $response1');
-    final response = await supabaseHelper.client
-        .from('agora_tokens')
-        .select('token')
-        .order('created_at', ascending: false)
-        .limit(1)
-        .maybeSingle();
+      final token = await agoraTokenService.generateToken(
+        channelName: channelName,
+        uid: uid,
+        tokenExpireSeconds: 86400, // 24 hours
+      );
 
-    loggerNoStack.i('Fetched Agora token response: $response');
-    return response?['token'] as String?;
+      if (token != null) {
+        loggerNoStack.i('✅ Token generated for channel: $channelName uid=$uid');
+        return token;
+      } else {
+        loggerNoStack.e('❌ Failed to generate token for channel: $channelName');
+        return null;
+      }
+    } catch (e) {
+      loggerNoStack.e('❌ Error generating token: $e');
+      return null;
+    }
+  }
+
+  bool canJoinSession() {
+    final bookingDate = doctorAppointmentDetailsClass.data?.date;
+    final bookingTime = doctorAppointmentDetailsClass.data?.slot;
+    if (bookingDate == null || bookingTime == null) return false;
+    return TimezoneService.canJoinVideoSession(
+      bookingDate: bookingDate,
+      bookingTime: bookingTime,
+      doctorTimezoneOffsetHours: doctorTimezoneOffsetHours,
+    );
+  }
+
+  String getTimeUntilCanJoin() {
+    final bookingDate = doctorAppointmentDetailsClass.data?.date;
+    final bookingTime = doctorAppointmentDetailsClass.data?.slot;
+    if (bookingDate == null || bookingTime == null) return '';
+    return TimezoneService.getTimeUntilCanJoinVideoSession(
+      bookingDate: bookingDate,
+      bookingTime: bookingTime,
+      doctorTimezoneOffsetHours: doctorTimezoneOffsetHours,
+    );
+  }
+
+  /// Session must have started before showing confirm-completion card
+  bool hasSessionStarted() {
+    final bookingDate = doctorAppointmentDetailsClass.data?.date;
+    final bookingTime = doctorAppointmentDetailsClass.data?.slot;
+    if (bookingDate == null || bookingTime == null) return false;
+    final timeStr = bookingTime.length >= 5
+        ? bookingTime.substring(0, 5)
+        : bookingTime;
+    return TimezoneService.hasSessionStarted(
+      bookingDate: bookingDate,
+      bookingTime: timeStr,
+      doctorTimezoneOffsetHours: doctorTimezoneOffsetHours,
+    );
   }
 
   void initiateVideoCall() async {
@@ -78,29 +130,64 @@ class DAppointmentDetailsController extends GetxController {
       "============== START VIDEO MEETING (DOCTOR SIDE) ==============",
     );
     try {
-      // Force channel name to "Estarht" for meeting room
-      const String channelName = "Estarht";
+      // Check if user can join the session (5 minutes before appointment)
+      if (!canJoinSession()) {
+        final timeRemaining = getTimeUntilCanJoin();
+        Get.snackbar(
+          'session_available_soon'.tr,
+          '${'session_available_in_5_minutes'.tr}\n${'time_remaining'.tr}: $timeRemaining',
+          backgroundColor: Colors.orange[100],
+          colorText: Colors.orange[900],
+          snackPosition: SnackPosition.BOTTOM,
+          duration: const Duration(seconds: 4),
+        );
+        developer.log(
+          "❌ Too early to join session. Time remaining: $timeRemaining",
+        );
+        return;
+      }
+
+      // Use unique channel name per booking (normalized for consistency)
+      final String normalizedId = id.toString().toLowerCase().trim();
+      final String channelName = "booking_$normalizedId";
       final String patientName =
           doctorAppointmentDetailsClass.data?.userName ?? "Patient";
-      developer.log("Joining meeting room: '$channelName'");
+      developer.log(
+        "✅ Joining meeting room: '$channelName' (Booking ID: $id, Doctor UID=1)",
+      );
 
       Get.dialog(
         const Center(child: CircularProgressIndicator()),
         barrierDismissible: false,
       );
-      final String? token = await fetchAgoraToken(channelName);
+      final String? token = await fetchAgoraToken(channelName, uid: 1);
       Get.back();
 
       if (token != null) {
         developer.log("Launching video meeting screen...");
-        Get.to(
+        final data = doctorAppointmentDetailsClass.data;
+        final callScreenFuture = Get.to(
           () => CallScreen(
             channelName: channelName,
             token: token,
             isVideoCall: true,
             opponentName: patientName,
+            localUid: 1,
+            bookingId: id.toString(),
+            doctorId: doctorId.value,
+            patientId: patientId.value,
+            bookingDate: data?.date,
+            bookingTime: data?.slot,
+            doctorTimezoneOffsetHours: doctorTimezoneOffsetHours,
           ),
         );
+        if (callScreenFuture != null) {
+          callScreenFuture.then((_) {
+            // Refresh appointment details when returning from call screen
+            // This ensures session completion card appears if session has started
+            fetchAppointmentDetails();
+          });
+        }
       } else {
         Get.snackbar(
           'error'.tr,
@@ -135,7 +222,7 @@ class DAppointmentDetailsController extends GetxController {
       final response = await supabaseHelper.client
           .from('bookings')
           .select(
-            ''' id, patient_id, doctor_id, booking_date, booking_time, status, price, doctor_confirmed, patient_confirmed, completed_at, doctors!fk_bookings_doctor (doctor_id, full_name, email, phone_number, specialization, profile_img_url), patients!fk_bookings_patient (id, name, email, phone, profile_img_url) ''',
+            ''' id, patient_id, doctor_id, booking_date, booking_time, status, price, doctor_confirmed, patient_confirmed, completed_at, doctors!fk_bookings_doctor (doctor_id, full_name, email, phone_number, specialization, profile_img_url, timezone_offset_hours), patients!fk_bookings_patient (id, name, email, phone, profile_img_url) ''',
           )
           .eq('id', id)
           .single();
@@ -205,6 +292,9 @@ class DAppointmentDetailsController extends GetxController {
         appointmentData,
       );
       apStatus.value = doctorAppointmentDetailsClass.data?.status ?? 0;
+      doctorTimezoneOffsetHours = doctorData?['timezone_offset_hours'] != null
+          ? (doctorData!['timezone_offset_hours'] as num).toInt()
+          : 0;
 
       imageList.clear();
       if (doctorAppointmentDetailsClass.image != null) {
@@ -231,35 +321,36 @@ class DAppointmentDetailsController extends GetxController {
       width: double.infinity,
       padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
       child: Obx(() {
-        if (apStatus.value == 1 || apStatus.value == 2) {
+        // Pending: doctor can Accept (→ confirmed) or Cancel
+        if (apStatus.value == 2) {
           return Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               CustomButton(
-                onTap: () => changeStatus("3"),
-                btnText: 'btn_accept'.tr /* ...styles */,
+                onTap: () => changeStatus("1"),
+                btnText: 'btn_accept'.tr,
               ),
               const SizedBox(height: 10),
               CustomButton(
-                onTap: () {
-                  changeStatus("5");
-                },
-                btnText: 'btn_cancel'.tr /* ...styles */,
+                onTap: () => changeStatus("5"),
+                btnText: 'btn_cancel'.tr,
               ),
             ],
           );
-        } else if (apStatus.value == 3) {
+        }
+        // Confirmed: meeting scheduled, doctor can mark Absent if patient no-show
+        if (apStatus.value == 1) {
           return Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               CustomButton(
                 onTap: () => changeStatus("0"),
-                btnText: 'btn_absent'.tr /* ...styles */,
+                btnText: 'btn_absent'.tr,
               ),
             ],
           );
         }
-        return const SizedBox.shrink(); // Retourne un widget vide si aucune condition n'est remplie
+        return const SizedBox.shrink();
       }),
     );
   }
@@ -349,18 +440,10 @@ class DAppointmentDetailsController extends GetxController {
       int newPending = currentPending;
 
       switch (status) {
-        case "3": // Accepted - deduct from pending (session is now active)
-          newPending = (currentPending - 1).clamp(0, 999);
-          loggerNoStack.i(
-            'Session accepted: pending $currentPending -> $newPending',
-          );
-          break;
-
-        case "4": // Completed - deduct from pending (session was used)
-          newPending = (currentPending - 1).clamp(0, 999);
-          loggerNoStack.i(
-            'Session completed: pending $currentPending -> $newPending',
-          );
+        case "1": // Confirmed (doctor accepted) - no session change, stays pending
+        case "3": // Accepted - no session change
+        case "4": // Completed - handled by SessionManagementService when both confirm
+          // Session consumption happens only when both doctor & patient tick confirm
           break;
 
         case "5": // Cancelled - refund session back to available
@@ -488,7 +571,7 @@ class DAppointmentDetailsController extends GetxController {
                                             ),
                                             Text(
                                               'choose_gallery'.tr,
-                                              style: TextStyle(
+                                              style: CustomTextStyle(
                                                 fontSize: 12,
                                                 fontFamily:
                                                     AppFontStyleTextStrings

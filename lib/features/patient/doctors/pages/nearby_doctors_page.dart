@@ -1,8 +1,9 @@
 import 'package:videocalling/core/config/app_imports.dart';
+
 class DAllNearbyScreen extends GetView<DAllNearbyController> {
   final DAllNearbyController nearbyController = Get.put(DAllNearbyController());
 
-   DAllNearbyScreen({super.key});
+  DAllNearbyScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +36,7 @@ class DAllNearbyScreen extends GetView<DAllNearbyController> {
                       const SizedBox(height: 20),
                       Text(
                         'unable_to_load_data'.tr,
-                        style: TextStyle(
+                        style: CustomTextStyle(
                           fontFamily: AppFontStyleTextStrings.regular,
                         ),
                       ),

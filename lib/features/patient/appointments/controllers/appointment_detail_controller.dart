@@ -2,8 +2,10 @@ import 'dart:developer' as developer;
 
 import 'package:http/http.dart' as http;
 import 'package:videocalling/core/config/app_imports.dart';
+import 'package:videocalling/shared/services/others/timezone_service.dart';
 import 'package:videocalling/shared/services/review_service.dart';
 import 'package:videocalling/shared/services/session_management_service.dart';
+import 'package:videocalling/shared/services/agora_token_service.dart';
 import 'package:videocalling/shared/widgets/rating_dialog.dart';
 
 class UserAppointmentDetailsController extends GetxController {
@@ -24,6 +26,9 @@ class UserAppointmentDetailsController extends GetxController {
   RxBool patientConfirmed = false.obs;
   RxBool doctorConfirmed = false.obs;
   RxString bookingStatus = ''.obs;
+
+  /// Doctor's timezone offset (from doctors table). 0 for legacy doctors.
+  int doctorTimezoneOffsetHours = 0;
 
   fetchAppointmentDetails() async {
     try {
@@ -53,7 +58,8 @@ class UserAppointmentDetailsController extends GetxController {
               specialization,
               profile_img_url,
               booking_price,
-              bio
+              bio,
+              timezone_offset_hours
             ),
             patients!fk_bookings_patient (
               id,
@@ -133,6 +139,9 @@ class UserAppointmentDetailsController extends GetxController {
       doctorSpeciality.value = doctorData?['specialization']?.toString() ?? '';
       doctorId.value = response['doctor_id']?.toString() ?? '';
       userId.value = response['patient_id']?.toString() ?? '';
+      doctorTimezoneOffsetHours = doctorData?['timezone_offset_hours'] != null
+          ? (doctorData!['timezone_offset_hours'] as num).toInt()
+          : 0;
     } catch (e) {
       loggerNoStack.e('Error fetching appointment details', error: e);
       isErrorInLoading.value = true;
@@ -151,7 +160,7 @@ class UserAppointmentDetailsController extends GetxController {
           Get.back();
         },
         s1: 'error'.tr,
-        s2: '${req.reasonPhrase}'.tr,
+        s2: 'an_unexpected_error_occurred'.tr,
       );
       return false;
     }
@@ -168,17 +177,72 @@ class UserAppointmentDetailsController extends GetxController {
           Get.back();
         },
         s1: 'error'.tr,
-        s2: e.toString(),
+        s2: 'an_unexpected_error_occurred'.tr,
       );
       return false;
     }
   }
 
-  Future<String?> fetchAgoraToken(String channelName) async {
-    // On garde le token pour "Estarht"
-    const tempTokenForEstarhtChannel =
-        "007eJxTYJBg+bXy+vM/D+qNdO8dzatft/NEQivDru/bg+rNFNsePv2qwGBommaeZJZkkJhkYmFilGJgYWZpYphiYJJmnpqSaJRm+NL7U0ZDICOD+OubLIwMEAjiszO4FpckFmWUMDAAAMqIJJ4=";
-    return tempTokenForEstarhtChannel;
+  Future<String?> fetchAgoraToken(String channelName, {int uid = 2}) async {
+    try {
+      // Generate token dynamically using Agora Token Generator
+      // Patient uses UID 2 (doctor uses 1) to avoid collision
+      final agoraTokenService = AgoraTokenService();
+
+      final token = await agoraTokenService.generateToken(
+        channelName: channelName,
+        uid: uid,
+        tokenExpireSeconds: 86400, // 24 hours
+      );
+
+      if (token != null) {
+        developer.log('✅ Token generated for channel: $channelName uid=$uid');
+        return token;
+      } else {
+        developer.log('❌ Failed to generate token for channel: $channelName');
+        return null;
+      }
+    } catch (e) {
+      developer.log('❌ Error generating token: $e');
+      return null;
+    }
+  }
+
+  bool canJoinSession() {
+    final bookingDate = doctorAppointmentDetailsClass?.data?.date;
+    final bookingTime = doctorAppointmentDetailsClass?.data?.slot;
+    if (bookingDate == null || bookingTime == null) return false;
+    return TimezoneService.canJoinVideoSession(
+      bookingDate: bookingDate,
+      bookingTime: bookingTime,
+      doctorTimezoneOffsetHours: doctorTimezoneOffsetHours,
+    );
+  }
+
+  String getTimeUntilCanJoin() {
+    final bookingDate = doctorAppointmentDetailsClass?.data?.date;
+    final bookingTime = doctorAppointmentDetailsClass?.data?.slot;
+    if (bookingDate == null || bookingTime == null) return '';
+    return TimezoneService.getTimeUntilCanJoinVideoSession(
+      bookingDate: bookingDate,
+      bookingTime: bookingTime,
+      doctorTimezoneOffsetHours: doctorTimezoneOffsetHours,
+    );
+  }
+
+  /// Session must have started before showing confirm-completion card
+  bool hasSessionStarted() {
+    final bookingDate = doctorAppointmentDetailsClass?.data?.date;
+    final bookingTime = doctorAppointmentDetailsClass?.data?.slot;
+    if (bookingDate == null || bookingTime == null) return false;
+    final timeStr = bookingTime.length >= 5
+        ? bookingTime.substring(0, 5)
+        : bookingTime;
+    return TimezoneService.hasSessionStarted(
+      bookingDate: bookingDate,
+      bookingTime: timeStr,
+      doctorTimezoneOffsetHours: doctorTimezoneOffsetHours,
+    );
   }
 
   void initiateVideoCall() async {
@@ -186,27 +250,55 @@ class UserAppointmentDetailsController extends GetxController {
       "============== START VIDEO MEETING (PATIENT SIDE) ==============",
     );
     try {
-      // Force channel name to "Estarht" for meeting room
-      const String channelName = "Estarht";
+      // Check if user can join the session (5 minutes before appointment)
+      if (!canJoinSession()) {
+        final timeRemaining = getTimeUntilCanJoin();
+        Get.snackbar(
+          'session_available_soon'.tr,
+          '${'session_available_in_5_minutes'.tr}\n${'time_remaining'.tr}: $timeRemaining',
+          backgroundColor: Colors.orange[100],
+          colorText: Colors.orange[900],
+          snackPosition: SnackPosition.BOTTOM,
+          duration: const Duration(seconds: 4),
+        );
+        developer.log(
+          "❌ Too early to join session. Time remaining: $timeRemaining",
+        );
+        return;
+      }
+
+      // Use unique channel name per booking (normalized for consistency)
+      final String normalizedId = id.toString().toLowerCase().trim();
+      final String channelName = "booking_$normalizedId";
       final String doctorName =
           doctorAppointmentDetailsClass?.data?.doctorName ?? "Doctor";
-      developer.log("Joining meeting room: '$channelName'");
+      developer.log(
+        "✅ Joining meeting room: '$channelName' (Booking ID: $id, Patient UID=2)",
+      );
 
       Get.dialog(
         const Center(child: CircularProgressIndicator()),
         barrierDismissible: false,
       );
-      final String? token = await fetchAgoraToken(channelName);
+      final String? token = await fetchAgoraToken(channelName, uid: 2);
       Get.back();
 
       if (token != null) {
         developer.log("Launching video meeting screen...");
+        final data = doctorAppointmentDetailsClass?.data;
         Get.to(
           () => CallScreen(
             channelName: channelName,
             token: token,
             isVideoCall: true,
             opponentName: doctorName,
+            localUid: 2,
+            bookingId: id.toString(),
+            patientId: userId.value,
+            doctorId: doctorId.value,
+            bookingDate: data?.date,
+            bookingTime: data?.slot,
+            doctorTimezoneOffsetHours: doctorTimezoneOffsetHours,
           ),
         );
       } else {

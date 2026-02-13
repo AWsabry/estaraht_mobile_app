@@ -74,6 +74,7 @@ export 'package:videocalling/core/widgets/others/no_chats.dart';
 export 'package:videocalling/core/widgets/others/option_tile.dart';
 export 'package:videocalling/core/widgets/others/otp_pin.dart';
 export 'package:videocalling/core/widgets/text_fields/app_text_field.dart';
+export 'package:videocalling/core/widgets/text_style/custom_text_style.dart';
 export 'package:videocalling/features/auth/controllers/doctor_login_controller.dart';
 export 'package:videocalling/features/auth/controllers/doctor_register_controller.dart';
 export 'package:videocalling/features/auth/controllers/forget_password_controller.dart';

@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:supabase_flutter/supabase_flutter.dart'
     show OtpType, PostgrestException, AuthException;
 import 'package:videocalling/core/config/app_imports.dart';
+import 'package:videocalling/shared/services/others/timezone_service.dart';
 
 class OtpController extends GetxController {
   final supabase = SupabaseHelper().client;
@@ -144,7 +145,7 @@ class OtpController extends GetxController {
 
         // Check if OTP has expired
         final expiresAt = DateTime.parse(otpRecord['expires_at']);
-        final now = DateTime.now();
+        final now = TimezoneService.getCurrentMauritaniaTime();
 
         print('⏰ OTP expires at: $expiresAt');
         print('⏰ Current time: $now');
@@ -318,7 +319,7 @@ class OtpController extends GetxController {
             .from('otp_codes')
             .update({
               'is_used': true,
-              'used_at': DateTime.now().toIso8601String(),
+              'used_at': TimezoneService.getCurrentMauritaniaTime().toIso8601String(),
             })
             .eq('id', otpId!);
 
@@ -329,11 +330,11 @@ class OtpController extends GetxController {
               'user_id': userId!,
               'email': targetEmail,
               'otp_code': newOtpCode,
-              'expires_at': DateTime.now()
+              'expires_at': TimezoneService.getCurrentMauritaniaTime()
                   .add(const Duration(minutes: 5))
                   .toIso8601String(),
               'is_used': false,
-              'created_at': DateTime.now().toIso8601String(),
+              'created_at': TimezoneService.getCurrentMauritaniaTime().toIso8601String(),
             })
             .select()
             .single();

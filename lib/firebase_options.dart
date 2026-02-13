@@ -17,10 +17,7 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      throw UnsupportedError(
-        'DefaultFirebaseOptions have not been configured for web - '
-        'you can reconfigure this by running the FlutterFire CLI again.',
-      );
+      return web;
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
@@ -50,22 +47,33 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyAwAqmHJCOXe2IGhpTMulUU5PjT6JNnvNU',
-    appId: '1:697656704769:android:e61e6e431943073d026500',
-    messagingSenderId: '697656704769',
-    projectId: 'estaraht-f867e',
-    storageBucket: 'estaraht-f867e.firebasestorage.app',
-    databaseURL: 'https://estaraht-f867e-default-rtdb.firebaseio.com',
+    apiKey: 'AIzaSyBlTGEMDNYlYMYAdxiegy5s_WdSOeELN0o',
+    appId: '1:735559732305:android:5f07d05c35e6ffc27fbc70',
+    messagingSenderId: '735559732305',
+    projectId: 'estaraht-84839',
+    databaseURL: 'https://estaraht-84839-default-rtdb.firebaseio.com',
+    storageBucket: 'estaraht-84839.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyD2g-5hjjd40g11n2i6k5zbUX2ko9K2HwA',
-    appId: '1:697656704769:ios:4b190e98cc88f870026500',
-    messagingSenderId: '697656704769',
-    projectId: 'estaraht-f867e',
-    storageBucket: 'estaraht-f867e.firebasestorage.app',
-    databaseURL: 'https://estaraht-f867e-default-rtdb.firebaseio.com',
+    apiKey: 'AIzaSyA0O02e-nE4re1G-8oUytBjGPAKXNXhKsk',
+    appId: '1:735559732305:ios:d680719e93297c0c7fbc70',
+    messagingSenderId: '735559732305',
+    projectId: 'estaraht-84839',
+    databaseURL: 'https://estaraht-84839-default-rtdb.firebaseio.com',
+    storageBucket: 'estaraht-84839.firebasestorage.app',
     iosBundleId: 'com.owldots.estarhtapppro',
+  );
+
+  static const FirebaseOptions web = FirebaseOptions(
+    apiKey: 'AIzaSyARNhCyvyNyBXPgmKLPBRBuAHK_Edg64fU',
+    appId: '1:735559732305:web:f30c631efa22f7087fbc70',
+    messagingSenderId: '735559732305',
+    projectId: 'estaraht-84839',
+    authDomain: 'estaraht-84839.firebaseapp.com',
+    databaseURL: 'https://estaraht-84839-default-rtdb.firebaseio.com',
+    storageBucket: 'estaraht-84839.firebasestorage.app',
+    measurementId: 'G-X53CM40MD9',
   );
 
 }

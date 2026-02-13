@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' show OtpType;
 import 'package:videocalling/core/config/app_imports.dart';
+import 'package:videocalling/shared/services/others/timezone_service.dart';
 
 class RegisterPatientController extends GetxController {
   // Instance du client Supabase
@@ -75,27 +76,16 @@ class RegisterPatientController extends GetxController {
       emailOrPhoneError.value = 'email_or_phone_required'.tr;
       isValid = false;
     } else {
-      // Check if it's a valid email or phone number
+      // Check if it's a valid email
       bool isEmail = GetUtils.isEmail(emailOrPhone.value);
-      bool isPhone =
-          emailOrPhone.value.replaceAll(RegExp(r'[^\d]'), '').length >= 8;
 
-      if (!isEmail && !isPhone) {
+      if (!isEmail) {
         isEmailOrPhoneError.value = true;
-        emailOrPhoneError.value = 'enter_valid_email_or_phone'.tr;
+        emailOrPhoneError.value = 'enter_valid_email'.tr;
         isValid = false;
       } else {
-        // Set the appropriate field based on input type
-        if (isEmail) {
-          email.value = emailOrPhone.value;
-          phoneNumber.value = "";
-        } else {
-          phoneNumber.value = emailOrPhone.value.replaceAll(
-            RegExp(r'[^\d]'),
-            '',
-          );
-          email.value = "";
-        }
+        email.value = emailOrPhone.value;
+        phoneNumber.value = "";
       }
     }
 
@@ -182,11 +172,12 @@ class RegisterPatientController extends GetxController {
             'gender': gender.value,
             'fcm_token': token.value,
             'login_id':
-                '${email.value.split('@')[0]}_${DateTime.now().millisecondsSinceEpoch}',
+                '${email.value.split('@')[0]}_${TimezoneService.getCurrentMauritaniaTime().millisecondsSinceEpoch}',
             'sessions_available': 0,
             'sessions_pending': 0,
             'subscribed': false,
             'subscribed_before': false,
+            'timezone_offset_hours': DateTime.now().timeZoneOffset.inHours,
           });
           print(
             '✅ Patient profile created in Supabase for user ID: ${authResponse.user!.uid}',
@@ -213,7 +204,7 @@ class RegisterPatientController extends GetxController {
                 'user_id': authResponse.user!.uid,
                 'email': email.value,
                 'otp_code': otpCode,
-                'expires_at': DateTime.now()
+                'expires_at': TimezoneService.getCurrentMauritaniaTime()
                     .add(const Duration(minutes: 5))
                     .toIso8601String(),
                 'is_used': false,

@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:videocalling/shared/services/others/timezone_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:videocalling/core/utils/logger.dart';
 import 'package:videocalling/features/patient/payment_plans/models/payment_plan_model.dart';
@@ -55,10 +56,23 @@ class PaymentPlansController extends GetxController {
   /// Load patient subscription status
   Future<void> loadPatientStatus() async {
     try {
-      final user = firebaseHelper.currentUser;
-      if (user == null) {
-        loggerNoStack.w('User not authenticated');
-        return;
+      // Try Firebase Auth first, fallback to StorageService
+      String? patientId = firebaseHelper.currentUser?.uid;
+
+      if (patientId == null) {
+        // Fallback to local storage
+        final storedUserId = StorageService.readData(
+          key: LocalStorageKeys.userId,
+        );
+        if (storedUserId != null && storedUserId.toString().isNotEmpty) {
+          patientId = storedUserId.toString();
+          loggerNoStack.i('Using patient ID from local storage: $patientId');
+        } else {
+          loggerNoStack.w('! User not authenticated');
+          return;
+        }
+      } else {
+        loggerNoStack.i('Using patient ID from Firebase Auth: $patientId');
       }
 
       final patientData = await supabase
@@ -66,7 +80,7 @@ class PaymentPlansController extends GetxController {
           .select(
             'subscribed, subscribed_before, sessions_available, sessions_pending',
           )
-          .eq('id', user.uid)
+          .eq('id', patientId)
           .single();
 
       subscribedBefore.value = patientData['subscribed_before'] ?? false;
@@ -191,7 +205,9 @@ class PaymentPlansController extends GetxController {
 
       // Calculate expiry date (30 days from now)
       // For first-time-only plan, no expiry (one-time use)
-      final expiresAt = DateTime.now().add(const Duration(days: 30));
+      final expiresAt = TimezoneService.getCurrentMauritaniaTime().add(
+        const Duration(days: 30),
+      );
       final subscriptionExpiresAt = plan.isFirstTimeOnly
           ? null
           : expiresAt.toIso8601String();
@@ -209,7 +225,8 @@ class PaymentPlansController extends GetxController {
             'payment_gateway': paymentGateway,
             'payment_currency': paymentCurrency ?? 'USD',
             'payment_status': 'completed',
-            'subscribed_at': DateTime.now().toIso8601String(),
+            'subscribed_at': TimezoneService.getCurrentMauritaniaTime()
+                .toIso8601String(),
             'expires_at': subscriptionExpiresAt,
             'status': 'active',
           })
@@ -326,7 +343,9 @@ class PaymentPlansController extends GetxController {
 
       // Calculate expiry date (30 days from now)
       // For first-time-only plan, no expiry (one-time use)
-      final expiresAt = DateTime.now().add(const Duration(days: 30));
+      final expiresAt = TimezoneService.getCurrentMauritaniaTime().add(
+        const Duration(days: 30),
+      );
       final subscriptionExpiresAt = plan.isFirstTimeOnly
           ? null
           : expiresAt.toIso8601String();
@@ -344,7 +363,8 @@ class PaymentPlansController extends GetxController {
             'payment_gateway': paymentGateway,
             'payment_currency': paymentCurrency ?? 'USD',
             'payment_status': 'completed',
-            'subscribed_at': DateTime.now().toIso8601String(),
+            'subscribed_at': TimezoneService.getCurrentMauritaniaTime()
+                .toIso8601String(),
             'expires_at': subscriptionExpiresAt,
             'status': 'active',
           })

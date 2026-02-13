@@ -10,7 +10,12 @@ class UserPastAppointmentsScreen
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    final languageController = Get.find<LanguageController>();
+    final bool isArabic = languageController.currentLanguage.value == 'ar';
+
+    return Directionality(
+      textDirection: isArabic ? TextDirection.rtl : TextDirection.ltr,
+      child: Scaffold(
       appBar: AppBar(
         flexibleSpace: CustomAppBar(title: 'all_appointment'.tr),
         leading: Container(),
@@ -42,7 +47,7 @@ class UserPastAppointmentsScreen
                               10.hs,
                               Text(
                                 'unable_to_load_data'.tr,
-                                style: TextStyle(
+                                style: CustomTextStyle(
                                   fontFamily: AppFontStyleTextStrings.regular,
                                 ),
                               ),
@@ -191,7 +196,7 @@ class UserPastAppointmentsScreen
                                                           .address ??
                                                       "",
                                                   maxLines: 2,
-                                                  style: TextStyle(
+                                                  style: CustomTextStyle(
                                                     fontSize: 10,
                                                     fontFamily:
                                                         AppFontStyleTextStrings
@@ -294,6 +299,7 @@ class UserPastAppointmentsScreen
           ),
         ),
       ),
+    ),
     );
   }
 }

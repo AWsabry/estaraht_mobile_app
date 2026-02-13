@@ -816,9 +816,9 @@ class AppointmentDetailsScreenPdfController extends GetxController {
         raf.writeFromSync(List.from(await pdf.save()));
         await raf.close();
         pd.update(value: 100);
-      } on Exception catch (e) {
+      } on Exception {
         pd.update(value: 100);
-        errorDialog(message: e.toString());
+        errorDialog(message: 'an_unexpected_error_occurred'.tr);
       }
     } else {
       try {
@@ -835,9 +835,9 @@ class AppointmentDetailsScreenPdfController extends GetxController {
         raf.writeFromSync(List.from(await pdf.save()));
         await raf.close();
         pd.update(value: 100);
-      } on Exception catch (e) {
+      } on Exception {
         pd.update(value: 100);
-        errorDialog(message: e.toString());
+        errorDialog(message: 'an_unexpected_error_occurred'.tr);
       }
     }
   }

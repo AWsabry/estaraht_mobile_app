@@ -1,5 +1,6 @@
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:videocalling/core/config/app_imports.dart';
+import 'package:videocalling/shared/services/others/timezone_service.dart';
 
 class DoctorDashboard extends GetView<DoctorDashboardController> {
   final DoctorDashboardController dashboardController = Get.put(
@@ -15,10 +16,10 @@ class DoctorDashboard extends GetView<DoctorDashboardController> {
       appBar: AppBar(
         flexibleSpace: const CustomAppBar(title: ''),
         elevation: 0,
-        bottom: const PreferredSize(
-          preferredSize: Size.fromHeight(40),
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(40.h),
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            padding: EdgeInsets.symmetric(horizontal: 16.0.w, vertical: 8.0.h),
           ),
         ),
       ),
@@ -33,27 +34,24 @@ class DoctorDashboard extends GetView<DoctorDashboardController> {
               // Header section
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 36,
-                  vertical: 36,
-                ),
+                padding: EdgeInsets.symmetric(horizontal: 36.w, vertical: 36.h),
                 child: Column(
                   children: [
                     Text(
                       'manage_appointments_easily'.tr,
-                      style: TextStyle(
-                        fontSize: 22,
+                      style: CustomTextStyle(
+                        fontSize: 22.sp,
                         fontWeight: FontWeight.w700,
                         color: Colors.black87,
                         fontFamily: AppFontStyleTextStrings.medium,
                       ),
                       textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: 6),
+                    SizedBox(height: 6.h),
                     Text(
                       'communicate_with_patients_flexibly'.tr,
-                      style: TextStyle(
-                        fontSize: 24,
+                      style: CustomTextStyle(
+                        fontSize: 24.sp,
                         fontWeight: FontWeight.w400,
                         color: Colors.black87,
                         fontFamily: AppFontStyleTextStrings.regular,
@@ -66,23 +64,23 @@ class DoctorDashboard extends GetView<DoctorDashboardController> {
               SizedBox(height: 47.h),
               // Upcoming Sessions Header
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 48),
+                padding: EdgeInsets.symmetric(horizontal: 48.w),
                 child: Container(
-                  width: 150,
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 12,
-                    horizontal: 12,
+                  width: 150.w,
+                  padding: EdgeInsets.symmetric(
+                    vertical: 12.h,
+                    horizontal: 12.w,
                   ),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     border: Border.all(color: Colors.grey[800]!),
-                    borderRadius: BorderRadius.circular(30),
+                    borderRadius: BorderRadius.circular(30.r),
                   ),
                   child: Center(
                     child: Text(
                       'upcoming_sessions'.tr,
-                      style: TextStyle(
-                        fontSize: 12,
+                      style: CustomTextStyle(
+                        fontSize: 12.sp,
                         fontWeight: FontWeight.w400,
                         fontFamily: AppFontStyleTextStrings.medium,
                       ),
@@ -91,7 +89,7 @@ class DoctorDashboard extends GetView<DoctorDashboardController> {
                 ),
               ),
 
-              const SizedBox(height: 30),
+              SizedBox(height: 30.h),
 
               // Appointments Section
               Obx(
@@ -105,25 +103,25 @@ class DoctorDashboard extends GetView<DoctorDashboardController> {
               ),
 
               // Previous Sessions
-              const SizedBox(height: 24),
+              SizedBox(height: 24.h),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 48),
+                padding: EdgeInsets.symmetric(horizontal: 48.w),
                 child: Container(
-                  width: 150,
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 12,
-                    horizontal: 12,
+                  width: 150.w,
+                  padding: EdgeInsets.symmetric(
+                    vertical: 12.h,
+                    horizontal: 12.w,
                   ),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     border: Border.all(color: Colors.grey[800]!),
-                    borderRadius: BorderRadius.circular(30),
+                    borderRadius: BorderRadius.circular(30.r),
                   ),
                   child: Center(
                     child: Text(
                       'previous_sessions'.tr,
-                      style: TextStyle(
-                        fontSize: 12,
+                      style: CustomTextStyle(
+                        fontSize: 12.sp,
                         fontWeight: FontWeight.w400,
                         fontFamily: AppFontStyleTextStrings.medium,
                       ),
@@ -132,7 +130,7 @@ class DoctorDashboard extends GetView<DoctorDashboardController> {
                 ),
               ),
 
-              const SizedBox(height: 16),
+              SizedBox(height: 16.h),
 
               // Previous appointments
               Obx(
@@ -145,7 +143,7 @@ class DoctorDashboard extends GetView<DoctorDashboardController> {
                     : _buildLoadingView(),
               ),
 
-              const SizedBox(height: 24),
+              SizedBox(height: 24.h),
             ],
           ),
         ),
@@ -171,12 +169,12 @@ class DoctorDashboard extends GetView<DoctorDashboardController> {
         .toList();
 
     return SizedBox(
-      height: 230,
+      height: 210.h,
       child: filteredAppointments.isEmpty
           ? _buildEmptyAppointmentsView(Get.context!)
           : ListView.builder(
               scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 36),
+              padding: EdgeInsets.symmetric(horizontal: 36.w),
               physics: const BouncingScrollPhysics(),
               itemCount: filteredAppointments.length,
               itemBuilder: (context, index) {
@@ -208,156 +206,224 @@ class DoctorDashboard extends GetView<DoctorDashboardController> {
         });
       },
       child: Container(
-        width: 210,
-        margin: const EdgeInsets.symmetric(horizontal: 8),
+        width: 210.w,
+        margin: EdgeInsets.symmetric(horizontal: 8.w),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(8.r),
           border: Border.all(color: Colors.grey[600]!),
         ),
         child: Padding(
-          padding: const EdgeInsets.all(12),
+          padding: EdgeInsets.all(8.w),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Patient header
               Padding(
-                padding: const EdgeInsets.all(12),
-                child: Row(
+                padding: EdgeInsets.all(12.w),
+                child: Column(
                   children: [
-                    // Patient Image
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(25),
-                      child: CachedNetworkImage(
-                        imageUrl: appointment.image ?? "",
-                        height: 48,
-                        width: 48,
-                        fit: BoxFit.cover,
-                        placeholder: (context, url) => Container(
-                          color: Colors.grey[200],
-                          child: Icon(
-                            Icons.person,
-                            size: 24,
-                            color: Colors.grey[900],
-                          ),
-                        ),
-                        errorWidget: (context, url, err) => Container(
-                          color: Colors.grey[200],
-                          child: Icon(
-                            Icons.person,
-                            size: 24,
-                            color: Colors.grey[900],
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-
-                    // Name and specialty
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            appointment.name ?? "",
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontSize: 14,
-                              height: 1.2,
-                              fontWeight: FontWeight.w600,
-                              fontFamily: AppFontStyleTextStrings.medium,
+                    Row(
+                      children: [
+                        // Patient Image
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(25.r),
+                          child: CachedNetworkImage(
+                            imageUrl: appointment.image ?? "",
+                            height: 48.h,
+                            width: 48.w,
+                            fit: BoxFit.cover,
+                            placeholder: (context, url) => Container(
+                              color: Colors.grey[200],
+                              child: Icon(
+                                Icons.person,
+                                size: 24.sp,
+                                color: Colors.grey[900],
+                              ),
+                            ),
+                            errorWidget: (context, url, err) => Container(
+                              color: Colors.grey[200],
+                              child: Icon(
+                                Icons.person,
+                                size: 24.sp,
+                                color: Colors.grey[900],
+                              ),
                             ),
                           ),
-                        ],
+                        ),
+                        SizedBox(width: 8.w),
+
+                        // Name and appointment date
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                appointment.name ?? "",
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: CustomTextStyle(
+                                  fontSize: 14.sp,
+                                  height: 1.4,
+                                  fontWeight: FontWeight.w600,
+                                  fontFamily: AppFontStyleTextStrings.medium,
+                                ),
+                              ),
+                              SizedBox(height: 2.h),
+                              Obx(
+                                () {
+                                  final dateText = _getAppointmentDateText(
+                                    appointment,
+                                    dashboardController.doctorTimezoneOffsetHours.value,
+                                  );
+                                  return dateText.isEmpty
+                                      ? const SizedBox.shrink()
+                                      : Text(
+                                          dateText,
+                                          maxLines: 2,
+                                          style: CustomTextStyle(
+                                            fontSize: 11.sp,
+                                            height: 1.3,
+                                            color: Colors.grey[700],
+                                            fontFamily:
+                                                AppFontStyleTextStrings.regular,
+                                          ),
+                                        );
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 8.h),
+                    // Status badge
+                    Container(
+                      width: double.infinity,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 8.w,
+                        vertical: 4.h,
+                      ),
+                      decoration: BoxDecoration(
+                        color: _getStatusColor(
+                          appointment.status,
+                        ).withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(12.r),
+                        border: Border.all(
+                          color: _getStatusColor(appointment.status),
+                          width: 1,
+                        ),
+                      ),
+                      child: Text(
+                        _getStatusText(appointment.status),
+                        textAlign: TextAlign.center,
+                        style: CustomTextStyle(
+                          fontSize: 11.sp,
+                          height: 1.3,
+                          fontWeight: FontWeight.w500,
+                          color: _getStatusColor(appointment.status),
+                          fontFamily: AppFontStyleTextStrings.medium,
+                        ),
                       ),
                     ),
                   ],
                 ),
               ),
 
-              // Interests
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'interests'.tr,
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
-                        fontFamily: AppFontStyleTextStrings.medium,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    // Two interests per row
-                    // Wrap(
-                    //   spacing: 8,
-                    //   runSpacing: 4,
-                    //   children: [
-                    //     _buildInterestChip('anxiety'.tr),
-                    //     _buildInterestChip('relationships'.tr),
-                    //     _buildInterestChip('adhd'.tr),
-                    //   ],
-                    // ),
-
-                    // One interest on second row
-                  ],
-                ),
-              ),
-
-              Padding(
-                padding: const EdgeInsets.fromLTRB(12, 18, 12, 8),
+                padding: EdgeInsets.fromLTRB(12.w, 8.h, 12.w, 8.h),
                 child: Container(
                   width: double.infinity,
-                  height: 1,
+                  height: 1.h,
                   color: Colors.black54,
                 ),
               ),
 
-              // Start button
+              // Start + Profile buttons
               Padding(
-                padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
-                child: Center(
-                  child: OutlinedButton(
-                    onPressed: () async {
-                      // Same navigation as the card tap
-                      await Get.toNamed(
-                        Routes.dAppointmentDetailScreen,
-                        arguments: {'id': appointment.id.toString()},
-                      )?.then((value) {
-                        Get.delete<DAppointmentDetailsController>();
-                        if (value ?? false) {
-                          dashboardController.fetchDoctorAppointment();
-                        }
-                      });
-                    },
-
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.black87,
-                      backgroundColor: AppColors.color1,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
+                padding: EdgeInsets.fromLTRB(8.w, 0, 8.w, 8.h),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () async {
+                          // Same navigation as the card tap
+                          await Get.toNamed(
+                            Routes.dAppointmentDetailScreen,
+                            arguments: {'id': appointment.id.toString()},
+                          )?.then((value) {
+                            Get.delete<DAppointmentDetailsController>();
+                            if (value ?? false) {
+                              dashboardController.fetchDoctorAppointment();
+                            }
+                          });
+                        },
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: Colors.white,
+                          backgroundColor: AppColors.color1,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 8,
+                          ),
+                          minimumSize: const Size(double.infinity, 36),
+                        ),
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            (appointment.status?.toLowerCase() != 'completed' &&
+                                    appointment.status?.toLowerCase() !=
+                                        'cancelled')
+                                ? 'start_session'.tr
+                                : 'view_details'.tr,
+                            style: CustomTextStyle(
+                              color: Colors.white,
+                              fontSize: 12.sp,
+                              fontFamily: AppFontStyleTextStrings.regular,
+                            ),
+                          ),
+                        ),
                       ),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 2,
-                      ),
-                      minimumSize: const Size(double.infinity, 30),
                     ),
-                    child: Text(
-                      (appointment.status?.toLowerCase() != 'completed' &&
-                              appointment.status?.toLowerCase() != 'cancelled')
-                          ? 'start_session'.tr
-                          : 'view_details'.tr,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 12,
-                        fontFamily: AppFontStyleTextStrings.regular,
+                    SizedBox(width: 8.w),
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () async {
+                          // Navigate to profile (reuse details screen if no dedicated profile route)
+                          await Get.toNamed(
+                            Routes.dAppointmentDetailScreen,
+                            arguments: {'id': appointment.id.toString()},
+                          );
+                        },
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: Colors.black87,
+                          backgroundColor: Colors.white,
+                          side: BorderSide(color: Colors.grey[600]!),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20.r),
+                          ),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 8.w,
+                            vertical: 8.h,
+                          ),
+                          minimumSize: Size(double.infinity, 36.h),
+                        ),
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            'profile'.tr,
+                            style: CustomTextStyle(
+                              fontSize: 12.sp,
+                              color: Colors.black87,
+                              fontFamily: AppFontStyleTextStrings.regular,
+                            ),
+                          ),
+                        ),
                       ),
                     ),
-                  ),
+                  ],
                 ),
               ),
             ],
@@ -369,17 +435,17 @@ class DoctorDashboard extends GetView<DoctorDashboardController> {
 
   Widget _buildInterestChip(String label) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
       decoration: BoxDecoration(
         border: Border.all(color: Colors.grey[400]!),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(16.r),
       ),
       child: FittedBox(
         child: Text(
           label,
 
-          style: TextStyle(
-            fontSize: 10,
+          style: CustomTextStyle(
+            fontSize: 10.sp,
             color: Colors.black87,
             fontFamily: AppFontStyleTextStrings.regular,
           ),
@@ -390,8 +456,8 @@ class DoctorDashboard extends GetView<DoctorDashboardController> {
 
   Widget _buildEmptyAppointmentsView(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 36, vertical: 16),
-      padding: const EdgeInsets.all(20),
+      margin: EdgeInsets.symmetric(horizontal: 36.w, vertical: 16.h),
+      padding: EdgeInsets.all(20.w),
       // decoration: BoxDecoration(
       //   color: Colors.white,
       //   borderRadius: BorderRadius.circular(12),
@@ -408,7 +474,7 @@ class DoctorDashboard extends GetView<DoctorDashboardController> {
             child: Text(
               'doctor_not_appointment_text'.tr,
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: CustomTextStyle(
                 fontSize: 14.sp,
                 color: Colors.grey[700],
                 fontFamily: AppFontStyleTextStrings.regular,
@@ -422,24 +488,24 @@ class DoctorDashboard extends GetView<DoctorDashboardController> {
 
   Widget _buildErrorView() {
     return Container(
-      height: 180,
-      padding: const EdgeInsets.all(20),
-      margin: const EdgeInsets.symmetric(horizontal: 20),
+      height: 180.h,
+      padding: EdgeInsets.all(20.w),
+      margin: EdgeInsets.symmetric(horizontal: 20.w),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(12.r),
         border: Border.all(color: Colors.grey[200]!),
       ),
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.error_outline, size: 40, color: Colors.grey[400]),
-            const SizedBox(height: 12),
+            Icon(Icons.error_outline, size: 40.sp, color: Colors.grey[400]),
+            SizedBox(height: 12.h),
             Text(
               'unable_to_load_data'.tr,
-              style: TextStyle(
-                fontSize: 14,
+              style: CustomTextStyle(
+                fontSize: 14.sp,
                 color: Colors.grey[600],
                 fontFamily: AppFontStyleTextStrings.regular,
               ),
@@ -451,33 +517,54 @@ class DoctorDashboard extends GetView<DoctorDashboardController> {
   }
 
   Widget _buildLoadingView() {
-    return const SizedBox(
-      height: 180,
+    return SizedBox(
+      height: 180.h,
       child: Center(
         child: CircularProgressIndicator(
-          valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF3366FF)),
-          strokeWidth: 3,
+          valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF3366FF)),
+          strokeWidth: 3.w,
         ),
       ),
     );
   }
 
   // Helper Methods
-  String _formatDate(String dateString) {
-    if (dateString.length < 10) return dateString;
-    return "${dateString.substring(8, 10)}-${dateString.substring(5, 7)}-${dateString.substring(0, 4)}";
+  String _getStatusText(String? status) {
+    if (status == null || status.isEmpty) return 'pending'.tr;
+    return status.toLowerCase().tr;
+  }
+
+  /// Same logic as patient appointment detail page: uses formatAppointmentForPatient
+  /// to show time in viewer's (doctor's) device timezone with 12h AM/PM format.
+  String _getAppointmentDateText(dynamic appointment, int doctorTimezoneOffsetHours) {
+    final dateStr = appointment.bookingDate ?? appointment.appointmentDate ?? appointment.date ?? appointment.startDate ?? appointment.createdAt ?? '';
+    final timeRaw = appointment.bookingTime ?? appointment.startTime ?? '';
+    final timeStr = timeRaw.length >= 5 ? timeRaw.substring(0, 5) : timeRaw;
+
+    if (dateStr.isEmpty || dateStr.length < 10) return '';
+
+    return TimezoneService.formatAppointmentForPatient(
+      dateStr: dateStr,
+      timeStr: timeStr,
+      doctorTimezoneOffsetHours: doctorTimezoneOffsetHours,
+      isArabic: Get.locale?.languageCode == 'ar',
+    );
   }
 
   Color _getStatusColor(String? status) {
     switch (status?.toLowerCase()) {
-      case 'pending':
+      case 'confirmed':
         return Colors.orange;
       case 'completed':
         return Colors.green;
-      case 'cancelled':
+      case 'absent':
         return Colors.red;
-      case 'confirmed':
+      case 'accepted':
         return const Color(0xFF3366FF);
+      case 'cancelled':
+        return Colors.grey;
+      case 'pending':
+        return Colors.amber;
       default:
         return const Color(0xFF3366FF);
     }

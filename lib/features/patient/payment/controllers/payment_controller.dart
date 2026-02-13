@@ -9,15 +9,19 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:videocalling/core/config/app_variables.dart';
 import 'package:videocalling/core/config/routes.dart';
 import 'package:videocalling/core/utils/logger.dart';
+import 'package:videocalling/core/widgets/text_style/custom_text_style.dart';
 import 'package:videocalling/features/patient/appointments/controllers/make_appointment_controller.dart';
 import 'package:videocalling/features/patient/payment_plans/controllers/payment_plans_controller.dart';
 import 'package:videocalling/features/patient/payment_plans/models/payment_plan_model.dart';
 import 'package:videocalling/shared/services/auth/firebase_helper.dart';
+import 'package:videocalling/shared/services/others/timezone_service.dart';
 import 'package:videocalling/shared/services/payment/bankily_service.dart';
+import 'package:videocalling/shared/services/payment/digital_wallet_service.dart';
 
 class PaymentController extends GetxController {
-  // Payment method selection
-  final selectedPaymentMethod = 1.obs; // Default to Visa/MasterCard
+  // Payment method selection: 0=Digital wallet, 1=Card (Visa/Mastercard USD), 2=Bankily (MRU)
+  final selectedPaymentMethod =
+      1.obs; // Default to Card (Visa/Mastercard), not Bankily
 
   // Coupon controller
   final couponController = TextEditingController();
@@ -50,16 +54,21 @@ class PaymentController extends GetxController {
 
   // Payment summary
   final subtotal = 0.0.obs;
-  final serviceFees = 5.0.obs;
-  final tax = 2.5.obs;
   final discount = 0.0.obs;
   final total = 0.0.obs;
 
   // Loading state
   final isProcessingPayment = false.obs;
 
+  // Tab management
+  final selectedTab = 0.obs; // 0 = Payment Details, 1 = Payment Methods
+  final showPaymentBreakdown = false.obs;
+
   // Stripe payment intent (for card payments)
   Map<String, dynamic>? stripePaymentIntent;
+
+  // Store payment intent ID separately for digital wallet payments
+  String? digitalWalletPaymentIntentId;
 
   // Stripe currency selection
   String stripeCurrencyCode = 'USD';
@@ -291,11 +300,7 @@ class PaymentController extends GetxController {
 
   void _calculateTotal() {
     try {
-      total.value =
-          subtotal.value + serviceFees.value + tax.value - discount.value;
-      loggerNoStack.d(
-        'Total calculated: Subtotal=$subtotal, Fees=$serviceFees, Tax=$tax, Discount=$discount, Total=$total',
-      );
+      total.value = subtotal.value - discount.value;
     } catch (e, stackTrace) {
       loggerNoStack.e('Error calculating total: $e');
       loggerNoStack.e('Stack trace: $stackTrace');
@@ -305,7 +310,7 @@ class PaymentController extends GetxController {
   void _generateOperationId() {
     try {
       // Generate unique operation ID with current date prefix for Bankily
-      final now = DateTime.now();
+      final now = TimezoneService.getCurrentMauritaniaTime();
       final datePrefix =
           '${now.year}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}';
 
@@ -322,12 +327,12 @@ class PaymentController extends GetxController {
       loggerNoStack.e('Error generating operation ID: $e');
       loggerNoStack.e('Stack trace: $stackTrace');
       // Fallback to basic operation ID with date
-      final datePrefix = DateTime.now()
+      final datePrefix = TimezoneService.getCurrentMauritaniaTime()
           .toIso8601String()
           .substring(0, 10)
           .replaceAll('-', '');
       operationId.value =
-          '${datePrefix}_OPR_${DateTime.now().millisecondsSinceEpoch}_FALLBACK';
+          '${datePrefix}_OPR_${TimezoneService.getCurrentMauritaniaTime().millisecondsSinceEpoch}_FALLBACK';
       loggerNoStack.w('Using fallback operation ID: ${operationId.value}');
     }
   }
@@ -346,6 +351,26 @@ class PaymentController extends GetxController {
     }
   }
 
+  /// Get payment gateway and currency from selected payment method.
+  /// Card (Visa/Mastercard) = stripe, USD. Bankily = bankily, MRU. Digital wallet = platform name, USD.
+  ({String gateway, String currency}) getPaymentGatewayAndCurrency() {
+    switch (selectedPaymentMethod.value) {
+      case 0:
+        return (
+          gateway: DigitalWalletService.getPlatformPaymentName()
+              .toLowerCase()
+              .replaceAll(' ', '_'),
+          currency: 'USD',
+        );
+      case 1:
+        return (gateway: 'stripe', currency: 'USD');
+      case 2:
+        return (gateway: 'bankily', currency: 'MRU');
+      default:
+        return (gateway: 'stripe', currency: 'USD');
+    }
+  }
+
   void selectPaymentMethod(int index) {
     try {
       selectedPaymentMethod.value = index;
@@ -354,6 +379,18 @@ class PaymentController extends GetxController {
       loggerNoStack.e('Error selecting payment method: $e');
       loggerNoStack.e('Stack trace: $stackTrace');
     }
+  }
+
+  void switchTab(int index) {
+    selectedTab.value = index;
+    loggerNoStack.i('Switched to tab: $index');
+  }
+
+  void togglePaymentBreakdown() {
+    showPaymentBreakdown.value = !showPaymentBreakdown.value;
+    loggerNoStack.i(
+      'Payment breakdown visibility: ${showPaymentBreakdown.value}',
+    );
   }
 
   void applyCoupon() async {
@@ -472,7 +509,7 @@ class PaymentController extends GetxController {
       final isUsed = couponResponse['is_used'] ?? false;
 
       // Step 2: Check if coupon has expired
-      final now = DateTime.now();
+      final now = TimezoneService.getCurrentMauritaniaTime();
       if (now.isAfter(validUntil)) {
         loggerNoStack.w(
           '❌ Coupon expired: $couponCode (expired on $validUntil)',
@@ -596,7 +633,8 @@ class PaymentController extends GetxController {
         await supabase.from('coupon_usage').insert({
           'coupon_id': couponId,
           'user_id': userId,
-          'used_at': DateTime.now().toIso8601String(),
+          'used_at': TimezoneService.getCurrentMauritaniaTime()
+              .toIso8601String(),
         });
 
         loggerNoStack.i('✅ Multi-use coupon usage recorded');
@@ -695,8 +733,11 @@ class PaymentController extends GetxController {
         );
 
         Get.snackbar(
-          'Authentication Error',
-          'Failed to connect to payment service: ${authResult['message']}',
+          'authentication_error_title'.tr,
+          'failed_to_connect_payment_service'.tr.replaceAll(
+            '{message}',
+            authResult['message']?.toString() ?? '',
+          ),
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.red,
           colorText: Colors.white,
@@ -737,8 +778,8 @@ class PaymentController extends GetxController {
         );
 
         Get.snackbar(
-          'Payment Failed',
-          errorMessage ?? 'Payment processing failed',
+          'payment_failed_title'.tr,
+          errorMessage ?? 'payment_processing_failed'.tr,
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.red,
           colorText: Colors.white,
@@ -798,8 +839,8 @@ class PaymentController extends GetxController {
             );
 
             Get.snackbar(
-              'Payment Failed',
-              'Transaction was declined. Please try again.',
+              'payment_failed_title'.tr,
+              'transaction_declined'.tr,
               snackPosition: SnackPosition.BOTTOM,
               backgroundColor: Colors.red,
               colorText: Colors.white,
@@ -829,8 +870,8 @@ class PaymentController extends GetxController {
         );
 
         Get.snackbar(
-          'Payment Timeout',
-          'Payment is taking longer than expected. Please check your transaction status.',
+          'payment_timeout_title'.tr,
+          'payment_timeout_message'.tr,
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.orange,
           colorText: Colors.white,
@@ -861,8 +902,11 @@ class PaymentController extends GetxController {
 
         loggerNoStack.i('✅ Plan subscription completed successfully!');
         Get.snackbar(
-          'Success',
-          'Subscription successful! ${selectedPlan!.sessions} sessions added to your account.',
+          'success_str'.tr,
+          'subscription_success_message'.tr.replaceAll(
+            '{sessions}',
+            '${selectedPlan!.sessions}',
+          ),
           snackPosition: SnackPosition.TOP,
           backgroundColor: Colors.green,
           colorText: Colors.white,
@@ -880,8 +924,8 @@ class PaymentController extends GetxController {
 
         loggerNoStack.i('✅ Payment and booking completed successfully!');
         Get.snackbar(
-          'Success',
-          'Payment successful! Your appointment has been booked.',
+          'success_str'.tr,
+          'payment_booking_success'.tr,
           snackPosition: SnackPosition.TOP,
           backgroundColor: Colors.green,
           colorText: Colors.white,
@@ -922,143 +966,28 @@ class PaymentController extends GetxController {
     }
   }
 
-  /// Save initial transaction history record
-  // Future<void> _saveTransactionHistory({required String status}) async {
-  //   try {
-  //     loggerNoStack.i('💾 Saving transaction history with status: $status');
-
-  //     final supabase = Supabase.instance.client;
-
-  //     final transactionData = {
-  //       'operation_id': operationId.value,
-  //       'patient_id': userId,
-  //       'doctor_id': doctorId,
-  //       'total_amount': total.value,
-  //       'total_actual_amount': subtotal.value,
-  //       'operation_status': status,
-  //       'action_type': 'income', // This is income for the doctor
-
-  //       'income_history': status == 'success' ? total.value : 0,
-  //       'withrowl_history': 0,
-  //       'payment_date': DateTime.now().toIso8601String(),
-  //       'booking_id': null, // Will be updated when booking is created
-  //       'payment_gateway': gateway,
-  //       'payment_currency': currency,
-  //       'created_at': DateTime.now().toIso8601String(),
-  //     };
-
-  //     loggerNoStack.d('Transaction data: $transactionData');
-
-  //     await supabase.from('payment_history').insert(transactionData);
-
-  //     loggerNoStack.i('✅ Transaction history saved successfully');
-  //   } catch (e, stackTrace) {
-  //     loggerNoStack.e('❌ Error saving transaction history: $e');
-  //     loggerNoStack.e('Stack trace: $stackTrace');
-  //     // Don't throw - this is auxiliary data
-  //   }
-  // }
-
-  /// Update transaction history status
-  // Future<void> _updateTransactionHistory({required String status}) async {
-  //   try {
-  //     loggerNoStack.i('🔄 Updating transaction history status to: $status');
-
-  //     final supabase = Supabase.instance.client;
-
-  //     await supabase
-  //         .from('payment_history')
-  //         .update({'operation_status': status})
-  //         .eq('operation_id', operationId.value);
-
-  //     loggerNoStack.i('✅ Transaction history updated successfully');
-  //   } catch (e, stackTrace) {
-  //     loggerNoStack.e('❌ Error updating transaction history: $e');
-  //     loggerNoStack.e('Stack trace: $stackTrace');
-  //     // Don't throw - this is auxiliary data
-  //   }
-  // }
-
-  /// Save initial payment history record
+  /// Save initial payment history record (disabled for now)
   Future<void> _savePaymentHistory({
     required String status,
     String? gateway,
     String? currency,
   }) async {
-    try {
-      loggerNoStack.i('💾 Saving payment history with status: $status');
-
-      final supabase = Supabase.instance.client;
-      Logger().e(subtotal.value);
-
-      final paymentData = {
-        'doctor_id': doctorId,
-        'patient_id': userId,
-        'operation_id': operationId.value,
-
-        'total_amount': total.value,
-        'total_actual_amount': subtotal.value, // Original amount before fees
-        'income_history': status == 'success' ? total.value : 0,
-        'withrowl_history': 0,
-        'action_type': 'income', // This is income for the doctor
-        'operation_status': status,
-        'payment_date': DateTime.now().toIso8601String(),
-        'booking_id': null, // Will be updated when booking is created
-        'payment_gateway': gateway,
-        'payment_currency': currency,
-      };
-
-      loggerNoStack.d('Payment data: $paymentData');
-
-      await supabase.from('payment_history').insert(paymentData);
-
-      loggerNoStack.i('✅ Payment history saved successfully');
-    } catch (e, stackTrace) {
-      loggerNoStack.e('❌ Error saving payment history: $e');
-      loggerNoStack.e('Stack trace: $stackTrace');
-      // Don't throw - this is auxiliary data
-    }
+    // Payment history submit disabled
   }
 
-  /// Update payment history status
+  /// Update payment history status (disabled for now)
   Future<void> _updatePaymentHistory({
     required String status,
     String? gateway,
     String? currency,
   }) async {
-    try {
-      loggerNoStack.i('🔄 Updating payment history status to: $status');
-
-      final supabase = Supabase.instance.client;
-
-      final updateData = {
-        'operation_status': status,
-        'income_history': status == 'success' ? total.value : 0,
-        if (gateway != null) 'payment_gateway': gateway,
-        if (currency != null) 'payment_currency': currency,
-      };
-
-      await supabase
-          .from('payment_history')
-          .update(updateData)
-          .eq('patient_id', userId)
-          .eq('doctor_id', doctorId)
-          .eq('total_amount', total.value)
-          .order('payment_date', ascending: false) // Get the most recent one
-          .limit(1);
-
-      loggerNoStack.i('✅ Payment history updated successfully');
-    } catch (e, stackTrace) {
-      loggerNoStack.e('❌ Error updating payment history: $e');
-      loggerNoStack.e('Stack trace: $stackTrace');
-      // Don't throw - this is auxiliary data
-    }
+    // Payment history submit disabled
   }
 
   /// Generate a unique booking ID with current date prefix
   String _generateBookingId() {
     try {
-      final now = DateTime.now();
+      final now = TimezoneService.getCurrentMauritaniaTime();
       final datePrefix =
           '${now.year}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}';
 
@@ -1076,11 +1005,11 @@ class PaymentController extends GetxController {
       loggerNoStack.e('Error generating booking ID: $e');
       loggerNoStack.e('Stack trace: $stackTrace');
       // Fallback to basic booking ID with date
-      final datePrefix = DateTime.now()
+      final datePrefix = TimezoneService.getCurrentMauritaniaTime()
           .toIso8601String()
           .substring(0, 10)
           .replaceAll('-', '');
-      return '${datePrefix}_BKG_${DateTime.now().millisecondsSinceEpoch}_FALLBACK';
+      return '${datePrefix}_BKG_${TimezoneService.getCurrentMauritaniaTime().millisecondsSinceEpoch}_FALLBACK';
     }
   }
 
@@ -1103,14 +1032,13 @@ class PaymentController extends GetxController {
         plansController = Get.put(PaymentPlansController());
       }
 
-      // Subscribe to the plan
+      // Subscribe to the plan - use detected gateway/currency from payment screen
+      final pay = getPaymentGatewayAndCurrency();
       await plansController.subscribeToPlan(
         plan: selectedPlan!,
-        paymentGateway: selectedPaymentMethod.value == 1 ? 'bankily' : 'stripe',
+        paymentGateway: pay.gateway,
         paymentId: transactionId.value,
-        paymentCurrency: selectedPaymentMethod.value == 1
-            ? 'MRU'
-            : stripeCurrencyCode,
+        paymentCurrency: pay.currency,
       );
 
       loggerNoStack.i(
@@ -1183,27 +1111,39 @@ class PaymentController extends GetxController {
       // Deduct session from patient's available count
       await _deductSessionFromPatient(patientId);
 
-      // Parse booking date and time
-      final bookingDate = DateTime.parse(appointmentDate);
-      final timeParts = appointmentTime.split(':');
-      final bookingTime = TimeOfDay(
-        hour: int.parse(timeParts[0]),
-        minute: int.parse(timeParts[1]),
-      );
+      // appointmentDate and appointmentTime are in doctor's local time; convert to UTC for storage
+      int doctorOffset = 0;
+      try {
+        final doctorRow = await Supabase.instance.client
+            .from('doctors')
+            .select('timezone_offset_hours')
+            .eq('doctor_id', doctorId)
+            .maybeSingle();
+        if (doctorRow != null && doctorRow['timezone_offset_hours'] != null) {
+          doctorOffset = (doctorRow['timezone_offset_hours'] as num).toInt();
+        }
+      } catch (_) {}
 
-      // Format time as HH:mm:ss
-      final formattedTime =
-          '${bookingTime.hour.toString().padLeft(2, '0')}:${bookingTime.minute.toString().padLeft(2, '0')}:00';
+      final timeStr = appointmentTime.contains(':')
+          ? appointmentTime.length >= 5
+              ? appointmentTime.substring(0, 5)
+              : appointmentTime
+          : appointmentTime;
+      final utcBooking = TimezoneService.localDateAndTimeToUtcStrings(
+        appointmentDate,
+        timeStr,
+        doctorOffset,
+      );
 
       loggerNoStack.d(
-        'Booking Date: ${bookingDate.toIso8601String().split('T')[0]}',
+        'Booking Date (UTC): ${utcBooking.utcDateStr}',
       );
-      loggerNoStack.d('Booking Time: $formattedTime');
+      loggerNoStack.d('Booking Time (UTC): ${utcBooking.utcTimeStr}');
 
       // Generate unique booking ID with date prefix
       final bookingId = _generateBookingId();
 
-      // Create booking data
+      // Create booking data (store UTC)
       final bookingData = {
         'patient_id': patientId,
         'doctor_id': doctorId,
@@ -1212,11 +1152,10 @@ class PaymentController extends GetxController {
         'price': total.value.toStringAsFixed(2),
         'payment_intent_id': transactionId.value,
         'video_session_id': null, // Will be set when video call starts
-        'created_at': DateTime.now().toIso8601String(),
-        'booking_date': bookingDate.toIso8601String().split(
-          'T',
-        )[0], // YYYY-MM-DD
-        'booking_time': formattedTime, // HH:mm:ss
+        'created_at': TimezoneService.getCurrentMauritaniaTime()
+            .toIso8601String(),
+        'booking_date': utcBooking.utcDateStr,
+        'booking_time': utcBooking.utcTimeStr,
       };
 
       loggerNoStack.d('Booking data to insert: $bookingData');
@@ -1263,35 +1202,9 @@ class PaymentController extends GetxController {
     }
   }
 
-  /// Update payment and transaction history with booking ID
+  /// Update payment and transaction history with booking ID (disabled for now)
   Future<void> _updateRecordsWithBookingId(String bookingId) async {
-    try {
-      loggerNoStack.i('🔗 Updating records with booking ID: $bookingId');
-
-      final supabase = Supabase.instance.client;
-
-      // Update transaction history
-      await supabase
-          .from('payment_history')
-          .update({'booking_id': bookingId})
-          .eq('operation_id', operationId.value);
-
-      // Update payment history
-      await supabase
-          .from('payment_history')
-          .update({'booking_id': bookingId})
-          .eq('patient_id', userId)
-          .eq('doctor_id', doctorId)
-          .eq('total_amount', total.value)
-          .order('payment_date', ascending: false)
-          .limit(1);
-
-      loggerNoStack.i('✅ Records updated with booking ID successfully');
-    } catch (e, stackTrace) {
-      loggerNoStack.e('❌ Error updating records with booking ID: $e');
-      loggerNoStack.e('Stack trace: $stackTrace');
-      // Don't throw - this is auxiliary data
-    }
+    // Payment history submit disabled
   }
 
   /// Convert USD to MRU (approximate exchange rate)
@@ -1385,14 +1298,14 @@ class PaymentController extends GetxController {
         GetSnackBar(
           titleText: Text(
             title,
-            style: const TextStyle(
+            style: const CustomTextStyle(
               color: Colors.white,
               fontWeight: FontWeight.w600,
             ),
           ),
           messageText: Text(
             message,
-            style: const TextStyle(color: Colors.white),
+            style: const CustomTextStyle(color: Colors.white),
           ),
           snackPosition: position,
           backgroundColor: backgroundColor,
@@ -1423,11 +1336,11 @@ class PaymentController extends GetxController {
       isProcessingPayment.value = true;
 
       // Save initial transaction record as 'waiting'
-      // await _saveTransactionHistory(status: 'waiting');
+      // Card (Visa/Mastercard) is always USD
       await _savePaymentHistory(
         status: 'waiting',
         gateway: 'stripe',
-        currency: stripeCurrencyCode,
+        currency: 'USD',
       );
 
       // 1) Create PaymentIntent on Stripe
@@ -1453,12 +1366,11 @@ class PaymentController extends GetxController {
         '✅ Stripe payment successful, PaymentIntent ID: ${transactionId.value}',
       );
 
-      // Update records to success
-      // await _updateTransactionHistory(status: 'success');
+      // Update records to success (Card is always USD)
       await _updatePaymentHistory(
         status: 'success',
         gateway: 'stripe',
-        currency: stripeCurrencyCode,
+        currency: 'USD',
       );
 
       // Mark coupon as used if applicable
@@ -1473,9 +1385,11 @@ class PaymentController extends GetxController {
 
         loggerNoStack.i('✅ Stripe plan subscription completed successfully!');
         _showSafeSnackbar(
-          title: 'Success',
-          message:
-              'Subscription successful! ${selectedPlan!.sessions} sessions added to your account.',
+          title: 'success_str'.tr,
+          message: 'subscription_success_message'.tr.replaceAll(
+            '{sessions}',
+            '${selectedPlan!.sessions}',
+          ),
           position: SnackPosition.TOP,
           backgroundColor: Colors.green,
         );
@@ -1489,8 +1403,8 @@ class PaymentController extends GetxController {
 
         loggerNoStack.i('✅ Stripe payment and booking completed successfully!');
         _showSafeSnackbar(
-          title: 'Success',
-          message: 'Payment successful! Your appointment has been booked.',
+          title: 'success_str'.tr,
+          message: 'payment_booking_success'.tr,
           position: SnackPosition.TOP,
           backgroundColor: Colors.green,
         );
@@ -1503,17 +1417,16 @@ class PaymentController extends GetxController {
       loggerNoStack.e('❌ StripeException during payment: $e');
       loggerNoStack.e('Stack trace: $stackTrace');
 
-      // Update records to failed
-      // await _updateTransactionHistory(status: 'failed');
+      // Update records to failed (Card is always USD)
       await _updatePaymentHistory(
         status: 'failed',
         gateway: 'stripe',
-        currency: stripeCurrencyCode,
+        currency: 'USD',
       );
 
       _showSafeSnackbar(
-        title: 'Payment Failed',
-        message: 'Payment was cancelled or failed. Please try again.',
+        title: 'payment_failed_title'.tr,
+        message: 'payment_cancelled_or_failed'.tr,
         position: SnackPosition.BOTTOM,
         backgroundColor: Colors.red,
       );
@@ -1522,11 +1435,10 @@ class PaymentController extends GetxController {
       loggerNoStack.e('Stack trace: $stackTrace');
 
       try {
-        // await _updateTransactionHistory(status: 'failed');
         await _updatePaymentHistory(
           status: 'failed',
           gateway: 'stripe',
-          currency: stripeCurrencyCode,
+          currency: 'USD',
         );
       } catch (updateError) {
         loggerNoStack.e(
@@ -1547,6 +1459,298 @@ class PaymentController extends GetxController {
     }
   }
 
+  /// Prepare Digital Wallet Payment - Create Payment Intent if not exists
+  Future<void> prepareDigitalWalletPayment() async {
+    // If payment intent already created, skip
+    if (digitalWalletPaymentIntentId != null &&
+        digitalWalletPaymentIntentId!.isNotEmpty) {
+      loggerNoStack.i(
+        '✅ Payment intent already exists: $digitalWalletPaymentIntentId',
+      );
+      return;
+    }
+
+    loggerNoStack.i('🔧 Preparing digital wallet payment...');
+
+    try {
+      // Save initial transaction record as 'waiting'
+      await _savePaymentHistory(
+        status: 'waiting',
+        gateway: DigitalWalletService.getPlatformPaymentName()
+            .toLowerCase()
+            .replaceAll(' ', '_'),
+        currency: 'USD', // Digital wallet uses card, always USD
+      );
+
+      // Create PaymentIntent on Stripe
+      loggerNoStack.i('🔧 Creating Stripe PaymentIntent...');
+      stripePaymentIntent = await _createStripePaymentIntent();
+
+      // Store the payment intent ID separately for digital wallet
+      digitalWalletPaymentIntentId = stripePaymentIntent!['id'] as String;
+
+      loggerNoStack.i('✅ PaymentIntent created: $digitalWalletPaymentIntentId');
+    } catch (e, stackTrace) {
+      loggerNoStack.e('❌ Error preparing digital wallet payment: $e');
+      loggerNoStack.e('Stack trace: $stackTrace');
+
+      await _updatePaymentHistory(
+        status: 'failed',
+        gateway: DigitalWalletService.getPlatformPaymentName()
+            .toLowerCase()
+            .replaceAll(' ', '_'),
+        currency: 'USD',
+      );
+
+      rethrow;
+    }
+  }
+
+  /// Process Digital Wallet Payment (Apple Pay / Google Pay)
+  Future<void> _processDigitalWalletPayment() async {
+    loggerNoStack.i('=== Starting Digital Wallet Payment Process ===');
+
+    try {
+      // Prevent double submission
+      if (isProcessingPayment.value) {
+        loggerNoStack.w(
+          'Digital wallet payment already in progress, ignoring duplicate request',
+        );
+        return;
+      }
+
+      isProcessingPayment.value = true;
+
+      final platformName = DigitalWalletService.getPlatformPaymentName();
+      loggerNoStack.i('💳 Processing $platformName payment...');
+
+      // Save initial transaction record as 'waiting' (digital wallet uses card, always USD)
+      await _savePaymentHistory(
+        status: 'waiting',
+        gateway: platformName.toLowerCase().replaceAll(' ', '_'),
+        currency: 'USD',
+      );
+
+      // 1) Create PaymentIntent on Stripe for the digital wallet
+      loggerNoStack.i('🔧 Step 1: Creating Stripe PaymentIntent...');
+      stripePaymentIntent = await _createStripePaymentIntent();
+
+      // Store the payment intent ID separately for digital wallet
+      digitalWalletPaymentIntentId = stripePaymentIntent!['id'] as String;
+
+      final clientSecret = stripePaymentIntent!['client_secret'] as String;
+      loggerNoStack.i('✅ PaymentIntent created: $digitalWalletPaymentIntentId');
+
+      // 2) Create payment items for digital wallet
+      loggerNoStack.i('📋 Step 2: Creating payment items...');
+      final paymentItems = DigitalWalletService.createDetailedPaymentItems(
+        subtotal: subtotal.value,
+        discount: discount.value,
+        total: total.value,
+      );
+
+      // 3) Process payment based on platform
+      loggerNoStack.i('💰 Step 3: Processing $platformName payment...');
+
+      // This will be handled by the Pay button widget in the UI
+      // The token will be returned from onPaymentResult callback
+      loggerNoStack.i(
+        '⏳ Waiting for user to complete $platformName payment...',
+      );
+
+      // Note: The actual payment processing happens in the Pay widget callback
+      // See _buildDigitalWalletBlackButton in payment_page.dart
+    } catch (e, stackTrace) {
+      loggerNoStack.e('❌ CRITICAL ERROR in _processDigitalWalletPayment: $e');
+      loggerNoStack.e('Stack trace: $stackTrace');
+
+      try {
+        await _updatePaymentHistory(
+          status: 'failed',
+          gateway: DigitalWalletService.getPlatformPaymentName()
+              .toLowerCase()
+              .replaceAll(' ', '_'),
+          currency: 'USD',
+        );
+      } catch (updateError) {
+        loggerNoStack.e(
+          '❌ Error updating payment records after digital wallet failure: $updateError',
+        );
+      }
+
+      _showSafeSnackbar(
+        title: 'error'.tr,
+        message: 'payment_failed'.tr,
+        position: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+      );
+    } finally {
+      isProcessingPayment.value = false;
+      // Don't clean up digitalWalletPaymentIntentId here - it's needed for the callback
+      loggerNoStack.i('=== Digital Wallet Payment Process Complete ===');
+    }
+  }
+
+  /// Handle successful digital wallet payment result
+  Future<void> onDigitalWalletPaymentSuccess(
+    Map<String, dynamic> paymentResult,
+  ) async {
+    try {
+      loggerNoStack.i('✅ Digital Wallet payment successful!');
+      loggerNoStack.d('Payment result: $paymentResult');
+
+      // Extract payment token from result
+      final token =
+          paymentResult['paymentMethodData']?['tokenizationData']?['token'];
+
+      if (token == null) {
+        throw Exception('No payment token received from digital wallet');
+      }
+
+      loggerNoStack.i('🔑 Payment token received, confirming payment...');
+
+      // Confirm the payment with Stripe using the token
+      final confirmed = await _confirmDigitalWalletPayment(token);
+
+      if (!confirmed) {
+        throw Exception('Failed to confirm digital wallet payment');
+      }
+
+      // Set transaction ID from saved payment intent ID
+      transactionId.value =
+          digitalWalletPaymentIntentId ?? 'DIGITAL_WALLET_UNKNOWN';
+
+      loggerNoStack.i(
+        '✅ Payment confirmed, transaction ID: ${transactionId.value}',
+      );
+
+      // Update records to success (digital wallet uses card, always USD)
+      await _updatePaymentHistory(
+        status: 'success',
+        gateway: DigitalWalletService.getPlatformPaymentName()
+            .toLowerCase()
+            .replaceAll(' ', '_'),
+        currency: 'USD',
+      );
+
+      // Mark coupon as used if applicable
+      if (couponController.text.trim().isNotEmpty && discount.value > 0) {
+        await _markCouponAsUsed(couponController.text.trim());
+      }
+
+      // Process based on payment type
+      if (isPlanPayment && selectedPlan != null) {
+        // Handle plan subscription
+        await _processPlansSubscription();
+
+        loggerNoStack.i('✅ Digital wallet plan subscription completed!');
+        _showSafeSnackbar(
+          title: 'success_str'.tr,
+          message: 'subscription_success_message'.tr.replaceAll(
+            '{sessions}',
+            '${selectedPlan!.sessions}',
+          ),
+          position: SnackPosition.TOP,
+          backgroundColor: Colors.green,
+        );
+
+        await Future.delayed(const Duration(seconds: 1));
+        Get.offAllNamed(Routes.userTabScreen, arguments: {'initialTab': 3});
+      } else {
+        // Create booking
+        await _createBookingInSupabase();
+
+        loggerNoStack.i('✅ Digital wallet payment and booking completed!');
+        _showSafeSnackbar(
+          title: 'success_str'.tr,
+          message: 'payment_booking_success'.tr,
+          position: SnackPosition.TOP,
+          backgroundColor: Colors.green,
+        );
+
+        await Future.delayed(const Duration(seconds: 1));
+        Get.offAllNamed(Routes.userTabScreen, arguments: {'initialTab': 2});
+      }
+    } catch (e, stackTrace) {
+      loggerNoStack.e('❌ Error handling digital wallet success: $e');
+      loggerNoStack.e('Stack trace: $stackTrace');
+
+      await _updatePaymentHistory(
+        status: 'failed',
+        gateway: DigitalWalletService.getPlatformPaymentName()
+            .toLowerCase()
+            .replaceAll(' ', '_'),
+        currency: 'USD',
+      );
+
+      _showSafeSnackbar(
+        title: 'error'.tr,
+        message: 'failed_to_process_payment_try_again'.tr,
+        position: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+      );
+    } finally {
+      // Clean up payment intent after processing is complete
+      stripePaymentIntent = null;
+      digitalWalletPaymentIntentId = null;
+      loggerNoStack.i(
+        '=== Digital Wallet Payment Success Handler Complete ===',
+      );
+    }
+  }
+
+  /// Confirm digital wallet payment with Stripe
+  Future<bool> _confirmDigitalWalletPayment(String token) async {
+    try {
+      loggerNoStack.i('🔒 Confirming digital wallet payment with Stripe...');
+
+      // Check if payment intent ID exists
+      if (digitalWalletPaymentIntentId == null ||
+          digitalWalletPaymentIntentId!.isEmpty) {
+        loggerNoStack.e(
+          '❌ Payment intent ID is null or empty, cannot confirm payment',
+        );
+        return false;
+      }
+
+      loggerNoStack.i(
+        '💳 Using payment intent ID: $digitalWalletPaymentIntentId',
+      );
+
+      // Decode the token (it's usually a JSON string)
+      final tokenData = jsonDecode(token);
+
+      // Confirm the payment intent with the token
+      final response = await http.post(
+        Uri.parse(
+          'https://api.stripe.com/v1/payment_intents/$digitalWalletPaymentIntentId/confirm',
+        ),
+        headers: {
+          'Authorization': 'Bearer $stripeSecretKey',
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: {
+          'payment_method_data[type]': 'card',
+          'payment_method_data[card][token]': tokenData['id'] ?? token,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        loggerNoStack.i('✅ Payment confirmed successfully');
+        loggerNoStack.d('Confirmation data: $data');
+        return data['status'] == 'succeeded';
+      } else {
+        loggerNoStack.e('❌ Payment confirmation failed: ${response.body}');
+        return false;
+      }
+    } catch (e, stackTrace) {
+      loggerNoStack.e('❌ Error confirming digital wallet payment: $e');
+      loggerNoStack.e('Stack trace: $stackTrace');
+      return false;
+    }
+  }
+
   void processPayment() async {
     loggerNoStack.i('=== Processing Payment ===');
     loggerNoStack.i('Selected payment method: ${selectedPaymentMethod.value}');
@@ -1559,24 +1763,29 @@ class PaymentController extends GetxController {
     }
 
     try {
-      if (selectedPaymentMethod.value == 1) {
-        // Visa/MasterCard payment through Bankily
-        loggerNoStack.i('Processing Visa/MasterCard payment via Bankily...');
-        await processBankilyPayment();
-        return; // Don't set isProcessingPayment to false here, it's handled in processBankilyPayment
-      } else if (selectedPaymentMethod.value == 2) {
-        // Stripe card payment
+      if (selectedPaymentMethod.value == 0) {
+        // Digital Wallet (Apple Pay/Google Pay)
+        loggerNoStack.i('Digital Wallet selected - initiating payment...');
+        await _processDigitalWalletPayment();
+        return;
+      } else if (selectedPaymentMethod.value == 1) {
+        // Card (Visa/Mastercard) payment via Stripe (USD)
         loggerNoStack.i('Processing card payment via Stripe...');
         await _processStripePayment();
         return;
+      } else if (selectedPaymentMethod.value == 2) {
+        // Bankily payment (MRU)
+        loggerNoStack.i('Processing payment via Bankily...');
+        await processBankilyPayment();
+        return; // Don't set isProcessingPayment to false here, it's handled in processBankilyPayment
       } else {
-        // For other payment methods, save payment history first
+        // Fallback for unknown payment methods - use detected gateway/currency
+        final pay = getPaymentGatewayAndCurrency();
         isProcessingPayment.value = true;
-        // await _saveTransactionHistory(status: 'waiting');
         await _savePaymentHistory(
           status: 'waiting',
-          gateway: 'other',
-          currency: null,
+          gateway: pay.gateway,
+          currency: pay.currency,
         );
 
         try {
@@ -1589,11 +1798,11 @@ class PaymentController extends GetxController {
           await makeAppointmentController.bookAppointment(type: "online");
 
           // If booking succeeds, update records to success
-          // await _updateTransactionHistory(status: 'success');
+          final pay = getPaymentGatewayAndCurrency();
           await _updatePaymentHistory(
             status: 'success',
-            gateway: 'other',
-            currency: null,
+            gateway: pay.gateway,
+            currency: pay.currency,
           );
 
           // Mark coupon as used if a coupon was applied
@@ -1607,11 +1816,11 @@ class PaymentController extends GetxController {
           loggerNoStack.i('Payment and booking completed successfully');
         } catch (paymentError) {
           // If payment/booking fails, update records to failed
-          // await _updateTransactionHistory(status: 'failed');
+          final pay = getPaymentGatewayAndCurrency();
           await _updatePaymentHistory(
             status: 'failed',
-            gateway: 'other',
-            currency: null,
+            gateway: pay.gateway,
+            currency: pay.currency,
           );
 
           loggerNoStack.e('Payment failed: $paymentError');

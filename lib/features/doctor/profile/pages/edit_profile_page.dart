@@ -21,7 +21,7 @@ class DoctorProfile extends GetView<DoctorProfileController> {
               profileController
                   .pageTitle
                   .value, // Use dynamic title based on flow
-              style: const TextStyle(
+              style: const CustomTextStyle(
                 color: Colors.black,
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
@@ -108,7 +108,7 @@ class DoctorProfile extends GetView<DoctorProfileController> {
       child: Center(
         child: Text(
           label,
-          style: TextStyle(
+          style: CustomTextStyle(
             color: isActive ? Colors.white : Colors.grey[600],
             fontWeight: FontWeight.bold,
             fontSize: 14,
@@ -143,7 +143,7 @@ class DoctorProfile extends GetView<DoctorProfileController> {
             const SizedBox(height: 20),
             Text(
               'unable_to_load_data'.tr,
-              style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+              style: CustomTextStyle(fontSize: 16, color: Colors.grey[600]),
             ),
             const SizedBox(height: 16),
             ElevatedButton(
@@ -160,7 +160,7 @@ class DoctorProfile extends GetView<DoctorProfileController> {
               ),
               child: Text(
                 'retry'.tr,
-                style: const TextStyle(color: Colors.white),
+                style: const CustomTextStyle(color: Colors.white),
               ),
             ),
           ],
@@ -183,7 +183,7 @@ class DoctorProfile extends GetView<DoctorProfileController> {
             const SizedBox(height: 16),
             Text(
               'loading_profile'.tr,
-              style: TextStyle(color: Colors.grey[700], fontSize: 14),
+              style: CustomTextStyle(color: Colors.grey[700], fontSize: 14),
             ),
           ],
         ),
@@ -242,7 +242,7 @@ class DoctorProfile extends GetView<DoctorProfileController> {
                 ),
                 child: Text(
                   'update'.tr,
-                  style: const TextStyle(
+                  style: const CustomTextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w500,
                     fontSize: 16,

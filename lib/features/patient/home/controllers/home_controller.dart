@@ -1,9 +1,9 @@
-import 'package:videocalling/core/config/app_imports.dart';
 // import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:carousel_slider/carousel_slider.dart' as cs;
+import 'package:videocalling/core/config/app_imports.dart';
+import 'package:videocalling/features/patient/doctors/models/doctor_model.dart';
 import 'package:videocalling/features/patient/doctors/models/sdoctor_model.dart';
 import 'package:videocalling/features/patient/home/models/home_model.dart';
-import 'package:videocalling/features/patient/doctors/models/doctor_model.dart';
 
 class UserHomeController extends GetxController {
   Future<bool> dialogPop() async {
@@ -231,8 +231,8 @@ class UserHomeController extends GetxController {
             numb_patients,
             profile_img_url,
             booking_price,
-            avg_rating,
-            number_review,
+            average_rating,
+            total_reviews,
             numb_session,
             fcm_token,
             updated_at
@@ -302,22 +302,14 @@ class UserHomeController extends GetxController {
       isErrorInLoading.value = false;
 
       // Fetch banners from Supabase
-      final bannersResponse = await supabaseHelper.client
-          .from('banners')
-          .select('id, image')
-          .order('id', ascending: true);
 
       // Fetch specialities from Supabase
       final specialitiesResponse = await supabaseHelper.client
-          .from('specialities')
-          .select('id, name, icon')
+          .from('specializations')
+          .select('id, name')
           .order('name', ascending: true);
 
       // Parse banners
-      List<BannerList> fetchedBanners = [];
-      fetchedBanners = bannersResponse
-          .map((banner) => BannerList.fromJson(banner))
-          .toList();
 
       // Parse specialities
       List<SpecialityData> fetchedSpecialities = [];
@@ -326,18 +318,15 @@ class UserHomeController extends GetxController {
           .toList();
 
       // Update lists if data has changed
-      if (!listEquals(fetchedSpecialities, list) &&
-          !listEquals(fetchedBanners, bannerList)) {
+      if (!listEquals(fetchedSpecialities, list)) {
         list.clear();
         bannerList.clear();
-        bannerList.value = fetchedBanners;
         list.value = fetchedSpecialities;
       }
 
       varSpecialityList.clear();
       varBannerList.clear();
       varSpecialityList.addAll(list);
-      varBannerList.addAll(bannerList);
 
       // Fetch appointments if user is logged in
       if (isLoggedIn.value && userId.value.isNotEmpty) {
@@ -368,8 +357,12 @@ class UserHomeController extends GetxController {
 
           // Convert Supabase booking to Appointment model
           final appointment = Appointment(
-            id: int.tryParse(booking['id']?.toString() ?? '0'),
-            doctorId: int.tryParse(booking['doctor_id']?.toString() ?? '0'),
+            id: booking['id'] is int
+                ? booking['id']
+                : int.tryParse(booking['id']?.toString() ?? ''),
+            doctorId: booking['doctor_id'] is int
+                ? booking['doctor_id']
+                : int.tryParse(booking['doctor_id']?.toString() ?? ''),
             date: booking['booking_date']?.toString(),
             slot: booking['booking_time']?.toString(),
             phone: doctorData?['phone_number']?.toString(),

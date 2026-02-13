@@ -9,6 +9,7 @@ class CustomAppBar extends StatelessWidget {
   final bool showProfileIcons;
   final bool showMenuIcon;
   final VoidCallback? onBackPressed;
+  final bool useSafeArea;
 
   const CustomAppBar({
     super.key,
@@ -19,92 +20,92 @@ class CustomAppBar extends StatelessWidget {
     this.showProfileIcons = true,
     this.showMenuIcon = true,
     this.onBackPressed,
+    this.useSafeArea = true,
   });
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      bottom: false,
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 22.h, vertical: 4.h),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            // Left side - Either back button with title or profile icons
-            if (!showProfileIcons && isBackArrow == true)
-              Expanded(
-                child: Row(
-                  children: [
-                    GestureDetector(
-                      onTap: onBackPressed,
-                      child: const Icon(
-                        Icons.arrow_back_ios,
-                        size: 24,
-                        color: Colors.black,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        title,
-                        style:
-                            textStyle ??
-                            const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ),
-              )
-            else if (showProfileIcons)
-              Row(
+    final content = Padding(
+      padding: const EdgeInsets.fromLTRB(22, 16, 22, 16),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          // Left side - Either back button with title or profile icons
+          if (!showProfileIcons && isBackArrow == true)
+            Expanded(
+              child: Row(
                 children: [
                   GestureDetector(
-                    onTap: () {
-                      Get.toNamed(Routes.profileParametersScreen);
-                    },
-                    child: Center(
-                      child: SvgPicture.asset(
-                        AppImages.appAccountCircle,
-                        width: 26,
-                        height: 26,
-                      ),
+                    onTap: onBackPressed,
+                    child: const Icon(
+                      Icons.arrow_back_ios,
+                      size: 24,
+                      color: Colors.black,
                     ),
                   ),
-                  const SizedBox(width: 6),
-                  // Notification badge with click handler
-                  GestureDetector(
-                    onTap: () {
-                      Get.toNamed(Routes.notificationScreen);
-                    },
-                    child: Center(
-                      child: Padding(
-                        padding: const EdgeInsets.all(6.0),
-                        child: SvgPicture.asset(
-                          AppImages.appBadging,
-                          width: 24,
-                          height: 24,
-                        ),
-                      ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      title,
+                      style:
+                          textStyle ??
+                          const CustomTextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ],
-              )
-            else
-              const SizedBox.shrink(),
+              ),
+            )
+          else if (showProfileIcons)
+            Row(
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    Get.toNamed(Routes.profileParametersScreen);
+                  },
+                  child: Center(
+                    child: SvgPicture.asset(
+                      AppImages.appAccountCircle,
+                      width: 26,
+                      height: 26,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 6),
+                // Notification badge with click handler
+                GestureDetector(
+                  onTap: () {
+                    Get.toNamed(Routes.notificationScreen);
+                  },
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(6.0),
+                      child: SvgPicture.asset(
+                        AppImages.appBadging,
+                        width: 24,
+                        height: 24,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            )
+          else
+            const SizedBox.shrink(),
 
-            // Right side - Menu icon (optional)
-            if (showMenuIcon)
-              Center(child: SvgPicture.asset(AppImages.appBarIcon, width: 38))
-            else
-              const SizedBox.shrink(),
-          ],
-        ),
+          // Right side - Menu icon (optional)
+          if (showMenuIcon)
+            Center(child: SvgPicture.asset(AppImages.appBarIcon, width: 38))
+          else
+            const SizedBox.shrink(),
+        ],
       ),
     );
+
+    return useSafeArea ? SafeArea(bottom: false, child: content) : content;
   }
 }
 
@@ -170,7 +171,7 @@ class CustomSearchScreenAppBar extends StatelessWidget {
                     SizedBox(width: (isBackArrow ?? false) ? 10 : 0),
                     Text(
                       title,
-                      style: TextStyle(
+                      style: CustomTextStyle(
                         fontFamily: AppFontStyleTextStrings.regular,
                         color: AppColors.WHITE,
                       ),
@@ -204,7 +205,7 @@ class CustomSearchScreenAppBar extends StatelessWidget {
                               borderRadius: BorderRadius.circular(15),
                             ),
                             hintText: 'search_doctor_name'.tr,
-                            hintStyle: TextStyle(
+                            hintStyle: CustomTextStyle(
                               fontFamily: AppFontStyleTextStrings.regular,
                               color: AppColors.LIGHT_GREY_TEXT,
                               fontSize: 13,
@@ -392,7 +393,7 @@ class CustomHomeScreenAppBar extends StatelessWidget {
                             Expanded(
                               child: Text(
                                 'find_a_therapist'.tr,
-                                style: TextStyle(
+                                style: CustomTextStyle(
                                   color: Colors.grey[900],
                                   fontSize: 16,
                                   fontWeight: FontWeight.w400,
@@ -421,7 +422,7 @@ class CustomHomeScreenAppBar extends StatelessWidget {
                           children: [
                             TextSpan(
                               text: 'welcome_back'.tr,
-                              style: TextStyle(
+                              style: CustomTextStyle(
                                 fontSize: 24,
                                 fontWeight: FontWeight.bold,
                                 fontFamily: AppFontStyleTextStrings.regular,
@@ -430,7 +431,7 @@ class CustomHomeScreenAppBar extends StatelessWidget {
                             ),
                             TextSpan(
                               text: ' ${'wishing_calm_day'.tr}',
-                              style: TextStyle(
+                              style: CustomTextStyle(
                                 fontSize: 24,
                                 fontWeight: FontWeight.normal,
                                 fontFamily: AppFontStyleTextStrings.regular,
@@ -447,7 +448,7 @@ class CustomHomeScreenAppBar extends StatelessWidget {
                         children: [
                           Text(
                             'welcome_back'.tr,
-                            style: TextStyle(
+                            style: CustomTextStyle(
                               fontSize: Get.locale?.languageCode == 'fr'
                                   ? 24
                                   : 26,
@@ -456,7 +457,7 @@ class CustomHomeScreenAppBar extends StatelessWidget {
                           ),
                           Text(
                             'wishing_calm_day'.tr,
-                            style: TextStyle(
+                            style: CustomTextStyle(
                               fontSize: Get.locale?.languageCode == 'fr'
                                   ? 24
                                   : 26,
@@ -477,13 +478,6 @@ class CustomHomeScreenAppBar extends StatelessWidget {
                       final isArabic = locale == 'ar';
                       final isFrench = locale == 'fr';
 
-                      // Button width - French uses English defaults
-                      final buttonWidth = isArabic
-                          ? (arabicButtonWidth ?? 150)
-                          : isFrench
-                          ? (frenchButtonWidth ?? englishButtonWidth ?? 150)
-                          : (englishButtonWidth ?? 150);
-
                       // Button padding - French uses English defaults
                       final buttonPadding = isArabic
                           ? (arabicButtonPadding ??
@@ -502,58 +496,62 @@ class CustomHomeScreenAppBar extends StatelessWidget {
                           ? (frenchFontSize ?? englishFontSize ?? 10.5.sp)
                           : (englishFontSize ?? 13.sp);
 
-                      return Row(
-                        children: [
-                          SizedBox(
-                            width: buttonWidth.w,
-                            child: ElevatedButton(
-                              onPressed: () {
-                                Get.toNamed(Routes.indemandDoctorScreen);
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF3961F1),
-                                padding: buttonPadding,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(4),
+                      return IntrinsicHeight(
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Expanded(
+                              flex: 1,
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  Get.toNamed(Routes.indemandDoctorScreen);
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF3961F1),
+                                  padding: buttonPadding,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
                                 ),
-                              ),
-                              child: Text(
-                                'book_new_appointment'.tr,
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontSize: fontSize,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            flex: 1,
-                            child: OutlinedButton(
-                              onPressed: () {
-                                // Find therapist logic (same as search)
-                                onPressed();
-                              },
-                              style: OutlinedButton.styleFrom(
-                                padding: buttonPadding,
-                                side: BorderSide(color: Colors.grey[500]!),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                              ),
-                              child: Text(
-                                'find_therapist'.tr,
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontSize: fontSize,
-                                  fontWeight: FontWeight.w700,
-                                  color: Colors.grey[900],
+                                child: Text(
+                                  'book_new_appointment'.tr,
+                                  textAlign: TextAlign.center,
+                                  style: CustomTextStyle(
+                                    fontSize: fontSize,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w700,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                        ],
+                            const SizedBox(width: 10),
+                            Expanded(
+                              flex: 1,
+                              child: OutlinedButton(
+                                onPressed: () {
+                                  // Find therapist logic (same as search)
+                                  onPressed();
+                                },
+                                style: OutlinedButton.styleFrom(
+                                  padding: buttonPadding,
+                                  side: BorderSide(color: Colors.grey[500]!),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                ),
+                                child: Text(
+                                  'find_therapist'.tr,
+                                  textAlign: TextAlign.center,
+                                  style: CustomTextStyle(
+                                    fontSize: fontSize,
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.grey[900],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       );
                     },
                   ),

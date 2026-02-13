@@ -1,9 +1,12 @@
 import 'package:videocalling/core/config/app_imports.dart';
-import 'package:videocalling/shared/widgets/pdf_viewer_screen.dart';
+import 'package:videocalling/features/auth/controllers/review_status_controller.dart';
 import 'package:videocalling/features/auth/doctor_login_binding.dart';
 import 'package:videocalling/features/auth/doctor_register_binding.dart';
 import 'package:videocalling/features/auth/forget_password_binding.dart';
 import 'package:videocalling/features/auth/otp_binding.dart';
+import 'package:videocalling/features/auth/pages/account_rejected_screen.dart';
+import 'package:videocalling/features/auth/pages/reset_password_webview_screen.dart';
+import 'package:videocalling/features/auth/pages/under_review_screen.dart';
 import 'package:videocalling/features/auth/patient_login_binding.dart';
 import 'package:videocalling/features/auth/patient_register_binding.dart';
 import 'package:videocalling/features/doctor/appointments/dall_appointments_binding.dart';
@@ -73,6 +76,7 @@ import 'package:videocalling/features/patient/profile/pages/profile_parameters_p
 import 'package:videocalling/features/patient/profile/profile_parameters_binding.dart';
 import 'package:videocalling/features/patient/profile/user_edit_profile_binding.dart';
 import 'package:videocalling/features/patient/tabs/binding/patient_tab_binding.dart';
+import 'package:videocalling/shared/widgets/pdf_viewer_screen.dart';
 
 part 'app_routes.dart';
 
@@ -280,6 +284,10 @@ class AppPages {
       binding: ForgetPasswordBinding(),
     ),
     GetPage(
+      name: _Paths.resetPasswordWebViewScreen,
+      page: () => const ResetPasswordWebViewScreen(),
+    ),
+    GetPage(
       name: _Paths.loginUserScreen,
       page: () => LoginAsUser(),
       binding: UserLoginBinding(),
@@ -364,8 +372,14 @@ class AppPages {
       binding: OtpBinding(),
     ),
     GetPage(
-      name: '/session-pdf-viewer',
-      page: () => const PdfViewerScreen(),
+      name: _Paths.underReviewScreen,
+      page: () => const UnderReviewScreen(),
+      binding: ReviewStatusBinding(),
     ),
+    GetPage(
+      name: _Paths.accountRejectedScreen,
+      page: () => const AccountRejectedScreen(),
+    ),
+    GetPage(name: '/session-pdf-viewer', page: () => const PdfViewerScreen()),
   ];
 }

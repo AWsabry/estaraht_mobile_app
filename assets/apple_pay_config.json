@@ -1,0 +1,13 @@
+{
+  "provider": "apple_pay",
+  "data": {
+    "merchantIdentifier": "merchant.com.estaraht.appname",
+    "displayName": "Estaraht",
+    "merchantCapabilities": ["3DS", "debit", "credit"],
+    "supportedNetworks": ["visa", "masterCard", "amex", "discover"],
+    "countryCode": "US",
+    "currencyCode": "USD",
+    "requiredBillingContactFields": ["emailAddress", "name"],
+    "requiredShippingContactFields": []
+  }
+}

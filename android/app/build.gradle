@@ -91,33 +91,6 @@ android {
 
             // Optimize ProGuard
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-
-            // Additional optimizations
-            multiDexEnabled true
-        }
-    }
-
-    // ABI splits for smaller APKs - delivers device-specific builds
-    // Only enable for release builds to avoid conflict with ndk.abiFilters
-    splits {
-        abi {
-            enable gradle.startParameter.taskNames.any { it.toLowerCase().contains("release") }
-            reset()
-            include 'arm64-v8a', 'armeabi-v7a'
-            universalApk false
-        }
-    }
-
-    // App Bundle configuration for Play Store
-    bundle {
-        language {
-            enableSplit = false
-        }
-        density {
-            enableSplit = true
-        }
-        abi {
-            enableSplit = true
         }
     }
 }

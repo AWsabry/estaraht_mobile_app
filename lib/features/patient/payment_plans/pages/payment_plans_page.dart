@@ -4,6 +4,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:videocalling/core/config/routes.dart';
 import 'package:videocalling/core/constants/app_images.dart';
+import 'package:videocalling/core/widgets/text_style/custom_text_style.dart';
 import 'package:videocalling/features/language/controllers/language_controller.dart';
 import 'package:videocalling/features/patient/payment_plans/controllers/payment_plans_controller.dart';
 import 'package:videocalling/features/patient/payment_plans/models/payment_plan_model.dart';
@@ -38,7 +39,7 @@ class PaymentPlansPage extends StatelessWidget {
 
             Text(
               'packages'.tr,
-              style: const TextStyle(
+              style: const CustomTextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w500,
                 color: Colors.black87,
@@ -57,7 +58,7 @@ class PaymentPlansPage extends StatelessWidget {
           return Center(
             child: Text(
               'no_plans_available'.tr,
-              style: const TextStyle(fontSize: 16),
+              style: const CustomTextStyle(fontSize: 16),
             ),
           );
         }
@@ -102,7 +103,7 @@ class PaymentPlansPage extends StatelessWidget {
         children: [
           Text(
             'your_sessions'.tr,
-            style: const TextStyle(
+            style: const CustomTextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
               color: Colors.white,
@@ -154,7 +155,7 @@ class PaymentPlansPage extends StatelessWidget {
             const SizedBox(width: 8),
             Text(
               count.toString(),
-              style: const TextStyle(
+              style: const CustomTextStyle(
                 fontSize: 32,
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
@@ -165,7 +166,7 @@ class PaymentPlansPage extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           label,
-          style: TextStyle(
+          style: CustomTextStyle(
             fontSize: 14,
             color: Colors.white.withValues(alpha: 0.9),
             fontWeight: FontWeight.w500,
@@ -259,12 +260,12 @@ class PaymentPlansPage extends StatelessWidget {
                                       ? 'save_25_first_session'.tr
                                       : 'package_badge'.tr,
                                   style: isSpecialPlan
-                                      ? const TextStyle(
+                                      ? const CustomTextStyle(
                                           color: Color(0xFFFF6B4A),
                                           fontSize: 11,
                                           fontWeight: FontWeight.w600,
                                         )
-                                      : const TextStyle(
+                                      : const CustomTextStyle(
                                           color: Color(0xFF3961F1),
                                           fontSize: 11,
                                           fontWeight: FontWeight.w600,
@@ -280,7 +281,7 @@ class PaymentPlansPage extends StatelessWidget {
                                     child: Text(
                                       planName,
                                       textAlign: TextAlign.left,
-                                      style: const TextStyle(
+                                      style: const CustomTextStyle(
                                         fontSize: 17,
                                         fontWeight: FontWeight.w600,
                                         color: Colors.black87,
@@ -290,7 +291,7 @@ class PaymentPlansPage extends StatelessWidget {
                                   const Spacer(),
                                   Text(
                                     '${plan.price.toStringAsFixed(0)}\$',
-                                    style: const TextStyle(
+                                    style: const CustomTextStyle(
                                       fontSize: 32,
                                       fontWeight: FontWeight.bold,
                                       color: Color(0xFF3961F1),
@@ -323,12 +324,12 @@ class PaymentPlansPage extends StatelessWidget {
                                       ? 'save_25_first_session'.tr
                                       : 'package_badge'.tr,
                                   style: isSpecialPlan
-                                      ? const TextStyle(
+                                      ? const CustomTextStyle(
                                           color: Color(0xFFFF6B4A),
                                           fontSize: 11,
                                           fontWeight: FontWeight.w600,
                                         )
-                                      : const TextStyle(
+                                      : const CustomTextStyle(
                                           color: Color(0xFF3961F1),
                                           fontSize: 11,
                                           fontWeight: FontWeight.w600,
@@ -344,7 +345,7 @@ class PaymentPlansPage extends StatelessWidget {
                                     child: Text(
                                       planName,
                                       textAlign: TextAlign.right,
-                                      style: const TextStyle(
+                                      style: const CustomTextStyle(
                                         fontSize: 17,
                                         fontWeight: FontWeight.w600,
                                         color: Colors.black87,
@@ -355,7 +356,7 @@ class PaymentPlansPage extends StatelessWidget {
                                   // Price on left (for Arabic)
                                   Text(
                                     '${plan.price.toStringAsFixed(0)}\$',
-                                    style: const TextStyle(
+                                    style: const CustomTextStyle(
                                       fontSize: 32,
                                       fontWeight: FontWeight.bold,
                                       color: Color(0xFF3961F1),
@@ -406,8 +407,10 @@ class PaymentPlansPage extends StatelessWidget {
                     elevation: 0,
                   ),
                   child: Text(
-                    plan.isFirstTimeOnly ? 'book_session_now'.tr : 'book_now'.tr,
-                    style: const TextStyle(
+                    plan.isFirstTimeOnly
+                        ? 'book_session_now'.tr
+                        : 'book_now'.tr,
+                    style: const CustomTextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                     ),
@@ -429,7 +432,7 @@ class PaymentPlansPage extends StatelessWidget {
         Expanded(
           child: Text(
             text,
-            style: TextStyle(
+            style: CustomTextStyle(
               fontSize: 13,
               color: Colors.grey.shade700,
               height: 1.4,

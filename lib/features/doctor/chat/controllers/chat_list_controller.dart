@@ -1,5 +1,6 @@
 import 'package:logger/logger.dart';
 import 'package:videocalling/core/config/app_imports.dart';
+import 'package:videocalling/shared/services/others/timezone_service.dart';
 
 class DoctorChatListController extends GetxController {
   var ds;
@@ -49,48 +50,100 @@ class DoctorChatListController extends GetxController {
   RxBool st = false.obs;
 
   String messageTiming(DateTime dateTime) {
-    if (DateTime.now().difference(dateTime).inDays == 0) {
+    if (TimezoneService.getCurrentMauritaniaTime()
+            .difference(dateTime)
+            .inDays ==
+        0) {
       return "${dateTime.toLocal().hour.toString().padLeft(2, "0")} : ${dateTime.toLocal().minute.toString().padLeft(2, "0")}";
-    } else if (DateTime.now().difference(dateTime).inDays == 1) {
+    } else if (TimezoneService.getCurrentMauritaniaTime()
+            .difference(dateTime)
+            .inDays ==
+        1) {
       return 'chat_time_yesterday'.tr;
     } else {
       return 'chat_time_day_ago'.trParams({
-        'day': DateTime.now().difference(dateTime).inDays.toString(),
+        'day': TimezoneService.getCurrentMauritaniaTime()
+            .difference(dateTime)
+            .inDays
+            .toString(),
       });
     }
   }
 
   typeToWidget(int type, String msg, int count) {
-    if (type == 1) {
-      return Row(
-        children: [
-          Icon(Icons.photo, size: 15, color: AppColors.themeColor3),
-          const SizedBox(width: 5),
-          Text(
-            'photo_str'.tr,
-            style: const TextStyle(fontSize: 13),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ],
-      );
-    } else if (type == 2) {
-      return Row(
-        children: [
-          Icon(Icons.videocam, size: 15, color: AppColors.themeColor3),
-          const SizedBox(width: 5),
-          Text(
-            'video_str'.tr,
-            style: const TextStyle(fontSize: 13),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ],
-      );
+    // For file types (1 = image/file, 2 = video/file), check the extension
+    if (type == 1 || type == 2) {
+      // Parse URL to get the path without query parameters
+      String pathWithoutQuery = msg;
+      if (msg.contains('?')) {
+        pathWithoutQuery = msg.split('?').first;
+      }
+      String ext = pathWithoutQuery.split('.').last.toLowerCase();
+
+      // Handle PDF files
+      if (ext == 'pdf') {
+        return const Row(
+          children: [
+            Icon(Icons.picture_as_pdf, size: 15, color: Colors.red),
+            SizedBox(width: 5),
+            Text(
+              'PDF',
+              style: CustomTextStyle(fontSize: 13),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        );
+      }
+      // Handle Word documents
+      else if (ext == 'doc' || ext == 'docx') {
+        return Row(
+          children: [
+            const Icon(Icons.description, size: 15, color: Colors.blue),
+            const SizedBox(width: 5),
+            Text(
+              'document_str'.tr,
+              style: const CustomTextStyle(fontSize: 13),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        );
+      }
+      // Handle videos
+      else if (ext == 'mp4' || ext == 'mov' || ext == 'avi') {
+        return Row(
+          children: [
+            Icon(Icons.videocam, size: 15, color: AppColors.themeColor3),
+            const SizedBox(width: 5),
+            Text(
+              'video_str'.tr,
+              style: const CustomTextStyle(fontSize: 13),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        );
+      }
+      // Handle images (default for type 1)
+      else {
+        return Row(
+          children: [
+            Icon(Icons.photo, size: 15, color: AppColors.themeColor3),
+            const SizedBox(width: 5),
+            Text(
+              'photo_str'.tr,
+              style: const CustomTextStyle(fontSize: 13),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        );
+      }
     } else {
       return Text(
         msg,
-        style: TextStyle(
+        style: CustomTextStyle(
           fontFamily: count > 0
               ? AppFontStyleTextStrings.bold
               : AppFontStyleTextStrings.regular,

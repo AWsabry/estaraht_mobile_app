@@ -16,7 +16,7 @@ Widget noChats({required String title}) {
               alignment: Alignment.center,
               child: Text(
                 "no_chats_title".tr,
-                style: TextStyle(
+                style: CustomTextStyle(
                   fontFamily: AppFontStyleTextStrings.regular,
                   fontSize: 22,
                 ),
@@ -28,7 +28,7 @@ Widget noChats({required String title}) {
               child: Text(
                 title,
                 textAlign: TextAlign.center,
-                style: TextStyle(
+                style: CustomTextStyle(
                   fontFamily: AppFontStyleTextStrings.regular,
                   fontSize: 15,
                 ),

@@ -1,6 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:videocalling/shared/services/others/timezone_service.dart';
 import 'package:videocalling/core/config/app_imports.dart';
-
 
 class UserEditController extends GetxController {
   RxString name = "".obs;
@@ -16,6 +16,7 @@ class UserEditController extends GetxController {
   RxString token = "".obs;
   String error = "";
   String? base64image;
+  Uint8List? imageBytes; // Store bytes instead of file reference
   File? image;
   RxBool isImageSelected = false.obs;
   RxString userId = "".obs;
@@ -32,13 +33,17 @@ class UserEditController extends GetxController {
 
   Future getImage() async {
     isImageSelected.value = false;
-    final pickedFile =
-        await picker.pickImage(source: ImageSource.gallery, imageQuality: 25);
+    final pickedFile = await picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 25,
+    );
 
     if (pickedFile != null) {
       image = File(pickedFile.path);
+      // Read bytes immediately while file exists in cache
+      imageBytes = await image!.readAsBytes();
       isImageSelected.value = true;
-      base64image = base64Encode(image!.readAsBytesSync());
+      base64image = base64Encode(imageBytes!);
       update();
     }
   }
@@ -49,34 +54,34 @@ class UserEditController extends GetxController {
       throw Exception('No authenticated user found');
     }
 
-    final fileName = '${userId}_${DateTime.now().millisecondsSinceEpoch}.jpg';
+    final fileName = '${userId}_${TimezoneService.getCurrentMauritaniaTime().millisecondsSinceEpoch}.jpg';
     final filePath = 'profiles/users/$fileName';
 
-    // Read file as bytes
-    final bytes = await imageFile.readAsBytes();
+    // Use stored bytes if available, otherwise read from file
+    final bytes = imageBytes ?? await imageFile.readAsBytes();
 
     // Upload to Supabase Storage
     await supabaseHelper.client.storage
         .from('estarht')
         .uploadBinary(
-      filePath,
-      bytes,
-      fileOptions: const FileOptions(
-        contentType: 'image/jpeg',
-        upsert: true,
-      ),
-    );
+          filePath,
+          bytes,
+          fileOptions: const FileOptions(
+            contentType: 'image/jpeg',
+            upsert: true,
+          ),
+        );
 
     // Get public URL
     final publicUrl = supabaseHelper.client.storage
         .from('estarht')
         .getPublicUrl(filePath);
 
-    // Update user profile in Supabase
+    // Update patient profile in Supabase
     await supabaseHelper.client
-        .from('users')
+        .from('patients')
         .update({'profile_img_url': publicUrl})
-        .eq('user_id', userId);
+        .eq('id', userId);
 
     profileImage = publicUrl;
     update();
@@ -101,9 +106,7 @@ class UserEditController extends GetxController {
     emailController.text = email.value;
     phoneController.text = phoneNumber.value;
     update();
-    }
-
-
+  }
 
   Future<void> registerUser() async {
     if (name.isEmpty) {
@@ -140,16 +143,12 @@ class UserEditController extends GetxController {
         // Add other fields as needed
       };
 
-      final response = await supabaseHelper.client
-          .from('patients')
-          .update(updateData)
-          .eq('id', userId);
+      try {
+        await supabaseHelper.client
+            .from('patients')
+            .update(updateData)
+            .eq('id', userId);
 
-      if (response.error != null) {
-        Get.back();
-        error = response.error!.message;
-        customDialog(s1: 'error'.tr, s2: error);
-      } else {
         StorageService.writeBoolData(
           key: LocalStorageKeys.isLoggedIn,
           value: true,
@@ -177,7 +176,9 @@ class UserEditController extends GetxController {
 
         // Sync updated profile to Firebase Realtime Database for chat
         try {
-          final userIdWithAscii = StorageService.readData(key: LocalStorageKeys.userIdWithAscii) ?? '';
+          final userIdWithAscii =
+              StorageService.readData(key: LocalStorageKeys.userIdWithAscii) ??
+              '';
           if (userIdWithAscii.isNotEmpty) {
             await FirebaseDatabase.instance.ref(userIdWithAscii).update({
               'name': name.value,
@@ -193,10 +194,13 @@ class UserEditController extends GetxController {
 
         Get.back();
         Get.back();
+      } catch (e) {
+        Get.back();
+        error = e.toString();
+        customDialog(s1: 'error'.tr, s2: error);
       }
     }
   }
-
 
   getToken() async {
     if (StorageService.readData(key: LocalStorageKeys.isTokenExist) == null) {

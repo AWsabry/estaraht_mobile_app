@@ -1,10 +1,7 @@
+import 'package:videocalling/shared/services/others/timezone_service.dart';
+
 class SubscriptionListModel {
-  SubscriptionListModel({
-    this.status,
-    this.register,
-    this.success,
-    this.data,
-  });
+  SubscriptionListModel({this.status, this.register, this.success, this.data});
 
   String? status;
   String? register;
@@ -20,40 +17,36 @@ class SubscriptionListModel {
       );
 
   Map<String, dynamic> toJson() => {
-        "status": status,
-        "register": register,
-        "success": success,
-        "data": data!.toJson(),
-      };
+    "status": status,
+    "register": register,
+    "success": success,
+    "data": data!.toJson(),
+  };
 }
 
 class SubscriptionListData {
-  SubscriptionListData({
-    this.doctorsSubscription,
-  });
+  SubscriptionListData({this.doctorsSubscription});
 
   List<DoctorsSubscription>? doctorsSubscription;
 
   factory SubscriptionListData.fromJson(Map<String, dynamic> json) =>
       SubscriptionListData(
         doctorsSubscription: List<DoctorsSubscription>.from(
-            json["doctors_subscription"]
-                .map((x) => DoctorsSubscription.fromJson(x))),
+          json["doctors_subscription"].map(
+            (x) => DoctorsSubscription.fromJson(x),
+          ),
+        ),
       );
 
   Map<String, dynamic> toJson() => {
-        "doctors_subscription":
-            List<dynamic>.from(doctorsSubscription!.map((x) => x.toJson())),
-      };
+    "doctors_subscription": List<dynamic>.from(
+      doctorsSubscription!.map((x) => x.toJson()),
+    ),
+  };
 }
 
 class DoctorsSubscription {
-  DoctorsSubscription({
-    this.status,
-    this.month,
-    this.price,
-    this.date,
-  });
+  DoctorsSubscription({this.status, this.month, this.price, this.date});
 
   int? status;
   String? month;
@@ -69,9 +62,11 @@ class DoctorsSubscription {
       );
 
   Map<String, dynamic> toJson() => {
-        "status": status,
-        "month": month,
-        "price": price,
-        "date": date == null ? DateTime.now() : date!.toIso8601String(),
-      };
+    "status": status,
+    "month": month,
+    "price": price,
+    "date": date == null
+        ? TimezoneService.getCurrentMauritaniaTime()
+        : date!.toIso8601String(),
+  };
 }

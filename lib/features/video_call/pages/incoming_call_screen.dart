@@ -42,7 +42,7 @@ class IncomingCallScreen extends GetView<IncomingCallController> {
                         padding: const EdgeInsets.all(36),
                         child: Text(
                           callController.getCallTitle(),
-                          style: TextStyle(
+                          style: CustomTextStyle(
                             fontSize: 20,
                             color: value.image == 'Default'
                                 ? AppColors.BLACK
@@ -54,7 +54,7 @@ class IncomingCallScreen extends GetView<IncomingCallController> {
                         padding: const EdgeInsets.only(top: 36, bottom: 8),
                         child: Text(
                           value.name,
-                          style: TextStyle(
+                          style: CustomTextStyle(
                             fontSize: 28,
                             color: value.image == 'Default'
                                 ? AppColors.BLACK
@@ -66,7 +66,7 @@ class IncomingCallScreen extends GetView<IncomingCallController> {
                         padding: const EdgeInsets.only(top: 36, bottom: 8),
                         child: Text(
                           "Members:",
-                          style: TextStyle(
+                          style: CustomTextStyle(
                             fontSize: 20,
                             color: value.image == 'Default'
                                 ? AppColors.BLACK
@@ -78,7 +78,7 @@ class IncomingCallScreen extends GetView<IncomingCallController> {
                         padding: const EdgeInsets.only(bottom: 86),
                         child: Text(
                           "text",
-                          style: TextStyle(
+                          style: CustomTextStyle(
                             fontSize: 18,
                             color: value.image == 'Default'
                                 ? AppColors.BLACK

@@ -16,6 +16,8 @@ class DoctorDashboardController extends GetxController {
   RxBool isErrorInProfileLoading = false.obs;
   RxBool isProfileLoaded = false.obs;
 
+  RxInt doctorTimezoneOffsetHours = 0.obs;
+
   final incomingCallManager = Get.put(IncomingManageController());
 
   fetchDoctorAppointment() async {
@@ -94,9 +96,9 @@ class DoctorDashboardController extends GetxController {
             full_name,
             email,
             profile_img_url,
-           
             specialization,
-            avg_rating
+            average_rating,
+            timezone_offset_hours
           ''')
           .eq('doctor_id', doctorId.value)
           .maybeSingle(); // Use maybeSingle() instead of single() to handle 0 rows
@@ -119,16 +121,22 @@ class DoctorDashboardController extends GetxController {
           'name': response['full_name']?.toString(),
           'image': response['profile_img_url']?.toString(),
           'department_name': response['specialization']?.toString(),
-          'avgratting': response['avg_rating'] is int
-              ? response['avg_rating']
-              : (response['avg_rating'] is double
-                    ? response['avg_rating'].toInt()
-                    : int.tryParse(response['avg_rating']?.toString() ?? '0')),
+          'avgratting': response['average_rating'] is int
+              ? response['average_rating']
+              : (response['average_rating'] is double
+                    ? response['average_rating'].toInt()
+                    : int.tryParse(
+                        response['average_rating']?.toString() ?? '0',
+                      )),
           'is_subscription': '1', // Default to subscribed for Supabase users
         },
       };
 
       doctorProfileWithRating = DoctorProfileWithRating.fromJson(doctorData);
+
+      doctorTimezoneOffsetHours.value = response['timezone_offset_hours'] != null
+          ? (response['timezone_offset_hours'] as num).toInt()
+          : 0;
 
       // Check if this is a new registration that needs profile completion first
       bool isNewRegistration =

@@ -1,6 +1,7 @@
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
-
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:videocalling/core/config/app_imports.dart';
+import 'package:videocalling/shared/services/others/timezone_service.dart';
 import 'package:videocalling/shared/services/session_management_service.dart';
 
 class CallScreen extends StatefulWidget {
@@ -8,9 +9,14 @@ class CallScreen extends StatefulWidget {
   final String token;
   final bool isVideoCall;
   final String opponentName;
+  final int localUid; // Unique UID: 1=doctor, 2=patient (must match token)
   final String? bookingId; // Optional booking ID for session completion
   final String? patientId; // Optional patient ID for session completion
   final String? doctorId; // Optional doctor ID for session completion
+  // Optional: for 5-min-before validation (appointment flow - both sides)
+  final String? bookingDate; // YYYY-MM-DD
+  final String? bookingTime; // HH:mm or HH:mm:ss
+  final int? doctorTimezoneOffsetHours;
 
   const CallScreen({
     Key? key,
@@ -18,9 +24,13 @@ class CallScreen extends StatefulWidget {
     required this.token,
     required this.isVideoCall,
     required this.opponentName,
+    this.localUid = 0,
     this.bookingId,
     this.patientId,
     this.doctorId,
+    this.bookingDate,
+    this.bookingTime,
+    this.doctorTimezoneOffsetHours,
   }) : super(key: key);
 
   @override
@@ -28,8 +38,7 @@ class CallScreen extends StatefulWidget {
 }
 
 class _CallScreenState extends State<CallScreen> {
-  // --- Votre App ID Agora est inséré ici ---
-  final String _appId = "15f7b6b0ab4842d086941d04f7eda2f1";
+  late final String _appId;
 
   late RtcEngine _engine;
   bool _isJoined = false;
@@ -43,9 +52,17 @@ class _CallScreenState extends State<CallScreen> {
   Duration _callDuration = Duration.zero;
   Timer? _timer;
 
+  // Session time limit (45 minutes)
+  static const Duration _sessionTimeLimit = Duration(minutes: 45);
+  bool _sessionExpired = false;
+
+  // Time when user joined channel - used to check if full 45 min passed (timer resets when remote leaves)
+  DateTime? _channelJoinTime;
+
   @override
   void initState() {
     super.initState();
+    _appId = dotenv.get('AGORA_APP_ID', fallback: '');
     _isVideoEnabled = widget.isVideoCall;
     _initAgora();
     _startTimer();
@@ -67,9 +84,7 @@ class _CallScreenState extends State<CallScreen> {
 
       // Créer le moteur RTC
       _engine = createAgoraRtcEngine();
-      await _engine.initialize(RtcEngineContext(
-        appId: _appId,
-      ));
+      await _engine.initialize(RtcEngineContext(appId: _appId));
 
       if (widget.isVideoCall) {
         print('📹 Enabling video...');
@@ -91,33 +106,56 @@ class _CallScreenState extends State<CallScreen> {
       _engine.registerEventHandler(
         RtcEngineEventHandler(
           onJoinChannelSuccess: (RtcConnection connection, int elapsed) {
-            print('✅ Successfully joined channel: ${connection.channelId} with UID: ${connection.localUid}');
+            print(
+              '✅ Successfully joined channel: "${connection.channelId}" (length: ${connection.channelId?.length ?? 0}) with UID: ${connection.localUid}',
+            );
             if (mounted) {
               setState(() {
                 _isJoined = true;
+                _channelJoinTime ??=
+                    DateTime.now(); // Set once when first joining
               });
             }
           },
           onUserJoined: (RtcConnection connection, int uid, int elapsed) {
-            print('👤 User joined: $uid in channel ${connection.channelId}');
+            print(
+              '👤 User joined: uid=$uid in channel "${connection.channelId}"',
+            );
             if (mounted) {
               setState(() {
                 if (!_remoteUids.contains(uid)) {
                   _remoteUids.add(uid);
-                  print('📺 Added remote user $uid to list. Total remote users: ${_remoteUids.length}');
+                  print(
+                    '📺 Added remote user $uid to list. Total remote users: ${_remoteUids.length}',
+                  );
                 }
               });
             }
           },
-          onUserOffline: (RtcConnection connection, int uid, UserOfflineReasonType reason) {
-            print('👋 User offline: $uid, reason: $reason');
-            if (mounted) {
-              setState(() {
-                _remoteUids.remove(uid);
-                print('📺 Removed remote user $uid. Total remote users: ${_remoteUids.length}');
-              });
-            }
-          },
+          onUserOffline:
+              (
+                RtcConnection connection,
+                int uid,
+                UserOfflineReasonType reason,
+              ) {
+                print('👋 User offline: $uid, reason: $reason');
+                if (mounted) {
+                  setState(() {
+                    _remoteUids.remove(uid);
+                    print(
+                      '📺 Removed remote user $uid. Total remote users: ${_remoteUids.length}',
+                    );
+                  });
+
+                  // Reset timer when a user leaves (new session starts)
+                  if (_remoteUids.isEmpty) {
+                    _resetTimer();
+                    loggerNoStack.i(
+                      '🔄 All participants left - Timer reset for new session',
+                    );
+                  }
+                }
+              },
           onLeaveChannel: (RtcConnection connection, RtcStats stats) {
             print('📞 Left channel');
             if (mounted) {
@@ -127,12 +165,100 @@ class _CallScreenState extends State<CallScreen> {
               });
             }
           },
-          onRemoteVideoStateChanged: (RtcConnection connection, int remoteUid, RemoteVideoState state, RemoteVideoStateReason reason, int elapsed) {
-            print('📹 Remote video state changed for user $remoteUid: state=$state, reason=$reason');
-            if (state == RemoteVideoState.remoteVideoStateDecoding && reason == RemoteVideoStateReason.remoteVideoStateReasonRemoteUnmuted) {
-              print('✅ Remote user $remoteUid is streaming video!');
-            }
-          },
+          onRemoteVideoStateChanged:
+              (
+                RtcConnection connection,
+                int remoteUid,
+                RemoteVideoState state,
+                RemoteVideoStateReason reason,
+                int elapsed,
+              ) {
+                print(
+                  '📹 Remote video state changed for user $remoteUid: state=$state, reason=$reason',
+                );
+                // Detect remote users when their video state changes (works for users already in channel)
+                if (mounted) {
+                  setState(() {
+                    // Add user when video starts decoding (they're active in channel)
+                    if (state == RemoteVideoState.remoteVideoStateDecoding &&
+                        !_remoteUids.contains(remoteUid)) {
+                      _remoteUids.add(remoteUid);
+                      print(
+                        '✅ Detected remote user $remoteUid via video state. Total remote users: ${_remoteUids.length}',
+                      );
+                    }
+                    // Also handle audio-only users or users with video disabled
+                    if (state == RemoteVideoState.remoteVideoStateStopped &&
+                        reason ==
+                            RemoteVideoStateReason
+                                .remoteVideoStateReasonRemoteUnmuted) {
+                      // User is in channel but video is off (audio call or video disabled)
+                      if (!_remoteUids.contains(remoteUid)) {
+                        _remoteUids.add(remoteUid);
+                        print(
+                          '✅ Detected remote user $remoteUid (audio only). Total remote users: ${_remoteUids.length}',
+                        );
+                      }
+                    }
+                  });
+                }
+              },
+          onRemoteAudioStateChanged:
+              (
+                RtcConnection connection,
+                int remoteUid,
+                RemoteAudioState state,
+                RemoteAudioStateReason reason,
+                int elapsed,
+              ) {
+                print(
+                  '🔊 Remote audio state changed for user $remoteUid: state=$state, reason=$reason',
+                );
+                // Also detect users via audio state (for audio-only calls or when video is disabled)
+                if (mounted) {
+                  setState(() {
+                    if (state == RemoteAudioState.remoteAudioStateDecoding &&
+                        !_remoteUids.contains(remoteUid)) {
+                      _remoteUids.add(remoteUid);
+                      print(
+                        '✅ Detected remote user $remoteUid via audio state. Total remote users: ${_remoteUids.length}',
+                      );
+                    }
+                  });
+                }
+              },
+          onFirstRemoteVideoFrame:
+              (
+                RtcConnection connection,
+                int remoteUid,
+                int width,
+                int height,
+                int elapsed,
+              ) {
+                print(
+                  '🎬 First remote video frame from user $remoteUid: ${width}x$height',
+                );
+                if (mounted) {
+                  setState(() {
+                    if (!_remoteUids.contains(remoteUid)) {
+                      _remoteUids.add(remoteUid);
+                      print(
+                        '✅ Added remote user $remoteUid via first video frame. Total: ${_remoteUids.length}',
+                      );
+                    }
+                  });
+                }
+              },
+          onConnectionStateChanged:
+              (
+                RtcConnection connection,
+                ConnectionStateType state,
+                ConnectionChangedReasonType reason,
+              ) {
+                print(
+                  '🔌 Connection state changed: state=$state, reason=$reason',
+                );
+              },
           onError: (ErrorCodeType err, String msg) {
             print('❌ Agora Error: $err - $msg');
           },
@@ -147,19 +273,51 @@ class _CallScreenState extends State<CallScreen> {
         print('✅ Engine initialized, UI should update now');
       }
 
+      // Enforce 5-min-before rule for appointment calls (both doctor & patient)
+      if (widget.bookingDate != null &&
+          widget.bookingTime != null &&
+          widget.doctorTimezoneOffsetHours != null) {
+        if (!TimezoneService.canJoinVideoSession(
+          bookingDate: widget.bookingDate!,
+          bookingTime: widget.bookingTime!,
+          doctorTimezoneOffsetHours: widget.doctorTimezoneOffsetHours!,
+        )) {
+          if (mounted) {
+            final timeRemaining =
+                TimezoneService.getTimeUntilCanJoinVideoSession(
+                  bookingDate: widget.bookingDate!,
+                  bookingTime: widget.bookingTime!,
+                  doctorTimezoneOffsetHours: widget.doctorTimezoneOffsetHours!,
+                );
+            Get.back();
+            Get.snackbar(
+              'session_available_soon'.tr,
+              '${'session_available_in_5_minutes'.tr}\n${'time_remaining'.tr}: $timeRemaining',
+              backgroundColor: Colors.orange[100],
+              colorText: Colors.orange[900],
+              snackPosition: SnackPosition.BOTTOM,
+              duration: const Duration(seconds: 4),
+            );
+          }
+          return;
+        }
+      }
+
       // Join channel after everything is set up
-      print('🔗 Joining channel: ${widget.channelName}');
+      print(
+        '🔗 Joining channel: "${widget.channelName}" (length: ${widget.channelName.length}) | appId: $_appId | localUid: ${widget.localUid}',
+      );
       await _engine.joinChannel(
         token: widget.token,
         channelId: widget.channelName,
-        uid: 0,
-        options: const ChannelMediaOptions(
+        uid: widget.localUid,
+        options: ChannelMediaOptions(
           channelProfile: ChannelProfileType.channelProfileCommunication,
           clientRoleType: ClientRoleType.clientRoleBroadcaster,
           autoSubscribeAudio: true,
           autoSubscribeVideo: true,
           publishMicrophoneTrack: true,
-          publishCameraTrack: true,
+          publishCameraTrack: widget.isVideoCall,
         ),
       );
       print('✅ Join channel request sent');
@@ -173,9 +331,51 @@ class _CallScreenState extends State<CallScreen> {
       if (mounted) {
         setState(() {
           _callDuration = Duration(seconds: timer.tick);
+
+          // Check if session time limit is reached
+          if (_callDuration >= _sessionTimeLimit && !_sessionExpired) {
+            _sessionExpired = true;
+            _onSessionExpired();
+          }
         });
       }
     });
+  }
+
+  void _resetTimer() {
+    _timer?.cancel();
+    if (mounted) {
+      setState(() {
+        _callDuration = Duration.zero;
+        _sessionExpired = false;
+      });
+    }
+    _startTimer();
+    loggerNoStack.i('⏱️ Timer reset - New session started');
+  }
+
+  void _onSessionExpired() async {
+    loggerNoStack.w('⏰ Session time limit reached (45 minutes)');
+
+    // Show dialog to user
+    if (mounted) {
+      Get.dialog(
+        AlertDialog(
+          title: Text('session_expired'.tr),
+          content: Text('session_time_limit_reached'.tr),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Get.back(); // Close dialog
+                _onCallEnd(); // End call
+              },
+              child: Text('ok'.tr),
+            ),
+          ],
+        ),
+        barrierDismissible: false,
+      );
+    }
   }
 
   String _formatDuration(Duration duration) {
@@ -191,41 +391,79 @@ class _CallScreenState extends State<CallScreen> {
     }
   }
 
+  String _getRemainingTime() {
+    final remaining = _sessionTimeLimit - _callDuration;
+    if (remaining.isNegative) return '00:00';
+
+    String twoDigits(int n) => n.toString().padLeft(2, '0');
+    String minutes = twoDigits(remaining.inMinutes.remainder(60));
+    String seconds = twoDigits(remaining.inSeconds.remainder(60));
+
+    return '$minutes:$seconds';
+  }
+
+  bool _isTimeRunningOut() {
+    final remaining = _sessionTimeLimit - _callDuration;
+    return remaining.inMinutes < 5 && remaining.inSeconds > 0;
+  }
+
   Future<void> _disposeAgora() async {
     await _engine.leaveChannel();
     await _engine.release();
   }
 
   void _onCallEnd() async {
-    // Auto-complete session when video call ends (if booking info provided)
-    if (widget.bookingId != null && widget.patientId != null && widget.doctorId != null) {
-      try {
-        loggerNoStack.i('📞 Video call ended - Auto-completing session: ${widget.bookingId}');
+    // Auto-complete session ONLY when user was in call for full 45 minutes (if booking info provided)
+    // Use _channelJoinTime (total time in channel) - _callDuration resets when remote leaves
+    // If user hangs up before 30 min, booking stays confirmed - manual completion from appointment detail
+    if (widget.bookingId != null &&
+        widget.patientId != null &&
+        widget.doctorId != null) {
+      final totalTimeInCall = _channelJoinTime != null
+          ? DateTime.now().difference(_channelJoinTime!)
+          : _callDuration;
+      final callLastedFullSession = totalTimeInCall >= _sessionTimeLimit;
 
-        // Mark booking as completed automatically
-        await supabaseHelper.client.from('bookings').update({
-          'status': 'completed',
-          'completed_at': DateTime.now().toIso8601String(),
-          'doctor_confirmed': true, // Auto-confirm from video call end
-          'patient_confirmed': true, // Auto-confirm from video call end
-        }).eq('id', widget.bookingId!);
+      if (callLastedFullSession) {
+        try {
+          loggerNoStack.i(
+            '📞 Video call ended after full session (30 min) - Auto-completing: ${widget.bookingId}',
+          );
 
-        // Use session management service for payment transfer
-        final sessionService = SessionManagementService();
-        await sessionService.completeSession(widget.patientId!);
+          // Mark booking as completed automatically (only when 30 min reached)
+          await supabaseHelper.client
+              .from('bookings')
+              .update({
+                'status': 'completed',
+                'completed_at': TimezoneService.getCurrentMauritaniaTime()
+                    .toIso8601String(),
+                'doctor_confirmed': true, // Auto-confirm from video call end
+                'patient_confirmed': true, // Auto-confirm from video call end
+              })
+              .eq('id', widget.bookingId!);
 
-        // Transfer payment to doctor
-        await sessionService.confirmSessionFromDoctor(
-          bookingId: widget.bookingId!,
-          patientId: widget.patientId!,
-          doctorId: widget.doctorId!,
+          // Use session management service for payment transfer
+          final sessionService = SessionManagementService();
+          await sessionService.completeSession(widget.patientId!);
+
+          // Transfer payment to doctor
+          await sessionService.confirmSessionFromDoctor(
+            bookingId: widget.bookingId!,
+            patientId: widget.patientId!,
+            doctorId: widget.doctorId!,
+          );
+
+          loggerNoStack.i('✅ Session auto-completed after full 30 min call');
+        } catch (e, stackTrace) {
+          loggerNoStack.e('❌ Error auto-completing session after call: $e');
+          loggerNoStack.e('Stack trace: $stackTrace');
+          // Don't block call ending if completion fails
+        }
+      } else {
+        loggerNoStack.i(
+          '📞 Video call ended before 30 min (${totalTimeInCall.inMinutes} min in call) - '
+          'Booking stays confirmed. Complete manually from appointment detail.',
         );
-
-        loggerNoStack.i('✅ Session auto-completed after video call');
-      } catch (e, stackTrace) {
-        loggerNoStack.e('❌ Error auto-completing session after call: $e');
-        loggerNoStack.e('Stack trace: $stackTrace');
-        // Don't block call ending if completion fails
       }
     }
 
@@ -263,9 +501,7 @@ class _CallScreenState extends State<CallScreen> {
       body: Stack(
         children: [
           // Vue principale de la vidéo - Changed to show multiple participants
-          Center(
-            child: _remoteVideos(),
-          ),
+          Center(child: _remoteVideos()),
 
           // Aperçu de la vidéo locale (petite fenêtre)
           Positioned(
@@ -278,38 +514,41 @@ class _CallScreenState extends State<CallScreen> {
                 borderRadius: BorderRadius.circular(10),
                 child: _isEngineInitialized && _isVideoEnabled
                     ? AgoraVideoView(
-                  controller: VideoViewController(
-                    rtcEngine: _engine,
-                    canvas: const VideoCanvas(uid: 0),
-                  ),
-                )
-                    : Container(
-                  decoration: BoxDecoration(
-                      color: Colors.grey[900],
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: Colors.white, width: 2)),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        _isEngineInitialized ? Icons.person : Icons.hourglass_empty,
-                        color: Colors.white.withValues(alpha: 0.5),
-                        size: 60,
-                      ),
-                      if (!_isEngineInitialized)
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(
-                            'initializing'.tr,
-                            style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.5),
-                              fontSize: 10,
-                            ),
-                          ),
+                        controller: VideoViewController(
+                          rtcEngine: _engine,
+                          canvas: const VideoCanvas(uid: 0),
                         ),
-                    ],
-                  ),
-                ),
+                      )
+                    : Container(
+                        decoration: BoxDecoration(
+                          color: Colors.grey[900],
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: Colors.white, width: 2),
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              _isEngineInitialized
+                                  ? Icons.person
+                                  : Icons.hourglass_empty,
+                              color: Colors.white.withValues(alpha: 0.5),
+                              size: 60,
+                            ),
+                            if (!_isEngineInitialized)
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text(
+                                  'initializing'.tr,
+                                  style: CustomTextStyle(
+                                    color: Colors.white.withValues(alpha: 0.5),
+                                    fontSize: 10,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
               ),
             ),
           ),
@@ -323,15 +562,55 @@ class _CallScreenState extends State<CallScreen> {
               children: [
                 Text(
                   widget.opponentName,
-                  style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
+                  style: const CustomTextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   _isJoined
-                    ? '${_formatDuration(_callDuration)} • ${_remoteUids.length} ${_remoteUids.length == 1 ? "participant".tr : "participants".tr}'
-                    : 'connecting'.tr,
-                  style: const TextStyle(color: Colors.white70, fontSize: 16),
+                      ? '${_formatDuration(_callDuration)} • ${_remoteUids.length} ${_remoteUids.length == 1 ? "participant".tr : "participants".tr}'
+                      : 'connecting'.tr,
+                  style: const CustomTextStyle(
+                    color: Colors.white70,
+                    fontSize: 16,
+                  ),
                 ),
+                if (_isTimeRunningOut() && _isJoined)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.orange.withValues(alpha: 0.8),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.access_time,
+                            color: Colors.white,
+                            size: 16,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            '${'time_remaining'.tr}: ${_getRemainingTime()}',
+                            style: const CustomTextStyle(
+                              color: Colors.white,
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
               ],
             ),
           ),
@@ -395,12 +674,12 @@ class _CallScreenState extends State<CallScreen> {
             const SizedBox(height: 20),
             Text(
               'waiting_for_participants'.tr,
-              style: const TextStyle(color: Colors.white, fontSize: 16),
+              style: const CustomTextStyle(color: Colors.white, fontSize: 16),
             ),
             const SizedBox(height: 10),
             Text(
               'Status: ${_isJoined ? "connected".tr : "connecting".tr}',
-              style: const TextStyle(color: Colors.white54, fontSize: 12),
+              style: const CustomTextStyle(color: Colors.white54, fontSize: 12),
             ),
           ],
         ),
@@ -435,7 +714,7 @@ class _CallScreenState extends State<CallScreen> {
               ),
               child: Text(
                 'Remote User: ${_remoteUids[0]}',
-                style: const TextStyle(color: Colors.white, fontSize: 10),
+                style: const CustomTextStyle(color: Colors.white, fontSize: 10),
               ),
             ),
           ),
@@ -480,7 +759,10 @@ class _CallScreenState extends State<CallScreen> {
                   ),
                   child: Text(
                     'User: $uid',
-                    style: const TextStyle(color: Colors.white, fontSize: 8),
+                    style: const CustomTextStyle(
+                      color: Colors.white,
+                      fontSize: 8,
+                    ),
                   ),
                 ),
               ),
@@ -501,7 +783,10 @@ class _CallScreenState extends State<CallScreen> {
           child: const Icon(Icons.person, size: 80, color: Colors.white),
         ),
         const SizedBox(height: 20),
-        Text(widget.opponentName, style: const TextStyle(color: Colors.white, fontSize: 22)),
+        Text(
+          widget.opponentName,
+          style: const CustomTextStyle(color: Colors.white, fontSize: 22),
+        ),
       ],
     );
   }
@@ -521,4 +806,3 @@ class _CallScreenState extends State<CallScreen> {
     );
   }
 }
-

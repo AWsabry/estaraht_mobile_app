@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' show OtpType;
 import 'package:videocalling/core/config/app_imports.dart';
 import 'package:videocalling/shared/models/country_pricing_model.dart';
+import 'package:videocalling/shared/services/others/timezone_service.dart';
 import 'package:videocalling/shared/services/pricing_service.dart';
 
 class DoctorRegisterController extends GetxController {
@@ -183,6 +184,8 @@ class DoctorRegisterController extends GetxController {
         print('✅ User registered successfully: ${authResponse.user!.uid}');
 
         // Insert into doctors table (country code is included in phone_number)
+        // Store doctor's timezone offset from their device for timezone-aware scheduling
+        final doctorTimezoneOffset = DateTime.now().timeZoneOffset.inHours;
         try {
           await supabase.from('doctors').insert({
             'doctor_id': authResponse.user!.uid,
@@ -198,8 +201,11 @@ class DoctorRegisterController extends GetxController {
             'years_of_exp': 0,
             'numb_patients': 0,
             'profile_img_url': "",
-            'booking_price': 50,
-            'avg_session_time': 30,
+            'booking_price': 17,
+            'doctor_fee_per_session': 17,
+            'avg_session_time': 45,
+            'approval_status': 'pending', // Set new doctors as pending approval
+            'timezone_offset_hours': doctorTimezoneOffset,
           });
           print(
             '✅ Doctor profile created in Supabase for user ID: ${authResponse.user!.uid}',
@@ -226,11 +232,12 @@ class DoctorRegisterController extends GetxController {
                 'user_id': authResponse.user!.uid,
                 'email': email.value,
                 'otp_code': otpCode,
-                'expires_at': DateTime.now()
+                'expires_at': TimezoneService.getCurrentMauritaniaTime()
                     .add(const Duration(minutes: 5))
                     .toIso8601String(),
                 'is_used': false,
-                'created_at': DateTime.now().toIso8601String(),
+                'created_at': TimezoneService.getCurrentMauritaniaTime()
+                    .toIso8601String(),
               })
               .select()
               .single();
@@ -404,11 +411,39 @@ class DoctorRegisterController extends GetxController {
       }
 
       Get.back(); // Close loading dialog
-      customDialog(s1: 'success'.tr, s2: 'registration_successful'.tr);
 
-      // Navigate to doctor home screen
-      await Future.delayed(const Duration(seconds: 2));
-      Get.offAllNamed(Routes.doctorTabScreen);
+      // Check approval status before navigation
+      try {
+        final doctorData = await supabase
+            .from('doctors')
+            .select('approval_status')
+            .eq('doctor_id', userId)
+            .single();
+
+        final String approvalStatus =
+            doctorData['approval_status'] ?? 'pending';
+        print('👨‍⚕️ Doctor approval status: $approvalStatus');
+
+        customDialog(s1: 'success'.tr, s2: 'registration_successful'.tr);
+        await Future.delayed(const Duration(seconds: 2));
+
+        if (approvalStatus == 'pending') {
+          // Navigate to under review screen
+          Get.offAllNamed(Routes.underReviewScreen);
+        } else if (approvalStatus == 'approved') {
+          // Navigate to doctor dashboard
+          Get.offAllNamed(Routes.doctorTabScreen);
+        } else if (approvalStatus == 'rejected') {
+          // Navigate to rejection screen
+          Get.offAllNamed('/account-rejected');
+        }
+      } catch (e) {
+        print('❌ Failed to check approval status: $e');
+        // Fallback to under review screen if status check fails
+        customDialog(s1: 'success'.tr, s2: 'registration_successful'.tr);
+        await Future.delayed(const Duration(seconds: 2));
+        Get.offAllNamed(Routes.underReviewScreen);
+      }
     } catch (e) {
       Get.back();
       print("Final registration error: $e");

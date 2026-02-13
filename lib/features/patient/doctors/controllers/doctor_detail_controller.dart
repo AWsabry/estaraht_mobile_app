@@ -1,4 +1,5 @@
 import 'package:videocalling/core/config/app_imports.dart';
+import 'package:videocalling/shared/services/others/timezone_service.dart';
 import 'package:videocalling/features/patient/doctors/models/doctor_detail_model.dart';
 import 'package:videocalling/shared/models/availability_model.dart';
 import 'package:videocalling/shared/models/review_model.dart';
@@ -15,7 +16,7 @@ class DoctorDetailController extends GetxController {
   RxList<AvailabilityModel> weeklyAvailability = <AvailabilityModel>[].obs;
   RxList<DateTime> availableDates = <DateTime>[].obs;
   RxBool isLoadingAvailability = false.obs;
-  final int maxDaysAhead = 15;
+  final int maxDaysAhead = 31;
 
   // Time slot display
   RxInt selectedDateIndex = 0.obs;
@@ -31,6 +32,9 @@ class DoctorDetailController extends GetxController {
   // Stats from bookings
   RxInt completedSessions = 0.obs;
   RxInt uniquePatients = 0.obs;
+
+  /// Doctor's timezone offset in hours (UTC). Null until fetched; 0 for existing doctors without the column.
+  final Rx<int?> doctorTimezoneOffsetHours = Rx<int?>(null);
 
   fetchDoctorDetails() async {
     try {
@@ -53,12 +57,13 @@ class DoctorDetailController extends GetxController {
             numb_patients,
             profile_img_url,
             booking_price,
-            avg_rating,
-            number_review,
+            average_rating,
+            total_reviews,
             numb_session,
             avg_session_time,
             fcm_token,
-            updated_at
+            updated_at,
+            timezone_offset_hours
           ''')
           .eq('doctor_id', id)
           .single();
@@ -80,16 +85,20 @@ class DoctorDetailController extends GetxController {
           'numb_patients': response['numb_patients'],
           'image': response['profile_img_url'],
           'consultation_fees': response['booking_price']?.toString(),
-          'avgratting': response['avg_rating'],
-          'number_review': response['number_review'],
+          'avgratting': response['average_rating'],
+          'number_review': response['total_reviews'],
           'numb_session': response['numb_session'],
           'avg_session_time': response['avg_session_time'],
           'fcm_token': response['fcm_token'],
           'updated_at': response['updated_at'],
-        }
+        },
       };
 
       doctorDetailsClass = DoctorDetailsClass.fromJson(doctorData);
+      doctorTimezoneOffsetHours.value =
+          response['timezone_offset_hours'] != null
+          ? (response['timezone_offset_hours'] as num).toInt()
+          : 0;
       isLoading.value = false;
     } catch (e) {
       print('Error fetching doctor details: $e');
@@ -101,7 +110,9 @@ class DoctorDetailController extends GetxController {
   /// Fetch available time slots from Supabase for a specific doctor
   Future<void> getAvailableDatesFromSupabase() async {
     try {
-      loggerNoStack.t('Getting weekly availability from Supabase for doctor: $id');
+      loggerNoStack.t(
+        'Getting weekly availability from Supabase for doctor: $id',
+      );
       isLoadingAvailability.value = true;
 
       // Get weekly schedule for the doctor
@@ -119,7 +130,9 @@ class DoctorDetailController extends GetxController {
           .map((json) => AvailabilityModel.fromJson(json))
           .toList();
 
-      loggerNoStack.i('Loaded ${weeklyAvailability.length} availability records for doctor detail');
+      loggerNoStack.i(
+        'Loaded ${weeklyAvailability.length} availability records for doctor detail',
+      );
       isLoadingAvailability.value = false;
     } catch (e) {
       loggerNoStack.e('Error fetching availability from Supabase: $e');
@@ -138,19 +151,21 @@ class DoctorDetailController extends GetxController {
         return;
       }
 
-      // Get the days of week when doctor is available
+      // Get the days of week when doctor is available (DB: 0=Sunday..6=Saturday; normalize legacy 7→0)
       Set<int> availableDays = weeklyAvailability
           .where((availability) => availability.isAvailable)
-          .map((availability) => availability.dayNumber)
+          .map((availability) =>
+              availability.dayNumber == 7 ? 0 : availability.dayNumber)
           .toSet();
 
-      loggerNoStack.i('Doctor is available on days: $availableDays (0=Sunday, 1=Monday, etc.)');
+      loggerNoStack.i(
+        'Doctor is available on days: $availableDays (0=Sunday, 1=Monday, etc.)',
+      );
 
-      // Generate available dates for the next maxDaysAhead days (15 days)
-      DateTime currentDate = DateTime.now();
+      // Generate available dates for the next maxDaysAhead days (full month)
+      DateTime currentDate = TimezoneService.getCurrentMauritaniaTime();
       int daysChecked = 0;
 
-      // Continue until we check all 15 days ahead
       while (daysChecked < maxDaysAhead) {
         DateTime checkDate = currentDate.add(Duration(days: daysChecked));
 
@@ -160,14 +175,17 @@ class DoctorDetailController extends GetxController {
         // Check if doctor is available on this day of week
         if (availableDays.contains(dayNumber)) {
           availableDates.add(checkDate);
-          loggerNoStack.d('Added available date: ${checkDate.toString().substring(0, 10)} (day $dayNumber)');
+          loggerNoStack.d(
+            'Added available date: ${checkDate.toString().substring(0, 10)} (day $dayNumber)',
+          );
         }
 
         daysChecked++;
       }
 
-      loggerNoStack.i('Generated ${availableDates.length} available dates from $maxDaysAhead days ahead for doctor detail');
-
+      loggerNoStack.i(
+        'Generated ${availableDates.length} available dates from $maxDaysAhead days ahead for doctor detail',
+      );
     } catch (e) {
       loggerNoStack.e('Error generating available dates: $e');
     }
@@ -187,24 +205,24 @@ class DoctorDetailController extends GetxController {
   Future<void> fetchDoctorStats() async {
     try {
       loggerNoStack.i('📊 Fetching doctor stats from bookings...');
-      
+
       // Get completed sessions count
       final sessionsResponse = await supabaseHelper.client
           .from('bookings')
           .select('id')
           .eq('doctor_id', id)
           .eq('status', 'completed');
-      
+
       completedSessions.value = (sessionsResponse as List).length;
       loggerNoStack.i('✅ Completed sessions: ${completedSessions.value}');
-      
+
       // Get unique patients count (distinct patient_id from completed bookings)
       final patientsResponse = await supabaseHelper.client
           .from('bookings')
           .select('patient_id')
           .eq('doctor_id', id)
           .eq('status', 'completed');
-      
+
       // Get unique patient IDs
       final Set<String> uniquePatientIds = {};
       for (var booking in patientsResponse as List) {
@@ -214,7 +232,6 @@ class DoctorDetailController extends GetxController {
       }
       uniquePatients.value = uniquePatientIds.length;
       loggerNoStack.i('✅ Unique patients: ${uniquePatients.value}');
-      
     } catch (e) {
       loggerNoStack.e('❌ Error fetching doctor stats: $e');
     }
@@ -224,15 +241,17 @@ class DoctorDetailController extends GetxController {
     try {
       isLoadingReviews.value = true;
       loggerNoStack.i('🔍 Fetching reviews for doctor ID: $id');
-      
+
       reviews.value = await reviewService.getReviewsForDoctor(id);
       loggerNoStack.i('📝 Fetched ${reviews.length} reviews');
-      
+
       final ratingData = await reviewService.getDoctorRating(id);
       averageRating.value = ratingData['average_rating'] ?? 0.0;
       totalReviews.value = ratingData['total_reviews'] ?? 0;
-      
-      loggerNoStack.i('⭐ Average rating: ${averageRating.value}, Total reviews: ${totalReviews.value}');
+
+      loggerNoStack.i(
+        '⭐ Average rating: ${averageRating.value}, Total reviews: ${totalReviews.value}',
+      );
     } catch (e) {
       loggerNoStack.e('❌ Error fetching reviews: $e');
     } finally {
@@ -249,23 +268,29 @@ class DoctorDetailController extends GetxController {
 
   processPayment() async {
     if (isLoggedIn.value) {
-      Get.toNamed(Routes.makeAppointmentScreen, arguments: {
-        'id': id,
-        'name': doctorDetailsClass!.data!.name ?? "",
-        'consultationFee': doctorDetailsClass!.data!.consultationFee,
-        'image': doctorDetailsClass!.data!.image ?? "",
-      });
+      Get.toNamed(
+        Routes.makeAppointmentScreen,
+        arguments: {
+          'id': id,
+          'name': doctorDetailsClass!.data!.name ?? "",
+          'consultationFee': doctorDetailsClass!.data!.consultationFee,
+          'image': doctorDetailsClass!.data!.image ?? "",
+        },
+      );
     } else {
-      Get.toNamed(Routes.loginUserScreen, arguments: {
-        "isBack": true,
-      })?.then((value) {
+      Get.toNamed(Routes.loginUserScreen, arguments: {"isBack": true})?.then((
+        value,
+      ) {
         if (value ?? false) {
           isLoggedIn.value = true;
-          Get.toNamed(Routes.makeAppointmentScreen, arguments: {
-            'id': id,
-            'name': doctorDetailsClass!.data!.name ?? "",
-            'consultationFee': doctorDetailsClass!.data!.consultationFee,
-          });
+          Get.toNamed(
+            Routes.makeAppointmentScreen,
+            arguments: {
+              'id': id,
+              'name': doctorDetailsClass!.data!.name ?? "",
+              'consultationFee': doctorDetailsClass!.data!.consultationFee,
+            },
+          );
         }
       });
     }
@@ -285,9 +310,11 @@ class DoctorDetailController extends GetxController {
       // Convert Dart weekday to database format
       int dayNumber = selectedDate.weekday == 7 ? 0 : selectedDate.weekday;
 
-      loggerNoStack.t('Getting time slots for date ${selectedDate.toString().substring(0, 10)}, day number: $dayNumber');
+      loggerNoStack.t(
+        'Getting time slots for date ${selectedDate.toString().substring(0, 10)}, day number: $dayNumber',
+      );
 
-      final response = await supabaseHelper.client
+      var response = await supabaseHelper.client
           .from('availabilities')
           .select('time_slots')
           .eq('doctor_id', id)
@@ -295,14 +322,31 @@ class DoctorDetailController extends GetxController {
           .eq('is_available', true)
           .maybeSingle();
 
+      // Backward compatibility: legacy data may have Sunday stored as 7
+      if ((response == null || response['time_slots'] == null) &&
+          dayNumber == 0) {
+        response = await supabaseHelper.client
+            .from('availabilities')
+            .select('time_slots')
+            .eq('doctor_id', id)
+            .eq('day_number', 7)
+            .eq('is_available', true)
+            .maybeSingle();
+      }
+
       if (response != null && response['time_slots'] != null) {
         List<String> slots = List<String>.from(response['time_slots']);
 
         // Filter out booked slots
         String dateString = selectedDate.toString().substring(0, 10);
-        List<String> availableSlots = await filterBookedSlots(slots, dateString);
+        List<String> availableSlots = await filterBookedSlots(
+          slots,
+          dateString,
+        );
 
-        loggerNoStack.i('Found ${availableSlots.length} available time slots for ${selectedDate.toString().substring(0, 10)}');
+        loggerNoStack.i(
+          'Found ${availableSlots.length} available time slots for ${selectedDate.toString().substring(0, 10)}',
+        );
         return availableSlots;
       }
 
@@ -313,39 +357,87 @@ class DoctorDetailController extends GetxController {
     }
   }
 
-  /// Filter out time slots that are already booked
-  Future<List<String>> filterBookedSlots(List<String> allSlots, String date) async {
+  /// Filter out time slots that are already booked.
+  /// [date] is doctor-local date (YYYY-MM-DD). Bookings are stored in UTC.
+  Future<List<String>> filterBookedSlots(
+    List<String> allSlots,
+    String date,
+  ) async {
     try {
-      final bookedSlots = await supabaseHelper.client
+      final doctorOffset = doctorTimezoneOffsetHours.value ?? 0;
+      final range = TimezoneService.utcDateRangeForLocalDay(date, doctorOffset);
+      List<dynamic> bookedSlots = await supabaseHelper.client
           .from('bookings')
-          .select('booking_time, status')
+          .select('booking_date, booking_time, status')
           .eq('doctor_id', id)
-          .eq('booking_date', date);
+          .eq('booking_date', range.start);
+      if (range.start != range.end) {
+        final second = await supabaseHelper.client
+            .from('bookings')
+            .select('booking_date, booking_time, status')
+            .eq('doctor_id', id)
+            .eq('booking_date', range.end);
+        bookedSlots = [...bookedSlots, ...second];
+      }
 
       if (bookedSlots.isEmpty) {
         return allSlots;
       }
 
-      // Extract booked time slots
+      final dateParts = date.split('-');
+      if (dateParts.length < 3) return allSlots;
+      final year = int.parse(dateParts[0]);
+      final month = int.parse(dateParts[1]);
+      final day = int.parse(dateParts[2]);
+      final localDayStartUtc = DateTime.utc(
+        year,
+        month,
+        day,
+        0,
+        0,
+      ).subtract(Duration(hours: doctorOffset));
+      final localDayEndUtc = DateTime.utc(
+        year,
+        month,
+        day,
+        23,
+        59,
+      ).subtract(Duration(hours: doctorOffset));
+
       Set<String> bookedTimes = {};
       for (var booking in bookedSlots) {
         String status = booking['status']?.toString().toLowerCase() ?? '';
-        if ((status == 'confirmed' || status == 'pending') && booking['booking_time'] != null) {
-          String timeStr = booking['booking_time'].toString();
-          // Normalize to HH:mm format
-          if (timeStr.contains(':')) {
-            List<String> parts = timeStr.split(':');
-            timeStr = '${parts[0].padLeft(2, '0')}:${parts[1].padLeft(2, '0')}';
-          }
-          bookedTimes.add(timeStr);
-        }
+        if ((status != 'confirmed' && status != 'pending') ||
+            booking['booking_date'] == null ||
+            booking['booking_time'] == null)
+          continue;
+
+        final utcMoment = TimezoneService.parseUtcBookingToDateTime(
+          booking['booking_date'].toString(),
+          booking['booking_time'].toString(),
+        );
+        if (utcMoment == null) continue;
+        if (utcMoment.isBefore(localDayStartUtc) ||
+            utcMoment.isAfter(localDayEndUtc))
+          continue;
+
+        final timeStr = TimezoneService.utcBookingToLocalTimeString(
+          booking['booking_date'].toString(),
+          booking['booking_time'].toString(),
+          doctorOffset,
+        );
+        if (timeStr.isNotEmpty) bookedTimes.add(timeStr);
       }
 
-      // Filter out booked slots
-      return allSlots.where((slot) => !bookedTimes.contains(slot)).toList();
+      return allSlots.where((slot) {
+        final normalized = slot.contains(':')
+            ? '${slot.split(':')[0].padLeft(2, '0')}:${slot.split(':')[1].padLeft(2, '0')}'
+            : slot;
+        return !bookedTimes.contains(normalized);
+      }).toList();
     } catch (e) {
       loggerNoStack.e('Error filtering booked slots: $e');
-      return allSlots; // Return all slots if error occurs
+      return allSlots;
     }
   }
 
@@ -361,7 +453,9 @@ class DoctorDetailController extends GetxController {
       currentTimeSlots.value = timeSlots;
       isLoadingTimeSlots.value = false;
 
-      loggerNoStack.i('Selected date: ${selectedDate.toString().substring(0, 10)}, loaded ${timeSlots.length} time slots');
+      loggerNoStack.i(
+        'Selected date: ${selectedDate.toString().substring(0, 10)}, loaded ${timeSlots.length} time slots',
+      );
     }
   }
 

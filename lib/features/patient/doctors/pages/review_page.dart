@@ -22,7 +22,7 @@ class ReviewsScreen extends GetView<ReviewController> {
           titleSpacing: 0,
           title: Text(
             'review'.tr,
-            style: TextStyle(
+            style: CustomTextStyle(
               color: Colors.black,
               fontSize: 18,
               fontWeight: FontWeight.w400,
@@ -78,7 +78,7 @@ class ReviewsScreen extends GetView<ReviewController> {
           Text(
             'unable_to_load_data'.tr,
             textAlign: TextAlign.center,
-            style: TextStyle(
+            style: CustomTextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w500,
               color: Colors.grey[700],
@@ -90,7 +90,7 @@ class ReviewsScreen extends GetView<ReviewController> {
             onPressed: () => reviewController.fetchReviews(),
             child: Text(
               'try_again'.tr,
-              style: const TextStyle(
+              style: const CustomTextStyle(
                 color: Color(0xFF204FCF),
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
@@ -118,7 +118,7 @@ class ReviewsScreen extends GetView<ReviewController> {
           const SizedBox(height: 16),
           Text(
             'loading_reviews'.tr,
-            style: TextStyle(
+            style: CustomTextStyle(
               color: Colors.grey[600],
               fontSize: 15,
               fontFamily: AppFontStyleTextStrings.regular,
@@ -150,7 +150,7 @@ class ReviewsScreen extends GetView<ReviewController> {
           const SizedBox(height: 24),
           Text(
             'no_review'.tr,
-            style: TextStyle(
+            style: CustomTextStyle(
               fontFamily: AppFontStyleTextStrings.medium,
               fontSize: 18,
               color: Colors.grey[800],
@@ -162,7 +162,7 @@ class ReviewsScreen extends GetView<ReviewController> {
             child: Text(
               'be_the_first_to_review'.tr,
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: CustomTextStyle(
                 fontFamily: AppFontStyleTextStrings.regular,
                 fontSize: 14,
                 color: Colors.grey[600],
@@ -224,7 +224,7 @@ class ReviewsScreen extends GetView<ReviewController> {
                 children: [
                   Text(
                     review.name ?? "",
-                    style: const TextStyle(
+                    style: const CustomTextStyle(
                       fontWeight: FontWeight.w600,
                       fontSize: 15,
                       color: Colors.black,
@@ -253,7 +253,7 @@ class ReviewsScreen extends GetView<ReviewController> {
             // Review date
             Text(
               review.date ?? "",
-              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+              style: CustomTextStyle(fontSize: 12, color: Colors.grey[600]),
             ),
           ],
         ),
@@ -264,7 +264,7 @@ class ReviewsScreen extends GetView<ReviewController> {
             padding: const EdgeInsets.only(top: 12, left: 52),
             child: Text(
               review.description ?? "",
-              style: TextStyle(
+              style: CustomTextStyle(
                 fontSize: 14,
                 height: 1.5,
                 color: Colors.grey[800],
@@ -314,7 +314,7 @@ class ReviewsScreen extends GetView<ReviewController> {
                 reviewController.isLoggedIn.value
                     ? 'add_a_review'.tr
                     : 'login_to_review'.tr,
-                style: const TextStyle(
+                style: const CustomTextStyle(
                   color: Colors.white,
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
@@ -351,7 +351,7 @@ class ReviewsScreen extends GetView<ReviewController> {
                   children: [
                     Text(
                       'add_a_review'.tr,
-                      style: const TextStyle(
+                      style: const CustomTextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
                         color: Colors.black,
@@ -371,7 +371,7 @@ class ReviewsScreen extends GetView<ReviewController> {
                 // Rating selector
                 Text(
                   'your_rating'.tr,
-                  style: const TextStyle(
+                  style: const CustomTextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
                     color: Colors.black,
@@ -407,7 +407,10 @@ class ReviewsScreen extends GetView<ReviewController> {
                   maxLines: 4,
                   decoration: InputDecoration(
                     hintText: 'enter_message'.tr,
-                    hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
+                    hintStyle: CustomTextStyle(
+                      color: Colors.grey[400],
+                      fontSize: 14,
+                    ),
                     filled: true,
                     fillColor: Colors.grey[100],
                     border: OutlineInputBorder(
@@ -416,7 +419,10 @@ class ReviewsScreen extends GetView<ReviewController> {
                     ),
                     contentPadding: const EdgeInsets.all(16),
                   ),
-                  style: const TextStyle(color: Colors.black, fontSize: 14),
+                  style: const CustomTextStyle(
+                    color: Colors.black,
+                    fontSize: 14,
+                  ),
                   onChanged: (val) => reviewController.message.value = val,
                 ),
                 const SizedBox(height: 24),
@@ -440,7 +446,7 @@ class ReviewsScreen extends GetView<ReviewController> {
                         alignment: Alignment.center,
                         child: Text(
                           'btn_submit'.tr,
-                          style: const TextStyle(
+                          style: const CustomTextStyle(
                             color: Colors.white,
                             fontSize: 16,
                             fontWeight: FontWeight.w600,

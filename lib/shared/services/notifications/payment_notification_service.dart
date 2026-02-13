@@ -1,5 +1,6 @@
 import 'package:videocalling/core/utils/logger.dart';
 import 'package:videocalling/shared/services/notifications/push_notification_service.dart';
+import 'package:videocalling/shared/services/others/timezone_service.dart';
 
 /// Service to handle payment-related notifications
 class PaymentNotificationService {
@@ -80,7 +81,7 @@ class PaymentNotificationService {
             'amount': amount.toString(),
             if (appointmentDate != null) 'appointment_date': appointmentDate,
             if (appointmentTime != null) 'appointment_time': appointmentTime,
-            'timestamp': DateTime.now().millisecondsSinceEpoch.toString(),
+            'timestamp': TimezoneService.getCurrentMauritaniaTime().millisecondsSinceEpoch.toString(),
           },
         );
 
@@ -140,7 +141,7 @@ class PaymentNotificationService {
           'doctor_name': doctorName,
           'amount': amount.toString(),
           if (errorReason != null) 'error_reason': errorReason,
-          'timestamp': DateTime.now().millisecondsSinceEpoch.toString(),
+          'timestamp': TimezoneService.getCurrentMauritaniaTime().millisecondsSinceEpoch.toString(),
         },
       );
 
@@ -184,7 +185,7 @@ class PaymentNotificationService {
           'amount': amount.toString(),
           'appointment_date': appointmentDate,
           'appointment_time': appointmentTime,
-          'timestamp': DateTime.now().millisecondsSinceEpoch.toString(),
+          'timestamp': TimezoneService.getCurrentMauritaniaTime().millisecondsSinceEpoch.toString(),
         },
       );
 

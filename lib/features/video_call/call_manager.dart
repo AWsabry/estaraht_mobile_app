@@ -1,5 +1,6 @@
-import 'package:videocalling/core/config/app_imports.dart';
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:videocalling/core/config/app_imports.dart';
 
 class CallManager {
   static CallManager? _instance;
@@ -13,10 +14,11 @@ class CallManager {
   // Initialize Agora engine
   Future<void> init() async {
     try {
+      final appId = dotenv.get('AGORA_APP_ID', fallback: '');
       _engine = createAgoraRtcEngine();
       await _engine!.initialize(
-        const RtcEngineContext(
-          appId: 'YOUR_AGORA_APP_ID', // Replace with your actual Agora App ID
+        RtcEngineContext(
+          appId: appId, // Replace with your actual Agora App ID
         ),
       );
 

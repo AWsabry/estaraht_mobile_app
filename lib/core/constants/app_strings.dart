@@ -51,7 +51,13 @@ class Words extends Translations {
       'please_complete_your_profile_to_continue':
           'Please complete your profile to continue',
       'appointment_status_7': 'Cancelled',
-      'password_reset_email_sent': "An email has beed sent to you",
+      'password_reset_email_sent':
+          "An email has been sent to you, please check your inbox. If you don't see it, please check your spam folder.",
+      'check_email_for_reset_link':
+          'Check your email for a link to reset your password. Click the link in the email to continue.',
+      'email_send_failed_open_link_instead':
+          'We could not send the email. Would you like to open the reset link directly?',
+      'warning': 'Warning',
       'saving': 'Saving...',
       'please_wait': 'Please wait...',
       'availabilities_saved_successfully': 'Availabilities saved successfully',
@@ -80,10 +86,13 @@ class Words extends Translations {
       'initializing': 'Initializing...',
       'connected': 'Connected',
       'contact_info': 'Contact Information',
+      'payment': 'Payment',
+      'payment_details': 'Payment Details',
       'payment_success_title': 'Payment Successful',
       'payment_success': 'Your payment was successful!',
       'withdrawal_amount': "amount",
       'total_balance': "total balance",
+      "activate": "Activate",
       'financial': 'Financial',
       'enter_valid_email': 'Enter valid email',
       'enter_the_coupon_here': 'Enter the coupon here',
@@ -92,8 +101,11 @@ class Words extends Translations {
       'phone_number_hint': 'Enter your phone number',
       'pay_with_visa_or_mastercard_via_bankily':
           'Pay with Visa or Mastercard via Bankily (For people located in Mauritania)',
+      'currency_conversion_notice':
+          'Amounts converted to MRU (1 USD = @rate MRU)',
       'credit_or_debit_card': 'Credit or Debit Card',
       'total': 'Total',
+      'Card': 'Card',
       'tax': 'Tax',
       'subtotal': 'Subtotal',
       'service_fees': 'Service Fees',
@@ -116,6 +128,9 @@ class Words extends Translations {
       'book_a_session': ' Book a Session',
       'book': 'Book',
       'choose_the_time': 'Choose the time',
+      'morning': 'Morning',
+      'evening': 'Evening',
+      'all_day': 'All Day',
       'remaining_balance': 'Remaining Balance',
 
       // Payment Plans & Sessions
@@ -148,6 +163,27 @@ class Words extends Translations {
       'session_already_completed': 'This session has already been completed',
       'both_parties_must_confirm':
           'Both you and the doctor must confirm to complete the session',
+
+      // Video Session Join Time
+      'session_available_soon': 'Session Available Soon',
+      'session_available_in_5_minutes':
+          'The session link will be available 5 minutes before the appointment time.',
+      'time_remaining': 'Time remaining',
+      'day': 'day',
+      'days': 'days',
+      'hour': 'hour',
+      'hours': 'hours',
+      'minute': 'minute',
+      'minutes': 'minutes',
+      'and': 'and',
+      'now': 'Now',
+
+      // Session Time Limit
+      'session_expired': 'Session Expired',
+      'session_time_limit_reached':
+          'The 30-minute session time limit has been reached. The call will now end.',
+      'ok': 'OK',
+
       'you': 'You',
       'doctor': 'Doctor',
       'patient': 'Patient',
@@ -248,6 +284,7 @@ class Words extends Translations {
       'manage_medical_record': 'Manage my medical record',
       'payment_settings': 'Payment settings',
       'language_settings': 'Language settings',
+      'connect_with_customer_service': 'Connect with customer service',
       'sign_out': 'Sign out',
       'select_language': 'Select Language',
       'select_your_language': 'Select your language',
@@ -317,6 +354,36 @@ class Words extends Translations {
       'logout_loading_title': 'Log out',
       'logout_loading_description': 'Please wait while log out...',
       'success': 'Successful',
+
+      // Doctor Approval System
+      'under_review_title': 'Application Under Review',
+      'under_review_message':
+          'Your application is currently being reviewed by our team. You will be notified by email once your account is approved.',
+      'review_time_estimate': 'Review time: 24-48 hours',
+      'review_email_notification':
+          'You\'ll receive an email notification once reviewed',
+      'review_verification_process':
+          'We verify all doctor credentials for patient safety',
+      'refresh_status': 'Refresh Status',
+      'status_unchanged': 'Status Unchanged',
+      'still_under_review': 'Your application is still under review',
+      'account_rejected_title': 'Application Rejected',
+      'account_rejected_message':
+          'We\'re sorry, but your application has been rejected. Please contact support for more information.',
+      'rejection_reason': 'Rejection Reason',
+      'rejection_contact_support': 'Contact our support team for assistance',
+      'rejection_reapply_info':
+          'You may be able to reapply after addressing the issues',
+      'contact_support': 'Contact Support',
+      'support_contact_message':
+          'Please email support@estaraht.com for assistance',
+      'back_to_login': 'Back to Login',
+      'approved': 'Approved',
+      'account_approved_message':
+          'Congratulations! Your account has been approved.',
+      'unable_to_check_status': 'Unable to check status',
+      'logout_error': 'Logout failed',
+
       'success_str': 'Success',
       'payment_success': 'Your payment success',
       'rate_your_session': 'Rate Your Session',
@@ -352,6 +419,8 @@ class Words extends Translations {
       'no_file_selected': 'No file selected',
       'file_uploaded': 'File uploaded successfully',
       'file_upload_failed': 'Failed to upload file',
+      'upload_failed': 'Failed to upload file. Please try again',
+      'file_too_large': 'File is too large. Maximum size is 10MB',
       'file_deleted': 'File deleted',
       'delete_file': 'Delete File',
       'delete_file_confirm': 'Are you sure you want to delete this file?',
@@ -421,6 +490,28 @@ class Words extends Translations {
       'fail': 'Fail',
       'fail_description': 'Your payment fail try again',
       'appointment_made_success': 'Appointment made successfully',
+      'subscription_success_message':
+          'Subscription successful! {sessions} sessions added to your account.',
+      'payment_booking_success':
+          'Payment successful! Your appointment has been booked.',
+      'authentication_error_title': 'Authentication Error',
+      'failed_to_connect_payment_service':
+          'Failed to connect to payment service: {message}',
+      'payment_failed_title': 'Payment Failed',
+      'transaction_declined': 'Transaction was declined. Please try again.',
+      'payment_timeout_title': 'Payment Timeout',
+      'payment_timeout_message':
+          'Payment is taking longer than expected. Please check your transaction status.',
+      'failed_to_process_payment_try_again':
+          'Failed to process payment. Please try again.',
+      'payment_cancelled_or_failed':
+          'Payment was cancelled or failed. Please try again.',
+      'patient_id_not_found': 'Patient ID not found',
+      'apple_pay_error': 'Apple Pay Error',
+      'google_pay_error': 'Google Pay Error',
+      'cannot_open_whatsapp_app': 'Could not open WhatsApp app',
+      'digital_wallet_coming_soon': 'Digital wallet payment coming soon!',
+      'buy_with_platform': 'Buy with {platform}',
       'appoint_make_dialog': 'Please wait while making appointment',
       'while_saving_changes': 'Please wait while saving changes',
       'receipt_uploading': 'Receipt Uploading...',
@@ -498,6 +589,7 @@ class Words extends Translations {
       'about': 'About us',
       'unable_to_load_data':
           'We couldn\'t load the information right now. Please check your connection and try again.',
+      'no_doctors_found': 'No doctors available at the moment',
       'unable_to_save_data':
           'We couldn\'t save your changes. Please try again.',
       'report_issue1': 'Doctor not taking appointments on time',
@@ -599,6 +691,7 @@ class Words extends Translations {
       'doctor_register': 'Register as doctor',
       'register_now': ' Register Now',
       'forgot_password': 'Forget Password ?',
+      'reset_password': 'Reset Password',
       'login_now': 'Login Now',
       'login': 'Login',
       'remove': 'Remove',
@@ -674,6 +767,15 @@ class Words extends Translations {
       'process_payment': 'Process Payment',
       'consultation_fee': 'Consultation fee',
       'select_a_payment_method': 'Select payment method',
+      'review_payment_details': 'Review Payment Details',
+      'payment_methods': 'Payment Methods',
+      'total_amount': 'Total Amount',
+      'show_details': 'Show Details',
+      'hide_details': 'Hide Details',
+      'saved_payment_methods': 'Saved Payment Methods',
+      'continue': 'Continue',
+      'subscribe_tap_to_pay': 'Subscribe with tap-to-pay - no additional fees',
+      'payment_summary': 'Payment Summary',
       'method1_title': 'Cash On Board',
 
       'method1_description':
@@ -710,12 +812,16 @@ class Words extends Translations {
       'appointment_status_4': 'In Process',
       'appointment_status_5': 'Completed',
       'appointment_status_6': 'Rejected',
+      'completed': 'Completed',
+      'received': 'Received',
+      'accepted': 'Accepted',
       'email_address': 'Email Address',
       'consume_it_days': 'Consume it for @days Days',
       'download_prescription': 'Download prescription',
       'medicine_param1': 'Type',
       'medicine_param2': 'Dosage',
       'medicine_param3': 'Time',
+      'time': 'Time',
       'medicine_param4': 'Edit',
       'nearby_doctors': 'Nearby Doctors',
       'search_doctor_appbar1': 'search, ',
@@ -760,8 +866,10 @@ class Words extends Translations {
       'chat_title_yesterday': 'Yesterday',
       'accept_chat_dialog_text1': 'Reject',
       'accept_chat_dialog_text2': 'Accept',
+      'phone': 'Phone',
       'photo_str': 'Photo',
       'video_str': 'Video',
+      'document_str': 'Document',
       'chat_time_yesterday': 'yesterday',
       'chat_time_day_ago': '@day days ago',
       'remove_msg_title': 'Remove Message',
@@ -885,7 +993,12 @@ class Words extends Translations {
           'يرجى إكمال ملفك الشخصي للمتابعة',
       'appointment_status_7': 'إلغاء',
       'password_reset_email_sent':
-          'تم إرسال رسالة إلكترونية لإعادة تعيين كلمة المرور إليك',
+          'تم إرسال رسالة إلكترونية لإعادة تعيين كلمة المرور إليك، يرجى التحقق من صندوق الوارد. إذا لم تجدها في الوارد، يرجى التحقق من مجلد الرسائل المزعجة.',
+      'check_email_for_reset_link':
+          'تحقق من بريدك الإلكتروني للحصول على رابط إعادة تعيين كلمة المرور. انقر على الرابط في البريد للمتابعة.',
+      'email_send_failed_open_link_instead':
+          'لم نتمكن من إرسال البريد الإلكتروني. هل تريد فتح رابط إعادة التعيين مباشرة؟',
+      'warning': 'تحذير',
       'saving': 'جارٍ الحفظ...',
       'please_wait': 'يرجى الانتظار...',
       'availabilities_saved_successfully': 'تم حفظ التوافر بنجاح',
@@ -923,7 +1036,10 @@ class Words extends Translations {
       'financial': 'الاستشارات',
       'enter_valid_email': 'أدخل بريد إلكتروني صالح',
       'enter_the_coupon_here': 'أدخل القسيمة هنا',
-      'pay_with_bankily': 'الدفع عبر بنكلي',
+      'pay_with_bankily': 'الدفع عبر بنكيلي',
+      'currency_conversion_notice':
+          'المبالغ محولة إلى أوقية (@rate أوقية = 1 دولار)',
+      'Card': 'كارد',
       'phone_number_hint': 'أدخل رقم هاتفك',
       'pay_with_visa_or_mastercard_via_bankily':
           'الدفع بفيزا أو ماستركارد عبر بنكلي (للأشخاص الموجودين في موريتانيا)',
@@ -957,6 +1073,9 @@ class Words extends Translations {
       'book_a_session': ' احجز جلسة',
       'book': "احجز",
       'choose_the_time': 'اختر الوقت',
+      'morning': 'الصباح',
+      'evening': 'المساء',
+      'all_day': 'طوال اليوم',
       'remaining_balance': 'الرصيد المتبقي',
 
       // Payment Plans & Sessions
@@ -1016,6 +1135,7 @@ class Words extends Translations {
       'connect_with_your_patient': 'تواصل مع مرضاك بمرونة',
       'full_name': 'الاسم كاملًا ',
       'email': 'البريد الإلكتروني',
+      'phone': 'الهاتف',
       'mobile_number': 'رقم الهاتف المحمول',
       'password': 'كلمة المرور',
       'at_least_characters': 'على الأقل 8 أحرف',
@@ -1064,7 +1184,9 @@ class Words extends Translations {
       'settings': 'الإعدادات',
       'manage_medical_record': 'إدارة سجلي الطبي',
       'payment_settings': 'إعدادات الدفع',
+
       'language_settings': 'إعدادات اللغة',
+      'connect_with_customer_service': 'تواصل مع خدمة العملاء',
       'sign_out': 'تسجيل الخروج',
       'select_language': 'اختر اللغة',
       'select_your_language': 'اختر لغتك',
@@ -1072,10 +1194,11 @@ class Words extends Translations {
       'yes': 'نعم',
       'no': 'لا',
       'email_or_phone': 'بريدك الإلكتروني',
+      "activate": "تفعيل",
 
       ///home
       'welcome_back': 'مرحبًا بعودتك!',
-      'wishing_calm_day': 'أتمنى لك يومًا هادئًا ومركزًا',
+      'wishing_calm_day': 'نتمى لك يوما رائعا',
       'book_new_appointment': 'احجز موعدًا جديدًا',
       'find_therapist': 'ابحث عن طبيب نفسي',
 
@@ -1172,6 +1295,8 @@ class Words extends Translations {
       'no_file_selected': 'لم يتم اختيار ملف',
       'file_uploaded': 'تم رفع الملف بنجاح',
       'file_upload_failed': 'فشل في رفع الملف',
+      'upload_failed': 'فشل في رفع الملف. يرجى المحاولة مرة أخرى',
+      'file_too_large': 'الملف كبير جداً. الحد الأقصى هو 10 ميجابايت',
       'file_deleted': 'تم حذف الملف',
       'delete_file': 'حذف الملف',
       'delete_file_confirm': 'هل أنت متأكد من حذف هذا الملف؟',
@@ -1237,6 +1362,26 @@ class Words extends Translations {
       'fail': 'فشل',
       'fail_description': 'فشل الدفع، حاول مرة أخرى',
       'appointment_made_success': 'تم تحديد الموعد بنجاح',
+      'subscription_success_message':
+          'تم الاشتراك بنجاح! تمت إضافة {sessions} جلسات إلى حسابك.',
+      'payment_booking_success': 'تم الدفع بنجاح! تم حجز موعدك.',
+      'authentication_error_title': 'خطأ في المصادقة',
+      'failed_to_connect_payment_service': 'فشل الاتصال بخدمة الدفع: {message}',
+      'payment_failed_title': 'فشل الدفع',
+      'transaction_declined': 'تم رفض المعاملة. يرجى المحاولة مرة أخرى.',
+      'payment_timeout_title': 'انتهت مهلة الدفع',
+      'payment_timeout_message':
+          'الدفع يستغرق وقتاً أطول من المتوقع. يرجى التحقق من حالة معاملتك.',
+      'failed_to_process_payment_try_again':
+          'فشل في معالجة الدفع. يرجى المحاولة مرة أخرى.',
+      'payment_cancelled_or_failed':
+          'تم إلغاء الدفع أو فشله. يرجى المحاولة مرة أخرى.',
+      'patient_id_not_found': 'معرف المريض غير موجود',
+      'apple_pay_error': 'خطأ في Apple Pay',
+      'google_pay_error': 'خطأ في Google Pay',
+      'cannot_open_whatsapp_app': 'تعذر فتح تطبيق الواتساب',
+      'digital_wallet_coming_soon': 'الدفع بالمحفظة الرقمية قريباً!',
+      'buy_with_platform': 'الشراء عبر {platform}',
       'appoint_make_dialog': 'يرجى الانتظار أثناء تحديد الموعد',
       'while_saving_changes': 'يرجى الانتظار أثناء حفظ التغييرات',
       'receipt_uploading': 'جاري رفع الإيصال...',
@@ -1308,6 +1453,28 @@ class Words extends Translations {
       'session_already_completed': 'تم إنهاء هذه الجلسة بالفعل',
       'both_parties_must_confirm':
           'يجب على كل من المريض والطبيب التأكيد لإنهاء الجلسة',
+
+      // Video Session Join Time
+      'session_available_soon': 'الجلسة متاحة قريباً',
+      'session_available_in_5_minutes':
+          'سيكون رابط الجلسة متاحًا قبل موعد الجلسة بـ 5 دقائق.',
+      'time_remaining': 'الوقت المتبقي',
+      'day': 'يوم',
+      'days': 'أيام',
+      'hour': 'ساعة',
+      'time': 'الوقت',
+      'hours': 'ساعات',
+      'minute': 'دقيقة',
+      'minutes': 'دقائق',
+      'and': 'و',
+      'now': 'الآن',
+
+      // Session Time Limit
+      'session_expired': 'انتهت مدة الجلسة',
+      'session_time_limit_reached':
+          'تم الوصول إلى الحد الزمني للجلسة (30 دقيقة). سيتم إنهاء المكالمة الآن.',
+      'ok': 'حسناً',
+
       'you': 'أنت',
       'doctor': 'الطبيب',
       'patient': 'المريض',
@@ -1330,6 +1497,7 @@ class Words extends Translations {
       'about': 'معلومات عنا',
       'unable_to_load_data':
           'لم نتمكن من تحميل المعلومات الآن. يرجى التحقق من اتصالك والمحاولة مرة أخرى.',
+      'no_doctors_found': 'لا يوجد أطباء متاحون حالياً',
       'unable_to_save_data':
           'لم نتمكن من حفظ تغييراتك. يرجى المحاولة مرة أخرى.',
       'invalid_credentials':
@@ -1429,6 +1597,7 @@ class Words extends Translations {
       'doctor_register': 'تسجيل كطبيب',
       'register_now': ' سجل الآن',
       'forgot_password': 'نسيت كلمة المرور؟',
+      'reset_password': 'إعادة تعيين كلمة المرور',
       'login_now': 'تسجيل الدخول الآن',
       'login': 'تسجيل الدخول',
       'remove': 'إزالة',
@@ -1500,9 +1669,21 @@ class Words extends Translations {
       'doc_on_leave_description':
           'لا يمكن حجز موعد في @date حيث أن الطبيب في إجازة',
       'make_an_appointment': 'حدد موعدًا',
-      'process_payment': 'ادفع الأن',
+      'process_payment': 'ادفع الآن',
       'consultation_fee': 'رسوم الاستشارة',
       'select_a_payment_method': 'اختر وسيلة الدفع',
+      'review_payment_details': 'مراجعة تفاصيل الدفع',
+      'payment': 'الدفع',
+      'payment_methods': 'الدفع',
+      'total_amount': 'المبلغ الإجمالي',
+      'show_details': 'اعرض التفاصيل',
+      'hide_details': 'إخفاء التفاصيل',
+      'saved_payment_methods': 'طرق الدفع المحفوظة',
+      'continue': 'متابعة',
+      'subscribe_tap_to_pay':
+          'اشترك بطريق تدفع نقراً بأمس المتمع بطريقك إضافية',
+      'payment_details': 'تفاصيل الدفع',
+      'payment_summary': 'ملخص الدفع',
       'method1_title': 'الدفع عند الوصول',
       'method1_description': 'ادفع فقط عند زيارة الطبيب في موعدك',
       'method2_title': 'Paystack',
@@ -1540,6 +1721,9 @@ class Words extends Translations {
       'appointment_status_4': 'قيد المعالجة',
       'appointment_status_5': 'مكتمل',
       'appointment_status_6': 'مرفوض',
+      'completed': 'مكتمل',
+      'received': 'مستلم',
+      'accepted': 'مقبول',
       'email_address': 'عنوان البريد الإلكتروني',
       'consume_it_days': 'تناوله لمدة @days يوم',
       'download_prescription': 'تنزيل الوصفة الطبية',
@@ -1588,6 +1772,7 @@ class Words extends Translations {
       'accept_chat_dialog_text2': 'قبول',
       'photo_str': 'صورة',
       'video_str': 'فيديو',
+      'document_str': 'مستند',
       'chat_time_yesterday': 'أمس',
       'chat_time_day_ago': 'منذ @day أيام',
       'remove_msg_title': 'إزالة الرسالة',
@@ -1700,6 +1885,31 @@ class Words extends Translations {
       'working_hours_saved': 'تم حفظ ساعات العمل بنجاح',
       'invalid_time_range': 'نطاق زمني غير صالح',
       'select_valid_time': 'الرجاء اختيار نطاق زمني صالح',
+
+      // Doctor Approval System
+      'under_review_title': 'الطلب قيد المراجعة',
+      'under_review_message':
+          'طلبك قيد المراجعة من قبل فريقنا حاليًا. سيتم إعلامك عبر البريد الإلكتروني بمجرد الموافقة على حسابك.',
+      'review_time_estimate': 'وقت المراجعة: 24-48 ساعة',
+      'review_email_notification':
+          'ستتلقى إشعارًا عبر البريد الإلكتروني بمجرد المراجعة',
+      'review_verification_process':
+          'نحن نتحقق من جميع بيانات اعتماد الأطباء من أجل سلامة المرضى',
+      'refresh_status': 'تحديث الحالة',
+      'status_unchanged': 'الحالة لم تتغير',
+      'still_under_review': 'طلبك لا يزال قيد المراجعة',
+      'account_rejected_title': 'تم رفض الطلب',
+      'account_rejected_message':
+          'نأسف، لكن تم رفض طلبك. يرجى مراجعة السبب أدناه والاتصال بالدعم إذا كان لديك أي أسئلة.',
+      'rejection_reason': 'سبب الرفض',
+      'rejection_contact_support': 'اتصل بفريق الدعم للحصول على المساعدة',
+      'rejection_reapply_info': 'قد تتمكن من إعادة التقديم بعد معالجة المشاكل',
+      'support_contact_message':
+          'يرجى إرسال بريد إلكتروني إلى support@estaraht.com للحصول على المساعدة',
+      'approved': 'مقبول',
+      'account_approved_message': 'تهانينا! تمت الموافقة على حسابك.',
+      'unable_to_check_status': 'غير قادر على التحقق من الحالة',
+      'logout_error': 'فشل تسجيل الخروج',
     },
     'fr_FR': {
       'duration_plan': '45 minutes par session',
@@ -1754,6 +1964,7 @@ class Words extends Translations {
       'select_department_hint': 'Sélectionnez le département',
       'complete_therapist_info': 'Complétez les informations de votre profil',
       'complete_profile': 'Complétez votre profil',
+      "activate": "Activer",
       'enter_description': 'Entrez la description',
       'back': 'Retour',
       'loading_reviews': 'Chargement des avis...',
@@ -1810,6 +2021,18 @@ class Words extends Translations {
       'make_an_appointment': 'Prendre rendez-vous',
       'process_payment': 'Traiter le paiement',
       'select_a_payment_method': 'Sélectionnez un mode de paiement',
+      'review_payment_details': 'Vérifier les détails du paiement',
+      'payment_methods': 'Méthodes de paiement',
+      'payment': 'Paiement',
+      'total_amount': 'Montant total',
+      'show_details': 'Afficher les détails',
+      'hide_details': 'Masquer les détails',
+      'saved_payment_methods': 'Méthodes de paiement enregistrées',
+      'continue': 'Continuer',
+      'subscribe_tap_to_pay':
+          'Abonnez-vous avec paiement tactile - aucun frais supplémentaire',
+      'payment_details': 'Détails du paiement',
+      'payment_summary': 'Résumé du paiement',
       'method1_title': 'Paiement à la livraison',
       'method1_description':
           'Payez uniquement en visitant le médecin à votre heure de rendez-vous',
@@ -1857,7 +2080,12 @@ class Words extends Translations {
       'enter_email_error': 'Veuillez entrer une adresse e-mail valide.',
       'enter_email_hint': 'Entrez votre adresse e-mail',
       'password_reset_email_sent':
-          'Email de réinitialisation de mot de passe envoyé',
+          'Un email de réinitialisation de mot de passe vous a été envoyé, veuillez vérifier votre boîte de réception. Si vous ne le trouvez pas, veuillez vérifier votre dossier spam.',
+      'check_email_for_reset_link':
+          'Vérifiez votre email pour le lien de réinitialisation. Cliquez sur le lien dans l\'email pour continuer.',
+      'email_send_failed_open_link_instead':
+          'Nous n\'avons pas pu envoyer l\'email. Voulez-vous ouvrir le lien de réinitialisation directement ?',
+      'warning': 'Avertissement',
       'change_password_str': 'Changer le mot de passe',
       'old_pwd': 'Ancien mot de passe',
       'new_pwd': 'Nouveau mot de passe',
@@ -1885,6 +2113,7 @@ class Words extends Translations {
       'register_now': ' Inscrivez-vous maintenant',
       'not_have_an_account': 'Vous n\'avez pas de compte?',
       'forgot_password': 'Mot de passe oublié?',
+      'reset_password': 'Réinitialiser le mot de passe',
       'sign_up': 'S\'inscrire',
       'login': 'Connexion',
       'register': 'S\'inscrire',
@@ -1928,7 +2157,10 @@ class Words extends Translations {
       'enter_the_coupon_here': 'Entrez le coupon ici',
 
       'pay_with_bankily': 'Payer avec Bankily',
+      'currency_conversion_notice':
+          'Montants convertis en MRU (1 USD = @rate MRU)',
       'phone_number_hint': 'Numéro de téléphone',
+      'Card': 'Card',
       'pay_with_visa_or_mastercard_via_bankily':
           'Payer avec Visa ou Mastercard via Bankily (Pour les personnes situées en Mauritanie)',
       'credit_or_debit_card': 'Carte de crédit ou de débit',
@@ -1960,6 +2192,9 @@ class Words extends Translations {
       'available_dates': 'Dates disponibles',
       'book_a_session': 'Réservez une séance',
       'choose_the_time': 'Choisissez l\'heure',
+      'morning': 'Matin',
+      'evening': 'Soir',
+      'all_day': 'Toute la journée',
       'remaining_balance': 'Solde restant',
       'enter_amount': 'Entrez le montant',
       'view_details': 'Voir les détails',
@@ -1987,6 +2222,7 @@ class Words extends Translations {
       'manage_appointments_easily': 'Gérez vos rendez-vous facilement',
 
       'years_of_exp': ' années d\'expérience',
+      'phone': 'téléphone',
       'services_error': 'Veuillez entrer les services de spécialisation',
       'common_textfield_error':
           'Ce champ est obligatoire. Veuillez le remplir pour continuer.',
@@ -2079,6 +2315,7 @@ class Words extends Translations {
       'manage_medical_record': 'Gérer mon dossier médical',
       'payment_settings': 'Paramètres de paiement',
       'language_settings': 'Paramètres de langue',
+      'connect_with_customer_service': 'Contactez le service client',
       'sign_out': 'Se déconnecter',
       'select_language': 'Sélectionner la langue',
       'select_your_language': 'Sélectionnez votre langue',
@@ -2183,10 +2420,14 @@ class Words extends Translations {
       'anonymous': 'Anonyme',
       'session_files': 'Fichiers de session',
       'upload_file': 'Télécharger un fichier',
+      'time': 'Temps',
       'no_files_uploaded': 'Aucun fichier téléchargé',
       'no_file_selected': 'Aucun fichier sélectionné',
       'file_uploaded': 'Fichier téléchargé avec succès',
       'file_upload_failed': 'Échec du téléchargement',
+      'upload_failed': 'Échec du téléchargement. Veuillez réessayer',
+      'file_too_large':
+          'Le fichier est trop volumineux. Taille maximale: 10 Mo',
       'file_deleted': 'Fichier supprimé',
       'delete_file': 'Supprimer le fichier',
       'delete_file_confirm': 'Êtes-vous sûr de vouloir supprimer ce fichier?',
@@ -2261,6 +2502,31 @@ class Words extends Translations {
       'fail': 'Échec',
       'fail_description': 'Votre paiement a échoué, réessayez',
       'appointment_made_success': 'Rendez-vous pris avec succès',
+      'subscription_success_message':
+          'Abonnement réussi ! {sessions} séances ajoutées à votre compte.',
+      'payment_booking_success':
+          'Paiement réussi ! Votre rendez-vous a été réservé.',
+      'authentication_error_title': 'Erreur d\'authentification',
+      'failed_to_connect_payment_service':
+          'Échec de la connexion au service de paiement : {message}',
+      'payment_failed_title': 'Échec du paiement',
+      'transaction_declined':
+          'La transaction a été refusée. Veuillez réessayer.',
+      'payment_timeout_title': 'Délai de paiement dépassé',
+      'payment_timeout_message':
+          'Le paiement prend plus de temps que prévu. Veuillez vérifier le statut de votre transaction.',
+      'failed_to_process_payment_try_again':
+          'Échec du traitement du paiement. Veuillez réessayer.',
+      'payment_cancelled_or_failed':
+          'Le paiement a été annulé ou a échoué. Veuillez réessayer.',
+      'patient_id_not_found': 'ID patient introuvable',
+      'apple_pay_error': 'Erreur Apple Pay',
+      'google_pay_error': 'Erreur Google Pay',
+      'cannot_open_whatsapp_app':
+          'Impossible d\'ouvrir l\'application WhatsApp',
+      'digital_wallet_coming_soon':
+          'Paiement par portefeuille numérique bientôt disponible !',
+      'buy_with_platform': 'Acheter avec {platform}',
       'appoint_make_dialog':
           'Veuillez patienter pendant la prise de rendez-vous',
       'while_saving_changes':
@@ -2337,6 +2603,27 @@ class Words extends Translations {
       'session_already_completed': 'Cette séance est déjà terminée',
       'both_parties_must_confirm':
           'Le patient et le médecin doivent confirmer pour terminer la séance',
+
+      // Video Session Join Time (French)
+      'session_available_soon': 'Séance bientôt disponible',
+      'session_available_in_5_minutes':
+          'Le lien de la séance sera disponible 5 minutes avant l\'heure du rendez-vous.',
+      'time_remaining': 'Temps restant',
+      'day': 'jour',
+      'days': 'jours',
+      'hour': 'heure',
+      'hours': 'heures',
+      'minute': 'minute',
+      'minutes': 'minutes',
+      'and': 'et',
+      'now': 'Maintenant',
+
+      // Session Time Limit (French)
+      'session_expired': 'Séance expirée',
+      'session_time_limit_reached':
+          'La limite de temps de la séance (45 minutes) a été atteinte. L\'appel va maintenant se terminer.',
+      'ok': 'OK',
+
       'you': 'Vous',
       'doctor': 'Médecin',
       'patient': 'Patient',
@@ -2348,6 +2635,7 @@ class Words extends Translations {
           'Connectez-vous avec votre thérapeute facilement et',
       'unable_to_load_data':
           'Nous n\'avons pas pu charger les informations pour le moment. Veuillez vérifier votre connexion et réessayer.',
+      'no_doctors_found': 'Aucun médecin disponible pour le moment',
       'unable_to_save_data':
           'Nous n\'avons pas pu enregistrer vos modifications. Veuillez réessayer.',
       'invalid_credentials':
@@ -2361,6 +2649,37 @@ class Words extends Translations {
       'appointment_status_5': 'Terminé',
       'appointment_status_6': 'Refusé',
       'appointment_status_7': 'Annuler',
+      'completed': 'Terminé',
+      'received': 'Reçu',
+      'accepted': 'Accepté',
+
+      // Doctor Approval System
+      'under_review_title': 'Demande en cours d\'examen',
+      'under_review_message':
+          'Votre demande est actuellement en cours d\'examen par notre équipe. Vous serez informé par e-mail une fois votre compte approuvé.',
+      'review_time_estimate': 'Délai d\'examen: 24-48 heures',
+      'review_email_notification':
+          'Vous recevrez une notification par e-mail une fois examiné',
+      'review_verification_process':
+          'Nous vérifions toutes les informations d\'identification des médecins pour la sécurité des patients',
+      'refresh_status': 'Actualiser le statut',
+      'status_unchanged': 'Statut inchangé',
+      'still_under_review': 'Votre demande est toujours en cours d\'examen',
+      'account_rejected_title': 'Demande rejetée',
+      'account_rejected_message':
+          'Nous sommes désolés, mais votre demande a été rejetée. Veuillez consulter la raison ci-dessous et contacter le support si vous avez des questions.',
+      'rejection_reason': 'Raison du rejet',
+      'rejection_contact_support':
+          'Contactez notre équipe d\'assistance pour obtenir de l\'aide',
+      'rejection_reapply_info':
+          'Vous pourrez peut-être postuler à nouveau après avoir résolu les problèmes',
+      'contact_support': 'Contacter le support',
+      'support_contact_message':
+          'Veuillez envoyer un e-mail à support@estaraht.com pour obtenir de l\'aide',
+      'approved': 'Approuvé',
+      'account_approved_message': 'Félicitations! Votre compte a été approuvé.',
+      'unable_to_check_status': 'Impossible de vérifier le statut',
+      'logout_error': 'Échec de la déconnexion',
     },
   };
 }

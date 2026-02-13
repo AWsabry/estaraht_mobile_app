@@ -92,7 +92,7 @@ class OnboardingScreen extends StatelessWidget {
                     ),
                     child: const Text(
                       "Login in",
-                      style: TextStyle(color: Colors.black),
+                      style: CustomTextStyle(color: Colors.black),
                     ),
                   ),
                 ),
@@ -151,19 +151,19 @@ class OnboardingPage extends StatelessWidget {
           Text(
             title,
             textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            style: const CustomTextStyle(fontSize: 24, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
           Text(
             subtitle,
             textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            style: const CustomTextStyle(fontSize: 24, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 24),
           Text(
             description,
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 16, color: Colors.grey[700]),
+            style: CustomTextStyle(fontSize: 16, color: Colors.grey[700]),
           ),
         ],
       ),

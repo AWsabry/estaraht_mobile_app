@@ -1,4 +1,5 @@
 import 'package:videocalling/core/config/app_imports.dart';
+import 'package:videocalling/shared/services/others/timezone_service.dart';
 import 'package:videocalling/features/doctor/finance/models/income_report_model.dart';
 
 class IncomeReportController extends GetxController {
@@ -9,7 +10,7 @@ class IncomeReportController extends GetxController {
       'income_report_tile_short_text3'.tr.obs; // Default to "last 30 days" text
   final String initialDuration;
   RxString selectedFilter = 'income'.obs; // 'income', 'withdrawal', 'total'
-  
+
   // Available balance (income - withdrawals) - always calculated
   RxDouble availableBalance = 0.0.obs;
 
@@ -21,7 +22,7 @@ class IncomeReportController extends GetxController {
     try {
       // Calculate date range based on duration
       DateTime startDate;
-      DateTime endDate = DateTime.now();
+      DateTime endDate = TimezoneService.getCurrentMauritaniaTime();
 
       if (duration == "today") {
         startDate = DateTime(endDate.year, endDate.month, endDate.day);
@@ -46,33 +47,9 @@ class IncomeReportController extends GetxController {
       double totalIncome = 0;
       Map<String, double> dailyIncome = {};
 
-      // Get income from payment_history (for 'income' and 'total' filters)
-      if (selectedFilter.value == 'income' || selectedFilter.value == 'total') {
-        final incomeResponse = await supabaseHelper.client
-            .from('payment_history')
-            .select('total_amount, payment_date')
-            .eq('doctor_id', doctorId.value)
-            .eq('operation_status', 'success')
-            .eq('action_type', 'income')
-            .gte('payment_date', startDate.toIso8601String())
-            .lte('payment_date', endDate.toIso8601String())
-            .order('payment_date', ascending: false);
-
-        for (var record in incomeResponse) {
-          String dateStr = record['payment_date'].toString().substring(0, 10);
-          double amount = double.parse(record['total_amount'].toString());
-
-          if (dailyIncome.containsKey(dateStr)) {
-            dailyIncome[dateStr] = dailyIncome[dateStr]! + amount;
-          } else {
-            dailyIncome[dateStr] = amount;
-          }
-          totalIncome += amount;
-        }
-      }
-
       // Get withdrawals from withdraws table (for 'withdrawal' and 'total' filters)
-      if (selectedFilter.value == 'withdrawal' || selectedFilter.value == 'total') {
+      if (selectedFilter.value == 'withdrawal' ||
+          selectedFilter.value == 'total') {
         final withdrawalResponse = await supabaseHelper.client
             .from('withdraws')
             .select('total_amount, payment_date')
@@ -83,7 +60,9 @@ class IncomeReportController extends GetxController {
 
         for (var record in withdrawalResponse) {
           String dateStr = record['payment_date'].toString().substring(0, 10);
-          double amount = -double.parse(record['total_amount'].toString()); // Negative for withdrawals
+          double amount = -double.parse(
+            record['total_amount'].toString(),
+          ); // Negative for withdrawals
 
           if (dailyIncome.containsKey(dateStr)) {
             dailyIncome[dateStr] = dailyIncome[dateStr]! + amount;
@@ -126,40 +105,56 @@ class IncomeReportController extends GetxController {
     }
   }
 
-  /// Calculate the available balance (total income - total withdrawals)
+  /// Calculate the available balance by fetching wallet directly from doctors table
   Future<void> _calculateAvailableBalance() async {
     try {
-      // Get ALL income from payment_history
-      final incomeResponse = await supabaseHelper.client
-          .from('payment_history')
-          .select('total_amount')
+      if (doctorId.value.isEmpty) {
+        loggerNoStack.w('⚠️ Doctor ID is empty, cannot fetch wallet');
+        availableBalance.value = 0.0;
+        return;
+      }
+
+      // Fetch wallet directly from doctors table
+      final doctorData = await supabaseHelper.client
+          .from('doctors')
+          .select('wallet')
           .eq('doctor_id', doctorId.value)
-          .eq('operation_status', 'success')
-          .eq('action_type', 'income');
+          .maybeSingle();
+      loggerNoStack.i('💰 Doctor data: $doctorData');
 
-      double totalIncome = 0;
-      for (var record in incomeResponse) {
-        totalIncome += double.parse(record['total_amount'].toString());
+      if (doctorData == null) {
+        loggerNoStack.w(
+          '⚠️ Doctor not found with doctor_id: ${doctorId.value}',
+        );
+        // Try by id (UUID) as fallback
+        final doctorDataById = await supabaseHelper.client
+            .from('doctors')
+            .select('wallet')
+            .eq('id', doctorId.value)
+            .maybeSingle();
+
+        if (doctorDataById == null) {
+          loggerNoStack.e(
+            '❌ Doctor not found with doctor_id or id: ${doctorId.value}',
+          );
+          availableBalance.value = 0.0;
+          return;
+        }
+
+        final wallet = (doctorDataById['wallet'] ?? 0.0) as num;
+        availableBalance.value = wallet.toDouble();
+      } else {
+        final wallet = (doctorData['wallet'] ?? 0.0) as num;
+        availableBalance.value = wallet.toDouble();
       }
 
-      // Get ALL withdrawals from withdraws table
-      final withdrawalResponse = await supabaseHelper.client
-          .from('withdraws')
-          .select('total_amount')
-          .eq('doctor_id', doctorId.value);
-
-      double totalWithdrawals = 0;
-      for (var record in withdrawalResponse) {
-        totalWithdrawals += double.parse(record['total_amount'].toString());
-      }
-
-      // Available balance = Income - Withdrawals
-      availableBalance.value = totalIncome - totalWithdrawals;
-      
-      loggerNoStack.i('Available Balance: \$${availableBalance.value} (Income: \$$totalIncome - Withdrawals: \$$totalWithdrawals)');
-    } catch (e) {
-      loggerNoStack.e('Error calculating available balance: $e');
-      availableBalance.value = 0;
+      loggerNoStack.i(
+        '✅ Available Balance (from wallet): \$${availableBalance.value.toStringAsFixed(2)}',
+      );
+    } catch (e, stackTrace) {
+      loggerNoStack.e('❌ Error fetching wallet from doctors table: $e');
+      loggerNoStack.e('Stack trace: $stackTrace');
+      availableBalance.value = 0.0;
     }
   }
 
@@ -270,14 +265,18 @@ class IncomeReportController extends GetxController {
 
   void _showDateRangePicker(BuildContext context) async {
     final initialDateRange = DateTimeRange(
-      start: DateTime.now().add(const Duration(days: -7)),
-      end: DateTime.now().add(const Duration(days: 7)),
+      start: TimezoneService.getCurrentMauritaniaTime().add(
+        const Duration(days: -7),
+      ),
+      end: TimezoneService.getCurrentMauritaniaTime().add(
+        const Duration(days: 7),
+      ),
     );
 
     DateTimeRange? picked = await showDateRangePicker(
       context: context,
-      firstDate: DateTime(DateTime.now().year - 5),
-      lastDate: DateTime(DateTime.now().year + 5),
+      firstDate: DateTime(TimezoneService.getCurrentMauritaniaTime().year - 5),
+      lastDate: DateTime(TimezoneService.getCurrentMauritaniaTime().year + 5),
       initialDateRange: initialDateRange,
     );
 

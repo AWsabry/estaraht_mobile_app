@@ -1,5 +1,6 @@
 import 'package:videocalling/core/config/app_imports.dart';
 import 'package:videocalling/features/doctor/more/search_medicine_model.dart';
+import 'package:videocalling/shared/services/others/timezone_service.dart';
 
 class MedicinseScreen extends GetView<AddMedicineToAppointmentController> {
   final List<MedicineData> ll;
@@ -28,7 +29,7 @@ class MedicinseScreen extends GetView<AddMedicineToAppointmentController> {
       appBar: AppBar(
         flexibleSpace: CustomAppBar(
           title: 'medicine_str'.tr,
-          textStyle: TextStyle(
+          textStyle: CustomTextStyle(
             color: Theme.of(context).colorScheme.background,
             fontSize: 22,
             fontFamily: AppFontStyleTextStrings.medium,
@@ -111,11 +112,11 @@ class MedicinseScreen extends GetView<AddMedicineToAppointmentController> {
                               : const SizedBox(height: 5),
                           CommonTextField1(
                             textInputType: TextInputType.name,
-                            labelStyle: TextStyle(
+                            labelStyle: CustomTextStyle(
                               color: AppColors.BLACK,
                               fontFamily: AppFontStyleTextStrings.regular,
                             ),
-                            mainStyle: TextStyle(
+                            mainStyle: CustomTextStyle(
                               fontSize: 14,
                               fontFamily: AppFontStyleTextStrings.regular,
                             ),
@@ -182,11 +183,11 @@ class MedicinseScreen extends GetView<AddMedicineToAppointmentController> {
                               CommonTextField1(
                                 textInputType: TextInputType.name,
                                 readOnly: true,
-                                labelStyle: TextStyle(
+                                labelStyle: CustomTextStyle(
                                   color: AppColors.BLACK,
                                   fontFamily: AppFontStyleTextStrings.regular,
                                 ),
-                                mainStyle: TextStyle(
+                                mainStyle: CustomTextStyle(
                                   fontSize: 16,
                                   fontFamily: AppFontStyleTextStrings.regular,
                                 ),
@@ -197,11 +198,11 @@ class MedicinseScreen extends GetView<AddMedicineToAppointmentController> {
                               const SizedBox(height: 20),
                               CommonTextField1(
                                 textInputType: TextInputType.number,
-                                labelStyle: TextStyle(
+                                labelStyle: CustomTextStyle(
                                   color: AppColors.BLACK,
                                   fontFamily: AppFontStyleTextStrings.regular,
                                 ),
-                                mainStyle: TextStyle(
+                                mainStyle: CustomTextStyle(
                                   fontSize: 16,
                                   fontFamily: AppFontStyleTextStrings.regular,
                                 ),
@@ -278,7 +279,7 @@ class MedicinseScreen extends GetView<AddMedicineToAppointmentController> {
                                                         .split(" ")
                                                         .first
                                                   : "0${controller.items[j].split(" ").first}",
-                                              style: TextStyle(
+                                              style: CustomTextStyle(
                                                 fontSize: 16,
                                                 fontFamily:
                                                     controller
@@ -314,7 +315,7 @@ class MedicinseScreen extends GetView<AddMedicineToAppointmentController> {
                                               controller.items[j]
                                                   .split(" ")
                                                   .last,
-                                              style: TextStyle(
+                                              style: CustomTextStyle(
                                                 fontSize: 16,
                                                 fontFamily:
                                                     controller
@@ -457,9 +458,12 @@ class MedicinseScreen extends GetView<AddMedicineToAppointmentController> {
                                               AppTextWidgets.regularText(
                                                 text: DateFormat.jm().format(
                                                   DateTime(
-                                                    DateTime.now().year,
-                                                    DateTime.now().month,
-                                                    DateTime.now().day,
+                                                    TimezoneService.getCurrentMauritaniaTime()
+                                                        .year,
+                                                    TimezoneService.getCurrentMauritaniaTime()
+                                                        .month,
+                                                    TimezoneService.getCurrentMauritaniaTime()
+                                                        .day,
                                                     controller
                                                         .timeList[i][index]
                                                         .hour,

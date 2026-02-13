@@ -4,6 +4,7 @@ import 'package:videocalling/features/doctor/availability/models/holiday_model.d
 import 'package:videocalling/features/doctor/profile/models/doctor_profile_details_model.dart';
 import 'package:videocalling/features/doctor/profile/models/doctor_schdule_details_model.dart';
 import 'package:videocalling/features/patient/doctors/models/doctor_detail_model.dart';
+import 'package:videocalling/shared/services/others/timezone_service.dart';
 
 class DoctorProfileController extends GetxController {
   FirebaseHelper firebaseHelper = FirebaseHelper();
@@ -97,7 +98,9 @@ class DoctorProfileController extends GetxController {
         'bio': aboutUsController.text,
         'years_of_exp': int.tryParse(yearsOfExpController.text) ?? 0,
         'avg_session_time': int.tryParse(avgSessionTimeController.text) ?? 30,
-        'updated_at': DateTime.now().toIso8601String(),
+        'timezone_offset_hours': DateTime.now().timeZoneOffset.inHours,
+        'updated_at': TimezoneService.getCurrentMauritaniaTime()
+            .toIso8601String(),
       };
 
       // Only update image URL if a new image was uploaded
@@ -162,7 +165,7 @@ class DoctorProfileController extends GetxController {
   Future<String> _uploadImageToSupabase(File imageFile) async {
     try {
       final fileName =
-          '${doctorId.value}_${DateTime.now().millisecondsSinceEpoch}.jpg';
+          '${doctorId.value}_${TimezoneService.getCurrentMauritaniaTime().millisecondsSinceEpoch}.jpg';
       final filePath = 'profiles/doctors/$fileName';
 
       loggerNoStack.i('Uploading file to path: $filePath');
@@ -297,9 +300,16 @@ class DoctorProfileController extends GetxController {
               ? jsonResponse['numb_patients']
               : int.tryParse(jsonResponse['numb_patients']?.toString() ?? '0'),
           consultationFee: jsonResponse['booking_price']?.toString(),
-          totalReview: jsonResponse['number_review'] is int
-              ? jsonResponse['number_review']
-              : int.tryParse(jsonResponse['number_review']?.toString() ?? '0'),
+          totalReview:
+              (jsonResponse['total_reviews'] ?? jsonResponse['number_review'])
+                  is int
+              ? (jsonResponse['total_reviews'] ?? jsonResponse['number_review'])
+              : int.tryParse(
+                  (jsonResponse['total_reviews'] ??
+                              jsonResponse['number_review'])
+                          ?.toString() ??
+                      '0',
+                ),
           avgSessionTime: jsonResponse['avg_session_time'] is int
               ? jsonResponse['avg_session_time']
               : int.tryParse(
@@ -501,7 +511,8 @@ class DoctorProfileController extends GetxController {
       // Insert new specialization
       await supabaseHelper.client.from('specializations').insert({
         'name': specializationName,
-        'created_at': DateTime.now().toIso8601String(),
+        'created_at': TimezoneService.getCurrentMauritaniaTime()
+            .toIso8601String(),
       });
 
       loggerNoStack.i('New specialization added successfully');
@@ -688,7 +699,10 @@ class DoctorProfileController extends GetxController {
                     const SizedBox(height: 8),
                     Text(
                       'profile_photo'.tr,
-                      style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                      style: CustomTextStyle(
+                        fontSize: 14,
+                        color: Colors.grey[600],
+                      ),
                     ),
                   ],
                 ),
@@ -816,7 +830,7 @@ class DoctorProfileController extends GetxController {
                   vertical: 18,
                 ),
                 labelText: 'specialization'.tr,
-                labelStyle: TextStyle(
+                labelStyle: CustomTextStyle(
                   color: isDepartmentError.value
                       ? AppColors.RED700
                       : Colors.grey[600],
@@ -830,7 +844,7 @@ class DoctorProfileController extends GetxController {
               ),
               hint: Text(
                 'select_specialization'.tr,
-                style: TextStyle(color: Colors.grey[600], fontSize: 15),
+                style: CustomTextStyle(color: Colors.grey[600], fontSize: 15),
               ),
               isExpanded: true,
               icon: Icon(
@@ -846,7 +860,7 @@ class DoctorProfileController extends GetxController {
                     value: specialization,
                     child: Text(
                       specialization,
-                      style: const TextStyle(
+                      style: const CustomTextStyle(
                         fontSize: 16,
                         color: Colors.black87,
                       ),
@@ -866,7 +880,7 @@ class DoctorProfileController extends GetxController {
                       const SizedBox(width: 8),
                       Text(
                         'add_new_specialization'.tr,
-                        style: const TextStyle(
+                        style: const CustomTextStyle(
                           fontSize: 16,
                           color: AppColors.color1,
                           fontWeight: FontWeight.w500,
@@ -895,7 +909,7 @@ class DoctorProfileController extends GetxController {
               padding: const EdgeInsets.only(left: 16, top: 8),
               child: Text(
                 'select_specialization_error'.tr,
-                style: TextStyle(color: AppColors.RED700, fontSize: 12),
+                style: CustomTextStyle(color: AppColors.RED700, fontSize: 12),
               ),
             ),
         ],
@@ -974,7 +988,7 @@ class DoctorProfileController extends GetxController {
               ),
               child: Text(
                 'add'.tr,
-                style: const TextStyle(color: Colors.white),
+                style: const CustomTextStyle(color: Colors.white),
               ),
             ),
           ],
@@ -998,26 +1012,26 @@ class DoctorProfileController extends GetxController {
     return TextField(
       controller: controller,
       keyboardType: keyboardType,
-      style: const TextStyle(fontSize: 16, color: Colors.black87),
+      style: const CustomTextStyle(fontSize: 16, color: Colors.black87),
       decoration: InputDecoration(
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
           vertical: 18,
         ),
         labelText: labelText,
-        labelStyle: TextStyle(
+        labelStyle: CustomTextStyle(
           color: hasError ? AppColors.RED700 : Colors.grey[600],
           fontSize: 15,
         ),
         prefixText: prefixText,
-        prefixStyle: const TextStyle(
+        prefixStyle: const CustomTextStyle(
           color: Colors.black87,
           fontWeight: FontWeight.w500,
           fontSize: 16,
         ),
         suffixIcon: suffixIcon,
         errorText: errorText,
-        errorStyle: const TextStyle(fontSize: 12),
+        errorStyle: const CustomTextStyle(fontSize: 12),
         filled: true,
         fillColor: hasError
             ? Colors.red.withOpacity(0.05)
@@ -1064,7 +1078,7 @@ class DoctorProfileController extends GetxController {
     return TextField(
       controller: controller,
       maxLines: maxLines,
-      style: const TextStyle(fontSize: 16, color: Colors.black87),
+      style: const CustomTextStyle(fontSize: 16, color: Colors.black87),
       decoration: InputDecoration(
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
@@ -1072,12 +1086,12 @@ class DoctorProfileController extends GetxController {
         ),
         labelText: labelText,
         alignLabelWithHint: true,
-        labelStyle: TextStyle(
+        labelStyle: CustomTextStyle(
           color: hasError ? AppColors.RED700 : Colors.grey[600],
           fontSize: 15,
         ),
         errorText: errorText,
-        errorStyle: const TextStyle(fontSize: 12),
+        errorStyle: const CustomTextStyle(fontSize: 12),
         filled: true,
         fillColor: hasError
             ? Colors.red.withOpacity(0.05)

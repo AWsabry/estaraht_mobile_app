@@ -1,8 +1,8 @@
+import 'package:http/http.dart' as http;
 import 'package:videocalling/core/config/app_imports.dart';
+import 'package:videocalling/shared/services/others/email_service.dart';
 
 class ForgetPasswordController extends GetxController {
-  FirebaseHelper firebaseHelper = FirebaseHelper();
-
   String id = Get.arguments['id'];
 
   TextEditingController emailTextField = TextEditingController();
@@ -19,32 +19,66 @@ class ForgetPasswordController extends GetxController {
     customDialog1(s1: 'loading'.tr, s2: 'please_wait_while_processing'.tr);
 
     try {
-      // Use Firebase password reset functionality
-      if (kDebugMode) {
-        await EmailService.sendWelcomeEmail(
-          to: emailTextField.text,
-          userName: 'Abbassi',
-          userType: '2',
-        );
-      }
-      final success = await firebaseHelper.sendPasswordResetEmail(
-        emailTextField.text,
-      );
+      // Call backend API for password reset request
+      final response = await http
+          .post(
+            Uri.parse('https://backend.estaraht.com/api/auth/request-reset'),
+            headers: {'Content-Type': 'application/json'},
+            body: json.encode({'email': emailTextField.text}),
+          )
+          .timeout(const Duration(seconds: 20));
 
       Get.back(); // Close loading dialog
 
-      if (success) {
-        messageDialog('success'.tr, 'password_reset_email_sent'.tr, 1);
-        loggerNoStack.i(
-          'Firebase password reset email sent successfully to: ${emailTextField.text}',
-        );
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+
+        if (responseData['success'] == true &&
+            responseData['data'] != null &&
+            responseData['data']['resetLink'] != null) {
+          final data = responseData['data'] as Map<String, dynamic>;
+          final resetLink = data['resetLink'] as String;
+          final userName = (data['userName'] ?? emailTextField.text) as String;
+          final email = emailTextField.text;
+          loggerNoStack.i('Password reset requested successfully for: $email');
+
+          // Send email with hyperlink button containing the reset link
+          final emailSent = await EmailService.sendPasswordResetEmail(
+            to: email,
+            resetLink: resetLink,
+            userName: userName,
+          );
+
+          if (emailSent) {
+            messageDialog('success'.tr, 'check_email_for_reset_link'.tr, 0);
+          } else {
+            // API succeeded but email failed - offer to open reset link directly
+            customDialog2(
+              s1: 'warning'.tr,
+              s2: 'email_send_failed_open_link_instead'.tr,
+              onPressedYes: () {
+                Get.back();
+                Get.toNamed(
+                  '/reset-password-webview',
+                  arguments: {'url': resetLink, 'email': email},
+                );
+              },
+              onPressedNo: () => Get.back(),
+            );
+          }
+        } else {
+          messageDialog('error'.tr, 'failed_to_send_email'.tr, 0);
+          loggerNoStack.e('Invalid response format from backend');
+        }
       } else {
-        messageDialog('error'.tr, 'failed_to_send_email'.tr, 0);
-        loggerNoStack.e('Failed to send Firebase password reset email');
+        final errorData = json.decode(response.body);
+        final errorMessage = errorData['message'] ?? 'failed_to_send_email'.tr;
+        messageDialog('error'.tr, errorMessage, 0);
+        loggerNoStack.e('Backend returned error: ${response.statusCode}');
       }
     } catch (e) {
       Get.back(); // Close loading dialog
-      loggerNoStack.e('Error sending Firebase password reset email: $e');
+      loggerNoStack.e('Error requesting password reset: $e');
       messageDialog('error'.tr, 'failed_to_send_email'.tr, 0);
     }
   }
@@ -69,7 +103,7 @@ class ForgetPasswordController extends GetxController {
           Get.back();
         }
       },
-      s3style: TextStyle(
+      s3style: CustomTextStyle(
         fontFamily: AppFontStyleTextStrings.medium,
         color: AppColors.BLACK,
       ),

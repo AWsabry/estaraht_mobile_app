@@ -1,4 +1,5 @@
 import 'package:clarity_flutter/clarity_flutter.dart';
+import 'package:device_preview/device_preview.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:videocalling/core/config/app_imports.dart';
@@ -53,9 +54,15 @@ void main() async {
       try {
         if (Firebase.apps.isEmpty) {
           if (Platform.isAndroid) {
-            await Firebase.initializeApp(options: DefaultFirebaseOptions.android);
+            await Firebase.initializeApp(
+              options: DefaultFirebaseOptions.android,
+            );
           } else {
-            await Firebase.initializeApp(options: DefaultFirebaseOptions.ios);
+            final app = await Firebase.initializeApp(
+              options: DefaultFirebaseOptions.ios,
+            );
+            print("projectId: ${app.options.projectId}");
+            print("appId: ${app.options.appId}");
           }
         }
       } catch (e) {
@@ -63,7 +70,8 @@ void main() async {
           print('⚠️ Firebase already initialized: $e');
         }
       }
-
+      final app = Firebase.app();
+      print("🔥 projectId = ${app.options.projectId}");
       // Set up FCM background message handler BEFORE other Firebase services
       FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 
@@ -86,7 +94,11 @@ void main() async {
       ]);
 
       // Run your app
-      runApp(ClarityWidget(app: const MyApp(), clarityConfig: config));
+      runApp(
+        kDebugMode
+            ? ClarityWidget(app: const MyApp(), clarityConfig: config)
+            : ClarityWidget(app: const MyApp(), clarityConfig: config),
+      );
     },
     (error, stackTrace) {
       // Catch any errors not caught by Flutter framework

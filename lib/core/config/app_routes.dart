@@ -24,6 +24,8 @@ abstract class Routes {
   static const doctorLoginScreen = _Paths.doctorLoginScreen;
   static const doctorRegisterScreen = _Paths.doctorRegisterScreen;
   static const otpScreen = _Paths.otpScreen;
+  static const underReviewScreen = _Paths.underReviewScreen;
+  static const accountRejectedScreen = _Paths.accountRejectedScreen;
   static const chooseYourPlanScreen = _Paths.chooseYourPlanScreen;
   static const dMyPhotoViewerScreen = _Paths.dMyPhotoViewerScreen;
   static const dChangePasswordScreen = _Paths.dChangePasswordScreen;
@@ -51,6 +53,7 @@ abstract class Routes {
   static const doctorDetailScreen = _Paths.doctorDetailScreen;
   static const doctorReviewScreen = _Paths.doctorReviewScreen;
   static const forgetPasswordScreen = _Paths.forgetPasswordScreen;
+  static const resetPasswordWebViewScreen = _Paths.resetPasswordWebViewScreen;
   static const loginUserScreen = _Paths.loginUserScreen;
   static const makeAppointmentScreen = _Paths.makeAppointmentScreen;
   static const inAppWebViewScreen = _Paths.inAppWebViewScreen;
@@ -93,6 +96,8 @@ abstract class _Paths {
   static const doctorRegisterScreen = '/doctor-register-screen';
   static const doctorLoginScreen = '/doctor-login-screen';
   static const otpScreen = '/otp-screen'; // <-- AJOUTÉ ICI
+  static const underReviewScreen = '/under-review-screen';
+  static const accountRejectedScreen = '/account-rejected-screen';
   static const chooseYourPlanScreen = '/doctor-choose-your-plan-screen';
   static const dMyPhotoViewerScreen = '/doctor-my-photo-viewer-screen';
   static const dChangePasswordScreen = '/doctor-change-password-screen';
@@ -120,6 +125,7 @@ abstract class _Paths {
   static const doctorDetailScreen = '/doctor-detail-screen';
   static const doctorReviewScreen = '/doctor-review-screen';
   static const forgetPasswordScreen = '/forget-password-screen';
+  static const resetPasswordWebViewScreen = '/reset-password-webview';
   static const loginUserScreen = '/login-user-screen';
   static const makeAppointmentScreen = '/make-appointment-screen';
   static const inAppWebViewScreen = '/in-app-web-view-screen';
@@ -136,7 +142,7 @@ abstract class _Paths {
 
   // New: in-demand
   static const indemandDoctorScreen = '/indemand-doctor-screen';
-  
+
   // Session files PDF viewer
   static const sessionPdfViewerScreen = '/session-pdf-viewer';
 }

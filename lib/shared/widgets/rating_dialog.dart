@@ -103,13 +103,13 @@ class _RatingDialogState extends State<RatingDialog> {
           children: [
             Text(
               'rate_your_session'.tr,
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              style: const CustomTextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             Text(
               '${'how_was_your_experience_with'.tr} ${widget.doctorName}?',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+              style: CustomTextStyle(fontSize: 14, color: Colors.grey[600]),
             ),
             const SizedBox(height: 24),
             Row(
@@ -135,7 +135,7 @@ class _RatingDialogState extends State<RatingDialog> {
             const SizedBox(height: 8),
             Text(
               _getRatingText(),
-              style: TextStyle(
+              style: CustomTextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
                 color: _selectedRating > 0 ? AppColors.color1 : Colors.grey,
@@ -169,7 +169,7 @@ class _RatingDialogState extends State<RatingDialog> {
                     onPressed: _isSubmitting ? null : () => Get.back(),
                     child: Text(
                       'skip'.tr,
-                      style: TextStyle(color: Colors.grey[600]),
+                      style: CustomTextStyle(color: Colors.grey[600]),
                     ),
                   ),
                 ),
@@ -195,7 +195,7 @@ class _RatingDialogState extends State<RatingDialog> {
                           )
                         : Text(
                             'submit'.tr,
-                            style: const TextStyle(color: Colors.white),
+                            style: const CustomTextStyle(color: Colors.white),
                           ),
                   ),
                 ),

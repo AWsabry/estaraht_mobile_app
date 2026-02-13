@@ -16,7 +16,7 @@ class SearchMedicineScreen extends GetView<SearchMedicineController> {
       appBar: AppBar(
         flexibleSpace: CustomAppBar(
           title: 'add_prescription'.tr,
-          textStyle: TextStyle(
+          textStyle: CustomTextStyle(
             color: Theme.of(context).colorScheme.background,
             fontSize: 22,
             fontFamily: AppFontStyleTextStrings.medium,
@@ -37,7 +37,7 @@ class SearchMedicineScreen extends GetView<SearchMedicineController> {
                   SizedBox(
                     height: 52,
                     child: TextField(
-                      style: TextStyle(
+                      style: CustomTextStyle(
                         height: 1.25,
                         fontSize: 15,
                         fontFamily: AppFontStyleTextStrings.medium,
@@ -68,7 +68,7 @@ class SearchMedicineScreen extends GetView<SearchMedicineController> {
                         fillColor: Theme.of(context).colorScheme.background,
                         filled: true,
                         labelText: 'search_medicine_hint'.tr,
-                        labelStyle: TextStyle(
+                        labelStyle: CustomTextStyle(
                           fontFamily: AppFontStyleTextStrings.regular,
                         ),
                         border: OutlineInputBorder(
@@ -198,7 +198,7 @@ class SearchMedicineScreen extends GetView<SearchMedicineController> {
                                                             .name ??
                                                         "",
                                                     maxLines: 1,
-                                                    style: TextStyle(
+                                                    style: CustomTextStyle(
                                                       fontSize: 16,
                                                       fontFamily:
                                                           AppFontStyleTextStrings
@@ -214,7 +214,7 @@ class SearchMedicineScreen extends GetView<SearchMedicineController> {
                                                             .description ??
                                                         "",
                                                     maxLines: 2,
-                                                    style: TextStyle(
+                                                    style: CustomTextStyle(
                                                       fontFamily:
                                                           AppFontStyleTextStrings
                                                               .regular,
@@ -329,7 +329,7 @@ class SearchMedicineScreen extends GetView<SearchMedicineController> {
                                                       .name ??
                                                   "",
                                               maxLines: 1,
-                                              style: TextStyle(
+                                              style: CustomTextStyle(
                                                 fontSize: 16,
                                                 fontFamily:
                                                     AppFontStyleTextStrings
@@ -345,7 +345,7 @@ class SearchMedicineScreen extends GetView<SearchMedicineController> {
                                                       .description ??
                                                   "",
                                               maxLines: 2,
-                                              style: TextStyle(
+                                              style: CustomTextStyle(
                                                 fontFamily:
                                                     AppFontStyleTextStrings
                                                         .regular,
@@ -538,7 +538,7 @@ class SearchMedicineScreen extends GetView<SearchMedicineController> {
                                         ? 'add_new_medicine'.tr
                                         : 'add_medicine'.tr,
                                     maxLines: 1,
-                                    style: TextStyle(
+                                    style: CustomTextStyle(
                                       fontFamily:
                                           AppFontStyleTextStrings.regular,
                                       color: AppColors.WHITE,

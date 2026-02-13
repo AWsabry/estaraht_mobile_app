@@ -1,4 +1,5 @@
 import 'package:videocalling/core/config/app_imports.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class PatientMoreScreenController extends GetxController {
   @override
@@ -55,5 +56,33 @@ class PatientMoreScreenController extends GetxController {
     currentLanguage.value = box.read('language') ?? 'en';
 
     isLoaded.value = true;
+  }
+
+  /// Launch WhatsApp customer service
+  Future<void> launchWhatsApp() async {
+    const whatsappUrl = 'https://api.whatsapp.com/send/?phone=22243247745&text&type=phone_number&app_absent=0';
+    
+    try {
+      final uri = Uri.parse(whatsappUrl);
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        Get.snackbar(
+          'error'.tr,
+          'cannot_open_whatsapp_app'.tr,
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+      }
+    } catch (e) {
+      Get.snackbar(
+        'error'.tr,
+        'cannot_open_whatsapp_app'.tr,
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    }
   }
 }

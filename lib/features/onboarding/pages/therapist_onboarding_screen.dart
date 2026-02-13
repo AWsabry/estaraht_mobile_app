@@ -36,7 +36,7 @@ class TherapistOnboardingScreen extends StatelessWidget {
                     RichText(
                       textAlign: TextAlign.center,
                       text: TextSpan(
-                        style: TextStyle(
+                        style: CustomTextStyle(
                           fontSize: 28,
                           color: Colors.black,
                           fontFamily: isArabic ? 'NotoKufiArabic' : 'Roboto',
@@ -44,11 +44,11 @@ class TherapistOnboardingScreen extends StatelessWidget {
                         children: [
                           TextSpan(
                             text: "${"help_your_patients".tr} ",
-                            style: const TextStyle(fontWeight: FontWeight.w400),
+                            style: const CustomTextStyle(fontWeight: FontWeight.w400),
                           ),
                           TextSpan(
                             text: "your_appointments_just".tr,
-                            style: const TextStyle(fontWeight: FontWeight.w700),
+                            style: const CustomTextStyle(fontWeight: FontWeight.w700),
                           ),
                         ],
                       ),
@@ -60,7 +60,7 @@ class TherapistOnboardingScreen extends StatelessWidget {
                     Text(
                       "manage_your_appointments_easily".tr,
                       textAlign: TextAlign.center,
-                      style: TextStyle(
+                      style: CustomTextStyle(
                         fontSize: 16,
                         color: Colors.black,
                         fontWeight: FontWeight.w400,
@@ -91,7 +91,7 @@ class TherapistOnboardingScreen extends StatelessWidget {
                         ),
                         child: Text(
                           "login".tr,
-                          style: TextStyle(
+                          style: CustomTextStyle(
                             color: Colors.black,
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
@@ -123,7 +123,7 @@ class TherapistOnboardingScreen extends StatelessWidget {
                         ),
                         child: Text(
                           "sign_up".tr,
-                          style: TextStyle(
+                          style: CustomTextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                             fontFamily: isArabic ? 'NotoKufiArabic' : 'Roboto',

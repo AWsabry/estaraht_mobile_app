@@ -91,7 +91,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen>
                   Text(
                     'welcome_back'.tr,
                     textAlign: TextAlign.center,
-                    style: TextStyle(
+                    style: CustomTextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.w700,
                       color: Colors.white,
@@ -104,7 +104,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen>
                   Text(
                     'select_your_role'.tr,
                     textAlign: TextAlign.center,
-                    style: TextStyle(
+                    style: CustomTextStyle(
                       fontSize: 12.sp,
                       fontWeight: FontWeight.w500,
                       color: Colors.grey.shade300,
@@ -116,37 +116,40 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen>
                   // Role selection buttons
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Column(
-                      children: [
-                        // Therapist button
-                        AnimatedOpacity(
-                          opacity: 1.0,
-                          duration: const Duration(milliseconds: 800),
-                          child: _buildRoleButton(
-                            title: 'therapist'.tr,
-                            subtitle: 'help_your_patients'.tr,
-                            icon: Icons.medical_services_outlined,
-                            onPressed: _navigateToTherapist,
-                            isPrimary: true,
-                            isArabic: isArabic,
+                    child: IntrinsicHeight(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          // Therapist button
+                          AnimatedOpacity(
+                            opacity: 1.0,
+                            duration: const Duration(milliseconds: 800),
+                            child: _buildRoleButton(
+                              title: 'therapist'.tr,
+                              subtitle: 'help_your_patients'.tr,
+                              icon: Icons.medical_services_outlined,
+                              onPressed: _navigateToTherapist,
+                              isPrimary: true,
+                              isArabic: isArabic,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 20),
+                          const SizedBox(height: 20),
 
-                        // Patient button
-                        AnimatedOpacity(
-                          opacity: 1.0,
-                          duration: const Duration(milliseconds: 1000),
-                          child: _buildRoleButton(
-                            title: 'seeking_support'.tr,
-                            subtitle: 'connect_with_your_doctor'.tr,
-                            icon: Icons.person_outline,
-                            onPressed: _navigateToPatient,
-                            isPrimary: false,
-                            isArabic: isArabic,
+                          // Patient button
+                          AnimatedOpacity(
+                            opacity: 1.0,
+                            duration: const Duration(milliseconds: 1000),
+                            child: _buildRoleButton(
+                              title: 'seeking_support'.tr,
+                              subtitle: 'connect_with_your_doctor'.tr,
+                              icon: Icons.person_outline,
+                              onPressed: _navigateToPatient,
+                              isPrimary: false,
+                              isArabic: isArabic,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                   const Spacer(flex: 2),
@@ -208,7 +211,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen>
                   children: [
                     Text(
                       title,
-                      style: TextStyle(
+                      style: CustomTextStyle(
                         fontSize: 16.sp,
                         fontWeight: FontWeight.w600,
                         color: isPrimary
@@ -220,7 +223,7 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen>
                     const SizedBox(height: 4),
                     Text(
                       subtitle,
-                      style: TextStyle(
+                      style: CustomTextStyle(
                         fontSize: 13.sp,
                         fontWeight: FontWeight.w400,
                         color: isPrimary

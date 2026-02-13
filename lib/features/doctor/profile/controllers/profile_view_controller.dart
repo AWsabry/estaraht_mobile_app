@@ -57,9 +57,16 @@ class DoctorProfileViewController extends GetxController {
               ? jsonResponse['numb_patients']
               : int.tryParse(jsonResponse['numb_patients']?.toString() ?? '0'),
           consultationFee: jsonResponse['booking_price']?.toString(),
-          totalReview: jsonResponse['number_review'] is int
-              ? jsonResponse['number_review']
-              : int.tryParse(jsonResponse['number_review']?.toString() ?? '0'),
+          totalReview:
+              (jsonResponse['total_reviews'] ?? jsonResponse['number_review'])
+                  is int
+              ? (jsonResponse['total_reviews'] ?? jsonResponse['number_review'])
+              : int.tryParse(
+                  (jsonResponse['total_reviews'] ??
+                              jsonResponse['number_review'])
+                          ?.toString() ??
+                      '0',
+                ),
           specializations:
               (jsonResponse['specialization'] != null &&
                   jsonResponse['specialization'].toString().isNotEmpty)

@@ -1,4 +1,21 @@
 import 'package:videocalling/core/config/app_imports.dart';
+import 'package:videocalling/shared/services/others/timezone_service.dart';
+
+/// Parse chat timestamp (stored in UTC) for display in viewer's local timezone.
+DateTime? _parseChatTime(String? timeStr) {
+  if (timeStr == null || timeStr.isEmpty) return null;
+  final s = timeStr.toString().trim();
+  final toParse = s.endsWith('Z') || RegExp(r'[+-]\d{2}:?\d{2}$').hasMatch(s)
+      ? s
+      : '${s}Z';
+  return DateTime.tryParse(toParse);
+}
+
+/// Format message time in viewer's device local timezone (e.g. "04:30 PM").
+String _formatMessageTime(String? timeStr) {
+  final dt = _parseChatTime(timeStr)?.toLocal();
+  return dt != null ? DateFormat('hh:mm a').format(dt) : '';
+}
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
@@ -51,7 +68,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
           elevation: 0,
           title: Text(
             'chat'.tr,
-            style: TextStyle(
+            style: CustomTextStyle(
               color: Colors.black,
               fontSize: 16,
               fontWeight: FontWeight.w600,
@@ -159,26 +176,38 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                                         ? index + 1
                                         : snapshot.data!.docs.length - 1;
 
-                                    int daysDifferenceForTitle = DateTime.now()
-                                        .difference(
-                                          DateTime.parse(
-                                            "${snapshot.data!.docs[index]['time']}Z",
-                                          ).toLocal(),
-                                        )
-                                        .inDays;
+                                    final timeStr =
+                                        snapshot.data!.docs[index]['time']
+                                            ?.toString() ??
+                                        '';
+                                    final msgTimeLocal = _parseChatTime(
+                                      timeStr,
+                                    )?.toLocal();
+                                    int daysDifferenceForTitle =
+                                        msgTimeLocal != null
+                                        ? DateTime.now()
+                                              .difference(msgTimeLocal)
+                                              .inDays
+                                        : 0;
                                     if (index ==
                                         snapshot.data!.docs.length - 1) {
                                       chatController.showDate.value = true;
                                     } else {
-                                      DateTime currentDate = DateTime.parse(
-                                        "${snapshot.data!.docs[index]['time']}",
-                                      );
-                                      DateTime nextDate = DateTime.parse(
-                                        "${snapshot.data!.docs[index + 1]['time']}",
-                                      );
-                                      if (currentDate.year != nextDate.year ||
-                                          currentDate.month != nextDate.month ||
-                                          currentDate.day != nextDate.day) {
+                                      final currentDate = _parseChatTime(
+                                        snapshot.data!.docs[index]['time']
+                                            ?.toString(),
+                                      )?.toLocal();
+                                      final nextDate = _parseChatTime(
+                                        snapshot.data!.docs[index + 1]['time']
+                                            ?.toString(),
+                                      )?.toLocal();
+                                      if (currentDate != null &&
+                                          nextDate != null &&
+                                          (currentDate.year != nextDate.year ||
+                                              currentDate.month !=
+                                                  nextDate.month ||
+                                              currentDate.day !=
+                                                  nextDate.day)) {
                                         chatController.showDate.value = true;
                                       } else {
                                         chatController.showDate.value = false;
@@ -189,7 +218,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                                         ? "chat_title_today".tr
                                         : daysDifferenceForTitle == 1
                                         ? "chat_title_yesterday".tr
-                                        : "${DateTime.now().add(Duration(days: -daysDifferenceForTitle)).day - 1}  ${chatController.monthsList[DateTime.now().add(Duration(days: -daysDifferenceForTitle)).month - 1]}, ${DateTime.now().add(Duration(days: -daysDifferenceForTitle)).year}";
+                                        : "${TimezoneService.getCurrentMauritaniaTime().add(Duration(days: -daysDifferenceForTitle)).day - 1}  ${chatController.monthsList[TimezoneService.getCurrentMauritaniaTime().add(Duration(days: -daysDifferenceForTitle)).month - 1]}, ${TimezoneService.getCurrentMauritaniaTime().add(Duration(days: -daysDifferenceForTitle)).year}";
 
                                     return Padding(
                                       padding: const EdgeInsets.fromLTRB(
@@ -260,17 +289,12 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                                                                 0,
                                                               ),
                                                           child: AppTextWidgets.regularText(
-                                                            text:
-                                                                DateFormat(
-                                                                  'hh:mm a',
-                                                                ).format(
-                                                                  DateTime.parse(
-                                                                    snapshot
-                                                                        .data!
-                                                                        .docs[index]['time']
-                                                                        .toString(),
-                                                                  ),
-                                                                ),
+                                                            text: _formatMessageTime(
+                                                              snapshot
+                                                                  .data!
+                                                                  .docs[index]['time']
+                                                                  .toString(),
+                                                            ),
                                                             color:
                                                                 AppColors.grey,
                                                             size: 10,
@@ -283,29 +307,21 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                                                                     .data!
                                                                     .docs[index +
                                                                     1]['uid'] &&
-                                                            (DateTime.parse(
+                                                            ((_parseChatTime(
                                                                           snapshot
                                                                               .data!
                                                                               .docs[index]['time']
                                                                               .toString(),
-                                                                        )
-                                                                        .add(
-                                                                          DateTime.now()
-                                                                              .timeZoneOffset,
-                                                                        )
-                                                                        .minute -
-                                                                    DateTime.parse(
+                                                                        )?.toLocal().minute ??
+                                                                        0) -
+                                                                    (_parseChatTime(
                                                                           snapshot
                                                                               .data!
                                                                               .docs[index +
                                                                                   1]['time']
                                                                               .toString(),
-                                                                        )
-                                                                        .add(
-                                                                          DateTime.now()
-                                                                              .timeZoneOffset,
-                                                                        )
-                                                                        .minute) ==
+                                                                        )?.toLocal().minute ??
+                                                                        0)) ==
                                                                 0
                                                       ? Container()
                                                       : Padding(
@@ -317,17 +333,12 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                                                                 0,
                                                               ),
                                                           child: AppTextWidgets.regularText(
-                                                            text:
-                                                                DateFormat(
-                                                                  'hh:mm a',
-                                                                ).format(
-                                                                  DateTime.parse(
-                                                                    snapshot
-                                                                        .data!
-                                                                        .docs[index]['time']
-                                                                        .toString(),
-                                                                  ),
-                                                                ),
+                                                            text: _formatMessageTime(
+                                                              snapshot
+                                                                  .data!
+                                                                  .docs[index]['time']
+                                                                  .toString(),
+                                                            ),
                                                             color:
                                                                 AppColors.grey,
                                                             size: 10,
@@ -346,15 +357,24 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                                                 ? CrossAxisAlignment.end
                                                 : CrossAxisAlignment.start,
                                             children: [
-                                              if (snapshot.data!.docs[index]['uid'] != chatController.myUid.value)
+                                              if (snapshot
+                                                      .data!
+                                                      .docs[index]['uid'] !=
+                                                  chatController.myUid.value)
                                                 Padding(
-                                                  padding: const EdgeInsets.only(left: 8, bottom: 4),
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                        left: 8,
+                                                        bottom: 4,
+                                                      ),
                                                   child: Text(
                                                     chatController.userName,
-                                                    style: TextStyle(
+                                                    style: CustomTextStyle(
                                                       fontSize: 12,
                                                       color: AppColors.grey,
-                                                      fontFamily: AppFontStyleTextStrings.medium,
+                                                      fontFamily:
+                                                          AppFontStyleTextStrings
+                                                              .medium,
                                                     ),
                                                   ),
                                                 ),
@@ -363,7 +383,9 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                                                     snapshot
                                                             .data!
                                                             .docs[index]['uid'] ==
-                                                        chatController.myUid.value
+                                                        chatController
+                                                            .myUid
+                                                            .value
                                                     ? MainAxisAlignment.end
                                                     : MainAxisAlignment.start,
                                                 children: [
@@ -375,144 +397,155 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                                                           ).size.width -
                                                           120,
                                                     ),
-                                                decoration: BoxDecoration(
-                                                  borderRadius:
-                                                      k >=
+                                                    decoration: BoxDecoration(
+                                                      borderRadius:
+                                                          k >=
+                                                              snapshot
+                                                                  .data!
+                                                                  .docs
+                                                                  .length
+                                                          ? BorderRadius.circular(
+                                                              10,
+                                                            )
+                                                          : BorderRadius.only(
+                                                              topRight:
+                                                                  snapshot
+                                                                          .data!
+                                                                          .docs[index]['uid'] ==
+                                                                      chatController
+                                                                          .myUid
+                                                                          .value
+                                                                  ? chatController.lastMessageUid.value ==
+                                                                                snapshot.data!.docs[k]['uid'] &&
+                                                                            ((_parseChatTime(
+                                                                                          snapshot.data!.docs[index]['time'].toString(),
+                                                                                        )?.toLocal().minute ??
+                                                                                        0) -
+                                                                                    (_parseChatTime(
+                                                                                          snapshot.data!.docs[k]['time'].toString(),
+                                                                                        )?.toLocal().minute ??
+                                                                                        0)) ==
+                                                                                0
+                                                                        ? const Radius.circular(
+                                                                            5,
+                                                                          )
+                                                                        : const Radius.circular(0)
+                                                                  : const Radius.circular(
+                                                                      15,
+                                                                    ),
+                                                              bottomRight:
+                                                                  snapshot
+                                                                          .data!
+                                                                          .docs[index]['uid'] ==
+                                                                      chatController
+                                                                          .myUid
+                                                                          .value
+                                                                  ? const Radius.circular(
+                                                                      5,
+                                                                    )
+                                                                  : const Radius.circular(
+                                                                      10,
+                                                                    ),
+                                                              bottomLeft:
+                                                                  snapshot
+                                                                          .data!
+                                                                          .docs[index]['uid'] ==
+                                                                      chatController
+                                                                          .myUid
+                                                                          .value
+                                                                  ? const Radius.circular(
+                                                                      10,
+                                                                    )
+                                                                  : const Radius.circular(
+                                                                      5,
+                                                                    ),
+                                                              topLeft:
+                                                                  snapshot
+                                                                          .data!
+                                                                          .docs[index]['uid'] !=
+                                                                      chatController
+                                                                          .myUid
+                                                                          .value
+                                                                  ? chatController.lastMessageUid.value ==
+                                                                                snapshot.data!.docs[k]['uid'] &&
+                                                                            ((_parseChatTime(
+                                                                                          snapshot.data!.docs[index]['time'].toString(),
+                                                                                        )?.toLocal().minute ??
+                                                                                        0) -
+                                                                                    (_parseChatTime(
+                                                                                          snapshot.data!.docs[k]['time'].toString(),
+                                                                                        )?.toLocal().minute ??
+                                                                                        0)) ==
+                                                                                0
+                                                                        ? const Radius.circular(
+                                                                            5,
+                                                                          )
+                                                                        : const Radius.circular(0)
+                                                                  : const Radius.circular(
+                                                                      15,
+                                                                    ),
+                                                            ),
+                                                      color:
                                                           snapshot
-                                                              .data!
-                                                              .docs
-                                                              .length
-                                                      ? BorderRadius.circular(
-                                                          10,
-                                                        )
-                                                      : BorderRadius.only(
-                                                          topRight:
-                                                              snapshot
-                                                                      .data!
-                                                                      .docs[index]['uid'] ==
-                                                                  chatController
-                                                                      .myUid
-                                                                      .value
-                                                              ? chatController.lastMessageUid.value ==
-                                                                            snapshot.data!.docs[k]['uid'] &&
-                                                                        (DateTime.parse(
-                                                                                  snapshot.data!.docs[index]['time'].toString(),
-                                                                                ).toLocal().minute -
-                                                                                DateTime.parse(
-                                                                                  snapshot.data!.docs[index]['time'].toString(),
-                                                                                ).toLocal().minute) ==
-                                                                            0
-                                                                    ? const Radius.circular(
-                                                                        5,
-                                                                      )
-                                                                    : const Radius.circular(0)
-                                                              : const Radius.circular(
-                                                                  15,
-                                                                ),
-                                                          bottomRight:
-                                                              snapshot
-                                                                      .data!
-                                                                      .docs[index]['uid'] ==
-                                                                  chatController
-                                                                      .myUid
-                                                                      .value
-                                                              ? const Radius.circular(
-                                                                  5,
+                                                                  .data!
+                                                                  .docs[index]['uid'] ==
+                                                              chatController
+                                                                  .myUid
+                                                                  .value
+                                                          ? Theme.of(context)
+                                                                .primaryColor
+                                                                .withOpacity(
+                                                                  0.8,
                                                                 )
-                                                              : const Radius.circular(
-                                                                  10,
-                                                                ),
-                                                          bottomLeft:
-                                                              snapshot
-                                                                      .data!
-                                                                      .docs[index]['uid'] ==
-                                                                  chatController
-                                                                      .myUid
-                                                                      .value
-                                                              ? const Radius.circular(
-                                                                  10,
-                                                                )
-                                                              : const Radius.circular(
-                                                                  5,
-                                                                ),
-                                                          topLeft:
-                                                              snapshot
-                                                                      .data!
-                                                                      .docs[index]['uid'] !=
-                                                                  chatController
-                                                                      .myUid
-                                                                      .value
-                                                              ? chatController.lastMessageUid.value ==
-                                                                            snapshot.data!.docs[k]['uid'] &&
-                                                                        (DateTime.parse(
-                                                                                  snapshot.data!.docs[index]['time'].toString(),
-                                                                                ).toLocal().minute -
-                                                                                DateTime.parse(
-                                                                                  snapshot.data!.docs[index]['time'].toString(),
-                                                                                ).toLocal().minute) ==
-                                                                            0
-                                                                    ? const Radius.circular(
-                                                                        5,
-                                                                      )
-                                                                    : const Radius.circular(0)
-                                                              : const Radius.circular(
-                                                                  15,
-                                                                ),
-                                                        ),
-                                                  color:
-                                                      snapshot
-                                                              .data!
-                                                              .docs[index]['uid'] ==
-                                                          chatController
-                                                              .myUid
-                                                              .value
-                                                      ? Theme.of(context)
-                                                            .primaryColor
-                                                            .withOpacity(0.8)
-                                                      : AppColors
-                                                            .LIGHT_GREY_SCREEN_BACKGROUND,
-                                                  gradient:
-                                                      snapshot
-                                                              .data!
-                                                              .docs[index]['uid'] ==
-                                                          chatController
-                                                              .myUid
-                                                              .value
-                                                      ? const LinearGradient(
-                                                          colors: [
-                                                            AppColors.color1,
-                                                            AppColors.color1,
-                                                          ],
-                                                          stops: [0.3, 1],
-                                                          begin: Alignment
-                                                              .centerLeft,
-                                                          end: Alignment
-                                                              .centerRight,
-                                                        )
-                                                      : null,
-                                                ),
-                                                padding:
-                                                    snapshot
-                                                            .data!
-                                                            .docs[index]['type'] ==
-                                                        "text"
-                                                    ? const EdgeInsets.all(10)
-                                                    : const EdgeInsets.all(4),
-                                                child: InkWell(
-                                                  onLongPress: () {
-                                                    if (snapshot
-                                                                .data!
-                                                                .docs[index]['type'] !=
-                                                            "task" &&
+                                                          : AppColors
+                                                                .LIGHT_GREY_SCREEN_BACKGROUND,
+                                                      gradient:
+                                                          snapshot
+                                                                  .data!
+                                                                  .docs[index]['uid'] ==
+                                                              chatController
+                                                                  .myUid
+                                                                  .value
+                                                          ? const LinearGradient(
+                                                              colors: [
+                                                                AppColors
+                                                                    .color1,
+                                                                AppColors
+                                                                    .color1,
+                                                              ],
+                                                              stops: [0.3, 1],
+                                                              begin: Alignment
+                                                                  .centerLeft,
+                                                              end: Alignment
+                                                                  .centerRight,
+                                                            )
+                                                          : null,
+                                                    ),
+                                                    padding:
                                                         snapshot
                                                                 .data!
-                                                                .docs[index]['uid'] ==
-                                                            chatController
-                                                                .myUid
-                                                                .value) {
-                                                      unSendMessageDialog(
-                                                        onTap: () =>
-                                                            chatController
+                                                                .docs[index]['type'] ==
+                                                            "text"
+                                                        ? const EdgeInsets.all(
+                                                            10,
+                                                          )
+                                                        : const EdgeInsets.all(
+                                                            4,
+                                                          ),
+                                                    child: InkWell(
+                                                      onLongPress: () {
+                                                        if (snapshot
+                                                                    .data!
+                                                                    .docs[index]['type'] !=
+                                                                "task" &&
+                                                            snapshot
+                                                                    .data!
+                                                                    .docs[index]['uid'] ==
+                                                                chatController
+                                                                    .myUid
+                                                                    .value) {
+                                                          unSendMessageDialog(
+                                                            onTap: () => chatController
                                                                 .unSendMessage(
                                                                   snapshot
                                                                       .data!
@@ -525,11 +558,10 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                                                                       .length,
                                                                   snapshot,
                                                                 ),
-                                                      );
-                                                    }
-                                                  },
-                                                  child: chatController
-                                                      .typeToWidget(
+                                                          );
+                                                        }
+                                                      },
+                                                      child: chatController.typeToWidget(
                                                         message: snapshot
                                                             .data!
                                                             .docs[index]['msg'],
@@ -540,8 +572,8 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                                                             .data!
                                                             .docs[index]['uid'],
                                                       ),
-                                                ),
-                                              ),
+                                                    ),
+                                                  ),
                                                 ],
                                               ),
                                             ],
@@ -619,16 +651,34 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                               padding: const EdgeInsets.all(8.0),
                               child: Row(
                                 children: [
-                                  ClipRRect(
-                                    // ignore: sort_child_properties_last
-                                    child: Image.memory(
-                                      chatController.fileThumbnail!,
-                                      height: 30,
-                                      width: 30,
-                                      fit: BoxFit.cover,
-                                    ),
-                                    borderRadius: BorderRadius.circular(5),
-                                  ),
+                                  chatController.fileThumbnail != null
+                                      ? ClipRRect(
+                                          borderRadius: BorderRadius.circular(
+                                            5,
+                                          ),
+                                          child: Image.memory(
+                                            chatController.fileThumbnail!,
+                                            height: 30,
+                                            width: 30,
+                                            fit: BoxFit.cover,
+                                          ),
+                                        )
+                                      : Container(
+                                          height: 30,
+                                          width: 30,
+                                          decoration: BoxDecoration(
+                                            color: AppColors.themeColor3
+                                                .withOpacity(0.2),
+                                            borderRadius: BorderRadius.circular(
+                                              5,
+                                            ),
+                                          ),
+                                          child: Icon(
+                                            Icons.insert_drive_file,
+                                            size: 20,
+                                            color: AppColors.themeColor3,
+                                          ),
+                                        ),
                                   const SizedBox(width: 10),
                                   Expanded(
                                     child: Column(
@@ -640,11 +690,8 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                                           color: AppColors.themeColor3,
                                         ),
                                         const SizedBox(height: 5),
-                                        LinearProgressIndicator(
+                                        const LinearProgressIndicator(
                                           minHeight: 2,
-                                          value: chatController
-                                              .uploadingProgress
-                                              .value,
                                         ),
                                       ],
                                     ),

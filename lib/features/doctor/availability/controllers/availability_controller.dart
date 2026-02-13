@@ -88,7 +88,7 @@ class DAvailabilityManagementController extends GetxController {
         final availability = AvailabilityModel.fromJson(item);
         availabilities.add(availability);
 
-        // Populate selected slots
+        // Populate selected slots: DB and UI both use 1=Mon,...,7=Sun
         selectedSlots[availability.dayNumber]?.value = List<String>.from(
           availability.timeSlots,
         );
@@ -141,6 +141,7 @@ class DAvailabilityManagementController extends GetxController {
       for (int dayNumber = 1; dayNumber <= 7; dayNumber++) {
         final slots = selectedSlots[dayNumber]?.toList() ?? [];
         if (slots.isNotEmpty) {
+          // DB format: 1=Monday, ..., 7=Sunday (same as UI)
           dataToInsert.add({
             'doctor_id': doctorId,
             'day_number': dayNumber,

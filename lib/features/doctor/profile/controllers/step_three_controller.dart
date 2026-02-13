@@ -1,4 +1,5 @@
 import 'package:videocalling/core/config/app_imports.dart';
+import 'package:videocalling/shared/services/others/timezone_service.dart';
 import 'package:videocalling/features/doctor/profile/models/doctor_profile_details_model.dart';
 import 'package:videocalling/features/doctor/profile/models/doctor_slot_details_model.dart';
 
@@ -406,7 +407,7 @@ class StepThreeDetailsController extends GetxController {
   RxList<dynamic> selectedvValue = <dynamic>[].obs;
   RxList<String> startTime = <String>[].obs;
   RxList<String> endTime = <String>[].obs;
-  DateTime dateTime = DateTime.now();
+  DateTime dateTime = TimezoneService.getCurrentMauritaniaTime();
 
   RxList<RxList<Getslotls>> slotsList = <RxList<Getslotls>>[].obs;
   RxList<TextEditingController> textEditingControllerStartTime =

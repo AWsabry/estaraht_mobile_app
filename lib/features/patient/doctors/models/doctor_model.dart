@@ -60,15 +60,15 @@ class DoctorModel {
           ? json['booking_price']
           : double.tryParse(json['booking_price']?.toString() ?? '0'),
       fcmToken: json['fcm_token']?.toString(),
-      avgRating: json['avg_rating'] is double
-          ? json['avg_rating']
-          : double.tryParse(json['avg_rating']?.toString() ?? '0'),
+      avgRating: (json['average_rating'] ?? json['avg_rating']) is double
+          ? (json['average_rating'] ?? json['avg_rating'])
+          : double.tryParse((json['average_rating'] ?? json['avg_rating'])?.toString() ?? '0'),
       numbSession: json['numb_session'] is int
           ? json['numb_session']
           : int.tryParse(json['numb_session']?.toString() ?? '0'),
-      numberReview: json['number_review'] is int
-          ? json['number_review']
-          : int.tryParse(json['number_review']?.toString() ?? '0'),
+      numberReview: (json['total_reviews'] ?? json['number_review']) is int
+          ? (json['total_reviews'] ?? json['number_review'])
+          : int.tryParse((json['total_reviews'] ?? json['number_review'])?.toString() ?? '0'),
       updatedAt: json['updated_at']?.toString(),
     );
   }

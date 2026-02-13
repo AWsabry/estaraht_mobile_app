@@ -336,6 +336,58 @@ class EmailService {
         ? 'Connect with patients, manage appointments, and make a difference in people\'s lives.'
         : 'Connect with experienced therapists, book appointments, and start your journey to wellness.';
 
+    final String featuresHtml = userType == 'doctor'
+        ? '''
+                        <div class="feature-item">
+                            <div class="feature-icon">📋</div>
+                            <div class="feature-content">
+                                <h3>Manage Your Practice</h3>
+                                <p>Access your patient list, manage schedules, and session records in one place</p>
+                            </div>
+                        </div>
+                        
+                        <div class="feature-item">
+                            <div class="feature-icon">💬</div>
+                            <div class="feature-content">
+                                <h3>Secure Communication with Patients</h3>
+                                <p>Stay connected with your patients via our privacy-compliant messaging system</p>
+                            </div>
+                        </div>
+                        
+                        <div class="feature-item">
+                            <div class="feature-icon">💰</div>
+                            <div class="feature-content">
+                                <h3>Financial Management</h3>
+                                <p>Track your revenue, manage invoices, and process patient payments easily</p>
+                            </div>
+                        </div>
+        '''
+        : '''
+                        <div class="feature-item">
+                            <div class="feature-icon">📅</div>
+                            <div class="feature-content">
+                                <h3>Book Appointments</h3>
+                                <p>Schedule sessions with experienced therapists at your convenience</p>
+                            </div>
+                        </div>
+                        
+                        <div class="feature-item">
+                            <div class="feature-icon">💬</div>
+                            <div class="feature-content">
+                                <h3>Secure Messaging</h3>
+                                <p>Communicate with your therapist in a safe and private way</p>
+                            </div>
+                        </div>
+                        
+                        <div class="feature-item">
+                            <div class="feature-icon">📋</div>
+                            <div class="feature-content">
+                                <h3>Track Progress</h3>
+                                <p>Monitor your wellness journey and access your medical records</p>
+                            </div>
+                        </div>
+        ''';
+
     return '''
     <!DOCTYPE html>
     <html>
@@ -463,25 +515,6 @@ class EmailService {
                 line-height: 1.6;
                 margin: 0;
             }
-            .cta-section {
-                text-align: center;
-                margin: 40px 0 30px;
-            }
-            .cta-button {
-                display: inline-block;
-                background: linear-gradient(135deg, #204FCF 0%, #667eea 100%);
-                color: white;
-                padding: 16px 40px;
-                text-decoration: none;
-                border-radius: 50px;
-                font-size: 16px;
-                font-weight: 600;
-                box-shadow: 0 4px 15px rgba(32, 79, 207, 0.3);
-                transition: transform 0.2s;
-            }
-            .cta-button:hover {
-                transform: translateY(-2px);
-            }
             .closing {
                 text-align: center;
                 margin-top: 40px;
@@ -559,33 +592,7 @@ class EmailService {
                     <div class="features-section">
                         <div class="features-title">What You Can Do</div>
                         
-                        <div class="feature-item">
-                            <div class="feature-icon">📅</div>
-                            <div class="feature-content">
-                                <h3>Book Appointments</h3>
-                                <p>Schedule sessions with experienced therapists at your convenience</p>
-                            </div>
-                        </div>
-                        
-                        <div class="feature-item">
-                            <div class="feature-icon">💬</div>
-                            <div class="feature-content">
-                                <h3>Secure Messaging</h3>
-                                <p>Communicate with your therapist safely and privately</p>
-                            </div>
-                        </div>
-                        
-                        <div class="feature-item">
-                            <div class="feature-icon">📋</div>
-                            <div class="feature-content">
-                                <h3>Track Progress</h3>
-                                <p>Monitor your wellness journey and access your medical records</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="cta-section">
-                        <a href="#" class="cta-button">Get Started Now</a>
+                        $featuresHtml
                     </div>
 
                     <div class="closing">
@@ -596,11 +603,6 @@ class EmailService {
                 </div>
                 <div class="footer">
                     <p><strong>Estaraht - Your Trusted Therapy Companion</strong></p>
-                    <div class="social-links">
-                        <a href="#">Help Center</a> | 
-                        <a href="#">Contact Support</a> | 
-                        <a href="#">Privacy Policy</a>
-                    </div>
                     <p>&copy; 2025 Estaraht. All rights reserved.</p>
                 </div>
             </div>
@@ -910,25 +912,6 @@ class EmailService {
                 line-height: 1.8;
                 margin-bottom: 30px;
             }
-            .cta-section {
-                text-align: center;
-                margin: 40px 0;
-            }
-            .cta-button {
-                display: inline-block;
-                background: linear-gradient(135deg, #204FCF 0%, #667eea 100%);
-                color: white;
-                padding: 18px 50px;
-                text-decoration: none;
-                border-radius: 50px;
-                font-size: 16px;
-                font-weight: 600;
-                box-shadow: 0 4px 15px rgba(32, 79, 207, 0.3);
-                transition: transform 0.2s;
-            }
-            .cta-button:hover {
-                transform: translateY(-2px);
-            }
             .security-notice {
                 background: #fff4e6;
                 border-left: 4px solid #ffa726;
@@ -987,7 +970,6 @@ class EmailService {
                 .content { padding: 30px 20px; }
                 .header { padding: 40px 20px; }
                 .greeting { font-size: 20px; }
-                .cta-button { padding: 16px 40px; font-size: 14px; }
             }
         </style>
     </head>
@@ -1003,9 +985,8 @@ class EmailService {
                     <p class="message">
                         We received a request to reset your password for your Estaraht account. Click the button below to create a new password.
                     </p>
-                    
-                    <div class="cta-section">
-                        <a href="$resetLink" class="cta-button">Reset Password</a>
+                    <div style="text-align: center; margin: 24px 0;">
+                        <a href="$resetLink" style="display: inline-block; background: linear-gradient(135deg, #204FCF 0%, #667eea 100%); color: white; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-size: 16px; font-weight: 600;">Reset Password</a>
                     </div>
 
                     <div class="security-notice">
@@ -1272,8 +1253,61 @@ class EmailService {
     final sanitizedUserType = userType == 'doctor' ? 'Thérapeute' : 'Patient';
     final userTypeEmoji = userType == 'doctor' ? '👨‍⚕️' : '💙';
     final userTypeDescription = userType == 'doctor'
-        ? 'Connectez-vous avec vos patients, gérez les rendez-vous et faites une différence dans la vie des gens.'
+        ? 'Bienvenue sur votre plateforme professionnelle où vous pouvez fournir des soins de santé mentale de qualité, gérer votre pratique et avoir un impact positif sur la vie des patients.'
         : 'Connectez-vous avec des thérapeutes expérimentés, réservez des rendez-vous et commencez votre parcours vers le bien-être.';
+
+    // Different features for doctors vs patients in French
+    final String featuresHtml = userType == 'doctor'
+        ? '''
+                        <div class="feature-item">
+                            <div class="feature-icon">📋</div>
+                            <div class="feature-content">
+                                <h3>Gérer Votre Pratique</h3>
+                                <p>Accédez à votre liste de patients, gestion des horaires et dossiers de séances en un seul endroit</p>
+                            </div>
+                        </div>
+                        
+                        <div class="feature-item">
+                            <div class="feature-icon">💬</div>
+                            <div class="feature-content">
+                                <h3>Communication Sécurisée avec Patients</h3>
+                                <p>Restez connecté avec vos patients via notre système de messagerie conforme aux normes de confidentialité</p>
+                            </div>
+                        </div>
+                        
+                        <div class="feature-item">
+                            <div class="feature-icon">💰</div>
+                            <div class="feature-content">
+                                <h3>Gestion Financière</h3>
+                                <p>Suivez vos revenus, gérez les factures et traitez les paiements des patients en toute simplicité</p>
+                            </div>
+                        </div>
+        '''
+        : '''
+                        <div class="feature-item">
+                            <div class="feature-icon">📅</div>
+                            <div class="feature-content">
+                                <h3>Réserver des Rendez-vous</h3>
+                                <p>Planifiez des séances avec des thérapeutes expérimentés à votre convenance</p>
+                            </div>
+                        </div>
+                        
+                        <div class="feature-item">
+                            <div class="feature-icon">💬</div>
+                            <div class="feature-content">
+                                <h3>Messagerie Sécurisée</h3>
+                                <p>Communiquez avec votre thérapeute de manière sûre et privée</p>
+                            </div>
+                        </div>
+                        
+                        <div class="feature-item">
+                            <div class="feature-icon">📋</div>
+                            <div class="feature-content">
+                                <h3>Suivre les Progrès</h3>
+                                <p>Surveillez votre parcours de bien-être et accédez à vos dossiers médicaux</p>
+                            </div>
+                        </div>
+        ''';
 
     return '''
     <!DOCTYPE html>
@@ -1402,25 +1436,6 @@ class EmailService {
                 line-height: 1.6;
                 margin: 0;
             }
-            .cta-section {
-                text-align: center;
-                margin: 40px 0 30px;
-            }
-            .cta-button {
-                display: inline-block;
-                background: linear-gradient(135deg, #204FCF 0%, #667eea 100%);
-                color: white;
-                padding: 16px 40px;
-                text-decoration: none;
-                border-radius: 50px;
-                font-size: 16px;
-                font-weight: 600;
-                box-shadow: 0 4px 15px rgba(32, 79, 207, 0.3);
-                transition: transform 0.2s;
-            }
-            .cta-button:hover {
-                transform: translateY(-2px);
-            }
             .closing {
                 text-align: center;
                 margin-top: 40px;
@@ -1498,33 +1513,7 @@ class EmailService {
                     <div class="features-section">
                         <div class="features-title">Ce Que Vous Pouvez Faire</div>
                         
-                        <div class="feature-item">
-                            <div class="feature-icon">📅</div>
-                            <div class="feature-content">
-                                <h3>Réserver des Rendez-vous</h3>
-                                <p>Planifiez des séances avec des thérapeutes expérimentés à votre convenance</p>
-                            </div>
-                        </div>
-                        
-                        <div class="feature-item">
-                            <div class="feature-icon">💬</div>
-                            <div class="feature-content">
-                                <h3>Messagerie Sécurisée</h3>
-                                <p>Communiquez avec votre thérapeute de manière sûre et privée</p>
-                            </div>
-                        </div>
-                        
-                        <div class="feature-item">
-                            <div class="feature-icon">📋</div>
-                            <div class="feature-content">
-                                <h3>Suivre les Progrès</h3>
-                                <p>Surveillez votre parcours de bien-être et accédez à vos dossiers médicaux</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="cta-section">
-                        <a href="#" class="cta-button">Commencer Maintenant</a>
+                        $featuresHtml
                     </div>
 
                     <div class="closing">
@@ -1535,11 +1524,6 @@ class EmailService {
                 </div>
                 <div class="footer">
                     <p><strong>Estaraht - Votre Compagnon de Thérapie de Confiance</strong></p>
-                    <div class="social-links">
-                        <a href="#">Centre d'Aide</a> | 
-                        <a href="#">Contacter le Support</a> | 
-                        <a href="#">Politique de Confidentialité</a>
-                    </div>
                     <p>&copy; 2025 Estaraht. Tous droits réservés.</p>
                 </div>
             </div>
@@ -1849,25 +1833,6 @@ class EmailService {
                 line-height: 1.8;
                 margin-bottom: 30px;
             }
-            .cta-section {
-                text-align: center;
-                margin: 40px 0;
-            }
-            .cta-button {
-                display: inline-block;
-                background: linear-gradient(135deg, #204FCF 0%, #667eea 100%);
-                color: white;
-                padding: 18px 50px;
-                text-decoration: none;
-                border-radius: 50px;
-                font-size: 16px;
-                font-weight: 600;
-                box-shadow: 0 4px 15px rgba(32, 79, 207, 0.3);
-                transition: transform 0.2s;
-            }
-            .cta-button:hover {
-                transform: translateY(-2px);
-            }
             .security-notice {
                 background: #fff4e6;
                 border-left: 4px solid #ffa726;
@@ -1926,7 +1891,6 @@ class EmailService {
                 .content { padding: 30px 20px; }
                 .header { padding: 40px 20px; }
                 .greeting { font-size: 20px; }
-                .cta-button { padding: 16px 40px; font-size: 14px; }
             }
         </style>
     </head>
@@ -1942,9 +1906,8 @@ class EmailService {
                     <p class="message">
                         Nous avons reçu une demande de réinitialisation du mot de passe pour votre compte Estaraht. Cliquez sur le bouton ci-dessous pour créer un nouveau mot de passe.
                     </p>
-                    
-                    <div class="cta-section">
-                        <a href="$resetLink" class="cta-button">Réinitialiser le Mot de Passe</a>
+                    <div style="text-align: center; margin: 24px 0;">
+                        <a href="$resetLink" style="display: inline-block; background: linear-gradient(135deg, #204FCF 0%, #667eea 100%); color: white; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-size: 16px; font-weight: 600;">Réinitialiser le Mot de Passe</a>
                     </div>
 
                     <div class="security-notice">
@@ -2214,6 +2177,58 @@ class EmailService {
         ? 'تواصل مع مرضاك، أدر المواعيد، واصنع فرقاً في حياة الناس.'
         : 'تواصل مع أطباء نفسيين ذوي خبرة، احجز المواعيد، وابدأ رحلتك نحو العافية.';
 
+    final String featuresHtml = userType == 'doctor'
+        ? '''
+                        <div class="feature-item">
+                            <div class="feature-icon">📋</div>
+                            <div class="feature-content">
+                                <h3>إدارة عيادتك</h3>
+                                <p>الوصول إلى قائمة مرضاك وإدارة الجدول الزمني وملفات الجلسات في مكان واحد</p>
+                            </div>
+                        </div>
+                        
+                        <div class="feature-item">
+                            <div class="feature-icon">💬</div>
+                            <div class="feature-content">
+                                <h3>التواصل الآمن مع المرضى</h3>
+                                <p>ابق على اتصال مع مرضاك من خلال نظام المراسلة الخاص بنا الذي يتوافق مع معايير الخصوصية</p>
+                            </div>
+                        </div>
+                        
+                        <div class="feature-item">
+                            <div class="feature-icon">💰</div>
+                            <div class="feature-content">
+                                <h3>الإدارة المالية</h3>
+                                <p>تتبع إيراداتك وإدارة الفواتير ومعالجة مدفوعات المرضى بسهولة</p>
+                            </div>
+                        </div>
+        '''
+        : '''
+                        <div class="feature-item">
+                            <div class="feature-icon">📅</div>
+                            <div class="feature-content">
+                                <h3>حجز المواعيد</h3>
+                                <p>حدد موعداً مع أطباء نفسيين ذوي خبرة في الوقت المناسب لك</p>
+                            </div>
+                        </div>
+                        
+                        <div class="feature-item">
+                            <div class="feature-icon">💬</div>
+                            <div class="feature-content">
+                                <h3>المراسلة الآمنة</h3>
+                                <p>تواصل مع طبيبك النفسي بطريقة آمنة وخاصة</p>
+                            </div>
+                        </div>
+                        
+                        <div class="feature-item">
+                            <div class="feature-icon">📋</div>
+                            <div class="feature-content">
+                                <h3>تتبع التقدم</h3>
+                                <p>راقب رحلة عافيتك والوصول إلى ملفاتك الطبية</p>
+                            </div>
+                        </div>
+        ''';
+
     return '''
     <!DOCTYPE html>
     <html dir="rtl" lang="ar">
@@ -2345,25 +2360,6 @@ class EmailService {
                 line-height: 1.8;
                 margin: 0;
             }
-            .cta-section {
-                text-align: center;
-                margin: 40px 0 30px;
-            }
-            .cta-button {
-                display: inline-block;
-                background: linear-gradient(135deg, #204FCF 0%, #667eea 100%);
-                color: white;
-                padding: 16px 40px;
-                text-decoration: none;
-                border-radius: 50px;
-                font-size: 16px;
-                font-weight: 600;
-                box-shadow: 0 4px 15px rgba(32, 79, 207, 0.3);
-                transition: transform 0.2s;
-            }
-            .cta-button:hover {
-                transform: translateY(-2px);
-            }
             .closing {
                 text-align: center;
                 margin-top: 40px;
@@ -2420,12 +2416,12 @@ class EmailService {
             <div class="container">
                 <div class="header">
                     <div class="welcome-icon">🎉</div>
-                    <h1>مرحباً بك في استرحت!</h1>
+                    <h1>!مرحباً بك في استرحت</h1>
                 </div>
                 <div class="content">
-                    <div class="greeting">مرحباً $sanitizedUserName!</div>
+                    <div class="greeting">!مرحباً $sanitizedUserName</div>
                     <p class="welcome-message">
-                        يسعدنا انضمامك إلى مجتمعنا! تم إنشاء حسابك بنجاح.
+                        .يسعدنا انضمامك إلى مجتمعنا! تم إنشاء حسابك بنجاح
                     </p>
                     
                     <div style="text-align: center;">
@@ -2441,48 +2437,17 @@ class EmailService {
                     <div class="features-section">
                         <div class="features-title">ما يمكنك فعله</div>
                         
-                        <div class="feature-item">
-                            <div class="feature-icon">📅</div>
-                            <div class="feature-content">
-                                <h3>حجز المواعيد</h3>
-                                <p>حدد الجلسات مع أطباء نفسيين ذوي خبرة في الوقت المناسب لك</p>
-                            </div>
-                        </div>
-                        
-                        <div class="feature-item">
-                            <div class="feature-icon">💬</div>
-                            <div class="feature-content">
-                                <h3>المراسلة الآمنة</h3>
-                                <p>تواصل مع طبيبك النفسي بأمان وخصوصية</p>
-                            </div>
-                        </div>
-                        
-                        <div class="feature-item">
-                            <div class="feature-icon">📋</div>
-                            <div class="feature-content">
-                                <h3>تتبع التقدم</h3>
-                                <p>راقب رحلتك نحو العافية واطلع على سجلاتك الطبية</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="cta-section">
-                        <a href="#" class="cta-button">ابدأ الآن</a>
+                        $featuresHtml
                     </div>
 
                     <div class="closing">
-                        <p>نحن هنا لدعمك في كل خطوة.</p>
-                        <p>إذا كان لديك أي أسئلة، فريق الدعم لدينا جاهز لمساعدتك.</p>
-                        <div class="signature">فريق استرحت 💙</div>
+                        <p>.نحن هنا لدعمك في كل خطوة</p>
+                        <p>.إذا كان لديك أي أسئلة، فريق الدعم لدينا جاهز لمساعدتك</p>
+                        <div class="signature">💙 فريق استرحت</div>
                     </div>
                 </div>
                 <div class="footer">
                     <p><strong>استرحت - رفيقك الموثوق في العلاج النفسي</strong></p>
-                    <div class="social-links">
-                        <a href="#">مركز المساعدة</a> | 
-                        <a href="#">اتصل بالدعم</a> | 
-                        <a href="#">سياسة الخصوصية</a>
-                    </div>
                     <p>&copy; 2025 استرحت. جميع الحقوق محفوظة.</p>
                 </div>
             </div>
@@ -2727,6 +2692,7 @@ class EmailService {
                 background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
                 min-height: 100vh;
                 direction: rtl;
+                text-align: right;
             }
             .email-wrapper { 
                 padding: 40px 20px; 
@@ -2738,12 +2704,14 @@ class EmailService {
                 border-radius: 16px; 
                 overflow: hidden;
                 box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+                direction: rtl;
             }
             .header { 
                 background: linear-gradient(135deg, #204FCF 0%, #667eea 100%);
                 color: white; 
                 padding: 50px 30px; 
                 text-align: center;
+                direction: rtl;
                 position: relative;
                 overflow: hidden;
             }
@@ -2751,7 +2719,7 @@ class EmailService {
                 content: '';
                 position: absolute;
                 top: -50%;
-                left: -50%;
+                right: -50%;
                 width: 200%;
                 height: 200%;
                 background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
@@ -2782,37 +2750,22 @@ class EmailService {
             .content { 
                 padding: 50px 40px;
                 background: #ffffff;
+                direction: rtl;
+                text-align: right;
             }
-            .greeting {
+            .content .greeting {
                 font-size: 24px;
                 font-weight: 600;
                 color: #1a1a1a;
                 margin-bottom: 15px;
+                text-align: right;
             }
-            .message {
+            .content .message {
                 font-size: 16px;
                 color: #666666;
                 line-height: 1.8;
                 margin-bottom: 30px;
-            }
-            .cta-section {
-                text-align: center;
-                margin: 40px 0;
-            }
-            .cta-button {
-                display: inline-block;
-                background: linear-gradient(135deg, #204FCF 0%, #667eea 100%);
-                color: white;
-                padding: 18px 50px;
-                text-decoration: none;
-                border-radius: 50px;
-                font-size: 16px;
-                font-weight: 600;
-                box-shadow: 0 4px 15px rgba(32, 79, 207, 0.3);
-                transition: transform 0.2s;
-            }
-            .cta-button:hover {
-                transform: translateY(-2px);
+                text-align: right;
             }
             .security-notice {
                 background: #fff4e6;
@@ -2859,6 +2812,7 @@ class EmailService {
                 background: #f8f9fa; 
                 padding: 30px 40px; 
                 text-align: center; 
+                direction: rtl;
                 color: #888888;
                 border-top: 1px solid #e9ecef;
             }
@@ -2874,7 +2828,6 @@ class EmailService {
                 .content { padding: 30px 20px; }
                 .header { padding: 40px 20px; }
                 .greeting { font-size: 20px; }
-                .cta-button { padding: 16px 40px; font-size: 14px; }
             }
         </style>
     </head>
@@ -2890,9 +2843,8 @@ class EmailService {
                     <p class="message">
                         تلقينا طلباً لإعادة تعيين كلمة المرور لحسابك في استرحت. انقر على الزر أدناه لإنشاء كلمة مرور جديدة.
                     </p>
-                    
-                    <div class="cta-section">
-                        <a href="$resetLink" class="cta-button">إعادة تعيين كلمة المرور</a>
+                    <div style="text-align: center; margin: 24px 0;">
+                        <a href="$resetLink" style="display: inline-block; background: linear-gradient(135deg, #204FCF 0%, #667eea 100%); color: white; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-size: 16px; font-weight: 600;">إعادة تعيين كلمة المرور</a>
                     </div>
 
                     <div class="security-notice">

@@ -1,8 +1,5 @@
-import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
-import 'package:videocalling/core/utils/logger.dart';
-import 'package:videocalling/shared/services/others/email_service.dart';
 import 'package:videocalling/core/config/app_imports.dart';
+import 'package:videocalling/shared/services/others/timezone_service.dart';
 
 class InvoiceService {
   static final InvoiceService _instance = InvoiceService._internal();
@@ -40,55 +37,65 @@ class InvoiceService {
     return result;
   }
 
-  bool _containsArabic(String text) {
-    // Check if text contains Arabic characters (Unicode range: \u0600-\u06FF)
-    return RegExp(r'[\u0600-\u06FF]').hasMatch(text);
-  }
-
-  String _applyRtlSupport(String htmlContent, Map<String, String> variables) {
-    // Check if any variable contains Arabic text
-    bool hasArabic = false;
-    variables.forEach((key, value) {
-      if (_containsArabic(value)) {
-        hasArabic = true;
-      }
-    });
-
-    // Also check current language
+  /// Get current app language code (en, ar, fr) for email language and RTL.
+  String _getAppLanguageCode() {
     try {
       final languageController = Get.find<LanguageController>();
-      if (languageController.currentLanguage.value == 'ar') {
-        hasArabic = true;
-      }
-    } catch (e) {
-      // LanguageController not available, continue with text detection
+      final lang = languageController.currentLanguage.value;
+      if (lang == 'ar' || lang == 'fr' || lang == 'en') return lang;
+    } catch (_) {}
+    final locale = Get.locale;
+    if (locale != null) {
+      if (locale.languageCode == 'ar' || locale.languageCode == 'fr') return locale.languageCode;
+      return 'en';
     }
+    return 'en';
+  }
 
-    if (hasArabic) {
-      // Add dir="rtl" to html tag
-      htmlContent = htmlContent.replaceAll(
-        '<html>',
-        '<html dir="rtl">',
-      );
-      
-      // Add rtl class to body
-      htmlContent = htmlContent.replaceAll(
-        '<body style="',
-        '<body class="rtl" style="',
-      );
-      
-      // Add RTL styles to main content divs
-      htmlContent = htmlContent.replaceAll(
-        '<div style="background: #fff;',
-        '<div class="rtl" style="background: #fff;',
-      );
+  /// Email subject by type and app language.
+  String _getEmailSubject(String type, String lang) {
+    switch (type) {
+      case 'subscription_invoice':
+        return lang == 'ar'
+            ? 'فاتورة اشتراكك - Estaraht'
+            : lang == 'fr'
+                ? 'Votre facture d\'abonnement Estaraht'
+                : 'Your Estaraht Subscription Invoice';
+      case 'withdrawal_receipt':
+        return lang == 'ar'
+            ? 'إيصال السحب - Estaraht'
+            : lang == 'fr'
+                ? 'Votre reçu de retrait Estaraht'
+                : 'Your Estaraht Withdrawal Receipt';
+      case 'session_summary':
+        return lang == 'ar'
+            ? 'ملخص الجلسة - Estaraht'
+            : lang == 'fr'
+                ? 'Résumé de la séance - Estaraht'
+                : 'Your Estaraht Session Summary';
+      default:
+        return 'Estaraht';
     }
+  }
 
+  /// Apply RTL to HTML when app language is Arabic (no new data/buttons).
+  String _applyRtlSupport(String htmlContent, String appLanguageCode) {
+    if (appLanguageCode != 'ar') return htmlContent;
+
+    htmlContent = htmlContent.replaceAll('<html>', '<html dir="rtl" lang="ar">');
+    htmlContent = htmlContent.replaceAll(
+      '<body style="',
+      '<body class="rtl" style="',
+    );
+    htmlContent = htmlContent.replaceAll(
+      '<div style="background: #fff;',
+      '<div class="rtl" style="background: #fff;',
+    );
     return htmlContent;
   }
 
   String _generateInvoiceNumber() {
-    final now = DateTime.now();
+    final now = TimezoneService.getCurrentMauritaniaTime();
     return 'INV-${now.year}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}-${now.millisecondsSinceEpoch.toString().substring(8)}';
   }
 
@@ -106,8 +113,10 @@ class InvoiceService {
     String? paymentMethod,
   }) async {
     try {
-      loggerNoStack.i('📧 InvoiceService: Starting to send subscription invoice to $patientEmail');
-      
+      loggerNoStack.i(
+        '📧 InvoiceService: Starting to send subscription invoice to $patientEmail',
+      );
+
       await _loadTemplates();
 
       if (_subscriptionTemplate == null) {
@@ -115,12 +124,14 @@ class InvoiceService {
         return false;
       }
 
-      loggerNoStack.i('📧 InvoiceService: Template loaded, preparing variables');
+      loggerNoStack.i(
+        '📧 InvoiceService: Template loaded, preparing variables',
+      );
 
       final variables = {
         'PATIENT_NAME': patientName,
         'INVOICE_NUMBER': _generateInvoiceNumber(),
-        'DATE': _formatDate(DateTime.now()),
+        'DATE': _formatDate(TimezoneService.getCurrentMauritaniaTime()),
         'PLAN_NAME': planName,
         'SESSIONS_COUNT': sessionsCount.toString(),
         'PAYMENT_METHOD': paymentMethod ?? 'Credit Card',
@@ -128,32 +139,38 @@ class InvoiceService {
         'APP_LINK': 'https://estaraht.com/app',
       };
 
+      final appLang = _getAppLanguageCode();
       String htmlContent = _replaceTemplateVariables(
         _subscriptionTemplate!,
         variables,
       );
 
-      // Apply RTL support for Arabic
-      htmlContent = _applyRtlSupport(htmlContent, variables);
+      htmlContent = _applyRtlSupport(htmlContent, appLang);
 
       loggerNoStack.i('📧 InvoiceService: Calling EmailService.sendEmail...');
 
       final success = await EmailService.sendEmail(
         to: patientEmail,
         toName: patientName,
-        subject: 'Your Estaraht Subscription Invoice',
+        subject: _getEmailSubject('subscription_invoice', appLang),
         body: htmlContent,
         isHtml: true,
       );
 
       if (success) {
-        loggerNoStack.i('✅ InvoiceService: Subscription invoice sent successfully to $patientEmail');
+        loggerNoStack.i(
+          '✅ InvoiceService: Subscription invoice sent successfully to $patientEmail',
+        );
       } else {
-        loggerNoStack.w('⚠️ InvoiceService: EmailService returned false for $patientEmail');
+        loggerNoStack.w(
+          '⚠️ InvoiceService: EmailService returned false for $patientEmail',
+        );
       }
       return success;
     } catch (e, stackTrace) {
-      loggerNoStack.e('❌ InvoiceService: Error sending subscription invoice: $e');
+      loggerNoStack.e(
+        '❌ InvoiceService: Error sending subscription invoice: $e',
+      );
       loggerNoStack.e('❌ Stack trace: $stackTrace');
       return false;
     }
@@ -177,25 +194,26 @@ class InvoiceService {
 
       final variables = {
         'DOCTOR_NAME': doctorName,
-        'TRANSACTION_ID': 'WTH-${DateTime.now().millisecondsSinceEpoch}',
-        'DATE': _formatDate(DateTime.now()),
+        'TRANSACTION_ID':
+            'WTH-${TimezoneService.getCurrentMauritaniaTime().millisecondsSinceEpoch}',
+        'DATE': _formatDate(TimezoneService.getCurrentMauritaniaTime()),
         'STATUS': status ?? 'Processing',
         'AMOUNT': '$currency $amount',
         'REMAINING_BALANCE': '$currency $remainingBalance',
       };
 
+      final appLang = _getAppLanguageCode();
       String htmlContent = _replaceTemplateVariables(
         _withdrawalTemplate!,
         variables,
       );
 
-      // Apply RTL support for Arabic
-      htmlContent = _applyRtlSupport(htmlContent, variables);
+      htmlContent = _applyRtlSupport(htmlContent, appLang);
 
       final success = await EmailService.sendEmail(
         to: doctorEmail,
         toName: doctorName,
-        subject: 'Your Estaraht Withdrawal Receipt',
+        subject: _getEmailSubject('withdrawal_receipt', appLang),
         body: htmlContent,
         isHtml: true,
       );
@@ -263,13 +281,13 @@ class InvoiceService {
             .replaceAll('{{/IF_PATIENT}}', '');
       }
 
-      // Apply RTL support for Arabic
-      htmlContent = _applyRtlSupport(htmlContent, variables);
+      final appLang = _getAppLanguageCode();
+      htmlContent = _applyRtlSupport(htmlContent, appLang);
 
       final success = await EmailService.sendEmail(
         to: recipientEmail,
         toName: recipientName,
-        subject: 'Your Estaraht Session Summary',
+        subject: _getEmailSubject('session_summary', appLang),
         body: htmlContent,
         isHtml: true,
       );
