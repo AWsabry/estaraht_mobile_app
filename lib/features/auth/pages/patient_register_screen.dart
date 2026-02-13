@@ -79,7 +79,7 @@ class RegisterAsPatient extends GetView<RegisterPatientController> {
                     // Combined Email or Phone Number field
                     Obx(
                       () => _buildTextField(
-                        labelText: "email_or_phone".tr,
+                        labelText: "email".tr,
                         isArabic: isArabic,
                         keyboardType: TextInputType.text,
                         onChanged: (val) {

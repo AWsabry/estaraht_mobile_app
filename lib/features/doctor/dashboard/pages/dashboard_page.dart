@@ -1,5 +1,6 @@
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:videocalling/core/config/app_imports.dart';
+import 'package:videocalling/shared/services/others/timezone_service.dart';
 
 class DoctorDashboard extends GetView<DoctorDashboardController> {
   final DoctorDashboardController dashboardController = Get.put(
@@ -269,10 +270,11 @@ class DoctorDashboard extends GetView<DoctorDashboardController> {
                                 ),
                               ),
                               SizedBox(height: 2.h),
-                              Builder(
-                                builder: (_) {
+                              Obx(
+                                () {
                                   final dateText = _getAppointmentDateText(
                                     appointment,
+                                    dashboardController.doctorTimezoneOffsetHours.value,
                                   );
                                   return dateText.isEmpty
                                       ? const SizedBox.shrink()
@@ -519,7 +521,7 @@ class DoctorDashboard extends GetView<DoctorDashboardController> {
       height: 180.h,
       child: Center(
         child: CircularProgressIndicator(
-          valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF3366FF)),
+          valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF3366FF)),
           strokeWidth: 3.w,
         ),
       ),
@@ -532,85 +534,21 @@ class DoctorDashboard extends GetView<DoctorDashboardController> {
     return status.toLowerCase().tr;
   }
 
-  String _getAppointmentDateText(dynamic appointment) {
-    String? dateValue;
-    String? timeValue;
+  /// Same logic as patient appointment detail page: uses formatAppointmentForPatient
+  /// to show time in viewer's (doctor's) device timezone with 12h AM/PM format.
+  String _getAppointmentDateText(dynamic appointment, int doctorTimezoneOffsetHours) {
+    final dateStr = appointment.bookingDate ?? appointment.appointmentDate ?? appointment.date ?? appointment.startDate ?? appointment.createdAt ?? '';
+    final timeRaw = appointment.bookingTime ?? appointment.startTime ?? '';
+    final timeStr = timeRaw.length >= 5 ? timeRaw.substring(0, 5) : timeRaw;
 
-    // Get date
-    try {
-      dateValue = appointment.bookingDate;
-    } catch (_) {}
-    dateValue = (dateValue == null || dateValue.isEmpty)
-        ? (() {
-            try {
-              return appointment.appointmentDate;
-            } catch (_) {
-              return null;
-            }
-          })()
-        : dateValue;
-    dateValue = (dateValue == null || dateValue.isEmpty)
-        ? (() {
-            try {
-              return appointment.date;
-            } catch (_) {
-              return null;
-            }
-          })()
-        : dateValue;
-    dateValue = (dateValue == null || dateValue.isEmpty)
-        ? (() {
-            try {
-              return appointment.startDate;
-            } catch (_) {
-              return null;
-            }
-          })()
-        : dateValue;
-    dateValue = (dateValue == null || dateValue.isEmpty)
-        ? (() {
-            try {
-              return appointment.createdAt;
-            } catch (_) {
-              return null;
-            }
-          })()
-        : dateValue;
+    if (dateStr.isEmpty || dateStr.length < 10) return '';
 
-    // Get time
-    try {
-      timeValue = appointment.bookingTime;
-    } catch (_) {}
-    timeValue = (timeValue == null || timeValue.isEmpty)
-        ? (() {
-            try {
-              return appointment.startTime;
-            } catch (_) {
-              return null;
-            }
-          })()
-        : timeValue;
-
-    if (dateValue == null || dateValue.isEmpty) return '';
-
-    String formattedDate = _formatDate(dateValue);
-    String formattedTime = _formatTime(timeValue);
-
-    return formattedTime.isNotEmpty
-        ? '$formattedDate $formattedTime'
-        : formattedDate;
-  }
-
-  String _formatDate(String dateString) {
-    if (dateString.length < 10) return dateString;
-    return "${dateString.substring(8, 10)}-${dateString.substring(5, 7)}-${dateString.substring(0, 4)}";
-  }
-
-  String _formatTime(String? timeString) {
-    if (timeString == null || timeString.isEmpty) return '';
-    if (timeString.length < 5) return timeString;
-    // Extract HH:MM from time (e.g., "08:00:00" -> "08:00")
-    return timeString.substring(0, 5);
+    return TimezoneService.formatAppointmentForPatient(
+      dateStr: dateStr,
+      timeStr: timeStr,
+      doctorTimezoneOffsetHours: doctorTimezoneOffsetHours,
+      isArabic: Get.locale?.languageCode == 'ar',
+    );
   }
 
   Color _getStatusColor(String? status) {

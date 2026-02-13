@@ -1419,8 +1419,10 @@ class MakeAppointmentController extends GetxController {
       // Get the days of week when doctor is available (DB: 0=Sunday..6=Saturday; normalize legacy 7→0)
       Set<int> availableDays = weeklyAvailability
           .where((availability) => availability.isAvailable)
-          .map((availability) =>
-              availability.dayNumber == 7 ? 0 : availability.dayNumber)
+          .map(
+            (availability) =>
+                availability.dayNumber == 7 ? 0 : availability.dayNumber,
+          )
           .toSet();
 
       loggerNoStack.i(

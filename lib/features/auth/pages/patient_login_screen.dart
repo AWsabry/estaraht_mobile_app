@@ -68,24 +68,16 @@ class LoginAsUser extends GetView<UserLoginController> {
                 // Email/Username input
                 Obx(
                   () => _buildTextField(
-                    labelText: "email_or_phone".tr,
+                    labelText: "email".tr,
                     isArabic: isArabic,
                     keyboardType: TextInputType.text,
                     onChanged: (val) {
-                      // Detect if input is phone number or email
-                      if (RegExp(r'^\d+$').hasMatch(val)) {
-                        // It's a phone number
-                        loginController.phoneNumber.value = val;
-                        loginController.emailController.text = '';
-                      } else {
-                        // It's an email
-                        loginController.emailController.text = val;
-                        loginController.phoneNumber.value = '';
-                      }
+                      loginController.emailController.text = val;
+                      loginController.phoneNumber.value = '';
                       loginController.isPhoneNumberError.value = false;
                     },
                     errorText: loginController.isPhoneNumberError.value
-                        ? 'enter_valid_email_or_phone'.tr
+                        ? 'enter_valid_email'.tr
                         : null,
                     hasError: loginController.isPhoneNumberError.value,
                   ),

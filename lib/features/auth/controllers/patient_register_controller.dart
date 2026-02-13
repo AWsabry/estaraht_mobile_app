@@ -76,27 +76,16 @@ class RegisterPatientController extends GetxController {
       emailOrPhoneError.value = 'email_or_phone_required'.tr;
       isValid = false;
     } else {
-      // Check if it's a valid email or phone number
+      // Check if it's a valid email
       bool isEmail = GetUtils.isEmail(emailOrPhone.value);
-      bool isPhone =
-          emailOrPhone.value.replaceAll(RegExp(r'[^\d]'), '').length >= 8;
 
-      if (!isEmail && !isPhone) {
+      if (!isEmail) {
         isEmailOrPhoneError.value = true;
-        emailOrPhoneError.value = 'enter_valid_email_or_phone'.tr;
+        emailOrPhoneError.value = 'enter_valid_email'.tr;
         isValid = false;
       } else {
-        // Set the appropriate field based on input type
-        if (isEmail) {
-          email.value = emailOrPhone.value;
-          phoneNumber.value = "";
-        } else {
-          phoneNumber.value = emailOrPhone.value.replaceAll(
-            RegExp(r'[^\d]'),
-            '',
-          );
-          email.value = "";
-        }
+        email.value = emailOrPhone.value;
+        phoneNumber.value = "";
       }
     }
 

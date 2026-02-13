@@ -13,7 +13,8 @@ class BookingEmailService {
     } catch (_) {}
     final locale = Get.locale;
     if (locale != null) {
-      if (locale.languageCode == 'ar' || locale.languageCode == 'fr') return locale.languageCode;
+      if (locale.languageCode == 'ar' || locale.languageCode == 'fr')
+        return locale.languageCode;
       return 'en';
     }
     return 'en';
