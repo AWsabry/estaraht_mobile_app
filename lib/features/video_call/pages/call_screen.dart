@@ -52,11 +52,10 @@ class _CallScreenState extends State<CallScreen> {
   Duration _callDuration = Duration.zero;
   Timer? _timer;
 
-  // Session time limit (45 minutes)
+  // Used only for auto-completing booking when user ends call after a full session (45 min)
   static const Duration _sessionTimeLimit = Duration(minutes: 45);
-  bool _sessionExpired = false;
 
-  // Time when user joined channel - used to check if full 45 min passed (timer resets when remote leaves)
+  // Time when user joined channel - used for auto-complete check when ending call
   DateTime? _channelJoinTime;
 
   @override
@@ -146,14 +145,6 @@ class _CallScreenState extends State<CallScreen> {
                       '📺 Removed remote user $uid. Total remote users: ${_remoteUids.length}',
                     );
                   });
-
-                  // Reset timer when a user leaves (new session starts)
-                  if (_remoteUids.isEmpty) {
-                    _resetTimer();
-                    loggerNoStack.i(
-                      '🔄 All participants left - Timer reset for new session',
-                    );
-                  }
                 }
               },
           onLeaveChannel: (RtcConnection connection, RtcStats stats) {
@@ -331,51 +322,9 @@ class _CallScreenState extends State<CallScreen> {
       if (mounted) {
         setState(() {
           _callDuration = Duration(seconds: timer.tick);
-
-          // Check if session time limit is reached
-          if (_callDuration >= _sessionTimeLimit && !_sessionExpired) {
-            _sessionExpired = true;
-            _onSessionExpired();
-          }
         });
       }
     });
-  }
-
-  void _resetTimer() {
-    _timer?.cancel();
-    if (mounted) {
-      setState(() {
-        _callDuration = Duration.zero;
-        _sessionExpired = false;
-      });
-    }
-    _startTimer();
-    loggerNoStack.i('⏱️ Timer reset - New session started');
-  }
-
-  void _onSessionExpired() async {
-    loggerNoStack.w('⏰ Session time limit reached (45 minutes)');
-
-    // Show dialog to user
-    if (mounted) {
-      Get.dialog(
-        AlertDialog(
-          title: Text('session_expired'.tr),
-          content: Text('session_time_limit_reached'.tr),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Get.back(); // Close dialog
-                _onCallEnd(); // End call
-              },
-              child: Text('ok'.tr),
-            ),
-          ],
-        ),
-        barrierDismissible: false,
-      );
-    }
   }
 
   String _formatDuration(Duration duration) {
@@ -389,22 +338,6 @@ class _CallScreenState extends State<CallScreen> {
     } else {
       return '$minutes:$seconds';
     }
-  }
-
-  String _getRemainingTime() {
-    final remaining = _sessionTimeLimit - _callDuration;
-    if (remaining.isNegative) return '00:00';
-
-    String twoDigits(int n) => n.toString().padLeft(2, '0');
-    String minutes = twoDigits(remaining.inMinutes.remainder(60));
-    String seconds = twoDigits(remaining.inSeconds.remainder(60));
-
-    return '$minutes:$seconds';
-  }
-
-  bool _isTimeRunningOut() {
-    final remaining = _sessionTimeLimit - _callDuration;
-    return remaining.inMinutes < 5 && remaining.inSeconds > 0;
   }
 
   Future<void> _disposeAgora() async {
@@ -578,39 +511,6 @@ class _CallScreenState extends State<CallScreen> {
                     fontSize: 16,
                   ),
                 ),
-                if (_isTimeRunningOut() && _isJoined)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.orange.withValues(alpha: 0.8),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(
-                            Icons.access_time,
-                            color: Colors.white,
-                            size: 16,
-                          ),
-                          const SizedBox(width: 6),
-                          Text(
-                            '${'time_remaining'.tr}: ${_getRemainingTime()}',
-                            style: const CustomTextStyle(
-                              color: Colors.white,
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
               ],
             ),
           ),
