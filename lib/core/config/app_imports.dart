@@ -83,12 +83,10 @@ export 'package:videocalling/features/auth/controllers/otp_controller.dart';
 export 'package:videocalling/features/auth/controllers/patient_login_controller.dart';
 export 'package:videocalling/features/auth/controllers/patient_register_controller.dart';
 export 'package:videocalling/features/auth/pages/doctor_login_screen.dart';
-export 'package:videocalling/features/auth/pages/doctor_register_screen.dart'
-    hide LanguageController;
+export 'package:videocalling/features/auth/pages/doctor_register_screen.dart';
 export 'package:videocalling/features/auth/pages/forget_password_screen.dart';
 export 'package:videocalling/features/auth/pages/otp_screen.dart';
-export 'package:videocalling/features/auth/pages/patient_login_screen.dart'
-    hide LanguageController;
+export 'package:videocalling/features/auth/pages/patient_login_screen.dart';
 export 'package:videocalling/features/auth/pages/patient_register_screen.dart'
     hide LanguageController;
 export 'package:videocalling/features/chat/chat_binding.dart';

@@ -426,15 +426,9 @@ class PaymentController extends GetxController {
 
       if (validationResult['isValid'] == true) {
         // Apply discount
-        final discountType = validationResult['discountType'] ?? 'percentage';
         final discountValue = validationResult['discountValue'] ?? 10.0;
 
-        if (discountType == 'percentage') {
-          discount.value = subtotal.value * (discountValue / 100);
-        } else {
-          // Fixed amount discount
-          discount.value = discountValue;
-        }
+        discount.value = discountValue;
 
         // Ensure discount doesn't exceed subtotal
         if (discount.value > subtotal.value) {
@@ -576,16 +570,19 @@ class PaymentController extends GetxController {
         }
       }
 
-      // Step 6: If all checks pass, coupon is valid
+      // Step 6: If all checks pass, coupon is valid — use discount from DB
       loggerNoStack.i('✅ Coupon is valid: $couponCode');
 
-      // For demo purposes, return a 10% discount
-      // In production, you would store discount info in the coupon table
+    
+      final rawDiscount = couponResponse['coupon_value'];
+      final discountValue = rawDiscount != null
+          ? (rawDiscount is num ? rawDiscount : num.tryParse(rawDiscount.toString()) ?? 10.0).toDouble()
+          : 10.0;
+
       return {
         'isValid': true,
         'couponId': couponId,
-        'discountType': 'percentage', // or 'fixed'
-        'discountValue': 10.0, // 10% or $10
+        'discountValue': discountValue,
         'message': 'Coupon is valid',
       };
     } catch (e, stackTrace) {
