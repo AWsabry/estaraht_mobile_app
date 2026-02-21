@@ -85,7 +85,8 @@ class AppPages {
 
   static const initialRoute = Routes.splashScreen;
 
-  static final routes = [
+  /// Shared routes (both Patient and Doctor apps)
+  static final List<GetPage> _sharedRoutes = [
     GetPage(
       name: _Paths.splashScreen,
       page: () => Builder(builder: (context) => const SplashScreen()),
@@ -94,30 +95,6 @@ class AppPages {
     GetPage(
       name: _Paths.languageSelectionScreen,
       page: () => const LanguageSelectionScreen(),
-    ),
-    GetPage(
-      name: _Paths.therapistOnboardingScreen,
-      page: () => const TherapistOnboardingScreen(),
-    ),
-    GetPage(
-      name: _Paths.patientOnboardingScreen,
-      page: () => const PatientOnboardingScreen(),
-    ),
-    GetPage(
-      name: _Paths.roleSelectionScreen,
-      page: () => const RoleSelectionScreen(),
-    ),
-    GetPage(
-      name: _Paths.onboardingScreen,
-      page: () => const OnboardingScreen(),
-      binding: BindingsBuilder(() {
-        Get.lazyPut<OnboardingController>(() => OnboardingController());
-      }),
-    ),
-    GetPage(
-      name: _Paths.doctorTabScreen,
-      page: () => const DoctorTabsScreen(),
-      binding: TabScreenBinding(),
     ),
     GetPage(
       name: _Paths.videoPlayerScreen,
@@ -144,12 +121,186 @@ class AppPages {
       page: () => IncomingCallScreen(),
       binding: IncomingCallBinding(),
     ),
+    GetPage(
+      name: _Paths.forgetPasswordScreen,
+      page: () => ForgetPassword(),
+      binding: ForgetPasswordBinding(),
+    ),
+    GetPage(
+      name: _Paths.resetPasswordWebViewScreen,
+      page: () => const ResetPasswordWebViewScreen(),
+    ),
+    GetPage(
+      name: _Paths.otpScreen,
+      page: () => const OtpScreen(),
+      binding: OtpBinding(),
+    ),
+    GetPage(
+      name: _Paths.underReviewScreen,
+      page: () => const UnderReviewScreen(),
+      binding: ReviewStatusBinding(),
+    ),
+    GetPage(
+      name: _Paths.accountRejectedScreen,
+      page: () => const AccountRejectedScreen(),
+    ),
+    GetPage(
+      name: _Paths.inAppWebViewScreen,
+      page: () => InAppWebViewScreen(),
+      binding: InAppWebViewBinding(),
+    ),
+    GetPage(name: '/session-pdf-viewer', page: () => const PdfViewerScreen()),
+  ];
 
-    /// doctor side screen
+  /// Patient-app-only routes
+  static final List<GetPage> _patientRoutes = [
+    GetPage(
+      name: _Paths.patientOnboardingScreen,
+      page: () => const PatientOnboardingScreen(),
+    ),
+    GetPage(
+      name: Routes.userTabScreen,
+      page: () => const PatientTabsScreen(),
+      binding: PatientTabsBinding(),
+    ),
+    GetPage(
+      name: _Paths.loginUserScreen,
+      page: () => LoginAsUser(),
+      binding: UserLoginBinding(),
+    ),
+    GetPage(
+      name: _Paths.patientRegisterScreen,
+      page: () => const RegisterAsPatient(),
+      binding: RegisterPatientBinding(),
+    ),
+    GetPage(
+      name: _Paths.notificationScreen,
+      page: () => const NotificationScreen(),
+      binding: NotificationBinding(),
+    ),
+    GetPage(
+      name: _Paths.profileParametersScreen,
+      page: () => const ProfileParametersScreen(),
+      binding: ProfileParametersBinding(),
+    ),
+    GetPage(
+      name: _Paths.termsAndConditionScreen,
+      page: () => TermAndConditions(),
+      binding: TermAndConditionsBinding(),
+    ),
+    GetPage(
+      name: _Paths.aboutUSScreen,
+      page: () => AboutUSScreen(),
+      binding: AboutUSBinding(),
+    ),
+    GetPage(
+      name: _Paths.reportIssuesScreen,
+      page: () => ReportIssuesScreen(),
+      binding: ReportIssueBinding(),
+    ),
+    GetPage(
+      name: _Paths.editProfileScreen,
+      page: () => UserEditProfile(),
+      binding: UserEditBinding(),
+    ),
+    GetPage(
+      name: _Paths.specialityScreen,
+      page: () => SpecialityScreen(),
+      binding: SpecialityBinding(),
+    ),
+    GetPage(
+      name: _Paths.specialityDoctorScreen,
+      page: () => SpecialityDoctorScreen(),
+      binding: SpecialityDoctorBinding(),
+    ),
+    GetPage(
+      name: _Paths.indemandDoctorScreen,
+      page: () => const IndemandDoctorScreen(),
+      binding: InDemandeDoctorBinding(),
+    ),
+    GetPage(
+      name: _Paths.doctorDetailScreen,
+      page: () => DoctorDetailScreen(),
+      binding: DoctorDetailBinding(),
+    ),
+    GetPage(
+      name: _Paths.doctorReviewScreen,
+      page: () => ReviewsScreen(),
+      binding: ReviewBinding(),
+    ),
+    GetPage(
+      name: _Paths.userPaymentScreen,
+      page: () => const PaymentScreen(),
+      binding: PaymentBinding(),
+      transition: Transition.rightToLeft,
+      transitionDuration: const Duration(milliseconds: 250),
+    ),
+    GetPage(
+      name: _Paths.paymentPlansScreen,
+      page: () => const PaymentPlansPage(),
+      binding: PaymentPlansBinding(),
+      transition: Transition.rightToLeft,
+      transitionDuration: const Duration(milliseconds: 250),
+    ),
+    GetPage(
+      name: _Paths.planPaymentScreen,
+      page: () => const PaymentScreen(),
+      binding: PaymentBinding(),
+      transition: Transition.rightToLeft,
+      transitionDuration: const Duration(milliseconds: 250),
+    ),
+    GetPage(
+      name: _Paths.makeAppointmentScreen,
+      page: () => MakeAppointment(),
+      binding: MakeAppointmentBinding(),
+    ),
+    GetPage(
+      name: _Paths.uAppointmentDetailScreen,
+      page: () => UserAppointmentDetailsScreen(),
+      binding: UserAppointmentDetailsBinding(),
+    ),
+    GetPage(
+      name: _Paths.uAllAppointmentsScreen,
+      page: () => UAllAppointments(),
+      binding: UAllAppointmentsBinding(),
+    ),
+    GetPage(
+      name: _Paths.dAllNearbyScreen,
+      page: () => DAllNearbyScreen(),
+      binding: DAllNearbyBinding(),
+    ),
+    GetPage(
+      name: _Paths.dSearchScreen,
+      page: () => const DoctorSearchScreen(),
+      binding: DoctorSearchBinding(),
+    ),
+  ];
+
+  /// Doctor-app-only routes
+  static final List<GetPage> _doctorRoutes = [
+    GetPage(
+      name: _Paths.therapistOnboardingScreen,
+      page: () => const TherapistOnboardingScreen(),
+    ),
+    GetPage(
+      name: _Paths.doctorTabScreen,
+      page: () => const DoctorTabsScreen(),
+      binding: TabScreenBinding(),
+    ),
+    GetPage(
+      name: _Paths.doctorLoginScreen,
+      page: () => LoginAsDoctor(),
+      binding: DoctorLoginBinding(),
+    ),
     GetPage(
       name: _Paths.doctorRegisterScreen,
       page: () => const RegisterAsDoctor(),
       binding: DoctorRegisterBinding(),
+    ),
+    GetPage(
+      name: _Paths.doctorEditProfileScreen,
+      page: () => DoctorProfile(),
+      binding: DoctorProfileBinding(),
     ),
     GetPage(
       name: _Paths.chooseYourPlanScreen,
@@ -211,175 +362,11 @@ class AppPages {
       page: () => const DAvailabilityManagementScreen(),
       binding: DAvailabilityManagementBinding(),
     ),
-    // i added this
-    GetPage(
-      name: _Paths.doctorLoginScreen,
-      page: () => LoginAsDoctor(),
-      binding: DoctorLoginBinding(),
-    ),
-
-    GetPage(
-      name: Routes.userTabScreen,
-      page: () => const PatientTabsScreen(),
-      binding: PatientTabsBinding(),
-    ),
-    GetPage(
-      name: _Paths.notificationScreen,
-      page: () => const NotificationScreen(),
-      binding: NotificationBinding(),
-    ),
-    GetPage(
-      name: _Paths.profileParametersScreen,
-      page: () => const ProfileParametersScreen(),
-      binding: ProfileParametersBinding(),
-    ),
-    GetPage(
-      name: _Paths.termsAndConditionScreen,
-      page: () => TermAndConditions(),
-      binding: TermAndConditionsBinding(),
-    ),
-    GetPage(
-      name: _Paths.aboutUSScreen,
-      page: () => AboutUSScreen(),
-      binding: AboutUSBinding(),
-    ),
-    GetPage(
-      name: _Paths.reportIssuesScreen,
-      page: () => ReportIssuesScreen(),
-      binding: ReportIssueBinding(),
-    ),
-    GetPage(
-      name: _Paths.editProfileScreen,
-      page: () => UserEditProfile(),
-      binding: UserEditBinding(),
-    ),
-    GetPage(
-      name: _Paths.specialityScreen,
-      page: () => SpecialityScreen(),
-      binding: SpecialityBinding(),
-    ),
-    GetPage(
-      name: _Paths.specialityDoctorScreen,
-      page: () => SpecialityDoctorScreen(),
-      binding: SpecialityDoctorBinding(),
-    ),
-    GetPage(
-      name: _Paths.indemandDoctorScreen,
-      page: () => const IndemandDoctorScreen(),
-      binding: InDemandeDoctorBinding(),
-    ),
-    GetPage(
-      name: _Paths.doctorDetailScreen,
-      page: () => DoctorDetailScreen(),
-      binding: DoctorDetailBinding(),
-    ),
-    GetPage(
-      name: _Paths.doctorReviewScreen,
-      page: () => ReviewsScreen(),
-      binding: ReviewBinding(),
-    ),
-    GetPage(
-      name: _Paths.forgetPasswordScreen,
-      page: () => ForgetPassword(),
-      binding: ForgetPasswordBinding(),
-    ),
-    GetPage(
-      name: _Paths.resetPasswordWebViewScreen,
-      page: () => const ResetPasswordWebViewScreen(),
-    ),
-    GetPage(
-      name: _Paths.loginUserScreen,
-      page: () => LoginAsUser(),
-      binding: UserLoginBinding(),
-    ),
-
-    /// i added this
-    GetPage(
-      name: _Paths.userPaymentScreen,
-      page: () => const PaymentScreen(),
-      binding: PaymentBinding(),
-      transition: Transition.rightToLeft,
-      transitionDuration: const Duration(milliseconds: 250),
-    ),
-    GetPage(
-      name: _Paths.paymentPlansScreen,
-      page: () => const PaymentPlansPage(),
-      binding: PaymentPlansBinding(),
-      transition: Transition.rightToLeft,
-      transitionDuration: const Duration(milliseconds: 250),
-    ),
-    GetPage(
-      name: _Paths.planPaymentScreen,
-      page: () => const PaymentScreen(), // Reuse existing payment screen
-      binding: PaymentBinding(),
-      transition: Transition.rightToLeft,
-      transitionDuration: const Duration(milliseconds: 250),
-    ),
-
-    // Add this to your routes list
-    GetPage(
-      name: _Paths.doctorEditProfileScreen,
-      page: () => DoctorProfile(),
-      binding: DoctorProfileBinding(),
-    ),
-
-    // Inside routes list
-    GetPage(
-      name: _Paths.doctorEditProfileScreen,
-      page: () => DoctorProfile(),
-      binding: DoctorProfileBinding(),
-    ),
-
-    GetPage(
-      name: _Paths.makeAppointmentScreen,
-      page: () => MakeAppointment(),
-      binding: MakeAppointmentBinding(),
-    ),
-    GetPage(
-      name: _Paths.inAppWebViewScreen,
-      page: () => InAppWebViewScreen(),
-      binding: InAppWebViewBinding(),
-    ),
-    GetPage(
-      name: _Paths.patientRegisterScreen,
-      page: () => const RegisterAsPatient(),
-      binding: RegisterPatientBinding(),
-    ),
-    GetPage(
-      name: _Paths.uAppointmentDetailScreen,
-      page: () => UserAppointmentDetailsScreen(),
-      binding: UserAppointmentDetailsBinding(),
-    ),
-    GetPage(
-      name: _Paths.uAllAppointmentsScreen,
-      page: () => UAllAppointments(),
-      binding: UAllAppointmentsBinding(),
-    ),
-    GetPage(
-      name: _Paths.dAllNearbyScreen,
-      page: () => DAllNearbyScreen(),
-      binding: DAllNearbyBinding(),
-    ),
-    GetPage(
-      name: _Paths.dSearchScreen,
-      page: () => const DoctorSearchScreen(),
-      binding: DoctorSearchBinding(),
-    ),
-
-    GetPage(
-      name: _Paths.otpScreen,
-      page: () => const OtpScreen(),
-      binding: OtpBinding(),
-    ),
-    GetPage(
-      name: _Paths.underReviewScreen,
-      page: () => const UnderReviewScreen(),
-      binding: ReviewStatusBinding(),
-    ),
-    GetPage(
-      name: _Paths.accountRejectedScreen,
-      page: () => const AccountRejectedScreen(),
-    ),
-    GetPage(name: '/session-pdf-viewer', page: () => const PdfViewerScreen()),
   ];
+
+  /// Flavor-aware route list: shared + role-specific routes only
+  static List<GetPage> get routes => [
+        ..._sharedRoutes,
+        ...(isPatientApp ? _patientRoutes : _doctorRoutes),
+      ];
 }

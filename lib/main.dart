@@ -5,7 +5,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:videocalling/core/config/app_imports.dart';
 import 'package:videocalling/shared/services/subscription_expiry_service.dart';
 
-import 'firebase_options.dart';
+import 'firebase_options_doctor.dart';
+import 'firebase_options_patient.dart';
 
 void main() async {
   // Run everything inside runZonedGuarded to ensure same zone
@@ -50,17 +51,14 @@ void main() async {
       // Initialize SubscriptionExpiryService for checking subscription expiry
       Get.put(SubscriptionExpiryService(), permanent: true);
 
-      // Initialize Firebase
+      // Initialize Firebase with flavor-specific options (Patient vs Doctor app)
       try {
         if (Firebase.apps.isEmpty) {
-          if (Platform.isAndroid) {
-            await Firebase.initializeApp(
-              options: DefaultFirebaseOptions.android,
-            );
-          } else {
-            final app = await Firebase.initializeApp(
-              options: DefaultFirebaseOptions.ios,
-            );
+          final options = isPatientApp
+              ? PatientFirebaseOptions.currentPlatform
+              : DoctorFirebaseOptions.currentPlatform;
+          final app = await Firebase.initializeApp(options: options);
+          if (kDebugMode) {
             print("projectId: ${app.options.projectId}");
             print("appId: ${app.options.appId}");
           }

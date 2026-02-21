@@ -63,6 +63,7 @@ android {
         
         // Enable vector drawable support to reduce image assets
         vectorDrawables.useSupportLibrary = true
+        resValue "string", "app_name", "Estaraht"
     }
 
     signingConfigs {
@@ -91,6 +92,20 @@ android {
 
             // Optimize ProGuard
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    flavorDimensions += "app"
+    productFlavors {
+        patient {
+            dimension "app"
+            applicationIdSuffix ".patient"
+            resValue "string", "app_name", "Estaraht Patient"
+        }
+        doctor {
+            dimension "app"
+            applicationIdSuffix ".doctor"
+            resValue "string", "app_name", "Estaraht Doctor"
         }
     }
 }

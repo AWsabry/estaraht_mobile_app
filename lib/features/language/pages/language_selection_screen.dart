@@ -82,8 +82,12 @@ class LanguageSelectionScreen extends StatelessWidget {
                             // Save and apply changes
                             languageController.confirmLanguageSelection();
 
-                            // Navigate to role selection with transition
-                            Get.toNamed(Routes.roleSelectionScreen);
+                            // Flavor-aware: go to role-specific onboarding (no role selection)
+                            if (isPatientApp) {
+                              Get.toNamed(Routes.patientOnboardingScreen);
+                            } else {
+                              Get.toNamed(Routes.therapistOnboardingScreen);
+                            }
                           }
                         : null, // Disable if no language selected
                     style: ElevatedButton.styleFrom(

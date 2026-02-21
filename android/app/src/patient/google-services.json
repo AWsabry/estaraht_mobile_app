@@ -27,25 +27,6 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:735559732305:android:888b56c0ae3965077fbc70",
-        "android_client_info": {
-          "package_name": "com.owldots.estarhtapppro.doctor"
-        }
-      },
-      "oauth_client": [],
-      "api_key": [
-        {
-          "current_key": "AIzaSyBlTGEMDNYlYMYAdxiegy5s_WdSOeELN0o"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": []
-        }
-      }
-    },
-    {
-      "client_info": {
         "mobilesdk_app_id": "1:735559732305:android:9b26646a39c921627fbc70",
         "android_client_info": {
           "package_name": "com.owldots.estarhtapppro.patient"

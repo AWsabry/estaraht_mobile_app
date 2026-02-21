@@ -51,6 +51,7 @@ export 'package:table_calendar/table_calendar.dart';
 export 'package:url_launcher/url_launcher.dart';
 export 'package:video_player/video_player.dart';
 export 'package:videocalling/core/config/app_apis.dart';
+export 'package:videocalling/core/config/app_flavor.dart';
 export 'package:videocalling/core/config/app_variables.dart';
 // Core config
 export 'package:videocalling/core/config/routes.dart';

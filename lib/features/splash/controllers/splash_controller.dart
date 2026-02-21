@@ -11,27 +11,38 @@ class SplashController extends GetxController {
 
   void checkUserStatus() {
     Timer(const Duration(seconds: 3), () async {
-      // Navigate based on user status
+      // Navigate based on user status (flavor-aware: only honor login for current app type)
       if (StorageService.readData(key: LocalStorageKeys.isLoggedIn) == true) {
         bool isDoctor =
             StorageService.readData(key: LocalStorageKeys.isLoggedInAsDoctor) ??
                 false;
-        if (isDoctor) {
-          // Check doctor approval status before navigating
-          await _checkDoctorApprovalStatus();
-        } else {
+        // In patient app, only proceed to home if logged in as patient
+        if (isPatientApp && !isDoctor) {
           Get.offAllNamed(Routes.userTabScreen);
+          return;
         }
-      } else {
-        final box = GetStorage();
+        // In doctor app, only proceed to doctor flow if logged in as doctor
+        if (isDoctorApp && isDoctor) {
+          await _checkDoctorApprovalStatus();
+          return;
+        }
+        // Wrong app for this login (e.g. patient app open but stored as doctor) -> go to onboarding
+      }
+
+      // Not logged in (or wrong app): language then role-specific onboarding
+      final box = GetStorage();
         final appLang = box.read('app_language') == null;
         Logger().i('appLang: $appLang');
         if (appLang) {
           Get.offAllNamed(Routes.languageSelectionScreen);
           return;
         }
-        Get.offAllNamed(Routes.roleSelectionScreen);
-      }
+        // Flavor-aware: go directly to role-specific onboarding (no role selection)
+        if (isPatientApp) {
+          Get.offAllNamed(Routes.patientOnboardingScreen);
+        } else {
+          Get.offAllNamed(Routes.therapistOnboardingScreen);
+        }
     });
   }
 
