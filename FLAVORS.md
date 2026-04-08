@@ -1,6 +1,6 @@
 # Estaraht App Flavors (Patient & Doctor)
 
-This project builds two separate apps from one codebase: **Estaraht Patient** and **Estaraht Doctor**.
+This project builds two separate apps from one codebase: **استرحت - Estaraht** (patient) and **استرحت للمعالج - Est Therapist** (doctor).
 
 ## Build commands
 

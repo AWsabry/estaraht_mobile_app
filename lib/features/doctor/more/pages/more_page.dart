@@ -1,4 +1,6 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:videocalling/core/config/app_imports.dart';
+import 'package:videocalling/core/constants/app_urls.dart';
 import 'package:videocalling/features/doctor/profile/pages/profile_view_page.dart';
 import 'package:videocalling/features/video_call/call_manager.dart';
 import 'package:videocalling/features/video_call/video_call_imports.dart';
@@ -152,6 +154,20 @@ class MoreInfoScreen extends GetView<DMoreInfoController> {
                 },
               ),
 
+              // Privacy Policy
+              _buildSettingsItem(
+                svgIcon: AppImages.aboutUsIcon,
+                title: 'privacy_policy'.tr,
+                onTap: () => infoController.openUrl(AppUrls.privacyPolicy),
+              ),
+
+              // Delete account
+              _buildSettingsItem(
+                svgIcon: AppImages.deleteIconSvg,
+                title: 'delete_account'.tr,
+                onTap: () => _showDeleteAccountDialog(),
+              ),
+
               // Sign Out
               _buildSettingsItem(
                 svgIcon: AppImages.logoutIcon,
@@ -165,6 +181,138 @@ class MoreInfoScreen extends GetView<DMoreInfoController> {
         ),
       ],
     );
+  }
+
+  void _showDeleteAccountDialog() {
+    final passwordController = TextEditingController();
+    Get.dialog(
+      Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                'delete_account'.tr,
+                style: const CustomTextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'delete_account_confirmation'.tr,
+                style: const CustomTextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w400,
+                  color: Colors.black87,
+                  height: 1.5,
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: passwordController,
+                obscureText: true,
+                decoration: InputDecoration(
+                  labelText: 'delete_account_enter_password'.tr,
+                  border: const OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 24),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton(
+                    onPressed: () {
+                      passwordController.dispose();
+                      Get.back();
+                    },
+                    child: Text('cancel'.tr),
+                  ),
+                  const SizedBox(width: 8),
+                  ElevatedButton(
+                    onPressed: () async {
+                      final pwd = passwordController.text.trim();
+                      passwordController.dispose();
+                      Get.back();
+                      if (pwd.isEmpty) {
+                        customDialog(
+                          s1: 'error'.tr,
+                          s2: 'delete_account_enter_password'.tr,
+                        );
+                        return;
+                      }
+                      await _performDeleteAccount(pwd);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF3366FF),
+                    ),
+                    child: Text('delete_account'.tr),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+      barrierDismissible: false,
+    ).then((_) => passwordController.dispose());
+  }
+
+  Future<void> _performDeleteAccount(String password) async {
+    customDialog1(
+      s1: 'please_wait'.tr,
+      s2: 'delete_account'.tr,
+    );
+    try {
+      await firebaseHelper.deleteAccount(password);
+      Get.back();
+      try {
+        CallManager.instance.destroy();
+        await SharedPrefs.deleteUserData();
+        await signOut();
+      } catch (_) {}
+      StorageService.writeBoolData(
+        key: LocalStorageKeys.isLoggedIn,
+        value: false,
+      );
+      StorageService.writeBoolData(
+        key: LocalStorageKeys.isLoggedInAsDoctor,
+        value: false,
+      );
+      String? token = StorageService.readData(key: LocalStorageKeys.token);
+      box.erase();
+      if (token != null) {
+        StorageService.writeBoolData(
+          key: LocalStorageKeys.isTokenExist,
+          value: true,
+        );
+        StorageService.writeStringData(
+          key: LocalStorageKeys.token,
+          value: token,
+        );
+      }
+      customDialog(
+        s1: 'success'.tr,
+        s2: 'delete_account_success'.tr,
+        onPressed: () {
+          Get.back();
+          Get.offAllNamed(Routes.therapistOnboardingScreen);
+        },
+      );
+    } on FirebaseAuthException catch (e) {
+      Get.back();
+      final msg = e.code == 'wrong-password'
+          ? 'delete_account_wrong_password'.tr
+          : 'delete_account_error'.tr;
+      customDialog(s1: 'error'.tr, s2: msg);
+    } catch (e) {
+      Get.back();
+      customDialog(s1: 'error'.tr, s2: 'delete_account_error'.tr);
+    }
   }
 
   // Logout confirmation UI inside the same screen

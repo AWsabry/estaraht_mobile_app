@@ -100,12 +100,12 @@ android {
         patient {
             dimension "app"
             applicationIdSuffix ".patient"
-            resValue "string", "app_name", "Estaraht Patient"
+            resValue "string", "app_name", "استرحت - Estaraht"
         }
         doctor {
             dimension "app"
             applicationIdSuffix ".doctor"
-            resValue "string", "app_name", "Estaraht Doctor"
+            resValue "string", "app_name", "استرحت للمعالج - Est Therapist"
         }
     }
 }

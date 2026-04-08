@@ -294,6 +294,31 @@ class FirebaseHelper {
     }
   }
 
+  /// Delete the current user's account (requires re-authentication with password).
+  /// Caller should clear local data and navigate after this succeeds.
+  Future<void> deleteAccount(String password) async {
+    try {
+      final user = currentUser;
+      if (user == null) {
+        throw Exception('No authenticated user found');
+      }
+      if (user.email == null || user.email!.isEmpty) {
+        throw Exception('Account cannot be deleted: no email linked. Contact support.');
+      }
+
+      loggerNoStack.i('Deleting account for user: ${user.uid}');
+
+      await reauthenticateWithPassword(password);
+      await user.delete();
+
+      loggerNoStack.i('✅ Account deleted successfully');
+    } catch (e, stackTrace) {
+      loggerNoStack.e('❌ Error deleting account: $e');
+      loggerNoStack.e('Stack trace: $stackTrace');
+      rethrow;
+    }
+  }
+
   /// Send email verification to current user
   Future<void> sendEmailVerification() async {
     try {

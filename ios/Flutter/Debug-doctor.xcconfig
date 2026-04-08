@@ -1,4 +1,4 @@
 #include? "Pods/Target Support Files/Pods-Runner/Pods-Runner.debug.xcconfig"
 #include "Generated.xcconfig"
 PRODUCT_BUNDLE_IDENTIFIER = com.owldots.estarhtapppro.doctor
-INFOPLIST_KEY_CFBundleDisplayName = Estaraht Doctor
+INFOPLIST_KEY_CFBundleDisplayName = "استرحت للمعالج - Est Therapist"

@@ -60,6 +60,7 @@ export 'package:videocalling/core/constants/app_colors.dart';
 export 'package:videocalling/core/constants/app_fonts.dart';
 export 'package:videocalling/core/constants/app_images.dart';
 export 'package:videocalling/core/constants/app_strings.dart';
+export 'package:videocalling/core/constants/app_urls.dart';
 export 'package:videocalling/core/utils/extensions/compat_extensions.dart';
 export 'package:videocalling/core/utils/extensions/extensions.dart';
 export 'package:videocalling/core/utils/helpers/temp_stubs.dart';

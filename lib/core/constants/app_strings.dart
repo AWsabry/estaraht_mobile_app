@@ -384,6 +384,15 @@ class Words extends Translations {
       'unable_to_check_status': 'Unable to check status',
       'logout_error': 'Logout failed',
 
+      'privacy_policy': 'Privacy Policy',
+      'delete_account': 'Delete account',
+      'delete_account_confirmation':
+          'Permanently delete your account and all data? This cannot be undone.',
+      'delete_account_enter_password': 'Enter your password to confirm',
+      'delete_account_success': 'Your account has been deleted.',
+      'delete_account_error': 'Failed to delete account. Please try again.',
+      'delete_account_wrong_password': 'Incorrect password.',
+
       'success_str': 'Success',
       'payment_success': 'Your payment success',
       'rate_your_session': 'Rate Your Session',
@@ -1910,6 +1919,15 @@ class Words extends Translations {
       'account_approved_message': 'تهانينا! تمت الموافقة على حسابك.',
       'unable_to_check_status': 'غير قادر على التحقق من الحالة',
       'logout_error': 'فشل تسجيل الخروج',
+
+      'privacy_policy': 'سياسة الخصوصية',
+      'delete_account': 'حذف الحساب',
+      'delete_account_confirmation':
+          'حذف حسابك وجميع البيانات نهائياً؟ لا يمكن التراجع عن ذلك.',
+      'delete_account_enter_password': 'أدخل كلمة المرور للتأكيد',
+      'delete_account_success': 'تم حذف حسابك.',
+      'delete_account_error': 'فشل حذف الحساب. يرجى المحاولة مرة أخرى.',
+      'delete_account_wrong_password': 'كلمة المرور غير صحيحة.',
     },
     'fr_FR': {
       'duration_plan': '45 minutes par session',
@@ -2680,6 +2698,15 @@ class Words extends Translations {
       'account_approved_message': 'Félicitations! Votre compte a été approuvé.',
       'unable_to_check_status': 'Impossible de vérifier le statut',
       'logout_error': 'Échec de la déconnexion',
+
+      'privacy_policy': 'Politique de confidentialité',
+      'delete_account': 'Supprimer le compte',
+      'delete_account_confirmation':
+          'Supprimer définitivement votre compte et toutes les données ? Cette action est irréversible.',
+      'delete_account_enter_password': 'Entrez votre mot de passe pour confirmer',
+      'delete_account_success': 'Votre compte a été supprimé.',
+      'delete_account_error': 'Échec de la suppression du compte. Veuillez réessayer.',
+      'delete_account_wrong_password': 'Mot de passe incorrect.',
     },
   };
 }
